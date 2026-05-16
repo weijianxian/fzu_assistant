@@ -98,10 +98,10 @@ class HomeScreen extends HookWidget {
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= kNavBreakpoint;
 
-        if (isWide) {
-          return Scaffold(
-            body: Row(
-              children: [
+        return Scaffold(
+          body: Row(
+            children: [
+              if (isWide)
                 NavigationRail(
                   selectedIndex: currentPage.value,
                   onDestinationSelected: (i) => currentPage.value = i,
@@ -112,27 +112,23 @@ class HomeScreen extends HookWidget {
                     NavigationRailDestination(icon: const Icon(Icons.person), label: Text(l10n.navMy)),
                   ],
                 ),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(
-                  child: IndexedStack(index: currentPage.value, children: _pages),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Scaffold(
-          body: IndexedStack(index: currentPage.value, children: _pages),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: currentPage.value,
-            items: [
-              BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navSchedule),
-              BottomNavigationBarItem(icon: const Icon(Icons.build), label: l10n.navToolbox),
-              BottomNavigationBarItem(icon: const Icon(Icons.person), label: l10n.navMy),
+              Expanded(
+                child: IndexedStack(index: currentPage.value, children: _pages),
+              ),
             ],
-            onTap: (i) => currentPage.value = i,
           ),
+          bottomNavigationBar: isWide
+              ? null
+              : BottomNavigationBar(
+                  type: BottomNavigationBarType.fixed,
+                  currentIndex: currentPage.value,
+                  items: [
+                    BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navSchedule),
+                    BottomNavigationBarItem(icon: const Icon(Icons.build), label: l10n.navToolbox),
+                    BottomNavigationBarItem(icon: const Icon(Icons.person), label: l10n.navMy),
+                  ],
+                  onTap: (i) => currentPage.value = i,
+                ),
         );
       },
     );
