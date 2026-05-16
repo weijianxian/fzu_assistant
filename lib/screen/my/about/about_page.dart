@@ -144,7 +144,11 @@ class _AboutPageState extends State<AboutPage> {
                               backgroundImage: NetworkImage(c.avatar),
                             ),
                             title: Text(c.name),
-                            subtitle: Text(AppLocalizations.of(context)!.commitCount(c.contributions)),
+                            subtitle: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.commitCount(c.contributions),
+                            ),
                             onTap: () => launchUrl(
                               Uri.parse('https://github.com/${c.name}'),
                               mode: LaunchMode.externalApplication,

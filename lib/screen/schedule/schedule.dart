@@ -42,6 +42,8 @@ class SchedulePage extends HookWidget {
     final error = useState<String?>(null);
     final service = useMemoized(() => CourseService());
     final pageController = useState<PageController?>(null);
+    final mounted = useRef(true);
+    useEffect(() => () { mounted.value = false; }, []);
 
     // 加载缓存 → 创建 PageController → 刷新 API
     useEffect(() {
@@ -63,7 +65,7 @@ class SchedulePage extends HookWidget {
 
         // 3. 后台刷新 API
         _refresh(service, courses, currentWeek, displayWeek, firstMonday,
-            loading, error, pageController);
+            loading, error, pageController, mounted);
       }();
       return null;
     }, []);
@@ -114,7 +116,7 @@ class SchedulePage extends HookWidget {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => _refresh(service, courses, currentWeek,
-                            displayWeek, firstMonday, loading, error, pageController),
+                            displayWeek, firstMonday, loading, error, pageController, mounted),
                         child: Text(AppLocalizations.of(context)!.retry),
                       ),
                     ],
@@ -142,14 +144,17 @@ class SchedulePage extends HookWidget {
     ValueNotifier<bool> loading,
     ValueNotifier<String?> error,
     ValueNotifier<PageController?> pageController,
+    ObjectRef<bool> mounted,
   ) async {
     error.value = null;
     loading.value = true;
     try {
       final weekInfo = await service.getCurrentWeek();
+      if (!mounted.value) return;
       final termStr =
           '${weekInfo.year}${weekInfo.term.toString().padLeft(2, '0')}';
       final termInfo = await service.getTerms();
+      if (!mounted.value) return;
       final targetTerm =
           termInfo.terms.contains(termStr) ? termStr : termInfo.terms.first;
 
@@ -158,6 +163,7 @@ class SchedulePage extends HookWidget {
         termInfo.viewState,
         termInfo.eventValidation,
       );
+      if (!mounted.value) return;
       courses.value = list;
       currentWeek.value = weekInfo.week;
       displayWeek.value = weekInfo.week;
@@ -174,9 +180,10 @@ class SchedulePage extends HookWidget {
         );
       }
     } catch (e) {
+      if (!mounted.value) return;
       if (courses.value.isEmpty) error.value = e.toString();
     } finally {
-      loading.value = false;
+      if (mounted.value) loading.value = false;
     }
   }
 

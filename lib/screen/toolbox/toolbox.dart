@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/screen/toolbox/credit/credit_page.dart';
 import 'package:fzu_assistant/screen/toolbox/exam_room/exam_room_page.dart';
@@ -12,51 +13,35 @@ class ToolboxPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    final tileConfigs = [
+      (Icons.school_outlined, l10n.gpaInfo, l10n.gpaInfoSubtitle, () => const GpaPage()),
+      (Icons.assignment_outlined, l10n.marksQuery, l10n.marksQuerySubtitle, () => const MarksPage()),
+      (Icons.quiz_outlined, l10n.unifiedExam, l10n.unifiedExamSubtitle, () => const UnifiedExamPage()),
+      (Icons.room_outlined, l10n.examRoom, l10n.examRoomSubtitle, () => const ExamRoomPage()),
+      (Icons.pie_chart_outline, l10n.creditStats, l10n.creditStatsSubtitle, () => const CreditPage()),
+    ];
+
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.navToolbox)),
-      body: ListView(
-        children: [
-          const SizedBox(height: 8),
-          _sectionHeader(AppLocalizations.of(context)!.academics),
-          _ToolTile(
-            icon: Icons.school_outlined,
-            title: AppLocalizations.of(context)!.gpaInfo,
-            subtitle: AppLocalizations.of(context)!.gpaInfoSubtitle,
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const GpaPage()),
-            ),
-          ),
-          _ToolTile(
-            icon: Icons.assignment_outlined,
-            title: AppLocalizations.of(context)!.marksQuery,
-            subtitle: AppLocalizations.of(context)!.marksQuerySubtitle,
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const MarksPage()),
-            ),
-          ),
-          _ToolTile(
-            icon: Icons.quiz_outlined,
-            title: AppLocalizations.of(context)!.unifiedExam,
-            subtitle: AppLocalizations.of(context)!.unifiedExamSubtitle,
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const UnifiedExamPage()),
-            ),
-          ),
-          _ToolTile(
-            icon: Icons.room_outlined,
-            title: AppLocalizations.of(context)!.examRoom,
-            subtitle: AppLocalizations.of(context)!.examRoomSubtitle,
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ExamRoomPage()),
-            ),
-          ),
-          _ToolTile(
-            icon: Icons.pie_chart_outline,
-            title: AppLocalizations.of(context)!.creditStats,
-            subtitle: AppLocalizations.of(context)!.creditStatsSubtitle,
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const CreditPage()),
-            ),
+      appBar: AppBar(title: Text(l10n.navToolbox)),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: _sectionHeader(l10n.academics)),
+          MasonrySliverGrid(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            childCount: tileConfigs.length,
+            itemBuilder: (context, index) {
+              final cfg = tileConfigs[index];
+              return _ToolTile(
+                icon: cfg.$1,
+                title: cfg.$2,
+                subtitle: cfg.$3,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => cfg.$4()),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -94,7 +79,7 @@ class _ToolTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: EdgeInsets.zero,
       child: ListTile(
         leading: Icon(icon, size: 28),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),

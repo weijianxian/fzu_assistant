@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
-import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/tool_page_wrapper.dart';
 
 class ExamRoomPage extends HookWidget {
   const ExamRoomPage({super.key});
@@ -15,18 +16,22 @@ class ExamRoomPage extends HookWidget {
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
+    final mounted = useRef(true);
+    useEffect(() => () { mounted.value = false; }, []);
 
     Future<void> load() async {
       try {
         final data = await service.getExamRooms();
         data.sort((a, b) => _parseDate(b.date).compareTo(_parseDate(a.date)));
         rooms.value = data;
+        if (!mounted.value) return;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
+        if (!mounted.value) return;
         error.value = e.toString();
       }
-      loading.value = false;
+      if (mounted.value) loading.value = false;
     }
 
     useEffect(() {
@@ -43,90 +48,93 @@ class ExamRoomPage extends HookWidget {
         refreshTime: refreshTime.value,
         hasData: rooms.value.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noExamRoomInfo,
-        child: _buildList(context, rooms.value),
+        slivers: _buildSlivers(context, rooms.value),
       ),
     );
   }
 
-  Widget _buildList(BuildContext context, List<ExamRoomInfo> rooms) {
+  List<Widget> _buildSlivers(BuildContext context, List<ExamRoomInfo> rooms) {
     final now = DateTime.now();
 
-    return ListView.builder(
-      itemCount: rooms.length,
-      itemBuilder: (context, i) {
-        final r = rooms[i];
-        final examDate = _parseDate(r.date);
-        final past = examDate.isBefore(now) && r.date.isNotEmpty;
+    return [
+      MasonrySliverGrid(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        childCount: rooms.length,
+        itemBuilder: (context, i) {
+            final r = rooms[i];
+            final examDate = _parseDate(r.date);
+            final past = examDate.isBefore(now) && r.date.isNotEmpty;
 
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Opacity(
-              opacity: past ? 0.4 : 1.0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            return Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Opacity(
+                  opacity: past ? 0.4 : 1.0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          r.courseName,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: past ? Colors.grey : null,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              r.courseName,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: past ? Colors.grey : null,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (past)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context)!.examTaken,
+                                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                              ),
+                            ),
+                        ],
                       ),
-                      if (past)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.examTaken,
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
-                          ),
-                        ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          if (r.date.isNotEmpty)
+                            _infoTag(Icons.calendar_today, r.date),
+                          if (r.time.isNotEmpty)
+                            _infoTag(Icons.access_time, r.time),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          if (r.location.isNotEmpty)
+                            _infoTag(Icons.location_on_outlined, r.location),
+                          if (r.teacher.isNotEmpty)
+                            _infoTag(Icons.person_outline, r.teacher),
+                          if (r.credit.isNotEmpty)
+                            _infoTag(Icons.school_outlined, AppLocalizations.of(context)!.creditSuffix(r.credit)),
+                        ],
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 4,
-                    children: [
-                      if (r.date.isNotEmpty)
-                        _infoTag(Icons.calendar_today, r.date),
-                      if (r.time.isNotEmpty)
-                        _infoTag(Icons.access_time, r.time),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 4,
-                    children: [
-                      if (r.location.isNotEmpty)
-                        _infoTag(Icons.location_on_outlined, r.location),
-                      if (r.teacher.isNotEmpty)
-                        _infoTag(Icons.person_outline, r.teacher),
-                      if (r.credit.isNotEmpty)
-                        _infoTag(Icons.school_outlined, AppLocalizations.of(context)!.creditSuffix(r.credit)),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        );
-      },
-    );
+            );
+          },
+        ),
+    ];
   }
 
   Widget _infoTag(IconData icon, String text) {

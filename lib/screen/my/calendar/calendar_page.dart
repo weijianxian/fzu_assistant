@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar.dart';
-import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/tool_page_wrapper.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
 
 class CalendarPage extends HookWidget {
@@ -15,16 +15,20 @@ class CalendarPage extends HookWidget {
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
+    final mounted = useRef(true);
+    useEffect(() => () { mounted.value = false; }, []);
 
     Future<void> load() async {
       try {
         calendar.value = await service.getSchoolCalendar();
+        if (!mounted.value) return;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
+        if (!mounted.value) return;
         error.value = e.toString();
       }
-      loading.value = false;
+      if (mounted.value) loading.value = false;
     }
 
     useEffect(() {

@@ -22,15 +22,19 @@ class MyPage extends HookWidget {
     final error = useState<String?>(null);
     final auth = useMemoized(() => AuthStorage());
     final userService = useMemoized(() => UserService());
+    final mounted = useRef(true);
+    useEffect(() => () { mounted.value = false; }, []);
 
     useEffect(() {
       auth.loadCredentials().then((creds) {
-        username.value = creds?.username;
+        if (mounted.value) username.value = creds?.username;
       });
       userService.getUserInfo().then((data) {
+        if (!mounted.value) return;
         info.value = data;
         loading.value = false;
       }).catchError((e) {
+        if (!mounted.value) return;
         error.value = e.toString();
         loading.value = false;
       });

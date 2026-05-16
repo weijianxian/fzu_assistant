@@ -10,26 +10,33 @@
 - charset 包处理 GBK 编码（校历页面）
 - flutter_secure_storage 存储登录凭据
 - flutter_localizations + intl 国际化（中英双语）
+- flutter_staggered_grid_view 瀑布流网格布局
 
 ## 项目结构
 
 ```
 lib/
-  main.dart              # 入口，IndexedStack 底部导航
+  main.dart              # 入口，IndexedStack + LayoutBuilder 自适应导航
   l10n/                  # 国际化
     app_zh.arb           # 中文翻译
     app_en.arb           # 英文翻译
     locale_provider.dart # 语言状态管理（InheritedWidget）
   model/                 # 数据模型（纯 Dart class）
+  common/                # 通用组件
+    tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
+    masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
+  constants/             # 常量
+    sp_keys.dart         # SharedPreferences key
+    breakpoints.dart     # 响应式断点（kNavBreakpoint、kTileMinWidth）
   screen/
     guest/login.dart     # 登录页
     schedule/            # 课程表（首页 tab）
     toolbox/             # 工具箱（首页 tab）
-      tool_page_wrapper.dart  # 统一的工具页包装器（loading/error/refresh/footer）
+      toolbox.dart       # 工具箱主页（MasonrySliverGrid 自适应多列）
       gpa/               # 绩点信息
-      marks/             # 成绩查询
+      marks/             # 成绩查询（MasonrySliverGrid 自适应多列）
       unified_exam/      # 统考成绩
-      exam_room/         # 考场查询
+      exam_room/         # 考场查询（MasonrySliverGrid 自适应多列）
       credit/            # 学分统计
     my/                  # 我的（首页 tab）
       about/             # 关于页
@@ -49,8 +56,13 @@ lib/
 
 ## 编码规范
 
+- **每次项目结构或技术栈变更后，必须同步更新本 CLAUDE.md 文件**
+
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
-- 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数
+- 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
+- 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取
+- 横屏/宽屏自动切换侧栏导航（NavigationRail），窄屏使用底部导航栏（BottomNavigationBar），断点为 `kNavBreakpoint`
+- 响应式断点常量统一定义在 `lib/constants/breakpoints.dart`
 - 教务处数据抓取在 AcademicService 中实现，用 Dio GET/POST 请求 HTML 页面，html 包解析 DOM
 - 教务处页面多为 GBK 编码，用 `charset` 包的 `gbk.decode()` 解码
 - 请求教务处接口需要带 `queryParameters: {'id': userId}`

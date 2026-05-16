@@ -8,19 +8,21 @@ class ToolPageWrapper extends HookWidget {
   final bool loading;
   final String? error;
   final bool hasData;
-  final Widget child;
+  final Widget? child;
+  final List<Widget>? slivers;
   final String emptyText;
 
   const ToolPageWrapper({
     super.key,
     required this.onRefresh,
     required this.loading,
-    required this.child,
+    this.child,
+    this.slivers,
     this.refreshTime,
     this.error,
     required this.emptyText,
     this.hasData = true,
-  });
+  }) : assert(child != null || slivers != null, 'Provide child or slivers');
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +36,22 @@ class ToolPageWrapper extends HookWidget {
 
     return RefreshIndicator(
       onRefresh: onRefresh,
-      child: hasData ? _withFooter(context, child) : _emptyView(context),
+      child: hasData ? _withFooter(context) : _emptyView(context),
     );
   }
 
-  Widget _withFooter(BuildContext context, Widget content) {
-    // 如果 child 本身是 ListView，把 footer 插到末尾
+  Widget _withFooter(BuildContext context) {
+    // slivers 模式：直接构建 CustomScrollView
+    if (slivers != null) {
+      return CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [...slivers!, SliverToBoxAdapter(child: _footer(context))],
+      );
+    }
+
+    final content = child!;
+
+    // ListView：把 footer 插到末尾
     if (content is ListView) {
       final delegate = content.childrenDelegate;
       if (delegate is SliverChildListDelegate) {

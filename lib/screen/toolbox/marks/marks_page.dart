@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
-import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/tool_page_wrapper.dart';
 
 class MarksPage extends HookWidget {
   const MarksPage({super.key});
@@ -15,16 +16,20 @@ class MarksPage extends HookWidget {
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
+    final mounted = useRef(true);
+    useEffect(() => () { mounted.value = false; }, []);
 
     Future<void> load() async {
       try {
         marks.value = await service.getMarks();
+        if (!mounted.value) return;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
+        if (!mounted.value) return;
         error.value = e.toString();
       }
-      loading.value = false;
+      if (mounted.value) loading.value = false;
     }
 
     useEffect(() {
@@ -41,12 +46,12 @@ class MarksPage extends HookWidget {
         refreshTime: refreshTime.value,
         hasData: marks.value.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noMarksData,
-        child: _buildList(context, marks.value),
+        slivers: _buildSlivers(context, marks.value),
       ),
     );
   }
 
-  Widget _buildList(BuildContext context, List<Mark> marks) {
+  List<Widget> _buildSlivers(BuildContext context, List<Mark> marks) {
     // 按学期分组，保持顺序
     final grouped = <String, List<Mark>>{};
     for (final m in marks) {
@@ -63,34 +68,36 @@ class MarksPage extends HookWidget {
     }
     final semesters = grouped.keys.toList();
 
-    return ListView.builder(
-      itemCount: semesters.length,
-      itemBuilder: (context, i) {
-        final sem = semesters[i];
-        final items = grouped[sem]!;
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: ExpansionTile(
-            initiallyExpanded: i == 0,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-            childrenPadding: EdgeInsets.zero,
-            shape: const Border(),
-            collapsedShape: const Border(),
-            title: Text(sem,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(AppLocalizations.of(context)!.courseCount(items.length),
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            children: [
-              for (var j = 0; j < items.length; j++) ...[
-                _buildMarkTile(context, items[j]),
-                if (j < items.length - 1)
-                  const Divider(height: 1, indent: 16, endIndent: 16),
-              ],
-            ],
-          ),
-        );
-      },
-    );
+    return [
+      MasonrySliverGrid(
+        childCount: semesters.length,
+        itemBuilder: (context, i) {
+            final sem = semesters[i];
+            final items = grouped[sem]!;
+            return Card(
+              margin: EdgeInsets.zero,
+              child: ExpansionTile(
+                initiallyExpanded: i == 0,
+                tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+                childrenPadding: EdgeInsets.zero,
+                shape: const Border(),
+                collapsedShape: const Border(),
+                title: Text(sem,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(AppLocalizations.of(context)!.courseCount(items.length),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                children: [
+                  for (var j = 0; j < items.length; j++) ...[
+                    _buildMarkTile(context, items[j]),
+                    if (j < items.length - 1)
+                      const Divider(height: 1, indent: 16, endIndent: 16),
+                  ],
+                ],
+              ),
+            );
+          },
+        ),
+    ];
   }
 
   Widget _buildMarkTile(BuildContext context, Mark m) {

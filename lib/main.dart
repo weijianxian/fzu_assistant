@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/l10n/locale_provider.dart';
 import 'package:fzu_assistant/service/api_client.dart';
@@ -93,18 +94,47 @@ class HomeScreen extends HookWidget {
     final currentPage = useState(0);
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      body: IndexedStack(index: currentPage.value, children: _pages),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentPage.value,
-        items: [
-          BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navSchedule),
-          BottomNavigationBarItem(icon: const Icon(Icons.build), label: l10n.navToolbox),
-          BottomNavigationBarItem(icon: const Icon(Icons.person), label: l10n.navMy),
-        ],
-        onTap: (i) => currentPage.value = i,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= kNavBreakpoint;
+
+        if (isWide) {
+          return Scaffold(
+            body: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: currentPage.value,
+                  onDestinationSelected: (i) => currentPage.value = i,
+                  labelType: NavigationRailLabelType.all,
+                  destinations: [
+                    NavigationRailDestination(icon: const Icon(Icons.home), label: Text(l10n.navSchedule)),
+                    NavigationRailDestination(icon: const Icon(Icons.build), label: Text(l10n.navToolbox)),
+                    NavigationRailDestination(icon: const Icon(Icons.person), label: Text(l10n.navMy)),
+                  ],
+                ),
+                const VerticalDivider(thickness: 1, width: 1),
+                Expanded(
+                  child: IndexedStack(index: currentPage.value, children: _pages),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: IndexedStack(index: currentPage.value, children: _pages),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: currentPage.value,
+            items: [
+              BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navSchedule),
+              BottomNavigationBarItem(icon: const Icon(Icons.build), label: l10n.navToolbox),
+              BottomNavigationBarItem(icon: const Icon(Icons.person), label: l10n.navMy),
+            ],
+            onTap: (i) => currentPage.value = i,
+          ),
+        );
+      },
     );
   }
 }
