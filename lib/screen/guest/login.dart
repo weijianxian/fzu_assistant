@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/screen/home/home.dart';
+import 'package:fzu_assistant/main.dart';
+import 'package:fzu_assistant/service/api_client.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/login_service.dart';
 
@@ -56,6 +57,7 @@ class LoginPage extends HookWidget {
       errorMessage.value = null;
 
       try {
+        await ApiClient.instance.login(username, password, captcha);
         await AuthStorage().saveCredentials(username, password);
         if (context.mounted) {
           Navigator.of(context).pushReplacement(

@@ -1,4 +1,4 @@
-package com.example.fzu_assistant
+package com.weijx.fzu_assistant
 
 import io.flutter.embedding.android.FlutterActivity
 

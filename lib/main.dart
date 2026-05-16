@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/screen/guest/login.dart';
-import 'package:fzu_assistant/screen/home/home.dart';
+
 import 'package:fzu_assistant/service/api_client.dart';
+
 import 'package:fzu_assistant/theme/theme_provider.dart';
+
+import 'package:fzu_assistant/screen/guest/login.dart';
+import 'package:fzu_assistant/screen/schedule/schedule.dart';
+import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
+import 'package:fzu_assistant/screen/my/my.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,9 +71,30 @@ class SplashScreenContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  }
+}
+
+const _pages = [SchedulePage(), ToolboxPage(), MyPage()];
+
+class HomeScreen extends HookWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final currentPage = useState(0);
+
+    return Scaffold(
+      body: IndexedStack(index: currentPage.value, children: _pages),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: currentPage.value,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '课程表'),
+          BottomNavigationBarItem(icon: Icon(Icons.build), label: '工具箱'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的'),
+        ],
+        onTap: (i) => currentPage.value = i,
       ),
     );
   }

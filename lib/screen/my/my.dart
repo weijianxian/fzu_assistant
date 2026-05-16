@@ -3,7 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
 import 'package:fzu_assistant/screen/guest/login.dart';
-import 'package:fzu_assistant/screen/my/theme_settings.dart';
+import 'package:fzu_assistant/screen/my/calendar/calendar_page.dart';
+import 'package:fzu_assistant/screen/settings/theme_settings.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/user_service.dart';
 
@@ -118,6 +119,14 @@ class MyPage extends HookWidget {
         //     _infoRow('学籍异动', info.statusChanges),
         //   ]),
         const Divider(),
+        ListTile(
+          leading: const Icon(Icons.calendar_month_outlined),
+          title: const Text('校历'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const CalendarPage()),
+          ),
+        ),
         ListTile(
           leading: const Icon(Icons.palette_outlined),
           title: const Text('主题设置'),
