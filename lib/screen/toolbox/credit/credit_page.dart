@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/credit.dart';
 import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
@@ -32,14 +33,14 @@ class CreditPage extends HookWidget {
     }, []);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('学分统计')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.creditStats)),
       body: ToolPageWrapper(
         onRefresh: load,
         loading: loading.value,
         error: error.value,
         refreshTime: refreshTime.value,
         hasData: credits.value.isNotEmpty,
-        emptyText: '暂无学分数据',
+        emptyText: AppLocalizations.of(context)!.noCreditData,
         child: _buildList(credits.value),
       ),
     );

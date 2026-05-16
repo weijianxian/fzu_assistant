@@ -1,0 +1,389 @@
+{
+  "@@locale": "en",
+  "appName": "FZU Assistant",
+  "@appName": {
+    "description": "appName"
+  },
+  "navSchedule": "Schedule",
+  "@navSchedule": {
+    "description": "navSchedule"
+  },
+  "navToolbox": "Tools",
+  "@navToolbox": {
+    "description": "navToolbox"
+  },
+  "navMy": "Profile",
+  "@navMy": {
+    "description": "navMy"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
+  "loadingFailed": "Load failed: {error}",
+  "@loadingFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noData": "No data",
+  "@noData": {
+    "description": "noData"
+  },
+  "dataUpdatedAt": "Updated at {time}",
+  "@dataUpdatedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studentId": "Student ID",
+  "@studentId": {
+    "description": "studentId"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "password"
+  },
+  "captcha": "Captcha",
+  "@captcha": {
+    "description": "captcha"
+  },
+  "getCaptcha": "Get captcha",
+  "@getCaptcha": {
+    "description": "getCaptcha"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "login"
+  },
+  "loginValidationError": "Please enter student ID, password and captcha",
+  "@loginValidationError": {
+    "description": "loginValidationError"
+  },
+  "captchaFetchFailed": "Failed to get captcha: {error}",
+  "@captchaFetchFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "weekN": "Week {week}",
+  "@weekN": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "thisWeek": "This week",
+  "@thisWeek": {
+    "description": "thisWeek"
+  },
+  "noScheduleData": "No schedule data",
+  "@noScheduleData": {
+    "description": "noScheduleData"
+  },
+  "monday": "Mon",
+  "@monday": {
+    "description": "monday"
+  },
+  "tuesday": "Tue",
+  "@tuesday": {
+    "description": "tuesday"
+  },
+  "wednesday": "Wed",
+  "@wednesday": {
+    "description": "wednesday"
+  },
+  "thursday": "Thu",
+  "@thursday": {
+    "description": "thursday"
+  },
+  "friday": "Fri",
+  "@friday": {
+    "description": "friday"
+  },
+  "saturday": "Sat",
+  "@saturday": {
+    "description": "saturday"
+  },
+  "sunday": "Sun",
+  "@sunday": {
+    "description": "sunday"
+  },
+  "college": "College",
+  "@college": {
+    "description": "college"
+  },
+  "major": "Major",
+  "@major": {
+    "description": "major"
+  },
+  "grade": "Grade",
+  "@grade": {
+    "description": "grade"
+  },
+  "calendar": "Calendar",
+  "@calendar": {
+    "description": "calendar"
+  },
+  "themeSettings": "Theme",
+  "@themeSettings": {
+    "description": "themeSettings"
+  },
+  "about": "About",
+  "@about": {
+    "description": "about"
+  },
+  "logout": "Log out",
+  "@logout": {
+    "description": "logout"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "language"
+  },
+  "chinese": "中文",
+  "@chinese": {
+    "description": "chinese"
+  },
+  "english": "English",
+  "@english": {
+    "description": "english"
+  },
+  "academics": "Academics",
+  "@academics": {
+    "description": "academics"
+  },
+  "gpaInfo": "GPA",
+  "@gpaInfo": {
+    "description": "gpaInfo"
+  },
+  "gpaInfoSubtitle": "View GPA ranking data",
+  "@gpaInfoSubtitle": {
+    "description": "gpaInfoSubtitle"
+  },
+  "marksQuery": "Grades",
+  "@marksQuery": {
+    "description": "marksQuery"
+  },
+  "marksQuerySubtitle": "View all course grades",
+  "@marksQuerySubtitle": {
+    "description": "marksQuerySubtitle"
+  },
+  "unifiedExam": "Exam Scores",
+  "@unifiedExam": {
+    "description": "unifiedExam"
+  },
+  "unifiedExamSubtitle": "CET / Provincial Computer Exam",
+  "@unifiedExamSubtitle": {
+    "description": "unifiedExamSubtitle"
+  },
+  "examRoom": "Exam Rooms",
+  "@examRoom": {
+    "description": "examRoom"
+  },
+  "examRoomSubtitle": "View exam schedule and room info",
+  "@examRoomSubtitle": {
+    "description": "examRoomSubtitle"
+  },
+  "creditStats": "Credits",
+  "@creditStats": {
+    "description": "creditStats"
+  },
+  "creditStatsSubtitle": "View credit completion progress",
+  "@creditStatsSubtitle": {
+    "description": "creditStatsSubtitle"
+  },
+  "noGpaData": "No GPA data",
+  "@noGpaData": {
+    "description": "noGpaData"
+  },
+  "dataParseError": "Data parse error",
+  "@dataParseError": {
+    "description": "dataParseError"
+  },
+  "noMarksData": "No grade data",
+  "@noMarksData": {
+    "description": "noMarksData"
+  },
+  "unknownSemester": "Unknown semester",
+  "@unknownSemester": {
+    "description": "unknownSemester"
+  },
+  "courseCount": "{count} courses",
+  "@courseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "creditsTag": "Credits {credits}",
+  "@creditsTag": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "gpaTag": "GPA {gpa}",
+  "@gpaTag": {
+    "placeholders": {
+      "gpa": {
+        "type": "String"
+      }
+    }
+  },
+  "noUnifiedExamData": "No exam scores",
+  "@noUnifiedExamData": {
+    "description": "noUnifiedExamData"
+  },
+  "cetScores": "CET Scores",
+  "@cetScores": {
+    "description": "cetScores"
+  },
+  "provincialComputerScores": "Provincial Computer Exam",
+  "@provincialComputerScores": {
+    "description": "provincialComputerScores"
+  },
+  "noExamRoomInfo": "No exam room info",
+  "@noExamRoomInfo": {
+    "description": "noExamRoomInfo"
+  },
+  "examTaken": "Taken",
+  "@examTaken": {
+    "description": "examTaken"
+  },
+  "creditSuffix": "{credit} credits",
+  "@creditSuffix": {
+    "placeholders": {
+      "credit": {
+        "type": "String"
+      }
+    }
+  },
+  "noCreditData": "No credit data",
+  "@noCreditData": {
+    "description": "noCreditData"
+  },
+  "appearance": "Appearance",
+  "@appearance": {
+    "description": "appearance"
+  },
+  "followSystem": "System",
+  "@followSystem": {
+    "description": "followSystem"
+  },
+  "light": "Light",
+  "@light": {
+    "description": "light"
+  },
+  "dark": "Dark",
+  "@dark": {
+    "description": "dark"
+  },
+  "themeColor": "Theme Color",
+  "@themeColor": {
+    "description": "themeColor"
+  },
+  "themeDeepPurple": "Deep Purple",
+  "@themeDeepPurple": {
+    "description": "themeDeepPurple"
+  },
+  "themeBlue": "Blue",
+  "@themeBlue": {
+    "description": "themeBlue"
+  },
+  "themeTeal": "Teal",
+  "@themeTeal": {
+    "description": "themeTeal"
+  },
+  "themeGreen": "Green",
+  "@themeGreen": {
+    "description": "themeGreen"
+  },
+  "themeOrange": "Orange",
+  "@themeOrange": {
+    "description": "themeOrange"
+  },
+  "themeRed": "Red",
+  "@themeRed": {
+    "description": "themeRed"
+  },
+  "themePink": "Pink",
+  "@themePink": {
+    "description": "themePink"
+  },
+  "themeIndigo": "Indigo",
+  "@themeIndigo": {
+    "description": "themeIndigo"
+  },
+  "themeBrown": "Brown",
+  "@themeBrown": {
+    "description": "themeBrown"
+  },
+  "devTools": "Dev Tools",
+  "@devTools": {
+    "description": "devTools"
+  },
+  "collapse": "Collapse",
+  "@collapse": {
+    "description": "collapse"
+  },
+  "expandAll": "Expand all",
+  "@expandAll": {
+    "description": "expandAll"
+  },
+  "noCalendarData": "No calendar data",
+  "@noCalendarData": {
+    "description": "noCalendarData"
+  },
+  "academicYearTerm": "{startYear}-{endYear}  Term {term}",
+  "@academicYearTerm": {
+    "placeholders": {
+      "startYear": {
+        "type": "String"
+      },
+      "endYear": {
+        "type": "String"
+      },
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "current": "Current",
+  "@current": {
+    "description": "current"
+  },
+  "noScheduleEvents": "No events",
+  "@noScheduleEvents": {
+    "description": "noScheduleEvents"
+  },
+  "appDescription": "Fuzhou University all-in-one campus assistant — schedule, grades, exams, calendar, out of the box.",
+  "@appDescription": {
+    "description": "appDescription"
+  },
+  "openSourceUrl": "Source Code",
+  "@openSourceUrl": {
+    "description": "openSourceUrl"
+  },
+  "contributors": "Contributors",
+  "@contributors": {
+    "description": "contributors"
+  },
+  "commitCount": "{count} commits",
+  "@commitCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

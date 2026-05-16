@@ -1,0 +1,83 @@
+# FZU Assistant
+
+福州大学一站式校园助手 —— 课表、成绩、考试、校历，开箱即用。
+
+## 技术栈
+
+- Flutter 3.x + Dart 3.x
+- flutter_hooks（HookWidget / useState / useEffect / useMemoized）
+- Dio + CookieJar 做 HTTP 请求，html 包解析 DOM
+- charset 包处理 GBK 编码（校历页面）
+- flutter_secure_storage 存储登录凭据
+- flutter_localizations + intl 国际化（中英双语）
+
+## 项目结构
+
+```
+lib/
+  main.dart              # 入口，IndexedStack 底部导航
+  l10n/                  # 国际化
+    app_zh.arb           # 中文翻译
+    app_en.arb           # 英文翻译
+    locale_provider.dart # 语言状态管理（InheritedWidget）
+  model/                 # 数据模型（纯 Dart class）
+  screen/
+    guest/login.dart     # 登录页
+    schedule/            # 课程表（首页 tab）
+    toolbox/             # 工具箱（首页 tab）
+      tool_page_wrapper.dart  # 统一的工具页包装器（loading/error/refresh/footer）
+      gpa/               # 绩点信息
+      marks/             # 成绩查询
+      unified_exam/      # 统考成绩
+      exam_room/         # 考场查询
+      credit/            # 学分统计
+    my/                  # 我的（首页 tab）
+      about/             # 关于页
+      calendar/          # 校历
+    settings/            # 主题设置
+    dev/                 # 开发者工具
+  service/               # 业务逻辑
+    api_client.dart      # Dio 单例，登录/重登/拦截器
+    academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历等）
+    user_service.dart    # 用户信息
+    course_service.dart  # 课程表
+    auth_storage.dart    # 凭据存储
+    captcha_solver.dart  # 验证码识别
+  theme/                 # 主题配置
+    theme_provider.dart  # 主题状态管理（InheritedWidget）
+```
+
+## 编码规范
+
+- 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
+- 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数
+- 教务处数据抓取在 AcademicService 中实现，用 Dio GET/POST 请求 HTML 页面，html 包解析 DOM
+- 教务处页面多为 GBK 编码，用 `charset` 包的 `gbk.decode()` 解码
+- 请求教务处接口需要带 `queryParameters: {'id': userId}`
+- ASP.NET WebForms 页面需要先 GET 获取 __VIEWSTATE/__EVENTVALIDATION，再 POST 提交
+- 工具页数据列表优先使用 Table 布局（对齐整齐），不用手搓 Row+Card
+- UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串
+- Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
+- 状态管理模式：ThemeProvider / LocaleProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化
+
+## 国际化
+
+- 使用 Flutter 官方 `gen-l10n` 方案，配置文件 `l10n.yaml`
+- ARB 文件：`lib/l10n/app_zh.arb`（中文）、`lib/l10n/app_en.arb`（英文）
+- 添加新语言：新建 `app_XX.arb` → `flutter gen-l10n` → 在 `LocaleState.locales` 注册
+- 语言切换：「我的 → 语言」弹窗选择，通过 `LocaleProvider` 持久化到 SharedPreferences
+- `MaterialApp.locale` 绑定 `LocaleState.currentLocale`，`null` 表示跟随系统
+
+## 构建
+
+```bash
+flutter run                    # 开发运行
+flutter build apk              # Android 打包
+flutter analyze                # 静态分析
+flutter gen-l10n               # 重新生成国际化代码
+```
+
+## 参考
+
+- jwch Go 库（`tmp/jwch/`）：教务处抓包逻辑参考
+- fzuhelper-server（`tmp/fzuhelper-server/`）：服务端 API 参考

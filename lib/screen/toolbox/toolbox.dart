@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/screen/toolbox/credit/credit_page.dart';
 import 'package:fzu_assistant/screen/toolbox/exam_room/exam_room_page.dart';
 import 'package:fzu_assistant/screen/toolbox/gpa/gpa_page.dart';
@@ -12,47 +13,47 @@ class ToolboxPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('工具箱')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.navToolbox)),
       body: ListView(
         children: [
           const SizedBox(height: 8),
-          _sectionHeader('学业'),
+          _sectionHeader(AppLocalizations.of(context)!.academics),
           _ToolTile(
             icon: Icons.school_outlined,
-            title: '绩点信息',
-            subtitle: '查看绩点排名数据',
+            title: AppLocalizations.of(context)!.gpaInfo,
+            subtitle: AppLocalizations.of(context)!.gpaInfoSubtitle,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const GpaPage()),
             ),
           ),
           _ToolTile(
             icon: Icons.assignment_outlined,
-            title: '成绩查询',
-            subtitle: '查看全部课程成绩',
+            title: AppLocalizations.of(context)!.marksQuery,
+            subtitle: AppLocalizations.of(context)!.marksQuerySubtitle,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const MarksPage()),
             ),
           ),
           _ToolTile(
             icon: Icons.quiz_outlined,
-            title: '统考成绩',
-            subtitle: 'CET / 省计算机等级考试',
+            title: AppLocalizations.of(context)!.unifiedExam,
+            subtitle: AppLocalizations.of(context)!.unifiedExamSubtitle,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const UnifiedExamPage()),
             ),
           ),
           _ToolTile(
             icon: Icons.room_outlined,
-            title: '考场查询',
-            subtitle: '查看考试时间与考场安排',
+            title: AppLocalizations.of(context)!.examRoom,
+            subtitle: AppLocalizations.of(context)!.examRoomSubtitle,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ExamRoomPage()),
             ),
           ),
           _ToolTile(
             icon: Icons.pie_chart_outline,
-            title: '学分统计',
-            subtitle: '查看各类学分完成进度',
+            title: AppLocalizations.of(context)!.creditStats,
+            subtitle: AppLocalizations.of(context)!.creditStatsSubtitle,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const CreditPage()),
             ),

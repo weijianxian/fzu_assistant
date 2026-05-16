@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
@@ -32,14 +33,14 @@ class CalendarPage extends HookWidget {
     }, []);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('校历')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.calendar)),
       body: ToolPageWrapper(
         onRefresh: load,
         loading: loading.value,
         error: error.value,
         refreshTime: refreshTime.value,
         hasData: calendar.value != null && calendar.value!.terms.isNotEmpty,
-        emptyText: '暂无校历数据',
+        emptyText: AppLocalizations.of(context)!.noCalendarData,
         child: calendar.value != null
             ? _buildContent(calendar.value!, service)
             : const SizedBox.shrink(),
@@ -102,7 +103,7 @@ class _TermCard extends HookWidget {
           children: [
             Expanded(
               child: Text(
-                '${term.schoolYear}-${int.parse(term.schoolYear) + 1} 学年  第${term.term.substring(4, 6)}学期',
+                AppLocalizations.of(context)!.academicYearTerm(term.schoolYear, '${int.parse(term.schoolYear) + 1}', term.term.substring(4, 6)),
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
@@ -117,9 +118,9 @@ class _TermCard extends HookWidget {
                   color: Colors.green.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  '当前',
-                  style: TextStyle(fontSize: 11, color: Colors.green),
+                child: Text(
+                  AppLocalizations.of(context)!.current,
+                  style: const TextStyle(fontSize: 11, color: Colors.green),
                 ),
               ),
           ],
@@ -153,18 +154,18 @@ class _TermCard extends HookWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                '加载失败: ${eventsError.value}',
+                AppLocalizations.of(context)!.loadingFailed(eventsError.value ?? ''),
                 style: const TextStyle(color: Colors.red, fontSize: 13),
               ),
             )
           else if (events.value != null && events.value!.events.isNotEmpty)
             _EventsTable(events: events.value!.events)
           else
-            const Padding(
-              padding: EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
-                '暂无日程数据',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
+                AppLocalizations.of(context)!.noScheduleEvents,
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
               ),
             ),
         ],

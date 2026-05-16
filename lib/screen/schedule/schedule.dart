@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/course_service.dart';
 
-const _weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 const _maxPeriod = 11;
 const _headerHeight = 48.0;
+
+List<String> _weekdays(AppLocalizations l10n) => [
+  l10n.monday, l10n.tuesday, l10n.wednesday, l10n.thursday,
+  l10n.friday, l10n.saturday, l10n.sunday,
+];
 const _labelWidth = 44.0;
 const _minCellHeight = 52.0;
 const _totalWeeks = 19;
@@ -67,7 +72,7 @@ class SchedulePage extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('第 ${displayWeek.value} 周'),
+        title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
         actions: [
           if (pc != null && currentWeek.value != displayWeek.value)
             TextButton(
@@ -76,7 +81,7 @@ class SchedulePage extends HookWidget {
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
               ),
-              child: const Text('本周'),
+              child: Text(AppLocalizations.of(context)!.thisWeek),
             ),
           IconButton(
             icon: const Icon(Icons.chevron_left),
@@ -105,18 +110,18 @@ class SchedulePage extends HookWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('加载失败: ${error.value}'),
+                      Text(AppLocalizations.of(context)!.loadingFailed(error.value ?? '')),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => _refresh(service, courses, currentWeek,
                             displayWeek, firstMonday, loading, error, pageController),
-                        child: const Text('重试'),
+                        child: Text(AppLocalizations.of(context)!.retry),
                       ),
                     ],
                   ),
                 )
               : courses.value.isEmpty
-                  ? const Center(child: Text('暂无课程数据'))
+                  ? Center(child: Text(AppLocalizations.of(context)!.noScheduleData))
                   : PageView.builder(
                       controller: pc,
                       physics: const BouncingScrollPhysics(),
@@ -216,7 +221,9 @@ class SchedulePage extends HookWidget {
             .primaryContainer
             .withValues(alpha: 0.3);
 
-        final content = Column(
+        final weekdays = _weekdays(AppLocalizations.of(context)!);
+
+    final content = Column(
           children: [
             SizedBox(
               height: _headerHeight,
@@ -228,11 +235,11 @@ class SchedulePage extends HookWidget {
                       child: Center(
                         child: weekDates.isNotEmpty
                             ? _buildDateHeader(
-                                _weekdays[i],
+                                weekdays[i],
                                 weekDates[i],
                                 weekDates[i] == today,
                               )
-                            : Text(_weekdays[i],
+                            : Text(weekdays[i],
                                 style: const TextStyle(
                                     fontSize: 13, fontWeight: FontWeight.bold)),
                       ),

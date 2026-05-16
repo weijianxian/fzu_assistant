@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/api_client.dart';
 
@@ -10,24 +11,21 @@ class CourseService {
   static const _courseUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xkjg/wdxk/xkjg_list.aspx';
   static const _weekUrl = 'https://jwcjwxt2.fzu.edu.cn:82/week.asp';
-  static const _cacheWeek = 'cache_current_week';
-  static const _cacheCourses = 'cache_courses';
-  static const _cacheFirstMonday = 'cache_first_monday';
 
   Dio get _dio => ApiClient.instance.dio;
 
   Future<void> saveCache(int week, List<Course> courses, DateTime firstMonday) async {
     final sp = await SharedPreferences.getInstance();
-    sp.setInt(_cacheWeek, week);
-    sp.setString(_cacheCourses, jsonEncode(courses.map((c) => c.toJson()).toList()));
-    sp.setString(_cacheFirstMonday, firstMonday.toIso8601String());
+    sp.setInt(SpKeys.cacheCurrentWeek, week);
+    sp.setString(SpKeys.cacheCourses, jsonEncode(courses.map((c) => c.toJson()).toList()));
+    sp.setString(SpKeys.cacheFirstMonday, firstMonday.toIso8601String());
   }
 
   Future<(int, List<Course>, DateTime)?> loadCache() async {
     final sp = await SharedPreferences.getInstance();
-    final week = sp.getInt(_cacheWeek);
-    final raw = sp.getString(_cacheCourses);
-    final fm = sp.getString(_cacheFirstMonday);
+    final week = sp.getInt(SpKeys.cacheCurrentWeek);
+    final raw = sp.getString(SpKeys.cacheCourses);
+    final fm = sp.getString(SpKeys.cacheFirstMonday);
     if (week == null || raw == null || fm == null) return null;
     final list = (jsonDecode(raw) as List).map((c) => Course.fromJson(c)).toList();
     return (week, list, DateTime.parse(fm));

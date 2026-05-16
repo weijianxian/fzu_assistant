@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/theme/app_themes.dart';
 import 'package:fzu_assistant/theme/theme_provider.dart';
+
+String _themeName(String key, AppLocalizations l10n) {
+  return switch (key) {
+    'deep_purple' => l10n.themeDeepPurple,
+    'blue' => l10n.themeBlue,
+    'teal' => l10n.themeTeal,
+    'green' => l10n.themeGreen,
+    'orange' => l10n.themeOrange,
+    'red' => l10n.themeRed,
+    'pink' => l10n.themePink,
+    'indigo' => l10n.themeIndigo,
+    'brown' => l10n.themeBrown,
+    _ => key,
+  };
+}
 
 class ThemeSettingsPage extends StatelessWidget {
   const ThemeSettingsPage({super.key});
@@ -10,32 +26,32 @@ class ThemeSettingsPage extends StatelessWidget {
     final state = ThemeProvider.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('主题设置')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.themeSettings)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
           // ── 深色模式 ──
-          _SectionHeader('外观'),
+          _SectionHeader(AppLocalizations.of(context)!.appearance),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ValueListenableBuilder(
               valueListenable: state.themeMode,
               builder: (_, mode, _) => SegmentedButton<int>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: 0,
-                    icon: Icon(Icons.brightness_auto),
-                    label: Text('跟随系统'),
+                    icon: const Icon(Icons.brightness_auto),
+                    label: Text(AppLocalizations.of(context)!.followSystem),
                   ),
                   ButtonSegment(
                     value: 1,
-                    icon: Icon(Icons.light_mode),
-                    label: Text('浅色'),
+                    icon: const Icon(Icons.light_mode),
+                    label: Text(AppLocalizations.of(context)!.light),
                   ),
                   ButtonSegment(
                     value: 2,
-                    icon: Icon(Icons.dark_mode),
-                    label: Text('深色'),
+                    icon: const Icon(Icons.dark_mode),
+                    label: Text(AppLocalizations.of(context)!.dark),
                   ),
                 ],
                 selected: {mode},
@@ -46,7 +62,7 @@ class ThemeSettingsPage extends StatelessWidget {
           const SizedBox(height: 8),
 
           // ── 主题选择 ──
-          _SectionHeader('主题色'),
+          _SectionHeader(AppLocalizations.of(context)!.themeColor),
           ValueListenableBuilder(
             valueListenable: state.themeMode,
             builder: (_, mode, _) {
@@ -58,15 +74,15 @@ class ThemeSettingsPage extends StatelessWidget {
                 valueListenable: state.themeIndex,
                 builder: (_, idx, _) => Column(
                   children: List.generate(appThemes.length, (i) {
-                    final (name, seed) = appThemes[i];
+                    final theme = appThemes[i];
                     final selected = idx == i;
                     final themeCs = ColorScheme.fromSeed(
-                      seedColor: seed,
+                      seedColor: theme.color,
                       brightness:
                           isDark ? Brightness.dark : Brightness.light,
                     );
                     return _ThemeTile(
-                      name: name,
+                      name: _themeName(theme.key, AppLocalizations.of(context)!),
                       cs: themeCs,
                       selected: selected,
                       onTap: () => state.themeIndex.value = i,

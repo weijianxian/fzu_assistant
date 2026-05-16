@@ -18,20 +18,23 @@
 | **校历** | 学期起止、假期安排随时查看 |
 | **统一考试** | 四六级等统一考试信息查询 |
 | **深色模式** | 亮暗主题无缝切换，支持自定义主题色 |
+| **多语言** | 支持中文 / English，可在"我的"页面切换 |
 
 ## 技术架构
 
 ```
 lib/
-├── model/          # 数据模型层 — StudentInfo, Course, GPA, Mark ...
-├── service/        # 网络与业务层 — API 客户端、登录、课表、学业数据
-├── screen/         # 页面层
-│   ├── schedule/   #   课程表
-│   ├── toolbox/    #   工具箱（成绩、GPA、考场、学分、统考）
-│   ├── my/         #   个人中心、校历
-│   ├── settings/   #   主题设置
-│   └── guest/      #   登录
-└── main.dart       # 应用入口
+├── l10n/               # 国际化 — ARB 翻译文件 + 自动生成的 AppLocalizations
+├── model/              # 数据模型层 — StudentInfo, Course, GPA, Mark ...
+├── service/            # 网络与业务层 — API 客户端、登录、课表、学业数据
+├── screen/             # 页面层
+│   ├── schedule/       #   课程表
+│   ├── toolbox/        #   工具箱（成绩、GPA、考场、学分、统考）
+│   ├── my/             #   个人中心、校历、关于
+│   ├── settings/       #   主题设置
+│   └── guest/          #   登录
+├── theme/              # 主题配置
+└── main.dart           # 应用入口
 ```
 
 **核心设计：**
@@ -40,6 +43,7 @@ lib/
 - **验证码识别** — 内置验证码自动求解，免去手动输入
 - **安全存储** — 凭据通过 `flutter_secure_storage` 加密存储，不落明文
 - **响应式状态** — 基于 `flutter_hooks` 管理页面状态
+- **国际化** — Flutter `gen-l10n` + ARB 文件，支持中英双语
 
 ## 快速开始
 
@@ -98,6 +102,14 @@ keytool -genkey -v -keystore release.jks \
 base64 -i release.jks | tr -d '\n'
 ```
 
+## 国际化
+
+项目使用 Flutter 官方 `gen-l10n` 方案：
+
+- 翻译文件位于 `lib/l10n/app_zh.arb`（中文）和 `lib/l10n/app_en.arb`（英文）
+- 添加新语言：新建 `app_XX.arb`，运行 `flutter gen-l10n`，在 `LocaleState.locales` 中注册
+- 用户可在「我的 → 语言」中切换语言，选择会持久化保存
+
 ## 项目依赖
 
 | 依赖 | 用途 |
@@ -106,6 +118,7 @@ base64 -i release.jks | tr -d '\n'
 | `dio_cookie_manager` | Cookie 持久化 |
 | `flutter_secure_storage` | 加密存储凭据 |
 | `flutter_hooks` | 响应式状态管理 |
+| `flutter_localizations` + `intl` | 国际化 |
 | `html` | 教务系统页面解析 |
 | `crypto` | 密码加密处理 |
 
@@ -118,7 +131,3 @@ base64 -i release.jks | tr -d '\n'
 3. 提交更改：`git commit -m 'feat: add something'`
 4. 推送分支：`git push origin feature/your-feature`
 5. 提交 Pull Request
-
-## 开源协议
-
-本项目基于 [MIT License](LICENSE) 开源。

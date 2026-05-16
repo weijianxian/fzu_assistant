@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
 import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
@@ -34,20 +35,20 @@ class ExamRoomPage extends HookWidget {
     }, []);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('考场查询')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.examRoom)),
       body: ToolPageWrapper(
         onRefresh: load,
         loading: loading.value,
         error: error.value,
         refreshTime: refreshTime.value,
         hasData: rooms.value.isNotEmpty,
-        emptyText: '暂无考场信息',
-        child: _buildList(rooms.value),
+        emptyText: AppLocalizations.of(context)!.noExamRoomInfo,
+        child: _buildList(context, rooms.value),
       ),
     );
   }
 
-  Widget _buildList(List<ExamRoomInfo> rooms) {
+  Widget _buildList(BuildContext context, List<ExamRoomInfo> rooms) {
     final now = DateTime.now();
 
     return ListView.builder(
@@ -88,9 +89,9 @@ class ExamRoomPage extends HookWidget {
                             color: Colors.grey.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
-                            '已考',
-                            style: TextStyle(fontSize: 11, color: Colors.grey),
+                          child: Text(
+                            AppLocalizations.of(context)!.examTaken,
+                            style: const TextStyle(fontSize: 11, color: Colors.grey),
                           ),
                         ),
                     ],
@@ -116,7 +117,7 @@ class ExamRoomPage extends HookWidget {
                       if (r.teacher.isNotEmpty)
                         _infoTag(Icons.person_outline, r.teacher),
                       if (r.credit.isNotEmpty)
-                        _infoTag(Icons.school_outlined, '${r.credit}学分'),
+                        _infoTag(Icons.school_outlined, AppLocalizations.of(context)!.creditSuffix(r.credit)),
                     ],
                   ),
                 ],

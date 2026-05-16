@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
 import 'package:fzu_assistant/screen/guest/login.dart';
+import 'package:fzu_assistant/screen/my/about/about_page.dart';
 import 'package:fzu_assistant/screen/my/calendar/calendar_page.dart';
+import 'package:fzu_assistant/screen/settings/language_settings.dart';
 import 'package:fzu_assistant/screen/settings/theme_settings.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/user_service.dart';
@@ -45,7 +48,7 @@ class MyPage extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('我的'),
+        title: Text(AppLocalizations.of(context)!.navMy),
         actions: [
           IconButton(
             icon: const Icon(Icons.developer_board),
@@ -58,7 +61,7 @@ class MyPage extends HookWidget {
       body: loading.value
           ? const Center(child: CircularProgressIndicator())
           : error.value != null
-              ? Center(child: Text('加载失败: ${error.value}'))
+              ? Center(child: Text(AppLocalizations.of(context)!.loadingFailed(error.value ?? '')))
               : _buildContent(context, info.value!, username.value, handleLogout),
     );
   }
@@ -102,9 +105,9 @@ class MyPage extends HookWidget {
         //   _infoRow('政治面貌', info.politicalStatus),
         // ]),
         _infoCard([
-          _infoRow('学院', info.college),
-          _infoRow('专业', info.major),
-          _infoRow('年级', info.grade),
+          _infoRow(AppLocalizations.of(context)!.college, info.college),
+          _infoRow(AppLocalizations.of(context)!.major, info.major),
+          _infoRow(AppLocalizations.of(context)!.grade, info.grade),
           // _infoRow('辅导员', info.counselor),
         ]),
         // _infoCard([
@@ -121,7 +124,7 @@ class MyPage extends HookWidget {
         const Divider(),
         ListTile(
           leading: const Icon(Icons.calendar_month_outlined),
-          title: const Text('校历'),
+          title: Text(AppLocalizations.of(context)!.calendar),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const CalendarPage()),
@@ -129,21 +132,31 @@ class MyPage extends HookWidget {
         ),
         ListTile(
           leading: const Icon(Icons.palette_outlined),
-          title: const Text('主题设置'),
+          title: Text(AppLocalizations.of(context)!.themeSettings),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ThemeSettingsPage()),
           ),
         ),
         ListTile(
-          leading: const Icon(Icons.info_outline),
-          title: const Text('关于'),
+          leading: const Icon(Icons.language),
+          title: Text(AppLocalizations.of(context)!.language),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () {},
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const LanguageSettingsPage()),
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.info_outline),
+          title: Text(AppLocalizations.of(context)!.about),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const AboutPage()),
+          ),
         ),
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),
-          title: const Text('退出登录', style: TextStyle(color: Colors.red)),
+          title: Text(AppLocalizations.of(context)!.logout, style: const TextStyle(color: Colors.red)),
           onTap: onLogout,
         ),
       ],

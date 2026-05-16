@@ -1,0 +1,389 @@
+{
+  "@@locale": "zh",
+  "appName": "FZU Assistant",
+  "@appName": {
+    "description": "appName"
+  },
+  "navSchedule": "课程表",
+  "@navSchedule": {
+    "description": "navSchedule"
+  },
+  "navToolbox": "工具箱",
+  "@navToolbox": {
+    "description": "navToolbox"
+  },
+  "navMy": "我的",
+  "@navMy": {
+    "description": "navMy"
+  },
+  "retry": "重试",
+  "@retry": {
+    "description": "Retry button text"
+  },
+  "loadingFailed": "加载失败: {error}",
+  "@loadingFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noData": "暂无数据",
+  "@noData": {
+    "description": "noData"
+  },
+  "dataUpdatedAt": "数据更新于 {time}",
+  "@dataUpdatedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studentId": "学号",
+  "@studentId": {
+    "description": "studentId"
+  },
+  "password": "密码",
+  "@password": {
+    "description": "password"
+  },
+  "captcha": "验证码",
+  "@captcha": {
+    "description": "captcha"
+  },
+  "getCaptcha": "获取验证码",
+  "@getCaptcha": {
+    "description": "getCaptcha"
+  },
+  "login": "登录",
+  "@login": {
+    "description": "login"
+  },
+  "loginValidationError": "请输入学号、密码和验证码",
+  "@loginValidationError": {
+    "description": "loginValidationError"
+  },
+  "captchaFetchFailed": "获取验证码失败: {error}",
+  "@captchaFetchFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "weekN": "第 {week} 周",
+  "@weekN": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "thisWeek": "本周",
+  "@thisWeek": {
+    "description": "thisWeek"
+  },
+  "noScheduleData": "暂无课程数据",
+  "@noScheduleData": {
+    "description": "noScheduleData"
+  },
+  "monday": "周一",
+  "@monday": {
+    "description": "monday"
+  },
+  "tuesday": "周二",
+  "@tuesday": {
+    "description": "tuesday"
+  },
+  "wednesday": "周三",
+  "@wednesday": {
+    "description": "wednesday"
+  },
+  "thursday": "周四",
+  "@thursday": {
+    "description": "thursday"
+  },
+  "friday": "周五",
+  "@friday": {
+    "description": "friday"
+  },
+  "saturday": "周六",
+  "@saturday": {
+    "description": "saturday"
+  },
+  "sunday": "周日",
+  "@sunday": {
+    "description": "sunday"
+  },
+  "college": "学院",
+  "@college": {
+    "description": "college"
+  },
+  "major": "专业",
+  "@major": {
+    "description": "major"
+  },
+  "grade": "年级",
+  "@grade": {
+    "description": "grade"
+  },
+  "calendar": "校历",
+  "@calendar": {
+    "description": "calendar"
+  },
+  "themeSettings": "主题设置",
+  "@themeSettings": {
+    "description": "themeSettings"
+  },
+  "about": "关于",
+  "@about": {
+    "description": "about"
+  },
+  "logout": "退出登录",
+  "@logout": {
+    "description": "logout"
+  },
+  "language": "语言",
+  "@language": {
+    "description": "language"
+  },
+  "chinese": "中文",
+  "@chinese": {
+    "description": "chinese"
+  },
+  "english": "English",
+  "@english": {
+    "description": "english"
+  },
+  "academics": "学业",
+  "@academics": {
+    "description": "academics"
+  },
+  "gpaInfo": "绩点信息",
+  "@gpaInfo": {
+    "description": "gpaInfo"
+  },
+  "gpaInfoSubtitle": "查看绩点排名数据",
+  "@gpaInfoSubtitle": {
+    "description": "gpaInfoSubtitle"
+  },
+  "marksQuery": "成绩查询",
+  "@marksQuery": {
+    "description": "marksQuery"
+  },
+  "marksQuerySubtitle": "查看全部课程成绩",
+  "@marksQuerySubtitle": {
+    "description": "marksQuerySubtitle"
+  },
+  "unifiedExam": "统考成绩",
+  "@unifiedExam": {
+    "description": "unifiedExam"
+  },
+  "unifiedExamSubtitle": "CET / 省计算机等级考试",
+  "@unifiedExamSubtitle": {
+    "description": "unifiedExamSubtitle"
+  },
+  "examRoom": "考场查询",
+  "@examRoom": {
+    "description": "examRoom"
+  },
+  "examRoomSubtitle": "查看考试时间与考场安排",
+  "@examRoomSubtitle": {
+    "description": "examRoomSubtitle"
+  },
+  "creditStats": "学分统计",
+  "@creditStats": {
+    "description": "creditStats"
+  },
+  "creditStatsSubtitle": "查看各类学分完成进度",
+  "@creditStatsSubtitle": {
+    "description": "creditStatsSubtitle"
+  },
+  "noGpaData": "暂无绩点数据",
+  "@noGpaData": {
+    "description": "noGpaData"
+  },
+  "dataParseError": "数据解析异常",
+  "@dataParseError": {
+    "description": "dataParseError"
+  },
+  "noMarksData": "暂无成绩数据",
+  "@noMarksData": {
+    "description": "noMarksData"
+  },
+  "unknownSemester": "未知学期",
+  "@unknownSemester": {
+    "description": "unknownSemester"
+  },
+  "courseCount": "{count} 门课程",
+  "@courseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "creditsTag": "学分 {credits}",
+  "@creditsTag": {
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "gpaTag": "绩点 {gpa}",
+  "@gpaTag": {
+    "placeholders": {
+      "gpa": {
+        "type": "String"
+      }
+    }
+  },
+  "noUnifiedExamData": "暂无统考成绩",
+  "@noUnifiedExamData": {
+    "description": "noUnifiedExamData"
+  },
+  "cetScores": "CET 成绩",
+  "@cetScores": {
+    "description": "cetScores"
+  },
+  "provincialComputerScores": "省计算机成绩",
+  "@provincialComputerScores": {
+    "description": "provincialComputerScores"
+  },
+  "noExamRoomInfo": "暂无考场信息",
+  "@noExamRoomInfo": {
+    "description": "noExamRoomInfo"
+  },
+  "examTaken": "已考",
+  "@examTaken": {
+    "description": "examTaken"
+  },
+  "creditSuffix": "{credit}学分",
+  "@creditSuffix": {
+    "placeholders": {
+      "credit": {
+        "type": "String"
+      }
+    }
+  },
+  "noCreditData": "暂无学分数据",
+  "@noCreditData": {
+    "description": "noCreditData"
+  },
+  "appearance": "外观",
+  "@appearance": {
+    "description": "appearance"
+  },
+  "followSystem": "跟随系统",
+  "@followSystem": {
+    "description": "followSystem"
+  },
+  "light": "浅色",
+  "@light": {
+    "description": "light"
+  },
+  "dark": "深色",
+  "@dark": {
+    "description": "dark"
+  },
+  "themeColor": "主题色",
+  "@themeColor": {
+    "description": "themeColor"
+  },
+  "themeDeepPurple": "深紫",
+  "@themeDeepPurple": {
+    "description": "themeDeepPurple"
+  },
+  "themeBlue": "蓝色",
+  "@themeBlue": {
+    "description": "themeBlue"
+  },
+  "themeTeal": "青色",
+  "@themeTeal": {
+    "description": "themeTeal"
+  },
+  "themeGreen": "绿色",
+  "@themeGreen": {
+    "description": "themeGreen"
+  },
+  "themeOrange": "橙色",
+  "@themeOrange": {
+    "description": "themeOrange"
+  },
+  "themeRed": "红色",
+  "@themeRed": {
+    "description": "themeRed"
+  },
+  "themePink": "粉色",
+  "@themePink": {
+    "description": "themePink"
+  },
+  "themeIndigo": "靛蓝",
+  "@themeIndigo": {
+    "description": "themeIndigo"
+  },
+  "themeBrown": "棕色",
+  "@themeBrown": {
+    "description": "themeBrown"
+  },
+  "devTools": "Dev Tools",
+  "@devTools": {
+    "description": "devTools"
+  },
+  "collapse": "收起",
+  "@collapse": {
+    "description": "collapse"
+  },
+  "expandAll": "展开全部",
+  "@expandAll": {
+    "description": "expandAll"
+  },
+  "noCalendarData": "暂无校历数据",
+  "@noCalendarData": {
+    "description": "noCalendarData"
+  },
+  "academicYearTerm": "{startYear}-{endYear} 学年  第{term}学期",
+  "@academicYearTerm": {
+    "placeholders": {
+      "startYear": {
+        "type": "String"
+      },
+      "endYear": {
+        "type": "String"
+      },
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "current": "当前",
+  "@current": {
+    "description": "current"
+  },
+  "noScheduleEvents": "暂无日程数据",
+  "@noScheduleEvents": {
+    "description": "noScheduleEvents"
+  },
+  "appDescription": "福州大学一站式校园助手 —— 课表、成绩、考试、校历，开箱即用。",
+  "@appDescription": {
+    "description": "appDescription"
+  },
+  "openSourceUrl": "开源地址",
+  "@openSourceUrl": {
+    "description": "openSourceUrl"
+  },
+  "contributors": "贡献名单",
+  "@contributors": {
+    "description": "contributors"
+  },
+  "commitCount": "{count} 次提交",
+  "@commitCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

@@ -1,0 +1,285 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Chinese (`zh`).
+class AppLocalizationsZh extends AppLocalizations {
+  AppLocalizationsZh([String locale = 'zh']) : super(locale);
+
+  @override
+  String get appName => 'FZU Assistant';
+
+  @override
+  String get navSchedule => '课程表';
+
+  @override
+  String get navToolbox => '工具箱';
+
+  @override
+  String get navMy => '我的';
+
+  @override
+  String get retry => '重试';
+
+  @override
+  String loadingFailed(String error) {
+    return '加载失败: $error';
+  }
+
+  @override
+  String get noData => '暂无数据';
+
+  @override
+  String dataUpdatedAt(String time) {
+    return '数据更新于 $time';
+  }
+
+  @override
+  String get studentId => '学号';
+
+  @override
+  String get password => '密码';
+
+  @override
+  String get captcha => '验证码';
+
+  @override
+  String get getCaptcha => '获取验证码';
+
+  @override
+  String get login => '登录';
+
+  @override
+  String get loginValidationError => '请输入学号、密码和验证码';
+
+  @override
+  String captchaFetchFailed(String error) {
+    return '获取验证码失败: $error';
+  }
+
+  @override
+  String weekN(int week) {
+    return '第 $week 周';
+  }
+
+  @override
+  String get thisWeek => '本周';
+
+  @override
+  String get noScheduleData => '暂无课程数据';
+
+  @override
+  String get monday => '周一';
+
+  @override
+  String get tuesday => '周二';
+
+  @override
+  String get wednesday => '周三';
+
+  @override
+  String get thursday => '周四';
+
+  @override
+  String get friday => '周五';
+
+  @override
+  String get saturday => '周六';
+
+  @override
+  String get sunday => '周日';
+
+  @override
+  String get college => '学院';
+
+  @override
+  String get major => '专业';
+
+  @override
+  String get grade => '年级';
+
+  @override
+  String get calendar => '校历';
+
+  @override
+  String get themeSettings => '主题设置';
+
+  @override
+  String get about => '关于';
+
+  @override
+  String get logout => '退出登录';
+
+  @override
+  String get language => '语言';
+
+  @override
+  String get chinese => '中文';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get academics => '学业';
+
+  @override
+  String get gpaInfo => '绩点信息';
+
+  @override
+  String get gpaInfoSubtitle => '查看绩点排名数据';
+
+  @override
+  String get marksQuery => '成绩查询';
+
+  @override
+  String get marksQuerySubtitle => '查看全部课程成绩';
+
+  @override
+  String get unifiedExam => '统考成绩';
+
+  @override
+  String get unifiedExamSubtitle => 'CET / 省计算机等级考试';
+
+  @override
+  String get examRoom => '考场查询';
+
+  @override
+  String get examRoomSubtitle => '查看考试时间与考场安排';
+
+  @override
+  String get creditStats => '学分统计';
+
+  @override
+  String get creditStatsSubtitle => '查看各类学分完成进度';
+
+  @override
+  String get noGpaData => '暂无绩点数据';
+
+  @override
+  String get dataParseError => '数据解析异常';
+
+  @override
+  String get noMarksData => '暂无成绩数据';
+
+  @override
+  String get unknownSemester => '未知学期';
+
+  @override
+  String courseCount(int count) {
+    return '$count 门课程';
+  }
+
+  @override
+  String creditsTag(String credits) {
+    return '学分 $credits';
+  }
+
+  @override
+  String gpaTag(String gpa) {
+    return '绩点 $gpa';
+  }
+
+  @override
+  String get noUnifiedExamData => '暂无统考成绩';
+
+  @override
+  String get cetScores => 'CET 成绩';
+
+  @override
+  String get provincialComputerScores => '省计算机成绩';
+
+  @override
+  String get noExamRoomInfo => '暂无考场信息';
+
+  @override
+  String get examTaken => '已考';
+
+  @override
+  String creditSuffix(String credit) {
+    return '$credit学分';
+  }
+
+  @override
+  String get noCreditData => '暂无学分数据';
+
+  @override
+  String get appearance => '外观';
+
+  @override
+  String get followSystem => '跟随系统';
+
+  @override
+  String get light => '浅色';
+
+  @override
+  String get dark => '深色';
+
+  @override
+  String get themeColor => '主题色';
+
+  @override
+  String get themeDeepPurple => '深紫';
+
+  @override
+  String get themeBlue => '蓝色';
+
+  @override
+  String get themeTeal => '青色';
+
+  @override
+  String get themeGreen => '绿色';
+
+  @override
+  String get themeOrange => '橙色';
+
+  @override
+  String get themeRed => '红色';
+
+  @override
+  String get themePink => '粉色';
+
+  @override
+  String get themeIndigo => '靛蓝';
+
+  @override
+  String get themeBrown => '棕色';
+
+  @override
+  String get devTools => 'Dev Tools';
+
+  @override
+  String get collapse => '收起';
+
+  @override
+  String get expandAll => '展开全部';
+
+  @override
+  String get noCalendarData => '暂无校历数据';
+
+  @override
+  String academicYearTerm(String startYear, String endYear, String term) {
+    return '$startYear-$endYear 学年  第$term学期';
+  }
+
+  @override
+  String get current => '当前';
+
+  @override
+  String get noScheduleEvents => '暂无日程数据';
+
+  @override
+  String get appDescription => '福州大学一站式校园助手 —— 课表、成绩、考试、校历，开箱即用。';
+
+  @override
+  String get openSourceUrl => '开源地址';
+
+  @override
+  String get contributors => '贡献名单';
+
+  @override
+  String commitCount(int count) {
+    return '$count 次提交';
+  }
+}

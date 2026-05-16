@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/gpa.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
 import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
@@ -32,24 +33,24 @@ class GpaPage extends HookWidget {
     }, []);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('绩点信息')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.gpaInfo)),
       body: ToolPageWrapper(
         onRefresh: load,
         loading: loading.value,
         error: error.value,
         refreshTime: refreshTime.value,
         hasData: gpa.value != null && gpa.value!.data.isNotEmpty,
-        emptyText: '暂无绩点数据',
+        emptyText: AppLocalizations.of(context)!.noGpaData,
         child: gpa.value != null
-            ? _buildContent(gpa.value!)
+            ? _buildContent(context, gpa.value!)
             : const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _buildContent(GPABean gpa) {
+  Widget _buildContent(BuildContext context, GPABean gpa) {
     if (gpa.data.isEmpty) {
-      return const Center(child: Text('暂无绩点数据'));
+      return Center(child: Text(AppLocalizations.of(context)!.noGpaData));
     }
 
     // 找出所有不同的 type（列头）
@@ -58,7 +59,7 @@ class GpaPage extends HookWidget {
       if (!headers.contains(d.type)) headers.add(d.type);
     }
     final width = headers.length;
-    if (width == 0) return const Center(child: Text('数据解析异常'));
+    if (width == 0) return Center(child: Text(AppLocalizations.of(context)!.dataParseError));
 
     // 按行分组
     final rows = <List<GPAData>>[];

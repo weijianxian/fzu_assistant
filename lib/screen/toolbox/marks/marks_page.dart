@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
 import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
@@ -32,24 +33,24 @@ class MarksPage extends HookWidget {
     }, []);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('成绩查询')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.marksQuery)),
       body: ToolPageWrapper(
         onRefresh: load,
         loading: loading.value,
         error: error.value,
         refreshTime: refreshTime.value,
         hasData: marks.value.isNotEmpty,
-        emptyText: '暂无成绩数据',
-        child: _buildList(marks.value),
+        emptyText: AppLocalizations.of(context)!.noMarksData,
+        child: _buildList(context, marks.value),
       ),
     );
   }
 
-  Widget _buildList(List<Mark> marks) {
+  Widget _buildList(BuildContext context, List<Mark> marks) {
     // 按学期分组，保持顺序
     final grouped = <String, List<Mark>>{};
     for (final m in marks) {
-      final key = m.semester.isEmpty ? '未知学期' : m.semester;
+      final key = m.semester.isEmpty ? AppLocalizations.of(context)!.unknownSemester : m.semester;
       grouped.putIfAbsent(key, () => []).add(m);
     }
     // 每学期按成绩倒序
@@ -77,11 +78,11 @@ class MarksPage extends HookWidget {
             collapsedShape: const Border(),
             title: Text(sem,
                 style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('${items.length} 门课程',
+            subtitle: Text(AppLocalizations.of(context)!.courseCount(items.length),
                 style: const TextStyle(fontSize: 12, color: Colors.grey)),
             children: [
               for (var j = 0; j < items.length; j++) ...[
-                _buildMarkTile(items[j]),
+                _buildMarkTile(context, items[j]),
                 if (j < items.length - 1)
                   const Divider(height: 1, indent: 16, endIndent: 16),
               ],
@@ -92,7 +93,7 @@ class MarksPage extends HookWidget {
     );
   }
 
-  Widget _buildMarkTile(Mark m) {
+  Widget _buildMarkTile(BuildContext context, Mark m) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -124,8 +125,8 @@ class MarksPage extends HookWidget {
             spacing: 12,
             runSpacing: 4,
             children: [
-              _tag('学分 ${m.credits}'),
-              _tag('绩点 ${m.gpa}'),
+              _tag(AppLocalizations.of(context)!.creditsTag(m.credits)),
+              _tag(AppLocalizations.of(context)!.gpaTag(m.gpa)),
               if (m.teacher.isNotEmpty) _tag(m.teacher),
             ],
           ),

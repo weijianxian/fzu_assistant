@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
 import 'package:fzu_assistant/service/academic_service.dart';
 import 'package:fzu_assistant/screen/toolbox/tool_page_wrapper.dart';
@@ -35,32 +36,32 @@ class UnifiedExamPage extends HookWidget {
     }, []);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('统考成绩')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.unifiedExam)),
       body: ToolPageWrapper(
         onRefresh: load,
         loading: loading.value,
         error: error.value,
         refreshTime: refreshTime.value,
         hasData: cet.value.isNotEmpty || js.value.isNotEmpty,
-        emptyText: '暂无统考成绩',
-        child: _buildContent(cet.value, js.value),
+        emptyText: AppLocalizations.of(context)!.noUnifiedExamData,
+        child: _buildContent(context, cet.value, js.value),
       ),
     );
   }
 
-  Widget _buildContent(List<UnifiedExam> cet, List<UnifiedExam> js) {
+  Widget _buildContent(BuildContext context, List<UnifiedExam> cet, List<UnifiedExam> js) {
     if (cet.isEmpty && js.isEmpty) {
-      return const Center(child: Text('暂无统考成绩'));
+      return Center(child: Text(AppLocalizations.of(context)!.noUnifiedExamData));
     }
 
     return ListView(
       children: [
         if (cet.isNotEmpty) ...[
-          _sectionHeader('CET 成绩'),
+          _sectionHeader(AppLocalizations.of(context)!.cetScores),
           for (final e in cet) _buildTile(e),
         ],
         if (js.isNotEmpty) ...[
-          _sectionHeader('省计算机成绩'),
+          _sectionHeader(AppLocalizations.of(context)!.provincialComputerScores),
           for (final e in js) _buildTile(e),
         ],
         const SizedBox(height: 16),

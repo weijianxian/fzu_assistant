@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-
+import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/l10n/locale_provider.dart';
 import 'package:fzu_assistant/service/api_client.dart';
 
 import 'package:fzu_assistant/theme/theme_provider.dart';
@@ -28,20 +29,27 @@ class MyApp extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = useMemoized(() => ThemeState()..load());
-    useEffect(() => state.dispose, [state]);
+    final themeState = useMemoized(() => ThemeState()..load());
+    final localeState = useMemoized(() => LocaleState()..load());
+    useEffect(() => () { themeState.dispose(); localeState.dispose(); }, []);
 
     return AnimatedBuilder(
-      animation: Listenable.merge([state.themeIndex, state.themeMode]),
-      builder: (_, _) => ThemeProvider(
-        state: state,
-        child: MaterialApp(
-          title: 'FZU Assistant',
-          debugShowCheckedModeBanner: false,
-          theme: state.lightTheme,
-          darkTheme: state.darkTheme,
-          themeMode: state.currentThemeMode,
-          home: const SplashScreen(),
+      animation: Listenable.merge([themeState.themeIndex, themeState.themeMode, localeState.localeIndex]),
+      builder: (_, _) => LocaleProvider(
+        state: localeState,
+        child: ThemeProvider(
+          state: themeState,
+          child: MaterialApp(
+            title: 'FZU Assistant',
+            debugShowCheckedModeBanner: false,
+            theme: themeState.lightTheme,
+            darkTheme: themeState.darkTheme,
+            themeMode: themeState.currentThemeMode,
+            locale: localeState.currentLocale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SplashScreen(),
+          ),
         ),
       ),
     );
@@ -83,16 +91,17 @@ class HomeScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final currentPage = useState(0);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: IndexedStack(index: currentPage.value, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: currentPage.value,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '课程表'),
-          BottomNavigationBarItem(icon: Icon(Icons.build), label: '工具箱'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的'),
+        items: [
+          BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navSchedule),
+          BottomNavigationBarItem(icon: const Icon(Icons.build), label: l10n.navToolbox),
+          BottomNavigationBarItem(icon: const Icon(Icons.person), label: l10n.navMy),
         ],
         onTap: (i) => currentPage.value = i,
       ),

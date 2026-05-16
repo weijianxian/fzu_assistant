@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/main.dart';
 import 'package:fzu_assistant/service/api_client.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
@@ -28,7 +29,7 @@ class LoginPage extends HookWidget {
           captchaController.text = solution.toString();
         }
       } catch (e) {
-        errorMessage.value = '获取验证码失败: $e';
+        errorMessage.value = AppLocalizations.of(context)!.captchaFetchFailed(e.toString());
       }
     }
 
@@ -49,7 +50,7 @@ class LoginPage extends HookWidget {
       final captcha = captchaController.text.trim();
 
       if (username.isEmpty || password.isEmpty || captcha.isEmpty) {
-        errorMessage.value = '请输入学号、密码和验证码';
+        errorMessage.value = AppLocalizations.of(context)!.loginValidationError;
         return;
       }
 
@@ -85,7 +86,7 @@ class LoginPage extends HookWidget {
                 controller: usernameController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: '学号',
+                  labelText: AppLocalizations.of(context)!.studentId,
                   prefixIcon: const Icon(Icons.person_outline),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -97,7 +98,7 @@ class LoginPage extends HookWidget {
                 controller: passwordController,
                 obscureText: obscurePassword.value,
                 decoration: InputDecoration(
-                  labelText: '密码',
+                  labelText: AppLocalizations.of(context)!.password,
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -120,7 +121,7 @@ class LoginPage extends HookWidget {
                     child: TextField(
                       controller: captchaController,
                       decoration: InputDecoration(
-                        labelText: '验证码',
+                        labelText: AppLocalizations.of(context)!.captcha,
                         prefixIcon: const Icon(Icons.verified_outlined),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -141,10 +142,10 @@ class LoginPage extends HookWidget {
                       clipBehavior: Clip.antiAlias,
                       child: captchaImage.value != null
                           ? Image.memory(captchaImage.value!, fit: BoxFit.fill)
-                          : const Center(
+                          : Center(
                               child: Text(
-                                '获取验证码',
-                                style: TextStyle(fontSize: 12),
+                                AppLocalizations.of(context)!.getCaptcha,
+                                style: const TextStyle(fontSize: 12),
                               ),
                             ),
                     ),
@@ -179,7 +180,7 @@ class LoginPage extends HookWidget {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('登录', style: TextStyle(fontSize: 16)),
+                      : Text(AppLocalizations.of(context)!.login, style: const TextStyle(fontSize: 16)),
                 ),
               ),
             ],
