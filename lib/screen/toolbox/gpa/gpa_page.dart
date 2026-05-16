@@ -16,7 +16,12 @@ class GpaPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     Future<void> load() async {
       try {
@@ -63,7 +68,9 @@ class GpaPage extends HookWidget {
       if (!headers.contains(d.type)) headers.add(d.type);
     }
     final width = headers.length;
-    if (width == 0) return Center(child: Text(AppLocalizations.of(context)!.dataParseError));
+    if (width == 0) {
+      return Center(child: Text(AppLocalizations.of(context)!.dataParseError));
+    }
 
     // 按行分组
     final rows = <List<GPAData>>[];

@@ -66,7 +66,8 @@ class ThemeSettingsPage extends StatelessWidget {
           ValueListenableBuilder(
             valueListenable: state.themeModeKey,
             builder: (_, modeKey, _) {
-              final isDark = modeKey == 'dark' ||
+              final isDark =
+                  modeKey == 'dark' ||
                   (modeKey == 'system' &&
                       MediaQuery.platformBrightnessOf(context) ==
                           Brightness.dark);
@@ -77,11 +78,13 @@ class ThemeSettingsPage extends StatelessWidget {
                     final selected = currentKey == theme.key;
                     final themeCs = ColorScheme.fromSeed(
                       seedColor: theme.color,
-                      brightness:
-                          isDark ? Brightness.dark : Brightness.light,
+                      brightness: isDark ? Brightness.dark : Brightness.light,
                     );
                     return _ThemeTile(
-                      name: _themeName(theme.key, AppLocalizations.of(context)!),
+                      name: _themeName(
+                        theme.key,
+                        AppLocalizations.of(context)!,
+                      ),
                       cs: themeCs,
                       selected: selected,
                       onTap: () => state.themeKey.value = theme.key,
@@ -96,7 +99,6 @@ class ThemeSettingsPage extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -107,11 +109,14 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(28, 16, 16, 8),
-      child: Text(title,
-          style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.primary)),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
     );
   }
 }
@@ -145,9 +150,7 @@ class _ThemeTile extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: selected
-                  ? Border.all(color: onSurface, width: 2)
-                  : null,
+              border: selected ? Border.all(color: onSurface, width: 2) : null,
             ),
             child: Row(
               children: [
@@ -160,18 +163,18 @@ class _ThemeTile extends StatelessWidget {
                 const SizedBox(width: 16),
                 // 名称
                 Expanded(
-                  child: Text(name,
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight:
-                              selected ? FontWeight.bold : FontWeight.normal)),
+                  child: Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: selected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
                 ),
                 // 色条预览
                 _MiniPalette(cs: cs),
-                if (selected) ...[
-                  const SizedBox(width: 12),
-                  Icon(Icons.check_circle, color: cs.primary, size: 22),
-                ],
               ],
             ),
           ),
@@ -205,10 +208,7 @@ class _ColorDots extends StatelessWidget {
             child: Container(
               width: 22,
               height: 22,
-              decoration: BoxDecoration(
-                color: primary,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: primary, shape: BoxShape.circle),
             ),
           ),
           Positioned(

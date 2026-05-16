@@ -17,7 +17,12 @@ class UnifiedExamPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     Future<void> load() async {
       try {
@@ -53,9 +58,15 @@ class UnifiedExamPage extends HookWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, List<UnifiedExam> cet, List<UnifiedExam> js) {
+  Widget _buildContent(
+    BuildContext context,
+    List<UnifiedExam> cet,
+    List<UnifiedExam> js,
+  ) {
     if (cet.isEmpty && js.isEmpty) {
-      return Center(child: Text(AppLocalizations.of(context)!.noUnifiedExamData));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noUnifiedExamData),
+      );
     }
 
     return ListView(
@@ -65,7 +76,9 @@ class UnifiedExamPage extends HookWidget {
           for (final e in cet) _buildTile(e),
         ],
         if (js.isNotEmpty) ...[
-          _sectionHeader(AppLocalizations.of(context)!.provincialComputerScores),
+          _sectionHeader(
+            AppLocalizations.of(context)!.provincialComputerScores,
+          ),
           for (final e in js) _buildTile(e),
         ],
         const SizedBox(height: 16),
@@ -87,7 +100,10 @@ class UnifiedExamPage extends HookWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: ListTile(
-        title: Text(e.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(
+          e.name,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         subtitle: e.term.isNotEmpty ? Text(e.term) : null,
         trailing: Text(
           e.score,

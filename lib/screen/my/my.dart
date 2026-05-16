@@ -23,30 +23,38 @@ class MyPage extends HookWidget {
     final auth = useMemoized(() => AuthStorage());
     final userService = useMemoized(() => UserService());
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     useEffect(() {
       auth.loadCredentials().then((creds) {
         if (mounted.value) username.value = creds?.username;
       });
-      userService.getUserInfo().then((data) {
-        if (!mounted.value) return;
-        info.value = data;
-        loading.value = false;
-      }).catchError((e) {
-        if (!mounted.value) return;
-        error.value = e.toString();
-        loading.value = false;
-      });
+      userService
+          .getUserInfo()
+          .then((data) {
+            if (!mounted.value) return;
+            info.value = data;
+            loading.value = false;
+          })
+          .catchError((e) {
+            if (!mounted.value) return;
+            error.value = e.toString();
+            loading.value = false;
+          });
       return null;
     }, []);
 
     Future<void> handleLogout() async {
       await auth.clearCredentials();
       if (context.mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
       }
     }
 
@@ -56,17 +64,21 @@ class MyPage extends HookWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.developer_board),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const DevToolPage()),
-            ),
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const DevToolPage())),
           ),
         ],
       ),
       body: loading.value
           ? const Center(child: CircularProgressIndicator())
           : error.value != null
-              ? Center(child: Text(AppLocalizations.of(context)!.loadingFailed(error.value ?? '')))
-              : _buildContent(context, info.value!, username.value, handleLogout),
+          ? Center(
+              child: Text(
+                AppLocalizations.of(context)!.loadingFailed(error.value ?? ''),
+              ),
+            )
+          : _buildContent(context, info.value!, username.value, handleLogout),
     );
   }
 
@@ -130,17 +142,17 @@ class MyPage extends HookWidget {
           leading: const Icon(Icons.calendar_month_outlined),
           title: Text(AppLocalizations.of(context)!.calendar),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const CalendarPage()),
-          ),
+          onTap: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const CalendarPage())),
         ),
         ListTile(
           leading: const Icon(Icons.palette_outlined),
           title: Text(AppLocalizations.of(context)!.themeSettings),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const ThemeSettingsPage()),
-          ),
+          onTap: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const ThemeSettingsPage())),
         ),
         ListTile(
           leading: const Icon(Icons.language),
@@ -154,13 +166,16 @@ class MyPage extends HookWidget {
           leading: const Icon(Icons.info_outline),
           title: Text(AppLocalizations.of(context)!.about),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const AboutPage()),
-          ),
+          onTap: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const AboutPage())),
         ),
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),
-          title: Text(AppLocalizations.of(context)!.logout, style: const TextStyle(color: Colors.red)),
+          title: Text(
+            AppLocalizations.of(context)!.logout,
+            style: const TextStyle(color: Colors.red),
+          ),
           onTap: onLogout,
         ),
       ],

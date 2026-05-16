@@ -16,11 +16,36 @@ class ToolboxPage extends HookWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final tileConfigs = [
-      (Icons.school_outlined, l10n.gpaInfo, l10n.gpaInfoSubtitle, () => const GpaPage()),
-      (Icons.assignment_outlined, l10n.marksQuery, l10n.marksQuerySubtitle, () => const MarksPage()),
-      (Icons.quiz_outlined, l10n.unifiedExam, l10n.unifiedExamSubtitle, () => const UnifiedExamPage()),
-      (Icons.room_outlined, l10n.examRoom, l10n.examRoomSubtitle, () => const ExamRoomPage()),
-      (Icons.pie_chart_outline, l10n.creditStats, l10n.creditStatsSubtitle, () => const CreditPage()),
+      (
+        Icons.school_outlined,
+        l10n.gpaInfo,
+        l10n.gpaInfoSubtitle,
+        () => const GpaPage(),
+      ),
+      (
+        Icons.assignment_outlined,
+        l10n.marksQuery,
+        l10n.marksQuerySubtitle,
+        () => const MarksPage(),
+      ),
+      (
+        Icons.quiz_outlined,
+        l10n.unifiedExam,
+        l10n.unifiedExamSubtitle,
+        () => const UnifiedExamPage(),
+      ),
+      (
+        Icons.room_outlined,
+        l10n.examRoom,
+        l10n.examRoomSubtitle,
+        () => const ExamRoomPage(),
+      ),
+      (
+        Icons.pie_chart_outline,
+        l10n.creditStats,
+        l10n.creditStatsSubtitle,
+        () => const CreditPage(),
+      ),
     ];
 
     return Scaffold(
@@ -37,9 +62,9 @@ class ToolboxPage extends HookWidget {
                 icon: cfg.$1,
                 title: cfg.$2,
                 subtitle: cfg.$3,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => cfg.$4()),
-                ),
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => cfg.$4())),
               );
             },
           ),

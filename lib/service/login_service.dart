@@ -37,8 +37,9 @@ class LoginService {
   ) async {
     await ApiClient.instance.login(username, password, captcha);
 
-    final cookies = await ApiClient.instance.cookieJar
-        .loadForRequest(Uri.parse('https://jwcjwxt2.fzu.edu.cn'));
+    final cookies = await ApiClient.instance.cookieJar.loadForRequest(
+      Uri.parse('https://jwcjwxt2.fzu.edu.cn'),
+    );
     final cookieStr = cookies.map((c) => '${c.name}=${c.value}').join('; ');
 
     return LoginResult(id: username, cookies: cookieStr);

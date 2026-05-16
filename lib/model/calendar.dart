@@ -37,8 +37,5 @@ class SchoolCalendar {
   final String currentTerm;
   final List<CalTerm> terms;
 
-  const SchoolCalendar({
-    required this.currentTerm,
-    required this.terms,
-  });
+  const SchoolCalendar({required this.currentTerm, required this.terms});
 }

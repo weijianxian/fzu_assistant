@@ -24,40 +24,51 @@ class DevToolPage extends HookWidget {
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.devTools)),
       body: ListView(
         children: [
-          _section('SharedPreferences', spData.value, onDelete: (key) async {
-            final sp = await SharedPreferences.getInstance();
-            await sp.remove(key);
-            await _loadAll(spData, ssData);
-          }),
+          _section(
+            'SharedPreferences',
+            spData.value,
+            onDelete: (key) async {
+              final sp = await SharedPreferences.getInstance();
+              await sp.remove(key);
+              await _loadAll(spData, ssData);
+            },
+          ),
           _section('SecureStorage', ssData.value),
         ],
       ),
     );
   }
 
-
   Future<void> _loadAll(
     ValueNotifier<Map<String, Object>> spData,
     ValueNotifier<Map<String, String>> ssData,
   ) async {
     final sp = await SharedPreferences.getInstance();
-    spData.value = Map.from(sp.getKeys().fold<Map<String, Object>>({}, (m, k) {
-      m[k] = sp.get(k)!;
-      return m;
-    }));
+    spData.value = Map.from(
+      sp.getKeys().fold<Map<String, Object>>({}, (m, k) {
+        m[k] = sp.get(k)!;
+        return m;
+      }),
+    );
 
     const ss = FlutterSecureStorage();
     ssData.value = await ss.readAll();
   }
 
-  Widget _section(String title, Map<dynamic, dynamic> data, {Future<void> Function(String key)? onDelete}) {
+  Widget _section(
+    String title,
+    Map<dynamic, dynamic> data, {
+    Future<void> Function(String key)? onDelete,
+  }) {
     if (data.isEmpty) {
       return Card(
         margin: const EdgeInsets.all(8),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Text('$title: (empty)',
-              style: const TextStyle(color: Colors.grey)),
+          child: Text(
+            '$title: (empty)',
+            style: const TextStyle(color: Colors.grey),
+          ),
         ),
       );
     }
@@ -65,15 +76,19 @@ class DevToolPage extends HookWidget {
     return Card(
       margin: const EdgeInsets.all(8),
       child: ExpansionTile(
-        title: Text('$title (${data.length})',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        title: Text(
+          '$title (${data.length})',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
         initiallyExpanded: false,
         children: data.entries
-            .map((e) => _KVTile(
-                  key_: '${e.key}',
-                  value: e.value.toString(),
-                  onDelete: onDelete != null ? () => onDelete('${e.key}') : null,
-                ))
+            .map(
+              (e) => _KVTile(
+                key_: '${e.key}',
+                value: e.value.toString(),
+                onDelete: onDelete != null ? () => onDelete('${e.key}') : null,
+              ),
+            )
             .toList(),
       ),
     );
@@ -101,13 +116,16 @@ class _KVTile extends HookWidget {
     final expanded = useState(false);
     final pretty = _tryPrettyJson(value);
     final hasMore = pretty.length > _maxChars;
-    final displayValue =
-        hasMore && !expanded.value ? pretty.substring(0, _maxChars) : pretty;
+    final displayValue = hasMore && !expanded.value
+        ? pretty.substring(0, _maxChars)
+        : pretty;
 
     return ListTile(
       dense: true,
-      title: Text(key_,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+      title: Text(
+        key_,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      ),
       trailing: onDelete != null
           ? IconButton(
               icon: const Icon(Icons.delete_outline, size: 18),
@@ -124,10 +142,13 @@ class _KVTile extends HookWidget {
               child: Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  expanded.value ? AppLocalizations.of(context)!.collapse : AppLocalizations.of(context)!.expandAll,
+                  expanded.value
+                      ? AppLocalizations.of(context)!.collapse
+                      : AppLocalizations.of(context)!.expandAll,
                   style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.primary),
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
             ),

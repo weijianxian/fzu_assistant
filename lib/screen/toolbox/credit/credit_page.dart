@@ -16,7 +16,12 @@ class CreditPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     Future<void> load() async {
       try {
@@ -81,7 +86,9 @@ class CreditPage extends HookWidget {
                       '${c.gain} / ${c.total}',
                       style: TextStyle(
                         fontSize: 14,
-                        color: progress >= 1.0 ? Colors.green : Colors.grey[700],
+                        color: progress >= 1.0
+                            ? Colors.green
+                            : Colors.grey[700],
                         fontWeight: FontWeight.w500,
                       ),
                     ),

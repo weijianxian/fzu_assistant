@@ -17,7 +17,12 @@ class ExamRoomPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     Future<void> load() async {
       try {
@@ -61,79 +66,87 @@ class ExamRoomPage extends HookWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         childCount: rooms.length,
         itemBuilder: (context, i) {
-            final r = rooms[i];
-            final examDate = _parseDate(r.date);
-            final past = examDate.isBefore(now) && r.date.isNotEmpty;
+          final r = rooms[i];
+          final examDate = _parseDate(r.date);
+          final past = examDate.isBefore(now) && r.date.isNotEmpty;
 
-            return Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Opacity(
-                  opacity: past ? 0.4 : 1.0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
+          return Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Opacity(
+                opacity: past ? 0.4 : 1.0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            r.courseName,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: past ? Colors.grey : null,
+                            ),
+                          ),
+                        ),
+                        if (past)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                             child: Text(
-                              r.courseName,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: past ? Colors.grey : null,
+                              AppLocalizations.of(context)!.examTaken,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
                               ),
                             ),
                           ),
-                          if (past)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                AppLocalizations.of(context)!.examTaken,
-                                style: const TextStyle(fontSize: 11, color: Colors.grey),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        children: [
-                          if (r.date.isNotEmpty)
-                            _infoTag(Icons.calendar_today, r.date),
-                          if (r.time.isNotEmpty)
-                            _infoTag(Icons.access_time, r.time),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        children: [
-                          if (r.location.isNotEmpty)
-                            _infoTag(Icons.location_on_outlined, r.location),
-                          if (r.teacher.isNotEmpty)
-                            _infoTag(Icons.person_outline, r.teacher),
-                          if (r.credit.isNotEmpty)
-                            _infoTag(Icons.school_outlined, AppLocalizations.of(context)!.creditSuffix(r.credit)),
-                        ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
+                      children: [
+                        if (r.date.isNotEmpty)
+                          _infoTag(Icons.calendar_today, r.date),
+                        if (r.time.isNotEmpty)
+                          _infoTag(Icons.access_time, r.time),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 4,
+                      children: [
+                        if (r.location.isNotEmpty)
+                          _infoTag(Icons.location_on_outlined, r.location),
+                        if (r.teacher.isNotEmpty)
+                          _infoTag(Icons.person_outline, r.teacher),
+                        if (r.credit.isNotEmpty)
+                          _infoTag(
+                            Icons.school_outlined,
+                            AppLocalizations.of(
+                              context,
+                            )!.creditSuffix(r.credit),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
+      ),
     ];
   }
 

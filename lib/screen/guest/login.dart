@@ -29,7 +29,9 @@ class LoginPage extends HookWidget {
           captchaController.text = solution.toString();
         }
       } catch (e) {
-        errorMessage.value = AppLocalizations.of(context)!.captchaFetchFailed(e.toString());
+        errorMessage.value = AppLocalizations.of(
+          context,
+        )!.captchaFetchFailed(e.toString());
       }
     }
 
@@ -180,7 +182,10 @@ class LoginPage extends HookWidget {
                             color: Colors.white,
                           ),
                         )
-                      : Text(AppLocalizations.of(context)!.login, style: const TextStyle(fontSize: 16)),
+                      : Text(
+                          AppLocalizations.of(context)!.login,
+                          style: const TextStyle(fontSize: 16),
+                        ),
                 ),
               ),
             ],

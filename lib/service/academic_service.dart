@@ -50,9 +50,7 @@ class AcademicService {
     if (table == null) throw Exception('未找到绩点表格');
 
     // 表头行（有特定 background style）
-    final titleRow = table.querySelector(
-      'tr[style*="background:#efefef"]',
-    );
+    final titleRow = table.querySelector('tr[style*="background:#efefef"]');
     if (titleRow == null) throw Exception('未找到表头行');
 
     final headerCells = titleRow.querySelectorAll('td[align="center"]');
@@ -68,10 +66,9 @@ class AcademicService {
 
     for (var h = 1; h <= height; h++) {
       for (var w = 0; w < width; w++) {
-        data.add(GPAData(
-          type: headers[w],
-          value: allCells[width * h + w].text.trim(),
-        ));
+        data.add(
+          GPAData(type: headers[w], value: allCells[width * h + w].text.trim()),
+        );
       }
     }
 
@@ -105,20 +102,22 @@ class AcademicService {
       final cells = row.querySelectorAll('td');
       if (cells.length < 12) continue;
 
-      marks.add(Mark(
-        type: cells[0].text.trim(),
-        semester: cells[1].text.trim(),
-        name: cells[2].text.trim(),
-        credits: _extractFromTag(cells[3], 'span'),
-        score: _extractFromTag(cells[4], 'font'),
-        gpa: cells[5].text.trim(),
-        earnedCredits: cells[6].text.trim(),
-        electiveType: _chineseOnly(cells[7].text.trim()),
-        examType: _chineseOnly(cells[8].text.trim()),
-        teacher: cells[9].text.trim(),
-        classroom: cells[10].text.trim(),
-        examTime: cells[11].text.trim(),
-      ));
+      marks.add(
+        Mark(
+          type: cells[0].text.trim(),
+          semester: cells[1].text.trim(),
+          name: cells[2].text.trim(),
+          credits: _extractFromTag(cells[3], 'span'),
+          score: _extractFromTag(cells[4], 'font'),
+          gpa: cells[5].text.trim(),
+          earnedCredits: cells[6].text.trim(),
+          electiveType: _chineseOnly(cells[7].text.trim()),
+          examType: _chineseOnly(cells[8].text.trim()),
+          teacher: cells[9].text.trim(),
+          classroom: cells[10].text.trim(),
+          examTime: cells[11].text.trim(),
+        ),
+      );
     }
     return marks;
   }
@@ -157,11 +156,13 @@ class AcademicService {
     for (final row in rows) {
       final cells = row.querySelectorAll('td');
       if (cells.length < 3) continue;
-      exams.add(UnifiedExam(
-        name: cells[0].text.trim(),
-        term: cells[1].text.trim(),
-        score: cells[2].text.trim(),
-      ));
+      exams.add(
+        UnifiedExam(
+          name: cells[0].text.trim(),
+          term: cells[1].text.trim(),
+          score: cells[2].text.trim(),
+        ),
+      );
     }
     return exams;
   }
@@ -212,14 +213,16 @@ class AcademicService {
       final raw = cells[3].text.trim();
       final (date, time, location) = _parseDateAndLocation(raw);
 
-      rooms.add(ExamRoomInfo(
-        courseName: cells[0].text.trim(),
-        credit: cells[1].text.trim(),
-        teacher: cells[2].text.trim(),
-        date: date,
-        time: time,
-        location: location,
-      ));
+      rooms.add(
+        ExamRoomInfo(
+          courseName: cells[0].text.trim(),
+          credit: cells[1].text.trim(),
+          teacher: cells[2].text.trim(),
+          date: date,
+          time: time,
+          location: location,
+        ),
+      );
     }
     return rooms;
   }
@@ -274,11 +277,13 @@ class AcademicService {
       // 构建 CreditStatistics
       for (var i = 0; i < temp[0].length; i++) {
         if (temp[0][i].isNotEmpty && !temp[0][i].contains('情况')) {
-          result.add(CreditStatistics(
-            type: temp[0][i],
-            total: temp[1][i],
-            gain: temp[2][i],
-          ));
+          result.add(
+            CreditStatistics(
+              type: temp[0][i],
+              total: temp[1][i],
+              gain: temp[2][i],
+            ),
+          );
         }
       }
     }
@@ -313,16 +318,20 @@ class AcademicService {
       if (raw.length < 22) continue;
       if (terms.length >= 16) break;
 
-      final startDate = '${raw.substring(6, 8)}-${raw.substring(8, 10)}-${raw.substring(10, 12)}';
-      final endDate = '${raw.substring(14, 16)}-${raw.substring(16, 18)}-${raw.substring(18, 20)}';
+      final startDate =
+          '${raw.substring(6, 8)}-${raw.substring(8, 10)}-${raw.substring(10, 12)}';
+      final endDate =
+          '${raw.substring(14, 16)}-${raw.substring(16, 18)}-${raw.substring(18, 20)}';
 
-      terms.add(CalTerm(
-        termId: raw,
-        schoolYear: raw.substring(0, 4),
-        term: raw.substring(0, 6),
-        startDate: '${raw.substring(0, 4)}-$startDate',
-        endDate: '${raw.substring(0, 4)}-$endDate',
-      ));
+      terms.add(
+        CalTerm(
+          termId: raw,
+          schoolYear: raw.substring(0, 4),
+          term: raw.substring(0, 6),
+          startDate: '${raw.substring(0, 4)}-$startDate',
+          endDate: '${raw.substring(0, 4)}-$endDate',
+        ),
+      );
     }
 
     return SchoolCalendar(currentTerm: currentTerm, terms: terms);
@@ -371,11 +380,13 @@ class AcademicService {
       final dateParts = dateStr.split('至');
 
       if (dateParts.length >= 2) {
-        events.add(CalTermEvent(
-          name: name,
-          startDate: dateParts[0].trim(),
-          endDate: dateParts[1].trim(),
-        ));
+        events.add(
+          CalTermEvent(
+            name: name,
+            startDate: dateParts[0].trim(),
+            endDate: dateParts[1].trim(),
+          ),
+        );
       } else {
         final date = dateParts[0].trim();
         events.add(CalTermEvent(name: name, startDate: date, endDate: date));

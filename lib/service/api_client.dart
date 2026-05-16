@@ -12,18 +12,20 @@ import 'package:fzu_assistant/service/captcha_solver.dart';
 
 class ApiClient {
   ApiClient._() {
-    _dio = Dio(BaseOptions(
-      contentType: Headers.formUrlEncodedContentType,
-      headers: {
-        'Referer': 'https://jwch.fzu.edu.cn',
-        'Origin': 'https://jwch.fzu.edu.cn',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      followRedirects: false,
-      validateStatus: (_) => true,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ));
+    _dio = Dio(
+      BaseOptions(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: {
+          'Referer': 'https://jwch.fzu.edu.cn',
+          'Origin': 'https://jwch.fzu.edu.cn',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        followRedirects: false,
+        validateStatus: (_) => true,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
     _cookieJar = CookieJar();
     (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
       final client = HttpClient();
@@ -68,7 +70,9 @@ class ApiClient {
       data: {'muser': user, 'passwd': _md5_16(pass), 'Verifycode': captcha},
       options: Options(responseType: ResponseType.bytes),
     );
-    final checkBody = _strip(utf8.decode(checkResp.data!, allowMalformed: true));
+    final checkBody = _strip(
+      utf8.decode(checkResp.data!, allowMalformed: true),
+    );
 
     if (checkResp.statusCode != 302) {
       throw Exception('登录失败');
@@ -78,10 +82,7 @@ class ApiClient {
     if (token == null) throw Exception('教务处未返回有效 Token');
 
     // Step 2: SSOLogin
-    final ssoResp = await _dio.post(
-      _urls['ssoLogin']!,
-      data: {'token': token},
-    );
+    final ssoResp = await _dio.post(_urls['ssoLogin']!, data: {'token': token});
     final ssoJson = ssoResp.data is String
         ? jsonDecode(_strip(ssoResp.data as String))
         : ssoResp.data;

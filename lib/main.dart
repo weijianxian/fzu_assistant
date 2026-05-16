@@ -32,10 +32,20 @@ class MyApp extends HookWidget {
   Widget build(BuildContext context) {
     final themeState = useMemoized(() => ThemeState()..load());
     final localeState = useMemoized(() => LocaleState()..load());
-    useEffect(() => () { themeState.dispose(); localeState.dispose(); }, []);
+    useEffect(
+      () => () {
+        themeState.dispose();
+        localeState.dispose();
+      },
+      [],
+    );
 
     return AnimatedBuilder(
-      animation: Listenable.merge([themeState.themeKey, themeState.themeModeKey, localeState.localeKey]),
+      animation: Listenable.merge([
+        themeState.themeKey,
+        themeState.themeModeKey,
+        localeState.localeKey,
+      ]),
       builder: (_, _) => LocaleProvider(
         state: localeState,
         child: ThemeProvider(
@@ -107,9 +117,18 @@ class HomeScreen extends HookWidget {
                   onDestinationSelected: (i) => currentPage.value = i,
                   labelType: NavigationRailLabelType.all,
                   destinations: [
-                    NavigationRailDestination(icon: const Icon(Icons.home), label: Text(l10n.navSchedule)),
-                    NavigationRailDestination(icon: const Icon(Icons.build), label: Text(l10n.navToolbox)),
-                    NavigationRailDestination(icon: const Icon(Icons.person), label: Text(l10n.navMy)),
+                    NavigationRailDestination(
+                      icon: const Icon(Icons.home),
+                      label: Text(l10n.navSchedule),
+                    ),
+                    NavigationRailDestination(
+                      icon: const Icon(Icons.build),
+                      label: Text(l10n.navToolbox),
+                    ),
+                    NavigationRailDestination(
+                      icon: const Icon(Icons.person),
+                      label: Text(l10n.navMy),
+                    ),
                   ],
                 ),
               Expanded(
@@ -123,9 +142,18 @@ class HomeScreen extends HookWidget {
                   type: BottomNavigationBarType.fixed,
                   currentIndex: currentPage.value,
                   items: [
-                    BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navSchedule),
-                    BottomNavigationBarItem(icon: const Icon(Icons.build), label: l10n.navToolbox),
-                    BottomNavigationBarItem(icon: const Icon(Icons.person), label: l10n.navMy),
+                    BottomNavigationBarItem(
+                      icon: const Icon(Icons.home),
+                      label: l10n.navSchedule,
+                    ),
+                    BottomNavigationBarItem(
+                      icon: const Icon(Icons.build),
+                      label: l10n.navToolbox,
+                    ),
+                    BottomNavigationBarItem(
+                      icon: const Icon(Icons.person),
+                      label: l10n.navMy,
+                    ),
                   ],
                   onTap: (i) => currentPage.value = i,
                 ),

@@ -8,8 +8,13 @@ const _maxPeriod = 11;
 const _headerHeight = 48.0;
 
 List<String> _weekdays(AppLocalizations l10n) => [
-  l10n.monday, l10n.tuesday, l10n.wednesday, l10n.thursday,
-  l10n.friday, l10n.saturday, l10n.sunday,
+  l10n.monday,
+  l10n.tuesday,
+  l10n.wednesday,
+  l10n.thursday,
+  l10n.friday,
+  l10n.saturday,
+  l10n.sunday,
 ];
 const _labelWidth = 44.0;
 const _minCellHeight = 52.0;
@@ -43,7 +48,12 @@ class SchedulePage extends HookWidget {
     final service = useMemoized(() => CourseService());
     final pageController = useState<PageController?>(null);
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     // 加载缓存 → 创建 PageController → 刷新 API
     useEffect(() {
@@ -64,8 +74,17 @@ class SchedulePage extends HookWidget {
         pageController.value = PageController(initialPage: startWeek - 1);
 
         // 3. 后台刷新 API
-        _refresh(service, courses, currentWeek, displayWeek, firstMonday,
-            loading, error, pageController, mounted);
+        _refresh(
+          service,
+          courses,
+          currentWeek,
+          displayWeek,
+          firstMonday,
+          loading,
+          error,
+          pageController,
+          mounted,
+        );
       }();
       return null;
     }, []);
@@ -89,18 +108,18 @@ class SchedulePage extends HookWidget {
             icon: const Icon(Icons.chevron_left),
             onPressed: pc != null && displayWeek.value > 1
                 ? () => pc.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    )
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  )
                 : null,
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: pc != null && displayWeek.value < _totalWeeks
                 ? () => pc.nextPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    )
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  )
                 : null,
           ),
         ],
@@ -108,30 +127,43 @@ class SchedulePage extends HookWidget {
       body: pc == null
           ? const Center(child: CircularProgressIndicator())
           : error.value != null && courses.value.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(AppLocalizations.of(context)!.loadingFailed(error.value ?? '')),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => _refresh(service, courses, currentWeek,
-                            displayWeek, firstMonday, loading, error, pageController, mounted),
-                        child: Text(AppLocalizations.of(context)!.retry),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.loadingFailed(error.value ?? ''),
                   ),
-                )
-              : courses.value.isEmpty
-                  ? Center(child: Text(AppLocalizations.of(context)!.noScheduleData))
-                  : PageView.builder(
-                      controller: pc,
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: _totalWeeks,
-                      onPageChanged: (i) => displayWeek.value = i + 1,
-                      itemBuilder: (context, i) =>
-                          _buildBody(courses.value, i + 1, firstMonday.value),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => _refresh(
+                      service,
+                      courses,
+                      currentWeek,
+                      displayWeek,
+                      firstMonday,
+                      loading,
+                      error,
+                      pageController,
+                      mounted,
                     ),
+                    child: Text(AppLocalizations.of(context)!.retry),
+                  ),
+                ],
+              ),
+            )
+          : courses.value.isEmpty
+          ? Center(child: Text(AppLocalizations.of(context)!.noScheduleData))
+          : PageView.builder(
+              controller: pc,
+              physics: const BouncingScrollPhysics(),
+              itemCount: _totalWeeks,
+              onPageChanged: (i) => displayWeek.value = i + 1,
+              itemBuilder: (context, i) =>
+                  _buildBody(courses.value, i + 1, firstMonday.value),
+            ),
     );
   }
 
@@ -155,8 +187,9 @@ class SchedulePage extends HookWidget {
           '${weekInfo.year}${weekInfo.term.toString().padLeft(2, '0')}';
       final termInfo = await service.getTerms();
       if (!mounted.value) return;
-      final targetTerm =
-          termInfo.terms.contains(termStr) ? termStr : termInfo.terms.first;
+      final targetTerm = termInfo.terms.contains(termStr)
+          ? termStr
+          : termInfo.terms.first;
 
       final list = await service.getCourses(
         targetTerm,
@@ -172,7 +205,9 @@ class SchedulePage extends HookWidget {
 
       // API 返回的周次和缓存不同时，动画跳转
       final pc = pageController.value;
-      if (pc != null && pc.hasClients && pc.page?.round() != weekInfo.week - 1) {
+      if (pc != null &&
+          pc.hasClients &&
+          pc.page?.round() != weekInfo.week - 1) {
         pc.animateToPage(
           weekInfo.week - 1,
           duration: const Duration(milliseconds: 300),
@@ -192,7 +227,7 @@ class SchedulePage extends HookWidget {
     final now = DateTime.now();
     final minutes = now.hour * 60 + now.minute;
     const starts = [500, 555, 620, 675, 840, 895, 950, 1005, 1140, 1195, 1250];
-    const ends   = [545, 600, 665, 720, 885, 940, 995, 1050, 1185, 1240, 1295];
+    const ends = [545, 600, 665, 720, 885, 940, 995, 1050, 1185, 1240, 1295];
     for (var i = 0; i < starts.length; i++) {
       if (minutes >= starts[i] && minutes <= ends[i]) return i;
     }
@@ -223,14 +258,13 @@ class SchedulePage extends HookWidget {
         final isCurrentWeek = weekDates.isNotEmpty && weekDates.contains(today);
         final highlightPeriod = isCurrentWeek ? _currentPeriod() : -1;
 
-        final highlightColor = Theme.of(context)
-            .colorScheme
-            .primaryContainer
-            .withValues(alpha: 0.3);
+        final highlightColor = Theme.of(
+          context,
+        ).colorScheme.primaryContainer.withValues(alpha: 0.3);
 
         final weekdays = _weekdays(AppLocalizations.of(context)!);
 
-    final content = Column(
+        final content = Column(
           children: [
             SizedBox(
               height: _headerHeight,
@@ -246,9 +280,13 @@ class SchedulePage extends HookWidget {
                                 weekDates[i],
                                 weekDates[i] == today,
                               )
-                            : Text(weekdays[i],
+                            : Text(
+                                weekdays[i],
                                 style: const TextStyle(
-                                    fontSize: 13, fontWeight: FontWeight.bold)),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
                 ],
@@ -281,19 +319,24 @@ class SchedulePage extends HookWidget {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('${p + 1}',
-                                        style: const TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600)),
                                     Text(
-                                        '${_timeSlots[p].$1}\n${_timeSlots[p].$2}',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 7.5,
-                                            height: 1.2,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .outline)),
+                                      '${p + 1}',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${_timeSlots[p].$1}\n${_timeSlots[p].$2}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 7.5,
+                                        height: 1.2,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.outline,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -306,8 +349,12 @@ class SchedulePage extends HookWidget {
                             height: gridHeight,
                             child: Stack(
                               clipBehavior: Clip.hardEdge,
-                              children:
-                                  _buildCards(courses, wd, week, cellHeight),
+                              children: _buildCards(
+                                courses,
+                                wd,
+                                week,
+                                cellHeight,
+                              ),
                             ),
                           ),
                         ),
@@ -329,23 +376,28 @@ class SchedulePage extends HookWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(weekday,
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: isToday ? null : null)),
-        Text('${date.month}/${date.day}',
-            style: TextStyle(
-                fontSize: 10,
-                color: isToday
-                    ? null
-                    : Colors.grey)),
+        Text(
+          weekday,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: isToday ? null : null,
+          ),
+        ),
+        Text(
+          '${date.month}/${date.day}',
+          style: TextStyle(fontSize: 10, color: isToday ? null : Colors.grey),
+        ),
       ],
     );
   }
 
   List<Widget> _buildCards(
-      List<Course> courses, int wd, int week, double cellHeight) {
+    List<Course> courses,
+    int wd,
+    int week,
+    double cellHeight,
+  ) {
     final cards = <Widget>[];
     for (final c in courses) {
       for (final r in c.scheduleRules) {
@@ -359,13 +411,15 @@ class SchedulePage extends HookWidget {
         final top = (r.startClass - 1) * cellHeight;
         final height = (end - r.startClass + 1) * cellHeight;
 
-        cards.add(Positioned(
-          top: top + 1,
-          left: 2,
-          right: 2,
-          height: height - 2,
-          child: _CourseCard(course: c, location: r.location),
-        ));
+        cards.add(
+          Positioned(
+            top: top + 1,
+            left: 2,
+            right: 2,
+            height: height - 2,
+            child: _CourseCard(course: c, location: r.location),
+          ),
+        );
       }
     }
     return cards;
@@ -376,28 +430,52 @@ class _CourseCard extends StatelessWidget {
   final Course course;
   final String location;
 
+  // Tailwind CSS 100 级浅色
   static const _lightColors = [
-    Color(0xFFE3F2FD),
-    Color(0xFFF3E5F5),
-    Color(0xFFE8F5E9),
-    Color(0xFFFFF3E0),
-    Color(0xFFE0F7FA),
-    Color(0xFFFCE4EC),
-    Color(0xFFF1F8E9),
-    Color(0xFFFFFDE7),
-    Color(0xFFE8EAF6),
+    Color(0xFFE0F2FE), // sky
+    Color(0xFFDBEAFE), // blue
+    Color(0xFFE0E7FF), // indigo
+    Color(0xFFEDE9FE), // violet
+    Color(0xFFF3E8FF), // purple
+    Color(0xFFFAE8FF), // fuchsia
+    Color(0xFFFCE7F3), // pink
+    Color(0xFFFFE4E6), // rose
+    Color(0xFFFFEDD5), // orange
+    Color(0xFFFEF3C7), // amber
+    Color(0xFFFEF9C3), // yellow
+    Color(0xFFECFCCB), // lime
+    Color(0xFFDCFCE7), // green
+    Color(0xFFD1FAE5), // emerald
+    Color(0xFFCCFBF1), // teal
+    Color(0xFFCFFAFE), // cyan
+    Color(0xFFE2E8F0), // slate
+    Color(0xFFF3F4F6), // gray
+    Color(0xFFF5F5F4), // stone
+    Color(0xFFFEE2E2), // red
   ];
 
+  // Tailwind CSS 800 级深色
   static const _darkColors = [
-    Color(0xFF1A3A5C),
-    Color(0xFF3A1F4A),
-    Color(0xFF1A3D2A),
-    Color(0xFF4A3010),
-    Color(0xFF1A3A3A),
-    Color(0xFF4A1A2A),
-    Color(0xFF2A3D1A),
-    Color(0xFF3D3A10),
-    Color(0xFF2A2D4A),
+    Color(0xFF075985), // sky
+    Color(0xFF1E40AF), // blue
+    Color(0xFF3730A3), // indigo
+    Color(0xFF5B21B6), // violet
+    Color(0xFF6B21A8), // purple
+    Color(0xFF86198F), // fuchsia
+    Color(0xFF9D174D), // pink
+    Color(0xFF9F1239), // rose
+    Color(0xFF9A3412), // orange
+    Color(0xFF92400E), // amber
+    Color(0xFF854D0E), // yellow
+    Color(0xFF3F6212), // lime
+    Color(0xFF166534), // green
+    Color(0xFF065F46), // emerald
+    Color(0xFF115E59), // teal
+    Color(0xFF155E75), // cyan
+    Color(0xFF1E293B), // slate
+    Color(0xFF1F2937), // gray
+    Color(0xFF292524), // stone
+    Color(0xFF991B1B), // red
   ];
 
   const _CourseCard({required this.course, required this.location});

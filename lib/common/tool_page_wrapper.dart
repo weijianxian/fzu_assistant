@@ -31,7 +31,9 @@ class ToolPageWrapper extends HookWidget {
     }
 
     if (error != null && !hasData) {
-      return Center(child: Text(AppLocalizations.of(context)!.loadingFailed(error!)));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.loadingFailed(error!)),
+      );
     }
 
     return RefreshIndicator(
@@ -45,7 +47,10 @@ class ToolPageWrapper extends HookWidget {
     if (slivers != null) {
       return CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [...slivers!, SliverToBoxAdapter(child: _footer(context))],
+        slivers: [
+          ...slivers!,
+          SliverToBoxAdapter(child: _footer(context)),
+        ],
       );
     }
 
@@ -88,7 +93,9 @@ class ToolPageWrapper extends HookWidget {
       child: Center(
         child: Text(
           refreshTime != null
-              ? AppLocalizations.of(context)!.dataUpdatedAt(_formatTime(refreshTime!))
+              ? AppLocalizations.of(
+                  context,
+                )!.dataUpdatedAt(_formatTime(refreshTime!))
               : '',
           style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),

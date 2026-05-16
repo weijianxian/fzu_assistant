@@ -14,10 +14,17 @@ class CourseService {
 
   Dio get _dio => ApiClient.instance.dio;
 
-  Future<void> saveCache(int week, List<Course> courses, DateTime firstMonday) async {
+  Future<void> saveCache(
+    int week,
+    List<Course> courses,
+    DateTime firstMonday,
+  ) async {
     final sp = await SharedPreferences.getInstance();
     sp.setInt(SpKeys.cacheCurrentWeek, week);
-    sp.setString(SpKeys.cacheCourses, jsonEncode(courses.map((c) => c.toJson()).toList()));
+    sp.setString(
+      SpKeys.cacheCourses,
+      jsonEncode(courses.map((c) => c.toJson()).toList()),
+    );
     sp.setString(SpKeys.cacheFirstMonday, firstMonday.toIso8601String());
   }
 
@@ -27,7 +34,9 @@ class CourseService {
     final raw = sp.getString(SpKeys.cacheCourses);
     final fm = sp.getString(SpKeys.cacheFirstMonday);
     if (week == null || raw == null || fm == null) return null;
-    final list = (jsonDecode(raw) as List).map((c) => Course.fromJson(c)).toList();
+    final list = (jsonDecode(raw) as List)
+        .map((c) => Course.fromJson(c))
+        .toList();
     return (week, list, DateTime.parse(fm));
   }
 
@@ -48,7 +57,9 @@ class CourseService {
     // 本周一的日期
     final thisMonday = now.subtract(Duration(days: now.weekday - 1));
     // 第一周的周一
-    final firstMonday = thisMonday.subtract(Duration(days: (int.parse(week) - 1) * 7));
+    final firstMonday = thisMonday.subtract(
+      Duration(days: (int.parse(week) - 1) * 7),
+    );
 
     return CurrentWeek(
       week: int.parse(week),
@@ -170,17 +181,19 @@ class CourseService {
           if (wd < startWeekday) cs++;
           if (wd > endWeekday) ce--;
           if (cs > ce) continue;
-          rules.add(CourseScheduleRule(
-            location: '',
-            startClass: 1,
-            endClass: 8,
-            startWeek: cs,
-            endWeek: ce,
-            weekday: wd,
-            single: true,
-            double: true,
-            fromFullWeek: true,
-          ));
+          rules.add(
+            CourseScheduleRule(
+              location: '',
+              startClass: 1,
+              endClass: 8,
+              startWeek: cs,
+              endWeek: ce,
+              weekday: wd,
+              single: true,
+              double: true,
+              fromFullWeek: true,
+            ),
+          );
         }
         continue;
       }
@@ -199,16 +212,18 @@ class CourseService {
       final single = !dayParts[1].contains('双');
       final double = !dayParts[1].contains('单');
 
-      rules.add(CourseScheduleRule(
-        location: location,
-        startClass: _parseInt(classRange[0]),
-        endClass: _parseInt(classRange[1]),
-        startWeek: _parseInt(weekInfo[0]),
-        endWeek: _parseInt(weekInfo[1]),
-        weekday: _parseInt(dayParts[0].replaceAll('星期', '')),
-        single: single,
-        double: double,
-      ));
+      rules.add(
+        CourseScheduleRule(
+          location: location,
+          startClass: _parseInt(classRange[0]),
+          endClass: _parseInt(classRange[1]),
+          startWeek: _parseInt(weekInfo[0]),
+          endWeek: _parseInt(weekInfo[1]),
+          weekday: _parseInt(dayParts[0].replaceAll('星期', '')),
+          single: single,
+          double: double,
+        ),
+      );
     }
     return rules;
   }
@@ -228,17 +243,19 @@ class CourseService {
       final m = regex.firstMatch(line);
       if (m == null) continue;
 
-      rules.add(CourseAdjustRule(
-        oldWeek: _parseInt(m.group(1)!),
-        oldWeekday: _parseInt(m.group(2)!),
-        oldStartClass: _parseInt(m.group(3)!),
-        oldEndClass: _parseInt(m.group(4)!),
-        newWeek: _parseInt(m.group(5)!),
-        newWeekday: _parseInt(m.group(6)!),
-        newStartClass: _parseInt(m.group(7)!),
-        newEndClass: _parseInt(m.group(8)!),
-        newLocation: m.group(9)!,
-      ));
+      rules.add(
+        CourseAdjustRule(
+          oldWeek: _parseInt(m.group(1)!),
+          oldWeekday: _parseInt(m.group(2)!),
+          oldStartClass: _parseInt(m.group(3)!),
+          oldEndClass: _parseInt(m.group(4)!),
+          newWeek: _parseInt(m.group(5)!),
+          newWeekday: _parseInt(m.group(6)!),
+          newStartClass: _parseInt(m.group(7)!),
+          newEndClass: _parseInt(m.group(8)!),
+          newLocation: m.group(9)!,
+        ),
+      );
     }
     return rules;
   }

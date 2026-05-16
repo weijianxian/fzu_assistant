@@ -36,17 +36,17 @@ class CourseScheduleRule {
   });
 
   Map<String, dynamic> toJson() => {
-        'location': location,
-        'startClass': startClass,
-        'endClass': endClass,
-        'startWeek': startWeek,
-        'endWeek': endWeek,
-        'weekday': weekday,
-        'single': single,
-        'double': double,
-        'adjust': adjust,
-        'fromFullWeek': fromFullWeek,
-      };
+    'location': location,
+    'startClass': startClass,
+    'endClass': endClass,
+    'startWeek': startWeek,
+    'endWeek': endWeek,
+    'weekday': weekday,
+    'single': single,
+    'double': double,
+    'adjust': adjust,
+    'fromFullWeek': fromFullWeek,
+  };
 
   factory CourseScheduleRule.fromJson(Map<String, dynamic> json) =>
       CourseScheduleRule(
@@ -89,17 +89,17 @@ class CourseAdjustRule {
   });
 
   Map<String, dynamic> toJson() => {
-        'oldWeek': oldWeek,
-        'oldWeekday': oldWeekday,
-        'oldStartClass': oldStartClass,
-        'oldEndClass': oldEndClass,
-        'canceled': canceled,
-        'newWeek': newWeek,
-        'newWeekday': newWeekday,
-        'newStartClass': newStartClass,
-        'newEndClass': newEndClass,
-        'newLocation': newLocation,
-      };
+    'oldWeek': oldWeek,
+    'oldWeekday': oldWeekday,
+    'oldStartClass': oldStartClass,
+    'oldEndClass': oldEndClass,
+    'canceled': canceled,
+    'newWeek': newWeek,
+    'newWeekday': newWeekday,
+    'newStartClass': newStartClass,
+    'newEndClass': newEndClass,
+    'newLocation': newLocation,
+  };
 
   factory CourseAdjustRule.fromJson(Map<String, dynamic> json) =>
       CourseAdjustRule(
@@ -142,36 +142,38 @@ class Course {
   });
 
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'name': name,
-        'credits': credits,
-        'electiveType': electiveType,
-        'examType': examType,
-        'teacher': teacher,
-        'scheduleRules': scheduleRules.map((r) => r.toJson()).toList(),
-        'adjustRules': adjustRules.map((r) => r.toJson()).toList(),
-        'rawExamTime': rawExamTime,
-        'remark': remark,
-      };
+    'type': type,
+    'name': name,
+    'credits': credits,
+    'electiveType': electiveType,
+    'examType': examType,
+    'teacher': teacher,
+    'scheduleRules': scheduleRules.map((r) => r.toJson()).toList(),
+    'adjustRules': adjustRules.map((r) => r.toJson()).toList(),
+    'rawExamTime': rawExamTime,
+    'remark': remark,
+  };
 
   factory Course.fromJson(Map<String, dynamic> json) => Course(
-        type: json['type'] ?? '',
-        name: json['name'] ?? '',
-        credits: json['credits'] ?? '',
-        electiveType: json['electiveType'] ?? '',
-        examType: json['examType'] ?? '',
-        teacher: json['teacher'] ?? '',
-        scheduleRules: (json['scheduleRules'] as List?)
-                ?.map((r) => CourseScheduleRule.fromJson(r))
-                .toList() ??
-            [],
-        adjustRules: (json['adjustRules'] as List?)
-                ?.map((r) => CourseAdjustRule.fromJson(r))
-                .toList() ??
-            [],
-        rawExamTime: json['rawExamTime'] ?? '',
-        remark: json['remark'] ?? '',
-      );
+    type: json['type'] ?? '',
+    name: json['name'] ?? '',
+    credits: json['credits'] ?? '',
+    electiveType: json['electiveType'] ?? '',
+    examType: json['examType'] ?? '',
+    teacher: json['teacher'] ?? '',
+    scheduleRules:
+        (json['scheduleRules'] as List?)
+            ?.map((r) => CourseScheduleRule.fromJson(r))
+            .toList() ??
+        [],
+    adjustRules:
+        (json['adjustRules'] as List?)
+            ?.map((r) => CourseAdjustRule.fromJson(r))
+            .toList() ??
+        [],
+    rawExamTime: json['rawExamTime'] ?? '',
+    remark: json['remark'] ?? '',
+  );
 }
 
 class CurrentWeek {

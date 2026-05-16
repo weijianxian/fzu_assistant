@@ -16,7 +16,12 @@ class CalendarPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     Future<void> load() async {
       try {
@@ -107,7 +112,11 @@ class _TermCard extends HookWidget {
           children: [
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.academicYearTerm(term.schoolYear, '${int.parse(term.schoolYear) + 1}', term.term.substring(4, 6)),
+                AppLocalizations.of(context)!.academicYearTerm(
+                  term.schoolYear,
+                  '${int.parse(term.schoolYear) + 1}',
+                  term.term.substring(4, 6),
+                ),
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
@@ -116,8 +125,7 @@ class _TermCard extends HookWidget {
             ),
             if (isCurrent)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.green.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
@@ -158,7 +166,9 @@ class _TermCard extends HookWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                AppLocalizations.of(context)!.loadingFailed(eventsError.value ?? ''),
+                AppLocalizations.of(
+                  context,
+                )!.loadingFailed(eventsError.value ?? ''),
                 style: const TextStyle(color: Colors.red, fontSize: 13),
               ),
             )
@@ -198,8 +208,8 @@ class _EventsTable extends StatelessWidget {
           final hasDate = e.startDate.isNotEmpty;
           final dateText = hasDate
               ? (e.startDate == e.endDate
-                  ? e.startDate
-                  : '${e.startDate} ～ ${e.endDate}')
+                    ? e.startDate
+                    : '${e.startDate} ～ ${e.endDate}')
               : '';
           return TableRow(
             children: [
@@ -210,10 +220,7 @@ class _EventsTable extends StatelessWidget {
               const SizedBox(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  e.name,
-                  style: const TextStyle(fontSize: 14),
-                ),
+                child: Text(e.name, style: const TextStyle(fontSize: 14)),
               ),
             ],
           );

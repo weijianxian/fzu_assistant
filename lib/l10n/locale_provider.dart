@@ -21,7 +21,9 @@ class LocaleState {
     localeKey.value = valid ? saved : 'system';
 
     localeKey.addListener(() {
-      SharedPreferences.getInstance().then((sp) => sp.setString(SpKeys.localeKey, localeKey.value));
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString(SpKeys.localeKey, localeKey.value),
+      );
     });
   }
 

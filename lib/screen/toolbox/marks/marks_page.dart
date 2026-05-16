@@ -17,7 +17,12 @@ class MarksPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
-    useEffect(() => () { mounted.value = false; }, []);
+    useEffect(
+      () => () {
+        mounted.value = false;
+      },
+      [],
+    );
 
     Future<void> load() async {
       try {
@@ -55,7 +60,9 @@ class MarksPage extends HookWidget {
     // 按学期分组，保持顺序
     final grouped = <String, List<Mark>>{};
     for (final m in marks) {
-      final key = m.semester.isEmpty ? AppLocalizations.of(context)!.unknownSemester : m.semester;
+      final key = m.semester.isEmpty
+          ? AppLocalizations.of(context)!.unknownSemester
+          : m.semester;
       grouped.putIfAbsent(key, () => []).add(m);
     }
     // 每学期按成绩倒序
@@ -72,31 +79,35 @@ class MarksPage extends HookWidget {
       MasonrySliverGrid(
         childCount: semesters.length,
         itemBuilder: (context, i) {
-            final sem = semesters[i];
-            final items = grouped[sem]!;
-            return Card(
-              margin: EdgeInsets.zero,
-              child: ExpansionTile(
-                initiallyExpanded: i == 0,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-                childrenPadding: EdgeInsets.zero,
-                shape: const Border(),
-                collapsedShape: const Border(),
-                title: Text(sem,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(AppLocalizations.of(context)!.courseCount(items.length),
-                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                children: [
-                  for (var j = 0; j < items.length; j++) ...[
-                    _buildMarkTile(context, items[j]),
-                    if (j < items.length - 1)
-                      const Divider(height: 1, indent: 16, endIndent: 16),
-                  ],
-                ],
+          final sem = semesters[i];
+          final items = grouped[sem]!;
+          return Card(
+            margin: EdgeInsets.zero,
+            child: ExpansionTile(
+              initiallyExpanded: i == 0,
+              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+              childrenPadding: EdgeInsets.zero,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                sem,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-            );
-          },
-        ),
+              subtitle: Text(
+                AppLocalizations.of(context)!.courseCount(items.length),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              children: [
+                for (var j = 0; j < items.length; j++) ...[
+                  _buildMarkTile(context, items[j]),
+                  if (j < items.length - 1)
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
     ];
   }
 

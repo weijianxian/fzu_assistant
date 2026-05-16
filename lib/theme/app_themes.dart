@@ -19,7 +19,10 @@ const appThemes = [
   ThemeConfig('brown', '棕色', Color(0xFF795548)),
 ];
 
-ThemeData buildTheme(Color seedColor, {Brightness brightness = Brightness.light}) {
+ThemeData buildTheme(
+  Color seedColor, {
+  Brightness brightness = Brightness.light,
+}) {
   final colorScheme = ColorScheme.fromSeed(
     seedColor: seedColor,
     brightness: brightness,
@@ -29,8 +32,6 @@ ThemeData buildTheme(Color seedColor, {Brightness brightness = Brightness.light}
     brightness: brightness,
     colorScheme: colorScheme,
     splashFactory: NoSplash.splashFactory,
-    appBarTheme: const AppBarTheme(
-      scrolledUnderElevation: 0,
-    ),
+    appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
   );
 }

@@ -25,10 +25,14 @@ class ThemeState {
     themeModeKey.value = validMode ? savedMode : 'system';
 
     themeKey.addListener(() {
-      SharedPreferences.getInstance().then((sp) => sp.setString(SpKeys.themeKey, themeKey.value));
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString(SpKeys.themeKey, themeKey.value),
+      );
     });
     themeModeKey.addListener(() {
-      SharedPreferences.getInstance().then((sp) => sp.setString(SpKeys.themeMode, themeModeKey.value));
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString(SpKeys.themeMode, themeModeKey.value),
+      );
     });
   }
 
@@ -44,7 +48,8 @@ class ThemeState {
     return buildTheme(color, brightness: Brightness.dark);
   }
 
-  ThemeMode get currentThemeMode => _modeMap[themeModeKey.value] ?? ThemeMode.system;
+  ThemeMode get currentThemeMode =>
+      _modeMap[themeModeKey.value] ?? ThemeMode.system;
 
   void dispose() {
     themeKey.dispose();
