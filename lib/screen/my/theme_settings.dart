@@ -8,7 +8,6 @@ class ThemeSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = ThemeProvider.of(context);
-    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('主题设置')),
@@ -21,7 +20,7 @@ class ThemeSettingsPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ValueListenableBuilder(
               valueListenable: state.themeMode,
-              builder: (_, mode, __) => SegmentedButton<int>(
+              builder: (_, mode, _) => SegmentedButton<int>(
                 segments: const [
                   ButtonSegment(
                     value: 0,
@@ -50,14 +49,14 @@ class ThemeSettingsPage extends StatelessWidget {
           _SectionHeader('主题色'),
           ValueListenableBuilder(
             valueListenable: state.themeMode,
-            builder: (_, mode, __) {
+            builder: (_, mode, _) {
               final isDark = mode == 2 ||
                   (mode == 0 &&
                       MediaQuery.platformBrightnessOf(context) ==
                           Brightness.dark);
               return ValueListenableBuilder(
                 valueListenable: state.themeIndex,
-                builder: (_, idx, __) => Column(
+                builder: (_, idx, _) => Column(
                   children: List.generate(appThemes.length, (i) {
                     final (name, seed) = appThemes[i];
                     final selected = idx == i;

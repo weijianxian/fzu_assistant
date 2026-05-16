@@ -56,7 +56,6 @@ class LoginPage extends HookWidget {
       errorMessage.value = null;
 
       try {
-        final result = await loginService.login(username, password, captcha);
         await AuthStorage().saveCredentials(username, password);
         if (context.mounted) {
           Navigator.of(context).pushReplacement(

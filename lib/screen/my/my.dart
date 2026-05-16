@@ -100,12 +100,12 @@ class MyPage extends HookWidget {
         //   _infoRow('出生日期', info.birthday),
         //   _infoRow('政治面貌', info.politicalStatus),
         // ]),
-        // _infoCard([
-        //   _infoRow('学院', info.college),
-        //   _infoRow('专业', info.major),
-        //   _infoRow('年级', info.grade),
-        //   _infoRow('辅导员', info.counselor),
-        // ]),
+        _infoCard([
+          _infoRow('学院', info.college),
+          _infoRow('专业', info.major),
+          _infoRow('年级', info.grade),
+          // _infoRow('辅导员', info.counselor),
+        ]),
         // _infoCard([
         //   _infoRow('手机号', info.phone),
         //   _infoRow('邮箱', info.email),

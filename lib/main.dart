@@ -28,7 +28,7 @@ class MyApp extends HookWidget {
 
     return AnimatedBuilder(
       animation: Listenable.merge([state.themeIndex, state.themeMode]),
-      builder: (_, __) => ThemeProvider(
+      builder: (_, _) => ThemeProvider(
         state: state,
         child: MaterialApp(
           title: 'FZU Assistant',

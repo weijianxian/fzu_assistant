@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fzu_assistant/theme/app_themes.dart';
-import 'package:fzu_assistant/theme/theme_provider.dart';
 
 const _maxChars = 200;
 
@@ -25,7 +23,6 @@ class DevToolPage extends HookWidget {
       appBar: AppBar(title: const Text('Dev Tools')),
       body: ListView(
         children: [
-          _buildThemeSection(context),
           _section('SharedPreferences', spData.value),
           _section('SecureStorage', ssData.value),
         ],
@@ -33,68 +30,6 @@ class DevToolPage extends HookWidget {
     );
   }
 
-  Widget _buildThemeSection(BuildContext context) {
-    final provider = ThemeProvider.of(context);
-    final modeLabels = ['跟随系统', '浅色', '深色'];
-
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('主题',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: List.generate(appThemes.length, (i) {
-                final (name, color) = appThemes[i];
-                return ValueListenableBuilder(
-                  valueListenable: provider.themeIndex,
-                  builder: (_, idx, __) {
-                    return ChoiceChip(
-                      label: Text(name),
-                      selected: idx == i,
-                      selectedColor: color.withValues(alpha: 0.3),
-                      onSelected: (_) => provider.themeIndex.value = i,
-                    );
-                  },
-                );
-              }),
-            ),
-            const SizedBox(height: 16),
-            const Text('深色模式',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            const SizedBox(height: 8),
-            ValueListenableBuilder(
-              valueListenable: provider.themeMode,
-              builder: (_, mode, __) {
-                return SegmentedButton<int>(
-                  segments: List.generate(3, (i) {
-                    final icons = [
-                      Icons.brightness_auto,
-                      Icons.light_mode,
-                      Icons.dark_mode,
-                    ];
-                    return ButtonSegment<int>(
-                      value: i,
-                      icon: Icon(icons[i]),
-                      label: Text(modeLabels[i]),
-                    );
-                  }),
-                  selected: {mode},
-                  onSelectionChanged: (s) => provider.themeMode.value = s.first,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Future<void> _loadAll(
     ValueNotifier<Map<String, Object>> spData,
