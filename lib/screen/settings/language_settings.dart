@@ -28,26 +28,26 @@ class LanguageSettingsPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ValueListenableBuilder(
-              valueListenable: localeState.localeIndex,
-              builder: (_, idx, _) => SegmentedButton<int>(
+              valueListenable: localeState.localeKey,
+              builder: (_, key, _) => SegmentedButton<String>(
                 segments: [
                   ButtonSegment(
-                    value: 0,
+                    value: 'system',
                     icon: const Icon(Icons.phone_android),
                     label: Text(AppLocalizations.of(context)!.followSystem),
                   ),
                   ButtonSegment(
-                    value: 1,
-                    label: Text(LocaleState.labels[1]),
+                    value: 'zh',
+                    label: Text(LocaleState.labelOf('zh')),
                   ),
                   ButtonSegment(
-                    value: 2,
-                    label: Text(LocaleState.labels[2]),
+                    value: 'en',
+                    label: Text(LocaleState.labelOf('en')),
                   ),
                 ],
-                selected: {idx},
+                selected: {key},
                 onSelectionChanged: (s) =>
-                    localeState.localeIndex.value = s.first,
+                    localeState.localeKey.value = s.first,
               ),
             ),
           ),

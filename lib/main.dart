@@ -35,7 +35,7 @@ class MyApp extends HookWidget {
     useEffect(() => () { themeState.dispose(); localeState.dispose(); }, []);
 
     return AnimatedBuilder(
-      animation: Listenable.merge([themeState.themeIndex, themeState.themeMode, localeState.localeIndex]),
+      animation: Listenable.merge([themeState.themeKey, themeState.themeModeKey, localeState.localeKey]),
       builder: (_, _) => LocaleProvider(
         state: localeState,
         child: ThemeProvider(

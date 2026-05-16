@@ -4,46 +4,51 @@ import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/theme/app_themes.dart';
 
 class ThemeState {
-  final themeIndex = ValueNotifier<int>(0);
-  final themeMode = ValueNotifier<int>(0); // 0=跟随系统, 1=浅色, 2=深色
-  static const _defaultThemeKey = 'deep_purple';
-  static const _defaultMode = 0;
+  final themeKey = ValueNotifier<String>('deep_purple');
+  final themeModeKey = ValueNotifier<String>('system');
+
+  static const _modeMap = {
+    'system': ThemeMode.system,
+    'light': ThemeMode.light,
+    'dark': ThemeMode.dark,
+  };
 
   Future<void> load() async {
     final sp = await SharedPreferences.getInstance();
 
-    final savedKey = sp.getString(SpKeys.themeKey) ?? _defaultThemeKey;
-    final idx = appThemes.indexWhere((t) => t.key == savedKey);
-    themeIndex.value = idx >= 0 ? idx : 0;
+    final savedTheme = sp.getString(SpKeys.themeKey) ?? 'deep_purple';
+    final validTheme = appThemes.any((t) => t.key == savedTheme);
+    themeKey.value = validTheme ? savedTheme : 'deep_purple';
 
-    final mode = sp.getInt(SpKeys.themeMode) ?? _defaultMode;
-    if (mode >= 0 && mode <= 2) themeMode.value = mode;
+    final savedMode = sp.getString(SpKeys.themeMode) ?? 'system';
+    final validMode = _modeMap.containsKey(savedMode);
+    themeModeKey.value = validMode ? savedMode : 'system';
 
-    themeIndex.addListener(() {
-      final key = appThemes[themeIndex.value].key;
-      SharedPreferences.getInstance().then((sp) => sp.setString(SpKeys.themeKey, key));
+    themeKey.addListener(() {
+      SharedPreferences.getInstance().then((sp) => sp.setString(SpKeys.themeKey, themeKey.value));
     });
-    themeMode.addListener(() =>
-        SharedPreferences.getInstance().then((sp) => sp.setInt(SpKeys.themeMode, themeMode.value)));
+    themeModeKey.addListener(() {
+      SharedPreferences.getInstance().then((sp) => sp.setString(SpKeys.themeMode, themeModeKey.value));
+    });
   }
 
-  ThemeData get lightTheme =>
-      buildTheme(appThemes[themeIndex.value].color, brightness: Brightness.light);
-
-  ThemeData get darkTheme =>
-      buildTheme(appThemes[themeIndex.value].color, brightness: Brightness.dark);
-
-  ThemeMode get currentThemeMode {
-    switch (themeMode.value) {
-      case 1: return ThemeMode.light;
-      case 2: return ThemeMode.dark;
-      default: return ThemeMode.system;
-    }
+  ThemeData get lightTheme {
+    final match = appThemes.where((t) => t.key == themeKey.value);
+    final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
+    return buildTheme(color, brightness: Brightness.light);
   }
+
+  ThemeData get darkTheme {
+    final match = appThemes.where((t) => t.key == themeKey.value);
+    final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
+    return buildTheme(color, brightness: Brightness.dark);
+  }
+
+  ThemeMode get currentThemeMode => _modeMap[themeModeKey.value] ?? ThemeMode.system;
 
   void dispose() {
-    themeIndex.dispose();
-    themeMode.dispose();
+    themeKey.dispose();
+    themeModeKey.dispose();
   }
 }
 
@@ -57,8 +62,8 @@ class ThemeProvider extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ThemeProvider old) =>
-      themeIndex != old.themeIndex || themeMode != old.themeMode;
+      themeKey != old.themeKey || themeModeKey != old.themeModeKey;
 
-  ValueNotifier<int> get themeIndex => state.themeIndex;
-  ValueNotifier<int> get themeMode => state.themeMode;
+  ValueNotifier<String> get themeKey => state.themeKey;
+  ValueNotifier<String> get themeModeKey => state.themeModeKey;
 }

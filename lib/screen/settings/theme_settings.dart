@@ -35,27 +35,27 @@ class ThemeSettingsPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ValueListenableBuilder(
-              valueListenable: state.themeMode,
-              builder: (_, mode, _) => SegmentedButton<int>(
+              valueListenable: state.themeModeKey,
+              builder: (_, modeKey, _) => SegmentedButton<String>(
                 segments: [
                   ButtonSegment(
-                    value: 0,
+                    value: 'system',
                     icon: const Icon(Icons.brightness_auto),
                     label: Text(AppLocalizations.of(context)!.followSystem),
                   ),
                   ButtonSegment(
-                    value: 1,
+                    value: 'light',
                     icon: const Icon(Icons.light_mode),
                     label: Text(AppLocalizations.of(context)!.light),
                   ),
                   ButtonSegment(
-                    value: 2,
+                    value: 'dark',
                     icon: const Icon(Icons.dark_mode),
                     label: Text(AppLocalizations.of(context)!.dark),
                   ),
                 ],
-                selected: {mode},
-                onSelectionChanged: (s) => state.themeMode.value = s.first,
+                selected: {modeKey},
+                onSelectionChanged: (s) => state.themeModeKey.value = s.first,
               ),
             ),
           ),
@@ -64,18 +64,17 @@ class ThemeSettingsPage extends StatelessWidget {
           // ── 主题选择 ──
           _SectionHeader(AppLocalizations.of(context)!.themeColor),
           ValueListenableBuilder(
-            valueListenable: state.themeMode,
-            builder: (_, mode, _) {
-              final isDark = mode == 2 ||
-                  (mode == 0 &&
+            valueListenable: state.themeModeKey,
+            builder: (_, modeKey, _) {
+              final isDark = modeKey == 'dark' ||
+                  (modeKey == 'system' &&
                       MediaQuery.platformBrightnessOf(context) ==
                           Brightness.dark);
               return ValueListenableBuilder(
-                valueListenable: state.themeIndex,
-                builder: (_, idx, _) => Column(
-                  children: List.generate(appThemes.length, (i) {
-                    final theme = appThemes[i];
-                    final selected = idx == i;
+                valueListenable: state.themeKey,
+                builder: (_, currentKey, _) => Column(
+                  children: appThemes.map((theme) {
+                    final selected = currentKey == theme.key;
                     final themeCs = ColorScheme.fromSeed(
                       seedColor: theme.color,
                       brightness:
@@ -85,9 +84,9 @@ class ThemeSettingsPage extends StatelessWidget {
                       name: _themeName(theme.key, AppLocalizations.of(context)!),
                       cs: themeCs,
                       selected: selected,
-                      onTap: () => state.themeIndex.value = i,
+                      onTap: () => state.themeKey.value = theme.key,
                     );
-                  }),
+                  }).toList(),
                 ),
               );
             },
