@@ -14,6 +14,10 @@ class CalendarPage extends HookWidget {
     final loading = useState(true);
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
+    final expandedIds = useState<Set<String>>({});
+    final eventsMap = useState<Map<String, CalTermEvents>>({});
+    final eventsLoadingMap = useState<Map<String, bool>>({});
+    final eventsErrorMap = useState<Map<String, String>>({});
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
     useEffect(
@@ -51,63 +55,103 @@ class CalendarPage extends HookWidget {
         hasData: calendar.value != null && calendar.value!.terms.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noCalendarData,
         child: calendar.value != null
-            ? _buildContent(calendar.value!, service)
+            ? _buildContent(
+                calendar.value!,
+                service,
+                expandedIds,
+                eventsMap,
+                eventsLoadingMap,
+                eventsErrorMap,
+              )
             : const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _buildContent(SchoolCalendar cal, AcademicService service) {
+  Future<void> _loadEvents(
+    String termId,
+    AcademicService service,
+    ValueNotifier<Map<String, CalTermEvents>> eventsMap,
+    ValueNotifier<Map<String, bool>> loadingMap,
+    ValueNotifier<Map<String, String>> errorMap,
+  ) async {
+    if (eventsMap.value.containsKey(termId)) return;
+    loadingMap.value = {...loadingMap.value, termId: true};
+    try {
+      final data = await service.getTermEvents(termId);
+      eventsMap.value = {...eventsMap.value, termId: data};
+    } catch (e) {
+      errorMap.value = {...errorMap.value, termId: e.toString()};
+    }
+    loadingMap.value = {...loadingMap.value, termId: false};
+  }
+
+  Widget _buildContent(
+    SchoolCalendar cal,
+    AcademicService service,
+    ValueNotifier<Set<String>> expandedIds,
+    ValueNotifier<Map<String, CalTermEvents>> eventsMap,
+    ValueNotifier<Map<String, bool>> loadingMap,
+    ValueNotifier<Map<String, String>> errorMap,
+  ) {
     return ListView.builder(
       itemCount: cal.terms.length,
       itemBuilder: (context, i) {
         final t = cal.terms[i];
         final isCurrent = t.termId == cal.currentTerm;
-        return _TermCard(term: t, isCurrent: isCurrent, service: service);
+        return _TermCard(
+          term: t,
+          isCurrent: isCurrent,
+          expanded: expandedIds.value.contains(t.termId),
+          events: eventsMap.value[t.termId],
+          eventsLoading: loadingMap.value[t.termId] ?? false,
+          eventsError: errorMap.value[t.termId],
+          onExpansionChanged: (open) {
+            final next = Set<String>.of(expandedIds.value);
+            if (open) {
+              next.add(t.termId);
+              _loadEvents(t.termId, service, eventsMap, loadingMap, errorMap);
+            } else {
+              next.remove(t.termId);
+            }
+            expandedIds.value = next;
+          },
+        );
       },
     );
   }
 }
 
-class _TermCard extends HookWidget {
+class _TermCard extends StatelessWidget {
   final CalTerm term;
   final bool isCurrent;
-  final AcademicService service;
+  final bool expanded;
+  final CalTermEvents? events;
+  final bool eventsLoading;
+  final String? eventsError;
+  final ValueChanged<bool> onExpansionChanged;
 
   const _TermCard({
     required this.term,
     required this.isCurrent,
-    required this.service,
+    required this.expanded,
+    required this.events,
+    required this.eventsLoading,
+    required this.eventsError,
+    required this.onExpansionChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    final events = useState<CalTermEvents?>(null);
-    final eventsLoading = useState(false);
-    final eventsError = useState<String?>(null);
-    final expanded = useState(false);
-
-    Future<void> loadEvents() async {
-      if (events.value != null) return;
-      eventsLoading.value = true;
-      try {
-        events.value = await service.getTermEvents(term.termId);
-      } catch (e) {
-        eventsError.value = e.toString();
-      }
-      eventsLoading.value = false;
-    }
-
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
+        key: ValueKey(term.termId),
+        initiallyExpanded: expanded,
         shape: const Border(),
         collapsedShape: const Border(),
-        onExpansionChanged: (open) {
-          expanded.value = open;
-          if (open) loadEvents();
-        },
+        onExpansionChanged: onExpansionChanged,
         title: Row(
           children: [
             Expanded(
@@ -151,7 +195,7 @@ class _TermCard extends HookWidget {
           ),
         ),
         children: [
-          if (eventsLoading.value)
+          if (eventsLoading)
             const Padding(
               padding: EdgeInsets.all(16),
               child: Center(
@@ -162,18 +206,16 @@ class _TermCard extends HookWidget {
                 ),
               ),
             )
-          else if (eventsError.value != null)
+          else if (eventsError != null)
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                AppLocalizations.of(
-                  context,
-                )!.loadingFailed(eventsError.value ?? ''),
+                AppLocalizations.of(context)!.loadingFailed(eventsError ?? ''),
                 style: const TextStyle(color: Colors.red, fontSize: 13),
               ),
             )
-          else if (events.value != null && events.value!.events.isNotEmpty)
-            _EventsTable(events: events.value!.events)
+          else if (events != null && events!.events.isNotEmpty)
+            _EventsTable(events: events!.events)
           else
             Padding(
               padding: const EdgeInsets.all(16),
