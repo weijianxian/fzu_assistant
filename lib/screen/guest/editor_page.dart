@@ -40,7 +40,8 @@ class EditorPage extends StatelessWidget {
             icon: const Icon(Icons.save),
             onPressed: () async {
               final ok = await onSave(controller.text);
-              if (context.mounted && ok) Navigator.pop(context);
+              if (context.mounted && ok)
+                Navigator.pop(context, controller.text);
             },
           ),
         ],
