@@ -5,9 +5,11 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/credit.dart';
+import 'package:fzu_assistant/model/empty_room.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/model/gpa.dart';
 import 'package:fzu_assistant/model/mark.dart';
+import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
 import 'package:fzu_assistant/service/api_client.dart';
 
@@ -25,6 +27,9 @@ class AcademicService {
   static const _creditUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xyzk/xftj/CreditStatistics.aspx';
   static const _calendarUrl = 'https://jwcjwxt2.fzu.edu.cn:82/xl.asp';
+  static const _emptyRoomUrl =
+      'https://jwcjwxt2.fzu.edu.cn:81/kkgl/kbcx/kbcx_kjs.aspx';
+  static const _noticeUrl = 'https://jwch.fzu.edu.cn/jxtz.htm';
 
   Dio get _dio => ApiClient.instance.dio;
 
@@ -394,5 +399,269 @@ class AcademicService {
     }
 
     return CalTermEvents(termId: termId, events: events);
+  }
+
+  // ─── 空教室查询 ───
+
+  Future<List<EmptyRoom>> getEmptyRooms(
+    String date,
+    String startPeriod,
+    String endPeriod,
+    String campus,
+  ) async {
+    final id = ApiClient.instance.userId;
+    if (id == null) throw Exception('未登录');
+
+    // Step 1: GET 拿 __VIEWSTATE / __EVENTVALIDATION
+    final getResp = await _dio.get<List<int>>(
+      _emptyRoomUrl,
+      queryParameters: {'id': id},
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final getHtml = utf8.decode(getResp.data!, allowMalformed: true);
+    final getDoc = html_parser.parse(getHtml);
+
+    final viewState =
+        getDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
+    final eventValidation =
+        getDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
+
+    // Step 2: POST 查询教室类型
+    final typeResp = await _dio.post<List<int>>(
+      _emptyRoomUrl,
+      queryParameters: {'id': id},
+      data: {
+        '__VIEWSTATE': viewState,
+        '__EVENTVALIDATION': eventValidation,
+        'ctl00\$TB_rq': date,
+        'ctl00\$qsjdpl': startPeriod,
+        'ctl00\$zzjdpl': endPeriod,
+        'ctl00\$xqdpl': campus,
+        'ctl00\$xz1': '>=',
+        'ctl00\$jsrldpl': '0',
+        'ctl00\$xz2': '>=',
+        'ctl00\$ksrldpl': '0',
+        'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
+      },
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final typeHtml = utf8.decode(typeResp.data!, allowMalformed: true);
+    final typeDoc = html_parser.parse(typeHtml);
+
+    // 获取教室类型列表
+    final roomTypeOptions = typeDoc.querySelectorAll('#jslxdpl option');
+    final roomTypes = roomTypeOptions
+        .map((e) => e.text.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    // 获取更新后的 state
+    final vs2 =
+        typeDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
+    final ev2 =
+        typeDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
+
+    // Step 3: 按教室类型逐个查询
+    final allRooms = <EmptyRoom>[];
+    for (final roomType in roomTypes) {
+      final roomResp = await _dio.post<List<int>>(
+        _emptyRoomUrl,
+        queryParameters: {'id': id},
+        data: {
+          '__VIEWSTATE': vs2,
+          '__EVENTVALIDATION': ev2,
+          'ctl00\$TB_rq': date,
+          'ctl00\$qsjdpl': startPeriod,
+          'ctl00\$zzjdpl': endPeriod,
+          'ctl00\$jslxdpl': roomType,
+          'ctl00\$xqdpl': campus,
+          'ctl00\$xz1': '>=',
+          'ctl00\$jsrldpl': '0',
+          'ctl00\$xz2': '>=',
+          'ctl00\$ksrldpl': '0',
+          'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
+        },
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final roomHtml = utf8.decode(roomResp.data!, allowMalformed: true);
+      final roomDoc = html_parser.parse(roomHtml);
+
+      final roomOptions = roomDoc.querySelectorAll('#jsdpl option');
+      for (final opt in roomOptions) {
+        final name = opt.text.trim();
+        if (name.isNotEmpty) {
+          allRooms.add(EmptyRoom(name: name));
+        }
+      }
+    }
+
+    return allRooms;
+  }
+
+  // ─── 教务通知 ───
+
+  int? _cachedNoticeTotalPages;
+
+  Future<(List<NoticeInfo>, int)> getNotices(int pageNum) async {
+    // 网站分页是反序的：jxtz.htm=最新，jxtz/1.htm=最旧
+    // 用户视角：pageNum 1=最新，pageNum N=最旧
+    // pageNum 1 直接爬取首页（最新），pageNum > 1 用反向公式
+
+    if (pageNum == 1) {
+      final resp = await _dio.get<List<int>>(
+        _noticeUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final html = utf8.decode(resp.data!, allowMalformed: true);
+      final doc = html_parser.parse(html);
+
+      // 首次加载时获取总页数
+      _cachedNoticeTotalPages ??= _parseTotalPages(doc);
+      return (_parseNoticeList(doc), _cachedNoticeTotalPages!);
+    }
+
+    _cachedNoticeTotalPages ??= await _fetchNoticeTotalPages();
+    final totalPages = _cachedNoticeTotalPages!;
+
+    final websitePage = totalPages - pageNum + 1;
+    if (websitePage < 1) return (<NoticeInfo>[], totalPages);
+
+    final resp = await _dio.get<List<int>>(
+      'https://jwch.fzu.edu.cn/jxtz/$websitePage.htm',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final html = utf8.decode(resp.data!, allowMalformed: true);
+    final doc = html_parser.parse(html);
+
+    return (_parseNoticeList(doc), totalPages);
+  }
+
+  /// 从页面中解析总页数（用户视角，含 jxtz.htm 这一页）
+  int _parseTotalPages(Document doc) {
+    int maxWebsitePage = 0;
+    for (final el in doc.querySelectorAll('.p_pages a, span.p_pages a')) {
+      final n = int.tryParse(el.text.trim());
+      if (n != null && n > maxWebsitePage) maxWebsitePage = n;
+    }
+    if (maxWebsitePage == 0) {
+      for (final el in doc.querySelectorAll('.p_pages, span.p_pages')) {
+        for (final m in RegExp(r'\d+').allMatches(el.text)) {
+          final n = int.tryParse(m.group(0)!);
+          if (n != null && n > maxWebsitePage) maxWebsitePage = n;
+        }
+      }
+    }
+    return maxWebsitePage > 0 ? maxWebsitePage : 1;
+  }
+
+  Future<int> _fetchNoticeTotalPages() async {
+    for (final tryPage in [2, 3, 1]) {
+      final url = 'https://jwch.fzu.edu.cn/jxtz/$tryPage.htm';
+      try {
+        final resp = await _dio.get<List<int>>(
+          url,
+          options: Options(responseType: ResponseType.bytes),
+        );
+        final html = utf8.decode(resp.data!, allowMalformed: true);
+        final doc = html_parser.parse(html);
+
+        int maxWebsitePage = 0;
+        // 策略1: p_pages 链接文字
+        final pagesSpans = doc.querySelectorAll(
+          '.p_pages, span.p_pages, div.p_pages',
+        );
+        for (final span in pagesSpans) {
+          for (final link in span.querySelectorAll('a')) {
+            final n = int.tryParse(link.text.trim());
+            if (n != null && n > maxWebsitePage) maxWebsitePage = n;
+          }
+        }
+        // 策略2: href 中的 jxtz/{n}.htm
+        if (maxWebsitePage == 0) {
+          for (final a in doc.querySelectorAll('a[href]')) {
+            final href = a.attributes['href'] ?? '';
+            final m = RegExp(r'jxtz/(\d+)\.htm').firstMatch(href);
+            if (m != null) {
+              final n = int.tryParse(m.group(1)!);
+              if (n != null && n > maxWebsitePage) maxWebsitePage = n;
+            }
+          }
+        }
+        if (maxWebsitePage > 0) return maxWebsitePage;
+      } catch (_) {}
+    }
+    return 2;
+  }
+
+  List<NoticeInfo> _parseNoticeList(Document doc) {
+    final container = doc.querySelector('div.box-gl.clearfix');
+    if (container == null) return [];
+
+    final items = container.querySelectorAll('ul.list-gl li');
+    final notices = <NoticeInfo>[];
+
+    for (final item in items) {
+      final dateEl = item.querySelector('span.doclist_time');
+      final linkEl = item.querySelector('a');
+      if (dateEl == null || linkEl == null) continue;
+
+      final date = dateEl.text.trim();
+      final title = (linkEl.attributes['title'] ?? '').trim();
+      final rawHref = (linkEl.attributes['href'] ?? '').trim();
+
+      // 部门信息在 </span> 和 <a> 之间的文本节点，格式为 【xxx】
+      String department = '';
+      for (final node in item.nodes) {
+        if (node.nodeType == 3) {
+          final text = node.text?.trim() ?? '';
+          final m = RegExp(r'【(.+?)】').firstMatch(text);
+          if (m != null) {
+            department = m.group(1)!;
+            break;
+          }
+        }
+      }
+
+      final (convertedUrl, wbTreeId, wbNewsId) = _convertNoticeUrl(rawHref);
+
+      notices.add(
+        NoticeInfo(
+          title: title,
+          url: convertedUrl,
+          date: date,
+          department: department,
+          wbTreeId: wbTreeId,
+          wbNewsId: wbNewsId,
+        ),
+      );
+    }
+
+    return notices;
+  }
+
+  static (String, String, String) _convertNoticeUrl(String raw) {
+    var cleaned = raw.replaceAll('../', '');
+    if (!cleaned.startsWith('http')) {
+      cleaned = 'https://jwch.fzu.edu.cn/$cleaned';
+    }
+
+    // info/TREE/NEWS.htm 格式
+    final match = RegExp(r'info/(\d+)/(\d+)\.htm').firstMatch(cleaned);
+    if (match != null) {
+      final treeId = match.group(1)!;
+      final newsId = match.group(2)!;
+      final url =
+          'https://jwch.fzu.edu.cn/content.jsp?urltype=news.NewsContentUrl&wbtreeid=$treeId&wbnewsid=$newsId';
+      return (url, treeId, newsId);
+    }
+
+    // 已经是 content.jsp 格式
+    final treeMatch = RegExp(r'wbtreeid=(\d+)').firstMatch(cleaned);
+    final newsMatch = RegExp(r'wbnewsid=(\d+)').firstMatch(cleaned);
+    if (treeMatch != null && newsMatch != null) {
+      return (cleaned, treeMatch.group(1)!, newsMatch.group(1)!);
+    }
+
+    return (cleaned, '', '');
   }
 }

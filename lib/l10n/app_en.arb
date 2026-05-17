@@ -156,9 +156,17 @@
   "@english": {
     "description": "english"
   },
-  "academics": "Academics",
-  "@academics": {
-    "description": "academics"
+  "gradesAndCredits": "Grades & Credits",
+  "@gradesAndCredits": {
+    "description": "gradesAndCredits"
+  },
+  "examsAndRooms": "Exams & Rooms",
+  "@examsAndRooms": {
+    "description": "examsAndRooms"
+  },
+  "campusInfo": "Campus Info",
+  "@campusInfo": {
+    "description": "campusInfo"
   },
   "gpaInfo": "GPA",
   "@gpaInfo": {
@@ -385,5 +393,85 @@
         "type": "int"
       }
     }
+  },
+  "emptyClassroom": "Empty Rooms",
+  "@emptyClassroom": {
+    "description": "emptyClassroom"
+  },
+  "emptyClassroomSubtitle": "Find available classrooms",
+  "@emptyClassroomSubtitle": {
+    "description": "emptyClassroomSubtitle"
+  },
+  "noEmptyRoomData": "No available rooms",
+  "@noEmptyRoomData": {
+    "description": "noEmptyRoomData"
+  },
+  "selectDate": "Select date",
+  "@selectDate": {
+    "description": "selectDate"
+  },
+  "selectCampus": "Select campus",
+  "@selectCampus": {
+    "description": "selectCampus"
+  },
+  "startPeriod": "Start period",
+  "@startPeriod": {
+    "description": "startPeriod"
+  },
+  "endPeriod": "End period",
+  "@endPeriod": {
+    "description": "endPeriod"
+  },
+  "query": "Search",
+  "@query": {
+    "description": "query"
+  },
+  "officeNotice": "Office Notices",
+  "@officeNotice": {
+    "description": "officeNotice"
+  },
+  "officeNoticeSubtitle": "View academic office notices",
+  "@officeNoticeSubtitle": {
+    "description": "officeNoticeSubtitle"
+  },
+  "noNoticeData": "No notices",
+  "@noNoticeData": {
+    "description": "noNoticeData"
+  },
+  "pageN": "Page {page}",
+  "@pageN": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "totalPages": "{total} pages total",
+  "@totalPages": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "openInBrowser": "Open in browser",
+  "@openInBrowser": {
+    "description": "openInBrowser"
+  },
+  "webView": "Web View",
+  "@webView": {
+    "description": "webView"
+  },
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "refresh"
+  },
+  "copyLink": "Copy Link",
+  "@copyLink": {
+    "description": "copyLink"
+  },
+  "clearCookies": "Clear Cookies",
+  "@clearCookies": {
+    "description": "clearCookies"
   }
 }

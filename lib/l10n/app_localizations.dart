@@ -308,11 +308,23 @@ abstract class AppLocalizations {
   /// **'English'**
   String get english;
 
-  /// academics
+  /// gradesAndCredits
   ///
   /// In zh, this message translates to:
-  /// **'学业'**
-  String get academics;
+  /// **'成绩与学分'**
+  String get gradesAndCredits;
+
+  /// examsAndRooms
+  ///
+  /// In zh, this message translates to:
+  /// **'考试与教室'**
+  String get examsAndRooms;
+
+  /// campusInfo
+  ///
+  /// In zh, this message translates to:
+  /// **'校园信息'**
+  String get campusInfo;
 
   /// gpaInfo
   ///
@@ -607,6 +619,114 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{count} 次提交'**
   String commitCount(int count);
+
+  /// emptyClassroom
+  ///
+  /// In zh, this message translates to:
+  /// **'空教室查询'**
+  String get emptyClassroom;
+
+  /// emptyClassroomSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'查找空闲教室'**
+  String get emptyClassroomSubtitle;
+
+  /// noEmptyRoomData
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无空教室数据'**
+  String get noEmptyRoomData;
+
+  /// selectDate
+  ///
+  /// In zh, this message translates to:
+  /// **'选择日期'**
+  String get selectDate;
+
+  /// selectCampus
+  ///
+  /// In zh, this message translates to:
+  /// **'选择校区'**
+  String get selectCampus;
+
+  /// startPeriod
+  ///
+  /// In zh, this message translates to:
+  /// **'开始节次'**
+  String get startPeriod;
+
+  /// endPeriod
+  ///
+  /// In zh, this message translates to:
+  /// **'结束节次'**
+  String get endPeriod;
+
+  /// query
+  ///
+  /// In zh, this message translates to:
+  /// **'查询'**
+  String get query;
+
+  /// officeNotice
+  ///
+  /// In zh, this message translates to:
+  /// **'教务通知'**
+  String get officeNotice;
+
+  /// officeNoticeSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'查看教务处通知公告'**
+  String get officeNoticeSubtitle;
+
+  /// noNoticeData
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无通知数据'**
+  String get noNoticeData;
+
+  /// No description provided for @pageN.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {page} 页'**
+  String pageN(int page);
+
+  /// No description provided for @totalPages.
+  ///
+  /// In zh, this message translates to:
+  /// **'共 {total} 页'**
+  String totalPages(int total);
+
+  /// openInBrowser
+  ///
+  /// In zh, this message translates to:
+  /// **'在浏览器中打开'**
+  String get openInBrowser;
+
+  /// webView
+  ///
+  /// In zh, this message translates to:
+  /// **'网页浏览'**
+  String get webView;
+
+  /// refresh
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新'**
+  String get refresh;
+
+  /// copyLink
+  ///
+  /// In zh, this message translates to:
+  /// **'复制链接'**
+  String get copyLink;
+
+  /// clearCookies
+  ///
+  /// In zh, this message translates to:
+  /// **'清除Cookie'**
+  String get clearCookies;
 }
 
 class _AppLocalizationsDelegate

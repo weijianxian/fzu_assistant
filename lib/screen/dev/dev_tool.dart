@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
+import 'package:fzu_assistant/screen/guest/webview_page.dart';
+import 'package:fzu_assistant/service/api_client.dart';
 
 final List<Map<String, dynamic>> tools = [
   {
@@ -26,19 +28,56 @@ class DevToolPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.devTools)),
       body: ListView(
-        children: tools
-            .map(
-              (tool) => ListTile(
-                leading: Icon(tool['icon']),
-                title: Text(tool['title']),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => tool['page']),
-                ),
+        children: [
+          ...tools.map(
+            (tool) => ListTile(
+              leading: Icon(tool['icon']),
+              title: Text(tool['title']),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => tool['page']),
               ),
-            )
-            .toList(),
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('WebView (with Cookie)'),
+            onTap: () {
+              final id = ApiClient.instance.userId;
+              if (id == null) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => WebViewPage(
+                    url:
+                        'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
+                    injectCookies: true,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.public),
+            title: const Text('WebView (no Cookie)'),
+            onTap: () {
+              final id = ApiClient.instance.userId;
+              if (id == null) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => WebViewPage(
+                    url:
+                        'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
+                    injectCookies: false,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

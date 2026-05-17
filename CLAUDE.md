@@ -12,6 +12,7 @@
 - flutter_localizations + intl 国际化（中英双语）
 - flutter_staggered_grid_view 瀑布流网格布局
 - re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
+- flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
 
 ## 项目结构
 
@@ -24,6 +25,17 @@ lib/
     app_en.arb           # 英文翻译
     locale_provider.dart # 语言状态管理（InheritedWidget）
   model/                 # 数据模型（纯 Dart class）
+    course.dart          # 课程、课表规则、调课规则、当前周次、学期信息
+    gpa.dart             # 绩点数据
+    mark.dart            # 成绩记录
+    unified_exam.dart    # 统考成绩（CET/省计算机）
+    exam_room.dart       # 考场信息
+    credit.dart          # 学分统计
+    calendar.dart        # 校历（学期 + 事件）
+    student_info.dart    # 学生个人信息
+    empty_room.dart      # 空教室
+    notice.dart          # 教务通知（列表 + 部门）
+    lecture.dart         # 讲座信息
   common/                # 通用组件
     tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
     masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
@@ -34,6 +46,7 @@ lib/
     guest/               # 匿名页面 如编辑器，webview等
       login.dart         # 登录页
       editor_page.dart   # 通用代码编辑器（re_editor + JSON 高亮）
+      webview_page.dart  # 内置浏览器（flutter_inappwebview，支持 Cookie 注入，Windows+Android）
     schedule/            # 课程表（首页 tab）
     toolbox/             # 工具箱（首页 tab）
       toolbox.dart       # 工具箱主页（MasonrySliverGrid 自适应多列）
@@ -42,6 +55,8 @@ lib/
       unified_exam/      # 统考成绩
       exam_room/         # 考场查询（MasonrySliverGrid 自适应多列）
       credit/            # 学分统计
+      empty_room/        # 空教室查询（日期/节次/校区选择 + 结果列表）
+      notice/            # 教务通知（分页列表，WebView 打开详情）
     my/                  # 我的（首页 tab）
       about/             # 关于页
       calendar/          # 校历
@@ -53,7 +68,7 @@ lib/
       kv_tile.dart       # 通用键值对列表项组件（支持 onTap 编辑）
   service/               # 业务逻辑
     api_client.dart      # Dio 单例，登录/重登/拦截器
-    academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历等）
+    academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
     user_service.dart    # 用户信息
     course_service.dart  # 课程表
     auth_storage.dart    # 凭据存储
@@ -88,6 +103,12 @@ lib/
 - 语言切换：「我的 → 语言」弹窗选择，通过 `LocaleProvider` 持久化到 SharedPreferences
 - `MaterialApp.locale` 绑定 `LocaleState.currentLocale`，`null` 表示跟随系统
 
+## Windows 注意事项
+
+- `flutter_inappwebview` 在 Windows 上需要 WebView2 Runtime
+- `windows/runner/flutter_window.cpp` 中有 `closeWindow` 方法频道的 workaround（修复关窗 bug）
+- `main.dart` 中需初始化 `WebViewEnvironment`，`userDataFolder` 设在 app support 目录
+
 ## 构建
 
 ```bash
@@ -99,5 +120,5 @@ flutter gen-l10n               # 重新生成国际化代码
 
 ## 参考
 
-- jwch Go 库（`tmp/jwch/`）：教务处抓包逻辑参考
-- fzuhelper-server（`tmp/fzuhelper-server/`）：服务端 API 参考
+- jwch Go 库（`tmp/jwch/`）：教务处抓包逻辑参考（HTML 解析、表单字段、URL 格式）
+- fzuhelper-app（`tmp/fzuhelper-app/`）：React Native 前端参考（UI 交互、功能列表）

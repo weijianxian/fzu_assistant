@@ -123,7 +123,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get english => 'English';
 
   @override
-  String get academics => 'Academics';
+  String get gradesAndCredits => 'Grades & Credits';
+
+  @override
+  String get examsAndRooms => 'Exams & Rooms';
+
+  @override
+  String get campusInfo => 'Campus Info';
 
   @override
   String get gpaInfo => 'GPA';
@@ -284,4 +290,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String commitCount(int count) {
     return '$count commits';
   }
+
+  @override
+  String get emptyClassroom => 'Empty Rooms';
+
+  @override
+  String get emptyClassroomSubtitle => 'Find available classrooms';
+
+  @override
+  String get noEmptyRoomData => 'No available rooms';
+
+  @override
+  String get selectDate => 'Select date';
+
+  @override
+  String get selectCampus => 'Select campus';
+
+  @override
+  String get startPeriod => 'Start period';
+
+  @override
+  String get endPeriod => 'End period';
+
+  @override
+  String get query => 'Search';
+
+  @override
+  String get officeNotice => 'Office Notices';
+
+  @override
+  String get officeNoticeSubtitle => 'View academic office notices';
+
+  @override
+  String get noNoticeData => 'No notices';
+
+  @override
+  String pageN(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String totalPages(int total) {
+    return '$total pages total';
+  }
+
+  @override
+  String get openInBrowser => 'Open in browser';
+
+  @override
+  String get webView => 'Web View';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get copyLink => 'Copy Link';
+
+  @override
+  String get clearCookies => 'Clear Cookies';
 }

@@ -122,7 +122,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get english => 'English';
 
   @override
-  String get academics => '学业';
+  String get gradesAndCredits => '成绩与学分';
+
+  @override
+  String get examsAndRooms => '考试与教室';
+
+  @override
+  String get campusInfo => '校园信息';
 
   @override
   String get gpaInfo => '绩点信息';
@@ -282,4 +288,62 @@ class AppLocalizationsZh extends AppLocalizations {
   String commitCount(int count) {
     return '$count 次提交';
   }
+
+  @override
+  String get emptyClassroom => '空教室查询';
+
+  @override
+  String get emptyClassroomSubtitle => '查找空闲教室';
+
+  @override
+  String get noEmptyRoomData => '暂无空教室数据';
+
+  @override
+  String get selectDate => '选择日期';
+
+  @override
+  String get selectCampus => '选择校区';
+
+  @override
+  String get startPeriod => '开始节次';
+
+  @override
+  String get endPeriod => '结束节次';
+
+  @override
+  String get query => '查询';
+
+  @override
+  String get officeNotice => '教务通知';
+
+  @override
+  String get officeNoticeSubtitle => '查看教务处通知公告';
+
+  @override
+  String get noNoticeData => '暂无通知数据';
+
+  @override
+  String pageN(int page) {
+    return '第 $page 页';
+  }
+
+  @override
+  String totalPages(int total) {
+    return '共 $total 页';
+  }
+
+  @override
+  String get openInBrowser => '在浏览器中打开';
+
+  @override
+  String get webView => '网页浏览';
+
+  @override
+  String get refresh => '刷新';
+
+  @override
+  String get copyLink => '复制链接';
+
+  @override
+  String get clearCookies => '清除Cookie';
 }

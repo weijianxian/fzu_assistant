@@ -3,9 +3,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/screen/toolbox/credit/credit_page.dart';
+import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
 import 'package:fzu_assistant/screen/toolbox/exam_room/exam_room_page.dart';
 import 'package:fzu_assistant/screen/toolbox/gpa/gpa_page.dart';
 import 'package:fzu_assistant/screen/toolbox/marks/marks_page.dart';
+import 'package:fzu_assistant/screen/toolbox/notice/notice_page.dart';
 import 'package:fzu_assistant/screen/toolbox/unified_exam/unified_exam_page.dart';
 
 class ToolboxPage extends HookWidget {
@@ -15,7 +17,7 @@ class ToolboxPage extends HookWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    final tileConfigs = [
+    final gradeTiles = [
       (
         Icons.school_outlined,
         l10n.gpaInfo,
@@ -29,6 +31,15 @@ class ToolboxPage extends HookWidget {
         () => const MarksPage(),
       ),
       (
+        Icons.pie_chart_outline,
+        l10n.creditStats,
+        l10n.creditStatsSubtitle,
+        () => const CreditPage(),
+      ),
+    ];
+
+    final examTiles = [
+      (
         Icons.quiz_outlined,
         l10n.unifiedExam,
         l10n.unifiedExamSubtitle,
@@ -41,10 +52,19 @@ class ToolboxPage extends HookWidget {
         () => const ExamRoomPage(),
       ),
       (
-        Icons.pie_chart_outline,
-        l10n.creditStats,
-        l10n.creditStatsSubtitle,
-        () => const CreditPage(),
+        Icons.class_outlined,
+        l10n.emptyClassroom,
+        l10n.emptyClassroomSubtitle,
+        () => const EmptyRoomPage(),
+      ),
+    ];
+
+    final infoTiles = [
+      (
+        Icons.notifications_outlined,
+        l10n.officeNotice,
+        l10n.officeNoticeSubtitle,
+        () => const NoticePage(),
       ),
     ];
 
@@ -52,21 +72,44 @@ class ToolboxPage extends HookWidget {
       appBar: AppBar(title: Text(l10n.navToolbox)),
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: _sectionHeader(l10n.academics)),
+          SliverToBoxAdapter(child: _sectionHeader(l10n.gradesAndCredits)),
           MasonrySliverGrid(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            childCount: tileConfigs.length,
-            itemBuilder: (context, index) {
-              final cfg = tileConfigs[index];
-              return _ToolTile(
-                icon: cfg.$1,
-                title: cfg.$2,
-                subtitle: cfg.$3,
-                onTap: () => Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => cfg.$4())),
-              );
-            },
+            childCount: gradeTiles.length,
+            itemBuilder: (context, i) => _ToolTile(
+              icon: gradeTiles[i].$1,
+              title: gradeTiles[i].$2,
+              subtitle: gradeTiles[i].$3,
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => gradeTiles[i].$4())),
+            ),
+          ),
+          SliverToBoxAdapter(child: _sectionHeader(l10n.examsAndRooms)),
+          MasonrySliverGrid(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            childCount: examTiles.length,
+            itemBuilder: (context, i) => _ToolTile(
+              icon: examTiles[i].$1,
+              title: examTiles[i].$2,
+              subtitle: examTiles[i].$3,
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => examTiles[i].$4())),
+            ),
+          ),
+          SliverToBoxAdapter(child: _sectionHeader(l10n.campusInfo)),
+          MasonrySliverGrid(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            childCount: infoTiles.length,
+            itemBuilder: (context, i) => _ToolTile(
+              icon: infoTiles[i].$1,
+              title: infoTiles[i].$2,
+              subtitle: infoTiles[i].$3,
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => infoTiles[i].$4())),
+            ),
           ),
         ],
       ),
@@ -75,7 +118,7 @@ class ToolboxPage extends HookWidget {
 
   Widget _sectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Text(
         title,
         style: TextStyle(

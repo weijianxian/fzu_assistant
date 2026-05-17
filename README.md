@@ -2,9 +2,9 @@
 
 > 福州大学一站式校园助手 — 课表、成绩、考试、校历，开箱即用，本地优先。
 
-<img src="https://socialify.git.ci/weijianxian/fzu_assistant/image?custom_language=Flutter&custom_description=%e7%a6%8f%e5%a4%a7%e4%b8%80%e7%ab%99%e5%bc%8f%e6%a0%a1%e5%9b%ad%e5%8a%a9%e6%89%8b+%e2%80%94+%e8%af%be%e8%a1%a8%e3%80%81%e6%88%90%e7%bb%a9%e3%80%81%e8%80%83%e8%af%95%e3%80%81%e6%a0%a1%e5%8e%86%ef%bc%8c%e5%bc%80%e7%ae%b1%e5%8d%b3%e7%94%a8%ef%bc%8c%e6%9c%ac%e5%9c%b0%e4%bc%98%e5%85%88%e3%80%82&description=1&font=JetBrains+Mono&forks=1&issues=1&language=1&logo=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F33548986%3Fv%3D4&name=1&owner=1&pulls=1&stargazers=1&theme=Auto" width="640" height="320" />
 
 <p align="center">
+  <img src="https://socialify.git.ci/weijianxian/fzu_assistant/image?custom_language=Flutter&custom_description=%e7%a6%8f%e5%a4%a7%e4%b8%80%e7%ab%99%e5%bc%8f%e6%a0%a1%e5%9b%ad%e5%8a%a9%e6%89%8b+%e2%80%94+%e8%af%be%e8%a1%a8%e3%80%81%e6%88%90%e7%bb%a9%e3%80%81%e8%80%83%e8%af%95%e3%80%81%e6%a0%a1%e5%8e%86%ef%bc%8c%e5%bc%80%e7%ae%b1%e5%8d%b3%e7%94%a8%ef%bc%8c%e6%9c%ac%e5%9c%b0%e4%bc%98%e5%85%88%e3%80%82&description=1&font=JetBrains+Mono&forks=1&issues=1&language=1&logo=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F33548986%3Fv%3D4&name=1&owner=1&pulls=1&stargazers=1&theme=Auto" width="640" height="320" />
   <img src="https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter" />
   <img src="https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart" />
   <img src="https://img.shields.io/badge/Platform-Android%20%7C%20Windows-lightgrey" />

@@ -156,9 +156,17 @@
   "@english": {
     "description": "english"
   },
-  "academics": "学业",
-  "@academics": {
-    "description": "academics"
+  "gradesAndCredits": "成绩与学分",
+  "@gradesAndCredits": {
+    "description": "gradesAndCredits"
+  },
+  "examsAndRooms": "考试与教室",
+  "@examsAndRooms": {
+    "description": "examsAndRooms"
+  },
+  "campusInfo": "校园信息",
+  "@campusInfo": {
+    "description": "campusInfo"
   },
   "gpaInfo": "绩点信息",
   "@gpaInfo": {
@@ -385,5 +393,85 @@
         "type": "int"
       }
     }
+  },
+  "emptyClassroom": "空教室查询",
+  "@emptyClassroom": {
+    "description": "emptyClassroom"
+  },
+  "emptyClassroomSubtitle": "查找空闲教室",
+  "@emptyClassroomSubtitle": {
+    "description": "emptyClassroomSubtitle"
+  },
+  "noEmptyRoomData": "暂无空教室数据",
+  "@noEmptyRoomData": {
+    "description": "noEmptyRoomData"
+  },
+  "selectDate": "选择日期",
+  "@selectDate": {
+    "description": "selectDate"
+  },
+  "selectCampus": "选择校区",
+  "@selectCampus": {
+    "description": "selectCampus"
+  },
+  "startPeriod": "开始节次",
+  "@startPeriod": {
+    "description": "startPeriod"
+  },
+  "endPeriod": "结束节次",
+  "@endPeriod": {
+    "description": "endPeriod"
+  },
+  "query": "查询",
+  "@query": {
+    "description": "query"
+  },
+  "officeNotice": "教务通知",
+  "@officeNotice": {
+    "description": "officeNotice"
+  },
+  "officeNoticeSubtitle": "查看教务处通知公告",
+  "@officeNoticeSubtitle": {
+    "description": "officeNoticeSubtitle"
+  },
+  "noNoticeData": "暂无通知数据",
+  "@noNoticeData": {
+    "description": "noNoticeData"
+  },
+  "pageN": "第 {page} 页",
+  "@pageN": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "totalPages": "共 {total} 页",
+  "@totalPages": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "openInBrowser": "在浏览器中打开",
+  "@openInBrowser": {
+    "description": "openInBrowser"
+  },
+  "webView": "网页浏览",
+  "@webView": {
+    "description": "webView"
+  },
+  "refresh": "刷新",
+  "@refresh": {
+    "description": "refresh"
+  },
+  "copyLink": "复制链接",
+  "@copyLink": {
+    "description": "copyLink"
+  },
+  "clearCookies": "清除Cookie",
+  "@clearCookies": {
+    "description": "clearCookies"
   }
 }

@@ -1,20 +1,39 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/l10n/locale_provider.dart';
 import 'package:fzu_assistant/service/api_client.dart';
 import 'package:fzu_assistant/service/course_service.dart';
 import 'package:fzu_assistant/theme/theme_provider.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:fzu_assistant/screen/guest/login.dart';
 import 'package:fzu_assistant/screen/schedule/schedule.dart';
 import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
 import 'package:fzu_assistant/screen/my/my.dart';
 
-void main() {
+WebViewEnvironment? webViewEnvironment;
+
+Future<void> _initWebViewEnvironment() async {
+  if (!Platform.isWindows) return;
+  try {
+    if (await WebViewEnvironment.getAvailableVersion() == null) return;
+    final dir = await getApplicationSupportDirectory();
+    webViewEnvironment = await WebViewEnvironment.create(
+      settings: WebViewEnvironmentSettings(
+        userDataFolder: '${dir.path}/flutter_inappwebview',
+      ),
+    );
+  } catch (_) {}
+}
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await _initWebViewEnvironment();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
