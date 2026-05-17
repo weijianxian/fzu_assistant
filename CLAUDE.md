@@ -11,9 +11,11 @@
 - flutter_secure_storage 存储登录凭据
 - flutter_localizations + intl 国际化（中英双语）
 - flutter_staggered_grid_view 瀑布流网格布局
+- re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
 
 ## 项目结构
 
+如果你需要新建页面，请严格按照以下结构放置代码:
 ```
 lib/
   main.dart              # 入口，IndexedStack + LayoutBuilder 自适应导航
@@ -29,7 +31,9 @@ lib/
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式断点（kNavBreakpoint、kTileMinWidth）
   screen/
-    guest/login.dart     # 登录页
+    guest/               # 匿名页面 如编辑器，webview等
+      login.dart         # 登录页
+      editor_page.dart   # 通用代码编辑器（re_editor + JSON 高亮）
     schedule/            # 课程表（首页 tab）
     toolbox/             # 工具箱（首页 tab）
       toolbox.dart       # 工具箱主页（MasonrySliverGrid 自适应多列）
@@ -43,6 +47,10 @@ lib/
       calendar/          # 校历
     settings/            # 主题设置
     dev/                 # 开发者工具
+      dev_tool.dart      # 开发者工具主页（导航入口）
+      shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
+      secure_storage_page.dart # SecureStorage 查看/编辑
+      kv_tile.dart       # 通用键值对列表项组件（支持 onTap 编辑）
   service/               # 业务逻辑
     api_client.dart      # Dio 单例，登录/重登/拦截器
     academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历等）
