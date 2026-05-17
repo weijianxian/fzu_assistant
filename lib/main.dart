@@ -5,7 +5,7 @@ import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/l10n/locale_provider.dart';
 import 'package:fzu_assistant/service/api_client.dart';
-
+import 'package:fzu_assistant/service/course_service.dart';
 import 'package:fzu_assistant/theme/theme_provider.dart';
 
 import 'package:fzu_assistant/screen/guest/login.dart';
@@ -72,6 +72,10 @@ class SplashScreen extends HookWidget {
   const SplashScreen({super.key});
 
   Future<Widget> _autoLogin() async {
+    // 提前获取当前周次并持久化，不依赖登录态
+    try {
+      await CourseService().getCurrentWeek();
+    } catch (_) {}
     final ok = await ApiClient.instance.relogin();
     return ok ? const HomeScreen() : const LoginPage();
   }

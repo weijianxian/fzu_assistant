@@ -31,22 +31,27 @@ class SchedulePage extends HookWidget {
     // 加载缓存 → 创建 PageController → 刷新 API
     useEffect(() {
       () async {
-        // 1. 读缓存
-        final cached = await service.loadCache();
+        // 1. 读周次缓存（splash 已持久化）
+        final weekCache = await service.loadWeekCache();
         int startWeek = 1;
-        if (cached != null) {
-          final (week, list, fm) = cached;
-          courses.value = list;
+        if (weekCache != null) {
+          final (week, fm) = weekCache;
           currentWeek.value = week;
           displayWeek.value = week;
           firstMonday.value = fm;
           startWeek = week;
         }
 
-        // 2. 创建 PageController（正确的 initialPage）
+        // 2. 读课程缓存
+        final coursesCache = await service.loadCoursesCache();
+        if (coursesCache != null) {
+          courses.value = coursesCache;
+        }
+
+        // 3. 创建 PageController（正确的 initialPage）
         pageController.value = PageController(initialPage: startWeek - 1);
 
-        // 3. 后台刷新 API
+        // 4. 后台刷新 API
         _refresh(
           service,
           courses,
@@ -97,7 +102,7 @@ class SchedulePage extends HookWidget {
           ),
         ],
       ),
-      body: pc == null
+      body: pc == null || firstMonday.value == null
           ? const Center(child: CircularProgressIndicator())
           : error.value != null && courses.value.isEmpty
           ? Center(

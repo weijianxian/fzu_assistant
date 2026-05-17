@@ -40,33 +40,64 @@ class CourseService {
     return (week, list, DateTime.parse(fm));
   }
 
+  /// 获取当前周次，自动持久化；失败时回退缓存
   Future<CurrentWeek> getCurrentWeek() async {
-    final resp = await _dio.get<List<int>>(
-      _weekUrl,
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final week = RegExp(r'var week = "(\d+)"').firstMatch(html)?.group(1);
-    final year = RegExp(r'var xn = "(\d{4})"').firstMatch(html)?.group(1);
-    final term = RegExp(r'var xq = "(\d{2})"').firstMatch(html)?.group(1);
-    if (week == null || year == null || term == null) {
-      throw Exception('当前周次获取失败');
+    try {
+      final resp = await _dio.get<List<int>>(
+        _weekUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final html = utf8.decode(resp.data!, allowMalformed: true);
+      final week = RegExp(r'var week = "(\d+)"').firstMatch(html)?.group(1);
+      final year = RegExp(r'var xn = "(\d{4})"').firstMatch(html)?.group(1);
+      final term = RegExp(r'var xq = "(\d{2})"').firstMatch(html)?.group(1);
+      if (week == null || year == null || term == null) {
+        throw Exception('当前周次获取失败');
+      }
+
+      final now = DateTime.now();
+      final thisMonday = now.subtract(Duration(days: now.weekday - 1));
+      final firstMonday = thisMonday.subtract(
+        Duration(days: (int.parse(week) - 1) * 7),
+      );
+
+      final info = CurrentWeek(
+        week: int.parse(week),
+        year: int.parse(year),
+        term: int.parse(term),
+        firstMonday: firstMonday,
+      );
+      saveWeekInfo(info.week, info.firstMonday);
+      return info;
+    } catch (_) {
+      final cached = await loadWeekCache();
+      if (cached != null) {
+        final (week, fm) = cached;
+        return CurrentWeek(week: week, year: 0, term: 0, firstMonday: fm);
+      }
+      rethrow;
     }
+  }
 
-    final now = DateTime.now();
-    // 本周一的日期
-    final thisMonday = now.subtract(Duration(days: now.weekday - 1));
-    // 第一周的周一
-    final firstMonday = thisMonday.subtract(
-      Duration(days: (int.parse(week) - 1) * 7),
-    );
+  Future<void> saveWeekInfo(int week, DateTime firstMonday) async {
+    final sp = await SharedPreferences.getInstance();
+    sp.setInt(SpKeys.cacheCurrentWeek, week);
+    sp.setString(SpKeys.cacheFirstMonday, firstMonday.toIso8601String());
+  }
 
-    return CurrentWeek(
-      week: int.parse(week),
-      year: int.parse(year),
-      term: int.parse(term),
-      firstMonday: firstMonday,
-    );
+  Future<(int, DateTime)?> loadWeekCache() async {
+    final sp = await SharedPreferences.getInstance();
+    final week = sp.getInt(SpKeys.cacheCurrentWeek);
+    final fm = sp.getString(SpKeys.cacheFirstMonday);
+    if (week == null || fm == null) return null;
+    return (week, DateTime.parse(fm));
+  }
+
+  Future<List<Course>?> loadCoursesCache() async {
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(SpKeys.cacheCourses);
+    if (raw == null) return null;
+    return (jsonDecode(raw) as List).map((c) => Course.fromJson(c)).toList();
   }
 
   Future<TermInfo> getTerms() async {
