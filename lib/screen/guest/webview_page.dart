@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/main.dart' show webViewEnvironment;
+import 'package:fzu_assistant/constants/site_injections.dart';
 import 'package:fzu_assistant/service/api_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -63,6 +64,30 @@ class _WebViewPageState extends State<WebViewPage> {
       }
     }
     if (mounted) setState(() => _ready = true);
+  }
+
+  static String _jsStringLiteral(String s) {
+    return "'${s.replaceAll('\\', '\\\\').replaceAll("'", "\\'").replaceAll('\n', '\\n').replaceAll('\r', '\\r')}'";
+  }
+
+  Future<void> _injectForDomain(
+    InAppWebViewController controller,
+    Uri? uri,
+  ) async {
+    final url = uri?.toString() ?? '';
+    for (final injection in kSiteInjections) {
+      if (RegExp(injection.pattern).hasMatch(url)) {
+        if (injection.css != null) {
+          await controller.evaluateJavascript(
+            source:
+                "var s=document.createElement('style');s.textContent=${_jsStringLiteral(injection.css!)};document.head.appendChild(s);",
+          );
+        }
+        if (injection.js != null) {
+          await controller.evaluateJavascript(source: injection.js!);
+        }
+      }
+    }
   }
 
   @override
@@ -132,6 +157,9 @@ class _WebViewPageState extends State<WebViewPage> {
                     },
                     onProgressChanged: (controller, progress) {
                       setState(() => _progress = progress / 100.0);
+                    },
+                    onLoadStop: (controller, url) {
+                      _injectForDomain(controller, url);
                     },
                   ),
                 ),

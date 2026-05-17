@@ -60,6 +60,21 @@ class DevToolPage extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.css),
+            title: const Text('Test CSS/JS Injection'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const WebViewPage(
+                    url: 'https://example.com/',
+                    injectCookies: false,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.public),
             title: const Text('WebView (no Cookie)'),
             onTap: () {

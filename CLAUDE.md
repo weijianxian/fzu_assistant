@@ -42,6 +42,7 @@ lib/
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式断点（kNavBreakpoint、kTileMinWidth）
+    site_injections.dart # WebView URI 正则 CSS/JS 注入规则
   screen/
     guest/               # 匿名页面 如编辑器，webview等
       login.dart         # 登录页
