@@ -260,7 +260,7 @@ class SchedulePage extends HookWidget {
 
         final highlightColor = Theme.of(
           context,
-        ).colorScheme.primaryContainer.withValues(alpha: 0.3);
+        ).colorScheme.primaryContainer.withValues(alpha: 0.5);
 
         final weekdays = _weekdays(AppLocalizations.of(context)!);
 
@@ -296,7 +296,45 @@ class SchedulePage extends HookWidget {
               height: gridHeight,
               child: Stack(
                 children: [
-                  // 背景高亮层
+                  // 左侧节次索引
+                  Positioned(
+                    left: 0,
+                    width: _labelWidth,
+                    top: 0,
+                    bottom: 0,
+                    child: Column(
+                      children: [
+                        for (var p = 0; p < _maxPeriod; p++)
+                          SizedBox(
+                            height: cellHeight,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '${p + 1}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  '${_timeSlots[p].$1}\n${_timeSlots[p].$2}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 7.5,
+                                    height: 1.2,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // 高亮当前节次（在卡片之下，左侧索引之上）
                   if (highlightPeriod >= 0)
                     Positioned(
                       top: highlightPeriod * cellHeight,
@@ -305,60 +343,32 @@ class SchedulePage extends HookWidget {
                       right: 0,
                       child: Container(color: highlightColor),
                     ),
-                  // 内容层：左侧索引 + 课程卡片
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: _labelWidth,
-                        child: Column(
-                          children: [
-                            for (var p = 0; p < _maxPeriod; p++)
-                              SizedBox(
-                                height: cellHeight,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '${p + 1}',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${_timeSlots[p].$1}\n${_timeSlots[p].$2}',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 7.5,
-                                        height: 1.2,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.outline,
-                                      ),
-                                    ),
-                                  ],
+                  // 课程卡片
+                  Positioned(
+                    left: _labelWidth,
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var wd = 1; wd <= 7; wd++)
+                          Expanded(
+                            child: SizedBox(
+                              height: gridHeight,
+                              child: Stack(
+                                clipBehavior: Clip.hardEdge,
+                                children: _buildCards(
+                                  courses,
+                                  wd,
+                                  week,
+                                  cellHeight,
                                 ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      for (var wd = 1; wd <= 7; wd++)
-                        Expanded(
-                          child: SizedBox(
-                            height: gridHeight,
-                            child: Stack(
-                              clipBehavior: Clip.hardEdge,
-                              children: _buildCards(
-                                courses,
-                                wd,
-                                week,
-                                cellHeight,
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -430,28 +440,28 @@ class _CourseCard extends StatelessWidget {
   final Course course;
   final String location;
 
-  // Tailwind CSS 100 级浅色
+  // Tailwind CSS 300 级浅色
   static const _lightColors = [
-    Color(0xFFE0F2FE), // sky
-    Color(0xFFDBEAFE), // blue
-    Color(0xFFE0E7FF), // indigo
-    Color(0xFFEDE9FE), // violet
-    Color(0xFFF3E8FF), // purple
-    Color(0xFFFAE8FF), // fuchsia
-    Color(0xFFFCE7F3), // pink
-    Color(0xFFFFE4E6), // rose
-    Color(0xFFFFEDD5), // orange
-    Color(0xFFFEF3C7), // amber
-    Color(0xFFFEF9C3), // yellow
-    Color(0xFFECFCCB), // lime
-    Color(0xFFDCFCE7), // green
-    Color(0xFFD1FAE5), // emerald
-    Color(0xFFCCFBF1), // teal
-    Color(0xFFCFFAFE), // cyan
-    Color(0xFFE2E8F0), // slate
-    Color(0xFFF3F4F6), // gray
-    Color(0xFFF5F5F4), // stone
-    Color(0xFFFEE2E2), // red
+    Color(0xFF7DD3FC), // sky
+    Color(0xFF93C5FD), // blue
+    Color(0xFFA5B4FC), // indigo
+    Color(0xFFC4B5FD), // violet
+    Color(0xFFD8B4FE), // purple
+    Color(0xFFF0ABFC), // fuchsia
+    Color(0xFFF9A8D4), // pink
+    Color(0xFFFDA4AF), // rose
+    Color(0xFFFDBA74), // orange
+    Color(0xFFFCD34D), // amber
+    Color(0xFFFDE047), // yellow
+    Color(0xFFBEF264), // lime
+    Color(0xFF86EFAC), // green
+    Color(0xFF6EE7B7), // emerald
+    Color(0xFF5EEAD4), // teal
+    Color(0xFF67E8F9), // cyan
+    Color(0xFFCBD5E1), // slate
+    Color(0xFFD1D5DB), // gray
+    Color(0xFFD6D3D1), // stone
+    Color(0xFFFCA5A5), // red
   ];
 
   // Tailwind CSS 800 级深色
