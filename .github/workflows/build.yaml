@@ -7,8 +7,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -41,8 +39,8 @@ jobs:
       - name: Package Windows artifacts
         shell: pwsh
         run: |
-          $version = (Select-String -Path pubspec.yaml -Pattern '^version:\s+(.+)$').Matches.Groups[1].Value.Trim()
-          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath "fzu_assistant-windows-$version.zip"
+          $version = (Select-String -Path pubspec.yaml -Pattern '^\s*version:\s+(.+?)\+').Matches.Groups[1].Value.Trim()
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath "fzu_assistant-windows-v$version.zip"
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -106,12 +104,27 @@ jobs:
   release:
     needs: [build-windows, build-android]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Detect version change
+        id: check
+        run: |
+          VERSION=$(grep -E '^\s*version:' pubspec.yaml | sed 's/.*:\s*//' | cut -d'+' -f1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+          PARENT_VERSION=$(git show HEAD~1:pubspec.yaml | grep -E '^\s*version:' | sed 's/.*:\s*//' | cut -d'+' -f1)
+          echo "parent_tag=v$PARENT_VERSION" >> "$GITHUB_OUTPUT"
+
+          if [ "$VERSION" = "$PARENT_VERSION" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -123,15 +136,43 @@ jobs:
         id: cliff
         with:
           config: cliff.toml
-          args: --latest --strip header
+          args: --latest --strip header --tag ${{ steps.check.outputs.tag }}
         env:
           OUTPUT: CHANGES.md
           GITHUB_REPO: ${{ github.repository }}
 
-      - name: Create Release
+      # Version changed → promote old pre-release to stable, then create new release
+      - name: Promote old pre-release to stable
+        if: steps.check.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.check.outputs.parent_tag }}
+          prerelease: false
+          make_latest: false
+        continue-on-error: true
+
+      - name: Create stable release
+        if: steps.check.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.check.outputs.tag }}
+          name: ${{ steps.check.outputs.tag }}
           body: ${{ steps.cliff.outputs.content }}
+          prerelease: false
+          make_latest: true
+          files: |
+            artifacts/windows-build/*.zip
+            artifacts/android-build/*.apk
+
+      # Version unchanged → update rolling pre-release
+      - name: Update pre-release
+        if: steps.check.outputs.changed == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.check.outputs.tag }}
+          body: ${{ steps.cliff.outputs.content }}
+          prerelease: true
+          make_latest: false
           files: |
             artifacts/windows-build/*.zip
             artifacts/android-build/*.apk

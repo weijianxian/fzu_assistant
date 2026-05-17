@@ -14,7 +14,6 @@ body = """
 {% endfor %}
 """
 trim = true
-footer = ""
 
 [git]
 conventional_commits = false
@@ -28,6 +27,10 @@ protect_breaking_commits = false
 commit_parsers = [
   { message = "feat", group = "Features" },
   { message = "fix", group = "Bug Fixes" },
+  { message = "ui", group = "UI" },
+  { message = "ci", group = "CI/CD" },
+  { message = "docs", group = "Documentation" },
+  { message = "release", group = "Releases" },
   { message = "tool", group = "Tools" },
   { message = "chore", group = "Chores" },
   { message = "init", group = "Initialization" },
