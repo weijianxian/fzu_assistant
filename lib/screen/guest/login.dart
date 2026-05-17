@@ -83,7 +83,18 @@ class LoginPage extends HookWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 40),
+              const SizedBox(height: 60),
+              Center(
+                child: Hero(
+                  tag: 'app-icon',
+                  child: Image.asset(
+                    'assets/icon/icon.png',
+                    width: 80,
+                    height: 80,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
               TextField(
                 controller: usernameController,
                 keyboardType: TextInputType.number,

@@ -87,33 +87,103 @@ class MyApp extends HookWidget {
 }
 
 /// 启动页：检查凭据 → 自动登录 → 跳转主页或登录页
-class SplashScreen extends HookWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
-  Future<Widget> _autoLogin() async {
-    // 提前获取当前周次并持久化，不依赖登录态
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _autoLogin();
+  }
+
+  Future<void> _autoLogin() async {
     try {
       await CourseService().getCurrentWeek();
     } catch (_) {}
     final ok = await ApiClient.instance.relogin();
-    return ok ? const HomeScreen() : const LoginPage();
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => ok ? const HomeScreen() : const LoginPage(),
+      ),
+    );
   }
 
   @override
-  Widget build(BuildContext context) {
-    final snapshot = useFuture(useMemoized(_autoLogin));
-
-    if (snapshot.hasData) return snapshot.data!;
-    return const SplashScreenContent();
-  }
+  Widget build(BuildContext context) => const SplashScreenContent();
 }
 
-class SplashScreenContent extends StatelessWidget {
+class SplashScreenContent extends StatefulWidget {
   const SplashScreenContent({super.key});
 
   @override
+  State<SplashScreenContent> createState() => _SplashScreenContentState();
+}
+
+class _SplashScreenContentState extends State<SplashScreenContent>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _scale;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..forward();
+    _scale = Tween(
+      begin: 0.5,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+    _fade = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return Scaffold(
+      body: Center(
+        child: AnimatedBuilder(
+          animation: _ctrl,
+          builder: (_, _) => Opacity(
+            opacity: _fade.value,
+            child: Transform.scale(
+              scale: _scale.value,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Hero(
+                    tag: 'app-icon',
+                    child: Image.asset(
+                      'assets/icon/icon.png',
+                      width: 100,
+                      height: 100,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const CircularProgressIndicator.adaptive(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -136,6 +206,17 @@ class HomeScreen extends HookWidget {
             children: [
               if (isWide)
                 NavigationRail(
+                  leading: Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 12),
+                    child: Hero(
+                      tag: 'app-icon',
+                      child: Image.asset(
+                        'assets/icon/icon.png',
+                        width: 32,
+                        height: 32,
+                      ),
+                    ),
+                  ),
                   selectedIndex: currentPage.value,
                   onDestinationSelected: (i) => currentPage.value = i,
                   labelType: NavigationRailLabelType.all,
