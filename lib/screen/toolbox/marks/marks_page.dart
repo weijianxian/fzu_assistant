@@ -15,6 +15,7 @@ class MarksPage extends HookWidget {
     final loading = useState(true);
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
+    final expandedKeys = useState<Set<String>>({});
     final service = useMemoized(() => AcademicService());
     final mounted = useRef(true);
     useEffect(
@@ -24,12 +25,18 @@ class MarksPage extends HookWidget {
       [],
     );
 
+    final unknownSemester = AppLocalizations.of(context)!.unknownSemester;
+
     Future<void> load() async {
       try {
         marks.value = await service.getMarks();
         if (!mounted.value) return;
         refreshTime.value = DateTime.now();
         error.value = null;
+        if (marks.value.isNotEmpty) {
+          final first = marks.value.first.semester;
+          expandedKeys.value = {first.isEmpty ? unknownSemester : first};
+        }
       } catch (e) {
         if (!mounted.value) return;
         error.value = e.toString();
@@ -51,12 +58,16 @@ class MarksPage extends HookWidget {
         refreshTime: refreshTime.value,
         hasData: marks.value.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noMarksData,
-        slivers: _buildSlivers(context, marks.value),
+        slivers: _buildSlivers(context, marks.value, expandedKeys),
       ),
     );
   }
 
-  List<Widget> _buildSlivers(BuildContext context, List<Mark> marks) {
+  List<Widget> _buildSlivers(
+    BuildContext context,
+    List<Mark> marks,
+    ValueNotifier<Set<String>> expandedKeys,
+  ) {
     // 按学期分组，保持顺序
     final grouped = <String, List<Mark>>{};
     for (final m in marks) {
@@ -84,7 +95,17 @@ class MarksPage extends HookWidget {
           return Card(
             margin: EdgeInsets.zero,
             child: ExpansionTile(
-              initiallyExpanded: i == 0,
+              key: ValueKey(sem),
+              initiallyExpanded: expandedKeys.value.contains(sem),
+              onExpansionChanged: (expanded) {
+                final next = Set<String>.of(expandedKeys.value);
+                if (expanded) {
+                  next.add(sem);
+                } else {
+                  next.remove(sem);
+                }
+                expandedKeys.value = next;
+              },
               tilePadding: const EdgeInsets.symmetric(horizontal: 16),
               childrenPadding: EdgeInsets.zero,
               shape: const Border(),
