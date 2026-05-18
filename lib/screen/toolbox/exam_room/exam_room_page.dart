@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
-import 'package:fzu_assistant/service/academic_service.dart';
+import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/common/tool_page_wrapper.dart';
 
 class ExamRoomPage extends HookWidget {

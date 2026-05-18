@@ -3,7 +3,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
-import 'package:fzu_assistant/service/api_client.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 
 final List<Map<String, dynamic>> tools = [
   {

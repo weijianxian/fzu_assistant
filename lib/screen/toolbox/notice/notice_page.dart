@@ -5,7 +5,7 @@ import 'package:fzu_assistant/common/tool_page_wrapper.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
-import 'package:fzu_assistant/service/academic_service.dart';
+import 'package:fzu_assistant/service/api/academic_service.dart';
 
 class NoticePage extends HookWidget {
   const NoticePage({super.key});

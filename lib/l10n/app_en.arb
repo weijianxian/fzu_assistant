@@ -136,6 +136,10 @@
   "@themeSettings": {
     "description": "themeSettings"
   },
+  "settings": "Settings",
+  "@settings": {
+    "description": "settings"
+  },
   "about": "About",
   "@about": {
     "description": "about"

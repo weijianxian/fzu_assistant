@@ -6,10 +6,9 @@ import 'package:fzu_assistant/screen/dev/dev_tool.dart';
 import 'package:fzu_assistant/screen/guest/login.dart';
 import 'package:fzu_assistant/screen/my/about/about_page.dart';
 import 'package:fzu_assistant/screen/my/calendar/calendar_page.dart';
-import 'package:fzu_assistant/screen/settings/language_settings.dart';
-import 'package:fzu_assistant/screen/settings/theme_settings.dart';
+import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
-import 'package:fzu_assistant/service/user_service.dart';
+import 'package:fzu_assistant/service/api/user_service.dart';
 
 class MyPage extends HookWidget {
   const MyPage({super.key});
@@ -147,20 +146,12 @@ class MyPage extends HookWidget {
           ).push(MaterialPageRoute(builder: (_) => const CalendarPage())),
         ),
         ListTile(
-          leading: const Icon(Icons.palette_outlined),
-          title: Text(AppLocalizations.of(context)!.themeSettings),
+          leading: const Icon(Icons.settings_outlined),
+          title: Text(AppLocalizations.of(context)!.settings),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (_) => const ThemeSettingsPage())),
-        ),
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: Text(AppLocalizations.of(context)!.language),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const LanguageSettingsPage()),
-          ),
+          ).push(MaterialPageRoute(builder: (_) => const SettingsPage())),
         ),
         ListTile(
           leading: const Icon(Icons.info_outline),

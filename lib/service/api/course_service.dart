@@ -5,7 +5,7 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/course.dart';
-import 'package:fzu_assistant/service/api_client.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 
 class CourseService {
   static const _courseUrl =

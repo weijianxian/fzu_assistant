@@ -11,7 +11,7 @@ import 'package:fzu_assistant/model/gpa.dart';
 import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
-import 'package:fzu_assistant/service/api_client.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 
 class AcademicService {
   static const _gpaUrl =

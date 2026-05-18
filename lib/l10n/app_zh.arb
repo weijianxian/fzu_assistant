@@ -136,6 +136,10 @@
   "@themeSettings": {
     "description": "themeSettings"
   },
+  "settings": "设置",
+  "@settings": {
+    "description": "settings"
+  },
   "about": "关于",
   "@about": {
     "description": "about"

@@ -23,7 +23,6 @@ lib/
   l10n/                  # 国际化
     app_zh.arb           # 中文翻译
     app_en.arb           # 英文翻译
-    locale_provider.dart # 语言状态管理（InheritedWidget）
   model/                 # 数据模型（纯 Dart class）
     course.dart          # 课程、课表规则、调课规则、当前周次、学期信息
     gpa.dart             # 绩点数据
@@ -61,7 +60,7 @@ lib/
     my/                  # 我的（首页 tab）
       about/             # 关于页
       calendar/          # 校历
-    settings/            # 主题设置
+    settings/            # 设置页（主题 + 语言统一管理）
     dev/                 # 开发者工具
       dev_tool.dart      # 开发者工具主页（导航入口）
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
@@ -74,8 +73,10 @@ lib/
     course_service.dart  # 课程表
     auth_storage.dart    # 凭据存储
     captcha_solver.dart  # 验证码识别
+    settings/
+      app_settings.dart  # 统一设置管理（主题 + 语言，InheritedWidget + SP 持久化）
   theme/                 # 主题配置
-    theme_provider.dart  # 主题状态管理（InheritedWidget）
+    app_themes.dart      # 主题色列表 + buildTheme()
 ```
 
 ## 编码规范
@@ -94,15 +95,15 @@ lib/
 - 工具页数据列表优先使用 Table 布局（对齐整齐），不用手搓 Row+Card
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
-- 状态管理模式：ThemeProvider / LocaleProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化
+- 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化
 
 ## 国际化
 
 - 使用 Flutter 官方 `gen-l10n` 方案，配置文件 `l10n.yaml`
 - ARB 文件：`lib/l10n/app_zh.arb`（中文）、`lib/l10n/app_en.arb`（英文）
-- 添加新语言：新建 `app_XX.arb` → `flutter gen-l10n` → 在 `LocaleState.locales` 注册
-- 语言切换：「我的 → 语言」弹窗选择，通过 `LocaleProvider` 持久化到 SharedPreferences
-- `MaterialApp.locale` 绑定 `LocaleState.currentLocale`，`null` 表示跟随系统
+- 添加新语言：新建 `app_XX.arb` → `flutter gen-l10n` → 在 `AppSettings._localeOptions` 注册
+- 语言切换：「我的 → 设置 → 语言」SegmentedButton 选择，通过 `AppSettings` 持久化到 SharedPreferences
+- `MaterialApp.locale` 绑定 `AppSettings.currentLocale`，`null` 表示跟随系统
 
 ## Windows 注意事项
 

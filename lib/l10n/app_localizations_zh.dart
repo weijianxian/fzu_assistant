@@ -107,6 +107,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themeSettings => '主题设置';
 
   @override
+  String get settings => '设置';
+
+  @override
   String get about => '关于';
 
   @override

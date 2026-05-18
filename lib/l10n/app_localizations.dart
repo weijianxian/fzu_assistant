@@ -278,6 +278,12 @@ abstract class AppLocalizations {
   /// **'主题设置'**
   String get themeSettings;
 
+  /// settings
+  ///
+  /// In zh, this message translates to:
+  /// **'设置'**
+  String get settings;
+
   /// about
   ///
   /// In zh, this message translates to:

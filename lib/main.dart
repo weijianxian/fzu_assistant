@@ -5,10 +5,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/l10n/locale_provider.dart';
-import 'package:fzu_assistant/service/api_client.dart';
-import 'package:fzu_assistant/service/course_service.dart';
-import 'package:fzu_assistant/theme/theme_provider.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/api/course_service.dart';
+import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:fzu_assistant/screen/guest/login.dart';
@@ -49,37 +48,31 @@ class MyApp extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeState = useMemoized(() => ThemeState()..load());
-    final localeState = useMemoized(() => LocaleState()..load());
+    final settings = useMemoized(() => AppSettings()..load());
     useEffect(
-      () => () {
-        themeState.dispose();
-        localeState.dispose();
-      },
+      () =>
+          () => settings.dispose(),
       [],
     );
 
     return AnimatedBuilder(
       animation: Listenable.merge([
-        themeState.themeKey,
-        themeState.themeModeKey,
-        localeState.localeKey,
+        settings.themeKey,
+        settings.themeModeKey,
+        settings.localeKey,
       ]),
-      builder: (_, _) => LocaleProvider(
-        state: localeState,
-        child: ThemeProvider(
-          state: themeState,
-          child: MaterialApp(
-            title: 'FZU Assistant',
-            debugShowCheckedModeBanner: false,
-            theme: themeState.lightTheme,
-            darkTheme: themeState.darkTheme,
-            themeMode: themeState.currentThemeMode,
-            locale: localeState.currentLocale,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const SplashScreen(),
-          ),
+      builder: (_, _) => AppSettingsProvider(
+        settings: settings,
+        child: MaterialApp(
+          title: 'FZU Assistant',
+          debugShowCheckedModeBanner: false,
+          theme: settings.lightTheme,
+          darkTheme: settings.darkTheme,
+          themeMode: settings.currentThemeMode,
+          locale: settings.currentLocale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const SplashScreen(),
         ),
       ),
     );

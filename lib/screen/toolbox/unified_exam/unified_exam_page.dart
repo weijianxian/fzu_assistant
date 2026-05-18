@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
-import 'package:fzu_assistant/service/academic_service.dart';
+import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/common/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/section.dart';
 
 class UnifiedExamPage extends HookWidget {
   const UnifiedExamPage({super.key});
@@ -71,28 +72,18 @@ class UnifiedExamPage extends HookWidget {
 
     return ListView(
       children: [
-        if (cet.isNotEmpty) ...[
-          _sectionHeader(AppLocalizations.of(context)!.cetScores),
-          for (final e in cet) _buildTile(e),
-        ],
-        if (js.isNotEmpty) ...[
-          _sectionHeader(
-            AppLocalizations.of(context)!.provincialComputerScores,
+        if (cet.isNotEmpty)
+          Section(
+            title: AppLocalizations.of(context)!.cetScores,
+            child: Column(children: [for (final e in cet) _buildTile(e)]),
           ),
-          for (final e in js) _buildTile(e),
-        ],
+        if (js.isNotEmpty)
+          Section(
+            title: AppLocalizations.of(context)!.provincialComputerScores,
+            child: Column(children: [for (final e in js) _buildTile(e)]),
+          ),
         const SizedBox(height: 16),
       ],
-    );
-  }
-
-  Widget _sectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-      ),
     );
   }
 

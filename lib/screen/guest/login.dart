@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/main.dart';
-import 'package:fzu_assistant/service/api_client.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
-import 'package:fzu_assistant/service/login_service.dart';
+import 'package:fzu_assistant/service/api/login_service.dart';
 
 class LoginPage extends HookWidget {
   const LoginPage({super.key});

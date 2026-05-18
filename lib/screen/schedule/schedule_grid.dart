@@ -32,18 +32,6 @@ List<String> _weekdays(AppLocalizations l10n) => [
   l10n.sunday,
 ];
 
-/// 当前正在进行的节次（0-based），不在上课时间返回 -1
-int _currentPeriod() {
-  final now = DateTime.now();
-  final minutes = now.hour * 60 + now.minute;
-  const starts = [500, 555, 620, 675, 840, 895, 950, 1005, 1140, 1195, 1250];
-  const ends = [545, 600, 665, 720, 885, 940, 995, 1050, 1185, 1240, 1295];
-  for (var i = 0; i < starts.length; i++) {
-    if (minutes >= starts[i] && minutes <= ends[i]) return i;
-  }
-  return -1;
-}
-
 class ScheduleGrid extends StatelessWidget {
   final List<Course> courses;
   final int week;
@@ -77,12 +65,6 @@ class ScheduleGrid extends StatelessWidget {
 
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
-        final isCurrentWeek = weekDates.isNotEmpty && weekDates.contains(today);
-        final highlightPeriod = isCurrentWeek ? _currentPeriod() : -1;
-
-        final highlightColor = Theme.of(
-          context,
-        ).colorScheme.primaryContainer.withValues(alpha: 0.5);
 
         final weekdays = _weekdays(AppLocalizations.of(context)!);
 
@@ -158,15 +140,6 @@ class ScheduleGrid extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // 高亮当前节次（在卡片之下，左侧索引之上）
-                  if (highlightPeriod >= 0)
-                    Positioned(
-                      top: highlightPeriod * cellHeight,
-                      height: cellHeight,
-                      left: 0,
-                      right: 0,
-                      child: Container(color: highlightColor),
-                    ),
                   // 课程卡片
                   Positioned(
                     left: _labelWidth,

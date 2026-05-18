@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/gpa.dart';
-import 'package:fzu_assistant/service/academic_service.dart';
+import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/common/tool_page_wrapper.dart';
 
 class GpaPage extends HookWidget {

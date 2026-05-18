@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/theme/app_themes.dart';
-import 'package:fzu_assistant/theme/theme_provider.dart';
 
-String _themeName(String key, AppLocalizations l10n) {
+String themeName(String key, AppLocalizations l10n) {
   return switch (key) {
     'deep_purple' => l10n.themeDeepPurple,
     'blue' => l10n.themeBlue,
@@ -18,116 +16,14 @@ String _themeName(String key, AppLocalizations l10n) {
   };
 }
 
-class ThemeSettingsPage extends StatelessWidget {
-  const ThemeSettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final state = ThemeProvider.of(context);
-
-    return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.themeSettings)),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        children: [
-          // ── 深色模式 ──
-          _SectionHeader(AppLocalizations.of(context)!.appearance),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ValueListenableBuilder(
-              valueListenable: state.themeModeKey,
-              builder: (_, modeKey, _) => SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(
-                    value: 'system',
-                    icon: const Icon(Icons.brightness_auto),
-                    label: Text(AppLocalizations.of(context)!.followSystem),
-                  ),
-                  ButtonSegment(
-                    value: 'light',
-                    icon: const Icon(Icons.light_mode),
-                    label: Text(AppLocalizations.of(context)!.light),
-                  ),
-                  ButtonSegment(
-                    value: 'dark',
-                    icon: const Icon(Icons.dark_mode),
-                    label: Text(AppLocalizations.of(context)!.dark),
-                  ),
-                ],
-                selected: {modeKey},
-                onSelectionChanged: (s) => state.themeModeKey.value = s.first,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // ── 主题选择 ──
-          _SectionHeader(AppLocalizations.of(context)!.themeColor),
-          ValueListenableBuilder(
-            valueListenable: state.themeModeKey,
-            builder: (_, modeKey, _) {
-              final isDark =
-                  modeKey == 'dark' ||
-                  (modeKey == 'system' &&
-                      MediaQuery.platformBrightnessOf(context) ==
-                          Brightness.dark);
-              return ValueListenableBuilder(
-                valueListenable: state.themeKey,
-                builder: (_, currentKey, _) => Column(
-                  children: appThemes.map((theme) {
-                    final selected = currentKey == theme.key;
-                    final themeCs = ColorScheme.fromSeed(
-                      seedColor: theme.color,
-                      brightness: isDark ? Brightness.dark : Brightness.light,
-                    );
-                    return _ThemeTile(
-                      name: _themeName(
-                        theme.key,
-                        AppLocalizations.of(context)!,
-                      ),
-                      cs: themeCs,
-                      selected: selected,
-                      onTap: () => state.themeKey.value = theme.key,
-                    );
-                  }).toList(),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader(this.title);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 16, 16, 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-    );
-  }
-}
-
-class _ThemeTile extends StatelessWidget {
+class ThemeTile extends StatelessWidget {
   final String name;
   final ColorScheme cs;
   final bool selected;
   final VoidCallback onTap;
 
-  const _ThemeTile({
+  const ThemeTile({
+    super.key,
     required this.name,
     required this.cs,
     required this.selected,
@@ -154,14 +50,12 @@ class _ThemeTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // 三色圆点组
                 _ColorDots(
                   primary: cs.primary,
                   secondary: cs.secondary,
                   tertiary: cs.tertiary,
                 ),
                 const SizedBox(width: 16),
-                // 名称
                 Expanded(
                   child: Text(
                     name,
@@ -173,7 +67,6 @@ class _ThemeTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                // 色条预览
                 _MiniPalette(cs: cs),
               ],
             ),
