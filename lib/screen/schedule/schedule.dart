@@ -72,24 +72,20 @@ class SchedulePage extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) {
-            final isWide = MediaQuery.sizeOf(context).width >= kNavBreakpoint;
-            return Padding(
-              padding: const EdgeInsets.all(8),
-              child: isWide
-                  ? Image.asset('assets/icon/icon.png', width: 32, height: 32)
-                  : Hero(
-                      tag: 'app-icon',
-                      child: Image.asset(
-                        'assets/icon/icon.png',
-                        width: 32,
-                        height: 32,
-                      ),
-                    ),
-            );
-          },
-        ),
+        automaticallyImplyLeading: false,
+        leading: MediaQuery.sizeOf(context).width >= kNavBreakpoint
+            ? null
+            : Padding(
+                padding: const EdgeInsets.all(4),
+                child: Hero(
+                  tag: 'app-icon',
+                  child: Image.asset(
+                    'assets/icon/icon.png',
+                    width: 40,
+                    height: 40,
+                  ),
+                ),
+              ),
         title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
         actions: [
           if (pc != null && currentWeek.value != displayWeek.value)

@@ -200,13 +200,13 @@ class HomeScreen extends HookWidget {
               if (isWide)
                 NavigationRail(
                   leading: Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 12),
+                    padding: const EdgeInsets.all(4),
                     child: Hero(
                       tag: 'app-icon',
                       child: Image.asset(
                         'assets/icon/icon.png',
-                        width: 32,
-                        height: 32,
+                        width: 40,
+                        height: 40,
                       ),
                     ),
                   ),
