@@ -65,6 +65,7 @@ class ScheduleGrid extends StatelessWidget {
 
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
+        final nowMinutes = now.hour * 60 + now.minute;
 
         final weekdays = _weekdays(AppLocalizations.of(context)!);
 
@@ -112,32 +113,7 @@ class ScheduleGrid extends StatelessWidget {
                     child: Column(
                       children: [
                         for (var p = 0; p < _maxPeriod; p++)
-                          SizedBox(
-                            height: cellHeight,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '${p + 1}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  '${_timeSlots[p].$1}\n${_timeSlots[p].$2}',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 7.5,
-                                    height: 1.2,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.outline,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          _buildPeriodLabel(context, p, cellHeight, nowMinutes),
                       ],
                     ),
                   ),
@@ -188,7 +164,8 @@ class ScheduleGrid extends StatelessWidget {
   ) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 2),
       decoration: isToday
           ? BoxDecoration(
               color: scheme.primaryContainer,
@@ -214,6 +191,56 @@ class ScheduleGrid extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPeriodLabel(
+    BuildContext context,
+    int index,
+    double cellHeight,
+    int nowMinutes,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    final slot = _timeSlots[index];
+    final startParts = slot.$1.split(':');
+    final endParts = slot.$2.split(':');
+    final startMin = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+    final endMin = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+    final isCurrent = nowMinutes >= startMin && nowMinutes <= endMin;
+
+    return SizedBox(
+      width: _labelWidth,
+      height: cellHeight,
+      child: Container(
+        decoration: isCurrent
+            ? BoxDecoration(
+                color: scheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              )
+            : null,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '${index + 1}',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isCurrent ? scheme.onPrimaryContainer : null,
+              ),
+            ),
+            Text(
+              '${slot.$1}\n${slot.$2}',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 7.5,
+                height: 1.2,
+                color: isCurrent ? scheme.onPrimaryContainer : scheme.outline,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
