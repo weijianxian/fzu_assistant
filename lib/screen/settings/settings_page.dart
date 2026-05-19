@@ -89,19 +89,32 @@ class SettingsPage extends HookWidget {
                 return ValueListenableBuilder(
                   valueListenable: settings.themeKey,
                   builder: (_, currentKey, _) => Column(
-                    children: appThemes.map((theme) {
-                      final selected = currentKey == theme.key;
-                      final themeCs = ColorScheme.fromSeed(
-                        seedColor: theme.color,
-                        brightness: isDark ? Brightness.dark : Brightness.light,
-                      );
-                      return ThemeTile(
-                        name: themeName(theme.key, l10n),
-                        cs: themeCs,
-                        selected: selected,
-                        onTap: () => settings.themeKey.value = theme.key,
-                      );
-                    }).toList(),
+                    children: [
+                      if (AppSettings.dynamicColorSupported)
+                        ThemeTile(
+                          name: themeName('dynamic', l10n),
+                          cs: AppSettings.systemColorScheme(
+                            isDark ? Brightness.dark : Brightness.light,
+                          )!,
+                          selected: currentKey == 'dynamic',
+                          onTap: () => settings.themeKey.value = 'dynamic',
+                        ),
+                      ...appThemes.map((theme) {
+                        final selected = currentKey == theme.key;
+                        final themeCs = ColorScheme.fromSeed(
+                          seedColor: theme.color,
+                          brightness: isDark
+                              ? Brightness.dark
+                              : Brightness.light,
+                        );
+                        return ThemeTile(
+                          name: themeName(theme.key, l10n),
+                          cs: themeCs,
+                          selected: selected,
+                          onTap: () => settings.themeKey.value = theme.key,
+                        );
+                      }),
+                    ],
                   ),
                 );
               },

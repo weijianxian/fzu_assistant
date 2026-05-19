@@ -1,10 +1,18 @@
 import 'dart:convert';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/screen/settings/theme/app_themes.dart';
 
 class AppSettings {
+  static ColorScheme? _systemLightScheme;
+  static ColorScheme? _systemDarkScheme;
+  static bool dynamicColorSupported = false;
+
+  static ColorScheme? systemColorScheme(Brightness brightness) =>
+      brightness == Brightness.dark ? _systemDarkScheme : _systemLightScheme;
+
   final themeKey = ValueNotifier<String>('deep_purple');
   final themeModeKey = ValueNotifier<String>('system');
   final localeKey = ValueNotifier<String>('system');
@@ -41,7 +49,8 @@ class AppSettings {
     final sp = await SharedPreferences.getInstance();
 
     final savedTheme = sp.getString(SpKeys.themeKey) ?? 'deep_purple';
-    final validTheme = appThemes.any((t) => t.key == savedTheme);
+    final validTheme =
+        savedTheme == 'dynamic' || appThemes.any((t) => t.key == savedTheme);
     themeKey.value = validTheme ? savedTheme : 'deep_purple';
 
     final savedMode = sp.getString(SpKeys.themeMode) ?? 'system';
@@ -90,13 +99,61 @@ class AppSettings {
     });
   }
 
+  Future<void> initDynamicColor() async {
+    try {
+      final corePalette = await DynamicColorPlugin.getCorePalette();
+      if (corePalette != null) {
+        _systemLightScheme = corePalette.toColorScheme();
+        _systemDarkScheme = corePalette.toColorScheme(
+          brightness: Brightness.dark,
+        );
+        dynamicColorSupported = true;
+        return;
+      }
+    } catch (_) {}
+    try {
+      final accentColor = await DynamicColorPlugin.getAccentColor();
+      if (accentColor != null) {
+        _systemLightScheme = ColorScheme.fromSeed(
+          seedColor: accentColor,
+          brightness: Brightness.light,
+        );
+        _systemDarkScheme = ColorScheme.fromSeed(
+          seedColor: accentColor,
+          brightness: Brightness.dark,
+        );
+        dynamicColorSupported = true;
+        return;
+      }
+    } catch (_) {}
+    dynamicColorSupported = false;
+    if (themeKey.value == 'dynamic') themeKey.value = 'deep_purple';
+  }
+
   ThemeData get lightTheme {
+    if (themeKey.value == 'dynamic' && _systemLightScheme != null) {
+      return ThemeData(
+        useMaterial3: true,
+        colorScheme: _systemLightScheme,
+        splashFactory: NoSplash.splashFactory,
+        appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
+      );
+    }
     final match = appThemes.where((t) => t.key == themeKey.value);
     final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
     return buildTheme(color, brightness: Brightness.light);
   }
 
   ThemeData get darkTheme {
+    if (themeKey.value == 'dynamic' && _systemDarkScheme != null) {
+      return ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: _systemDarkScheme,
+        splashFactory: NoSplash.splashFactory,
+        appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
+      );
+    }
     final match = appThemes.where((t) => t.key == themeKey.value);
     final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
     return buildTheme(color, brightness: Brightness.dark);

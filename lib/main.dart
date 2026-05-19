@@ -47,7 +47,11 @@ class MyApp extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = useMemoized(() => AppSettings()..load());
+    final settings = useMemoized(
+      () => AppSettings()
+        ..load()
+        ..initDynamicColor(),
+    );
     useEffect(
       () =>
           () => settings.dispose(),

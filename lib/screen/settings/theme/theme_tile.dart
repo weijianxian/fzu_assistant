@@ -3,6 +3,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 
 String themeName(String key, AppLocalizations l10n) {
   return switch (key) {
+    'dynamic' => l10n.themeDynamic,
     'deep_purple' => l10n.themeDeepPurple,
     'blue' => l10n.themeBlue,
     'teal' => l10n.themeTeal,

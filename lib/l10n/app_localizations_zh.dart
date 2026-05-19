@@ -229,6 +229,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themeColor => '主题色';
 
   @override
+  String get themeDynamic => '动态取色';
+
+  @override
   String get themeDeepPurple => '深紫';
 
   @override

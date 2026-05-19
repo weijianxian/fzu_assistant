@@ -52,8 +52,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Login';
 
   @override
-  String get loginValidationError =>
-      'Please enter student ID, password and captcha';
+  String get loginValidationError => 'Please enter student ID, password and captcha';
 
   @override
   String captchaFetchFailed(String error) {
@@ -230,6 +229,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeColor => 'Theme Color';
 
   @override
+  String get themeDynamic => 'Dynamic Color';
+
+  @override
   String get themeDeepPurple => 'Deep Purple';
 
   @override
@@ -280,8 +282,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noScheduleEvents => 'No events';
 
   @override
-  String get appDescription =>
-      'Fuzhou University all-in-one campus assistant — schedule, grades, exams, calendar, out of the box.';
+  String get appDescription => 'Fuzhou University all-in-one campus assistant — schedule, grades, exams, calendar, out of the box.';
 
   @override
   String get openSourceUrl => 'Source Code';
@@ -344,8 +345,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get webView => 'Web View';
 
   @override
-  String get sslWarning =>
-      'SSL certificate verification bypassed, please stay alert';
+  String get sslWarning => 'SSL certificate verification bypassed, please stay alert';
 
   @override
   String get refresh => 'Refresh';

@@ -304,6 +304,10 @@
   "@themeColor": {
     "description": "themeColor"
   },
+  "themeDynamic": "Dynamic Color",
+  "@themeDynamic": {
+    "description": "themeDynamic"
+  },
   "themeDeepPurple": "Deep Purple",
   "@themeDeepPurple": {
     "description": "themeDeepPurple"
