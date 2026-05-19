@@ -34,8 +34,9 @@ class UpdateService {
 
   Future<UpdateCheckResult> checkForUpdate() async {
     final release = await fetchLatestRelease();
-    if (release == null)
+    if (release == null) {
       return const UpdateCheckResult(VersionCompareResult.upToDate);
+    }
 
     try {
       final info = await PackageInfo.fromPlatform();
