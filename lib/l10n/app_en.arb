@@ -497,5 +497,33 @@
   "autoSemester": "Auto (current semester)",
   "@autoSemester": {
     "description": "autoSemester"
+  },
+  "checkForUpdates": "Check for Updates",
+  "@checkForUpdates": {
+    "description": "checkForUpdates"
+  },
+  "newVersionAvailable": "New Version Available",
+  "@newVersionAvailable": {
+    "description": "newVersionAvailable"
+  },
+  "releaseNotes": "Release Notes",
+  "@releaseNotes": {
+    "description": "releaseNotes"
+  },
+  "skipThisVersion": "Skip This Version",
+  "@skipThisVersion": {
+    "description": "skipThisVersion"
+  },
+  "downloadUpdate": "Download",
+  "@downloadUpdate": {
+    "description": "downloadUpdate"
+  },
+  "alreadyLatest": "You are on the latest version",
+  "@alreadyLatest": {
+    "description": "alreadyLatest"
+  },
+  "updateCheckFailed": "Failed to check for updates",
+  "@updateCheckFailed": {
+    "description": "updateCheckFailed"
   }
 }

@@ -52,7 +52,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Login';
 
   @override
-  String get loginValidationError => 'Please enter student ID, password and captcha';
+  String get loginValidationError =>
+      'Please enter student ID, password and captcha';
 
   @override
   String captchaFetchFailed(String error) {
@@ -282,7 +283,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noScheduleEvents => 'No events';
 
   @override
-  String get appDescription => 'Fuzhou University all-in-one campus assistant — schedule, grades, exams, calendar, out of the box.';
+  String get appDescription =>
+      'Fuzhou University all-in-one campus assistant — schedule, grades, exams, calendar, out of the box.';
 
   @override
   String get openSourceUrl => 'Source Code';
@@ -345,7 +347,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get webView => 'Web View';
 
   @override
-  String get sslWarning => 'SSL certificate verification bypassed, please stay alert';
+  String get sslWarning =>
+      'SSL certificate verification bypassed, please stay alert';
 
   @override
   String get refresh => 'Refresh';
@@ -364,4 +367,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoSemester => 'Auto (current semester)';
+
+  @override
+  String get checkForUpdates => 'Check for Updates';
+
+  @override
+  String get newVersionAvailable => 'New Version Available';
+
+  @override
+  String get releaseNotes => 'Release Notes';
+
+  @override
+  String get skipThisVersion => 'Skip This Version';
+
+  @override
+  String get downloadUpdate => 'Download';
+
+  @override
+  String get alreadyLatest => 'You are on the latest version';
+
+  @override
+  String get updateCheckFailed => 'Failed to check for updates';
 }

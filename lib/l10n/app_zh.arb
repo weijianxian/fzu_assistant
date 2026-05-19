@@ -497,5 +497,33 @@
   "autoSemester": "自动（当前学期）",
   "@autoSemester": {
     "description": "autoSemester"
+  },
+  "checkForUpdates": "检查更新",
+  "@checkForUpdates": {
+    "description": "checkForUpdates"
+  },
+  "newVersionAvailable": "发现新版本",
+  "@newVersionAvailable": {
+    "description": "newVersionAvailable"
+  },
+  "releaseNotes": "更新日志",
+  "@releaseNotes": {
+    "description": "releaseNotes"
+  },
+  "skipThisVersion": "跳过此版本",
+  "@skipThisVersion": {
+    "description": "skipThisVersion"
+  },
+  "downloadUpdate": "前往下载",
+  "@downloadUpdate": {
+    "description": "downloadUpdate"
+  },
+  "alreadyLatest": "已是最新版本",
+  "@alreadyLatest": {
+    "description": "alreadyLatest"
+  },
+  "updateCheckFailed": "检查更新失败",
+  "@updateCheckFailed": {
+    "description": "updateCheckFailed"
   }
 }

@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/update_dialog.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/service/update_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,12 +17,18 @@ class _AboutPageState extends State<AboutPage> {
   String _version = '';
   String _buildNumber = '';
   List<_Contributor> _contributors = [];
+  bool _isChecking = false;
+
+  final _updateService = UpdateService();
 
   @override
   void initState() {
     super.initState();
     _loadInfo();
     _loadContributors();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForUpdate(silent: true);
+    });
   }
 
   Future<void> _loadInfo() async {
@@ -48,6 +56,51 @@ class _AboutPageState extends State<AboutPage> {
             .toList();
       });
     } catch (_) {}
+  }
+
+  Future<void> _checkForUpdate({bool silent = false}) async {
+    if (_isChecking) return;
+    setState(() => _isChecking = true);
+
+    try {
+      final result = await _updateService.checkForUpdate();
+      if (!mounted) return;
+
+      switch (result.status) {
+        case VersionCompareResult.outdated:
+          showUpdateSheet(
+            context,
+            release: result.release!,
+            onSkip: () => _updateService.skipVersion(result.release!.version),
+          );
+          break;
+        case VersionCompareResult.upToDate:
+          if (!silent) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.alreadyLatest),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+          break;
+        case VersionCompareResult.skipped:
+          // User already skipped this version, do nothing
+          break;
+      }
+    } catch (_) {
+      if (!mounted) return;
+      if (!silent) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.updateCheckFailed),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isChecking = false);
+    }
   }
 
   @override
@@ -106,6 +159,25 @@ class _AboutPageState extends State<AboutPage> {
                     Uri.parse('https://github.com/weijianxian/fzu_assistant'),
                     mode: LaunchMode.externalApplication,
                   ),
+                ),
+              ],
+            ),
+          ),
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.system_update),
+                  title: Text(AppLocalizations.of(context)!.checkForUpdates),
+                  trailing: _isChecking
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.chevron_right),
+                  onTap: _isChecking ? null : () => _checkForUpdate(),
                 ),
               ],
             ),

@@ -364,4 +364,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get autoSemester => '自动（当前学期）';
+
+  @override
+  String get checkForUpdates => '检查更新';
+
+  @override
+  String get newVersionAvailable => '发现新版本';
+
+  @override
+  String get releaseNotes => '更新日志';
+
+  @override
+  String get skipThisVersion => '跳过此版本';
+
+  @override
+  String get downloadUpdate => '前往下载';
+
+  @override
+  String get alreadyLatest => '已是最新版本';
+
+  @override
+  String get updateCheckFailed => '检查更新失败';
 }
