@@ -4,6 +4,7 @@ import 'package:fzu_assistant/model/course.dart';
 class CourseCard extends StatelessWidget {
   final Course course;
   final String location;
+  final VoidCallback? onTap;
 
   // Tailwind CSS 300 级浅色
   static const _lightColors = [
@@ -53,7 +54,12 @@ class CourseCard extends StatelessWidget {
     Color(0xFF991B1B), // red
   ];
 
-  const CourseCard({super.key, required this.course, required this.location});
+  const CourseCard({
+    super.key,
+    required this.course,
+    required this.location,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,42 +67,45 @@ class CourseCard extends StatelessWidget {
     final colors = isDark ? _darkColors : _lightColors;
     final bg = colors[course.name.hashCode.abs() % colors.length];
 
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            course.name,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : Colors.black87,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (location.isNotEmpty) ...[
-            const SizedBox(height: 2),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        clipBehavior: Clip.hardEdge,
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             Text(
-              location,
+              course.name,
               style: TextStyle(
-                fontSize: 9,
-                color: isDark ? Colors.white70 : Colors.black54,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black87,
               ),
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
+            if (location.isNotEmpty) ...[
+              const SizedBox(height: 2),
+              Text(
+                location,
+                style: TextStyle(
+                  fontSize: 9,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

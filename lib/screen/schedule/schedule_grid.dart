@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/screen/schedule/course_card.dart';
@@ -133,6 +134,7 @@ class ScheduleGrid extends StatelessWidget {
                               child: Stack(
                                 clipBehavior: Clip.hardEdge,
                                 children: _buildCards(
+                                  context,
                                   courses,
                                   wd,
                                   week,
@@ -246,6 +248,7 @@ class ScheduleGrid extends StatelessWidget {
   }
 
   List<Widget> _buildCards(
+    BuildContext context,
     List<Course> courses,
     int wd,
     int week,
@@ -292,7 +295,11 @@ class ScheduleGrid extends StatelessWidget {
             left: 2,
             right: 2,
             height: height - 2,
-            child: CourseCard(course: c, location: r.location),
+            child: CourseCard(
+              course: c,
+              location: r.location,
+              onTap: () => _showCourseDetail(context, c, r.location),
+            ),
           ),
         );
       }
@@ -322,11 +329,70 @@ class ScheduleGrid extends StatelessWidget {
             left: 2,
             right: 2,
             height: height - 2,
-            child: CourseCard(course: adjustedCourse, location: a.newLocation),
+            child: CourseCard(
+              course: adjustedCourse,
+              location: a.newLocation,
+              onTap: () =>
+                  _showCourseDetail(context, adjustedCourse, a.newLocation),
+            ),
           ),
         );
       }
     }
     return cards;
+  }
+
+  void _showCourseDetail(BuildContext context, Course course, String location) {
+    showHalfScreenSheet(
+      context,
+      builder: (controller) => ListView(
+        controller: controller,
+        children: [
+          ListTile(
+            title: Text(
+              course.name,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('教师'),
+            subtitle: Text(course.teacher),
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('地点'),
+            subtitle: Text(location),
+          ),
+          ListTile(
+            leading: const Icon(Icons.star),
+            title: const Text('学分'),
+            subtitle: Text(course.credits),
+          ),
+          ListTile(
+            leading: const Icon(Icons.category),
+            title: const Text('类型'),
+            subtitle: Text(course.electiveType),
+          ),
+          ListTile(
+            leading: const Icon(Icons.quiz),
+            title: const Text('考试'),
+            subtitle: Text(course.examType),
+          ),
+          if (course.rawExamTime.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.schedule),
+              title: const Text('考试时间'),
+              subtitle: Text(course.rawExamTime),
+            ),
+          if (course.remark.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('备注'),
+              subtitle: Text(course.remark),
+            ),
+        ],
+      ),
+    );
   }
 }

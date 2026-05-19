@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
@@ -41,6 +42,19 @@ class DevToolPage extends StatelessWidget {
             ),
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.drag_handle),
+            title: const Text('Native BottomSheet'),
+            onTap: () => showHalfScreenSheet(
+              context,
+              builder: (controller) => ListView.builder(
+                controller: controller,
+                itemCount: 20,
+                itemBuilder: (context, index) =>
+                    ListTile(title: Text('Item ${index + 1}')),
+              ),
+            ),
+          ),
           ListTile(
             leading: const Icon(Icons.language),
             title: const Text('WebView (with Cookie)'),
