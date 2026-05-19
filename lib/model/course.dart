@@ -175,17 +175,3 @@ class Course {
     remark: json['remark'] ?? '',
   );
 }
-
-class CurrentWeek {
-  final int week;
-  final int year;
-  final int term;
-  final DateTime firstMonday;
-
-  const CurrentWeek({
-    required this.week,
-    required this.year,
-    required this.term,
-    required this.firstMonday,
-  });
-}

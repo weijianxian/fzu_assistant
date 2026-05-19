@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/common/utils/html_utils.dart';
@@ -310,6 +309,36 @@ class AcademicService {
 
   // ─── 校历 ───
 
+  /// 从缓存加载校历，缓存未命中时走网络并写入缓存。
+  Future<SchoolCalendar> loadOrFetchCalendar({bool useCache = true}) async {
+    if (useCache) {
+      final map = await CacheHelper.loadMap(SpKeys.cacheSchoolCalendar);
+      if (map.isNotEmpty) return SchoolCalendar.fromJson(map);
+    }
+    final cal = await getSchoolCalendar();
+    await CacheHelper.saveMap(SpKeys.cacheSchoolCalendar, cal.toJson());
+    return cal;
+  }
+
+  /// 根据校历推算当前学期：找 startDate <= today <= endDate 的学期。
+  static String getCurrentTermFromCalendar(SchoolCalendar cal) {
+    final today = DateTime.now();
+    for (final t in cal.terms) {
+      final start = DateTime.tryParse(t.startDate);
+      final end = DateTime.tryParse(t.endDate);
+      if (start == null || end == null) continue;
+      if (!today.isBefore(start) && !today.isAfter(end)) return t.term;
+    }
+    // 没有匹配则返回 startDate 最大的学期
+    CalTerm? latest;
+    for (final t in cal.terms) {
+      if (latest == null || t.startDate.compareTo(latest.startDate) > 0) {
+        latest = t;
+      }
+    }
+    return latest?.term ?? '';
+  }
+
   Future<SchoolCalendar> getSchoolCalendar() async {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
@@ -328,7 +357,6 @@ class AcademicService {
     final terms = <CalTerm>[];
     for (final opt in options) {
       final raw = opt.attributes['value'] ?? '';
-      debugPrint('[Calendar] raw="$raw" len=${raw.length}');
       if (raw.length < 22) continue;
       if (terms.length >= 16) break;
 

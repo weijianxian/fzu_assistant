@@ -209,9 +209,11 @@ class ScheduleGrid extends StatelessWidget {
       final adjustedSlots = <CourseAdjustRule>[];
 
       for (final a in c.adjustRules) {
-        if (a.canceled && a.oldWeek == week && a.oldWeekday == wd) {
+        // 原位置被调走（显式取消 或 普通调课的原位置）
+        if (a.oldWeek == week && a.oldWeekday == wd) {
           canceledSlots.add((a.oldStartClass, a.oldEndClass));
         }
+        // 调课目标位置
         if (a.newWeek == week && a.newWeekday == wd) {
           adjustedSlots.add(a);
         }
@@ -252,13 +254,25 @@ class ScheduleGrid extends StatelessWidget {
         final top = (a.newStartClass - 1) * cellHeight;
         final height = (end - a.newStartClass + 1) * cellHeight;
 
+        final adjustedCourse = Course(
+          type: c.type,
+          name: '[调课]${c.name}',
+          credits: c.credits,
+          electiveType: c.electiveType,
+          examType: c.examType,
+          teacher: c.teacher,
+          scheduleRules: c.scheduleRules,
+          adjustRules: c.adjustRules,
+          rawExamTime: c.rawExamTime,
+          remark: c.remark,
+        );
         cards.add(
           Positioned(
             top: top + 1,
             left: 2,
             right: 2,
             height: height - 2,
-            child: CourseCard(course: c, location: a.newLocation),
+            child: CourseCard(course: adjustedCourse, location: a.newLocation),
           ),
         );
       }

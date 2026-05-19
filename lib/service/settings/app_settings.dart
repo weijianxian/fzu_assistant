@@ -12,7 +12,6 @@ class AppSettings {
   // 学期相关
   final selectedSemesterKey = ValueNotifier<String>(''); // 空 = 自动当前学期
   final termsKey = ValueNotifier<List<String>>([]);
-  final currentWeekKey = ValueNotifier<int>(1);
 
   static const _modeMap = {
     'system': ThemeMode.system,
@@ -63,8 +62,6 @@ class AppSettings {
       } catch (_) {}
     }
 
-    currentWeekKey.value = sp.getInt('current_week') ?? 1;
-
     // 持久化 listeners
     themeKey.addListener(() {
       SharedPreferences.getInstance().then(
@@ -89,11 +86,6 @@ class AppSettings {
     termsKey.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setString('terms_list', jsonEncode(termsKey.value)),
-      );
-    });
-    currentWeekKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setInt('current_week', currentWeekKey.value),
       );
     });
   }
@@ -124,7 +116,6 @@ class AppSettings {
     localeKey.dispose();
     selectedSemesterKey.dispose();
     termsKey.dispose();
-    currentWeekKey.dispose();
   }
 }
 

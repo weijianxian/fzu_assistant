@@ -6,7 +6,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
-import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -62,7 +61,6 @@ class MyApp extends HookWidget {
         settings.localeKey,
         settings.selectedSemesterKey,
         settings.termsKey,
-        settings.currentWeekKey,
       ]),
       builder: (_, _) => AppSettingsProvider(
         settings: settings,
@@ -98,9 +96,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _autoLogin() async {
-    try {
-      await CourseService().getCurrentWeek();
-    } catch (_) {}
     final ok = await ApiClient.instance.relogin();
     if (!mounted) return;
     Navigator.of(context).pushReplacement(

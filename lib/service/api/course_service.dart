@@ -3,13 +3,13 @@ import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/common/utils/html_utils.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/html_helper.dart';
 
 class CourseService {
   static const _courseUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xkjg/wdxk/xkjg_list.aspx';
-  static const _weekUrl = 'https://jwcjwxt2.fzu.edu.cn:82/week.asp';
 
   TermInfo? _cachedTermInfo;
 
@@ -39,50 +39,26 @@ class CourseService {
     });
   }
 
-  // ─── 按学期缓存 firstMonday ───
+  // ─── 按学期推算 firstMonday ───
 
-  Future<void> saveFirstMondayForTerm(String term, DateTime firstMonday) {
-    return CacheHelper.saveForKey(
-      SpKeys.cacheFirstMondayMap,
-      term,
-      firstMonday.toIso8601String(),
-    );
+  /// 从校历推算指定学期的 firstMonday（学期第一天所在的周一）。
+  Future<DateTime?> getFirstMondayForTerm(String term) async {
+    final cal = await AcademicService().loadOrFetchCalendar();
+    final match = cal.terms.where((t) => t.term == term);
+    if (match.isEmpty) return null;
+
+    final startDate = DateTime.tryParse(match.first.startDate);
+    if (startDate == null) return null;
+
+    final offset = (startDate.weekday + 6) % 7;
+    return startDate.subtract(Duration(days: offset));
   }
 
-  Future<DateTime?> loadFirstMondayForTerm(String term) async {
-    final val = await CacheHelper.loadForKey<String>(
-      SpKeys.cacheFirstMondayMap,
-      term,
-      (json) => json as String,
-    );
-    return val != null ? DateTime.tryParse(val) : null;
-  }
-
-  // ─── 当前周次 ───
-
-  Future<CurrentWeek> getCurrentWeek() async {
-    final doc = await HtmlHelper.fetchHtml(_weekUrl);
-    final html = doc.outerHtml;
-
-    final week = RegExp(r'var week = "(\d+)"').firstMatch(html)?.group(1);
-    final year = RegExp(r'var xn = "(\d{4})"').firstMatch(html)?.group(1);
-    final term = RegExp(r'var xq = "(\d{2})"').firstMatch(html)?.group(1);
-    if (week == null || year == null || term == null) {
-      throw Exception('当前周次获取失败');
-    }
-
-    final now = DateTime.now();
-    final thisMonday = now.subtract(Duration(days: now.weekday - 1));
-    final firstMonday = thisMonday.subtract(
-      Duration(days: (int.parse(week) - 1) * 7),
-    );
-
-    return CurrentWeek(
-      week: int.parse(week),
-      year: int.parse(year),
-      term: int.parse(term),
-      firstMonday: firstMonday,
-    );
+  /// 由 firstMonday 计算当前是第几周。
+  static int getWeekFromFirstMonday(DateTime firstMonday) {
+    final week =
+        (DateTime.now().difference(firstMonday).inDays / 7).floor() + 1;
+    return week.clamp(1, 19);
   }
 
   // ─── 学期列表 ───

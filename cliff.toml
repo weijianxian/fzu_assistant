@@ -31,5 +31,6 @@ commit_parsers = [
   { message = "docs", group = "Documentation" },
   { message = "tool", group = "Tools" },
   { message = "chore", group = "Chores" },
+  { message = "refactor", group = "Refactoring" },
   { message = "init", group = "Initialization" },
 ]
