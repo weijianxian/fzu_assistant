@@ -349,4 +349,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get clearCookies => '清除Cookie';
+
+  @override
+  String get selectSemester => '选择学期';
+
+  @override
+  String get autoSemester => '自动（当前学期）';
 }

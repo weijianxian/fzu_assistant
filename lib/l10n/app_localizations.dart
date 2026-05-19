@@ -733,6 +733,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'清除Cookie'**
   String get clearCookies;
+
+  /// selectSemester
+  ///
+  /// In zh, this message translates to:
+  /// **'选择学期'**
+  String get selectSemester;
+
+  /// autoSemester
+  ///
+  /// In zh, this message translates to:
+  /// **'自动（当前学期）'**
+  String get autoSemester;
 }
 
 class _AppLocalizationsDelegate

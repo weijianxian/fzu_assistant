@@ -477,5 +477,13 @@
   "clearCookies": "Clear Cookies",
   "@clearCookies": {
     "description": "clearCookies"
+  },
+  "selectSemester": "Select semester",
+  "@selectSemester": {
+    "description": "selectSemester"
+  },
+  "autoSemester": "Auto (current semester)",
+  "@autoSemester": {
+    "description": "autoSemester"
   }
 }

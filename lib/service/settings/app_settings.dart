@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
@@ -7,6 +8,11 @@ class AppSettings {
   final themeKey = ValueNotifier<String>('deep_purple');
   final themeModeKey = ValueNotifier<String>('system');
   final localeKey = ValueNotifier<String>('system');
+
+  // 学期相关
+  final selectedSemesterKey = ValueNotifier<String>(''); // 空 = 自动当前学期
+  final termsKey = ValueNotifier<List<String>>([]);
+  final currentWeekKey = ValueNotifier<int>(1);
 
   static const _modeMap = {
     'system': ThemeMode.system,
@@ -24,6 +30,14 @@ class AppSettings {
       .firstWhere((o) => o.$1 == key, orElse: () => _localeOptions.first)
       .$3;
 
+  /// 格式化学期显示，如 "202401" → "2024-2025 学年 第1学期"
+  static String formatSemester(String term) {
+    if (term.length < 6) return term;
+    final year = int.tryParse(term.substring(0, 4)) ?? 0;
+    final sem = int.tryParse(term.substring(4, 6)) ?? 0;
+    return '$year-${year + 1} 学年 第$sem学期';
+  }
+
   Future<void> load() async {
     final sp = await SharedPreferences.getInstance();
 
@@ -39,6 +53,19 @@ class AppSettings {
     final validLocale = _localeOptions.any((o) => o.$1 == savedLocale);
     localeKey.value = validLocale ? savedLocale : 'system';
 
+    // 学期相关
+    selectedSemesterKey.value = sp.getString('selected_semester') ?? '';
+
+    final termsRaw = sp.getString('terms_list');
+    if (termsRaw != null) {
+      try {
+        termsKey.value = List<String>.from(jsonDecode(termsRaw));
+      } catch (_) {}
+    }
+
+    currentWeekKey.value = sp.getInt('current_week') ?? 1;
+
+    // 持久化 listeners
     themeKey.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setString(SpKeys.themeKey, themeKey.value),
@@ -52,6 +79,21 @@ class AppSettings {
     localeKey.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setString(SpKeys.localeKey, localeKey.value),
+      );
+    });
+    selectedSemesterKey.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString('selected_semester', selectedSemesterKey.value),
+      );
+    });
+    termsKey.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString('terms_list', jsonEncode(termsKey.value)),
+      );
+    });
+    currentWeekKey.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setInt('current_week', currentWeekKey.value),
       );
     });
   }
@@ -80,6 +122,9 @@ class AppSettings {
     themeKey.dispose();
     themeModeKey.dispose();
     localeKey.dispose();
+    selectedSemesterKey.dispose();
+    termsKey.dispose();
+    currentWeekKey.dispose();
   }
 }
 

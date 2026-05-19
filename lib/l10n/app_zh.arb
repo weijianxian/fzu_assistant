@@ -477,5 +477,13 @@
   "clearCookies": "清除Cookie",
   "@clearCookies": {
     "description": "clearCookies"
+  },
+  "selectSemester": "选择学期",
+  "@selectSemester": {
+    "description": "selectSemester"
+  },
+  "autoSemester": "自动（当前学期）",
+  "@autoSemester": {
+    "description": "autoSemester"
   }
 }

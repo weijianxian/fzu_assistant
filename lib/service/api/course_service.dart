@@ -14,91 +14,92 @@ class CourseService {
 
   Dio get _dio => ApiClient.instance.dio;
 
-  Future<void> saveCache(
-    int week,
+  TermInfo? _cachedTermInfo;
+
+  /// 最近一次 getCourses 内部获取的学期列表（含表单状态）。
+  List<String> get cachedTerms => _cachedTermInfo?.terms ?? [];
+
+  // ─── 按学期缓存课程 ───
+
+  Future<Map<String, dynamic>?> _loadCourseCache(String term) async {
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(SpKeys.cacheCoursesMap);
+    if (raw == null) return null;
+    final map = Map<String, dynamic>.from(jsonDecode(raw));
+    return map[term] as Map<String, dynamic>?;
+  }
+
+  Future<void> _saveCourseCache(
+    String term,
     List<Course> courses,
-    DateTime firstMonday,
+    String viewState,
+    String eventValidation,
   ) async {
     final sp = await SharedPreferences.getInstance();
-    sp.setInt(SpKeys.cacheCurrentWeek, week);
-    sp.setString(
-      SpKeys.cacheCourses,
-      jsonEncode(courses.map((c) => c.toJson()).toList()),
-    );
-    sp.setString(SpKeys.cacheFirstMonday, firstMonday.toIso8601String());
+    final raw = sp.getString(SpKeys.cacheCoursesMap);
+    final map = raw != null
+        ? Map<String, dynamic>.from(jsonDecode(raw))
+        : <String, dynamic>{};
+    map[term] = {
+      'courses': courses.map((c) => c.toJson()).toList(),
+      'viewState': viewState,
+      'eventValidation': eventValidation,
+    };
+    sp.setString(SpKeys.cacheCoursesMap, jsonEncode(map));
   }
 
-  Future<(int, List<Course>, DateTime)?> loadCache() async {
+  // ─── 按学期缓存 firstMonday ───
+
+  Future<void> saveFirstMondayForTerm(String term, DateTime firstMonday) async {
     final sp = await SharedPreferences.getInstance();
-    final week = sp.getInt(SpKeys.cacheCurrentWeek);
-    final raw = sp.getString(SpKeys.cacheCourses);
-    final fm = sp.getString(SpKeys.cacheFirstMonday);
-    if (week == null || raw == null || fm == null) return null;
-    final list = (jsonDecode(raw) as List)
-        .map((c) => Course.fromJson(c))
-        .toList();
-    return (week, list, DateTime.parse(fm));
+    final raw = sp.getString(SpKeys.cacheFirstMondayMap);
+    final map = raw != null
+        ? Map<String, dynamic>.from(jsonDecode(raw))
+        : <String, dynamic>{};
+    map[term] = firstMonday.toIso8601String();
+    sp.setString(SpKeys.cacheFirstMondayMap, jsonEncode(map));
   }
 
-  /// 获取当前周次，自动持久化；失败时回退缓存
-  Future<CurrentWeek> getCurrentWeek() async {
-    try {
-      final resp = await _dio.get<List<int>>(
-        _weekUrl,
-        options: Options(responseType: ResponseType.bytes),
-      );
-      final html = utf8.decode(resp.data!, allowMalformed: true);
-      final week = RegExp(r'var week = "(\d+)"').firstMatch(html)?.group(1);
-      final year = RegExp(r'var xn = "(\d{4})"').firstMatch(html)?.group(1);
-      final term = RegExp(r'var xq = "(\d{2})"').firstMatch(html)?.group(1);
-      if (week == null || year == null || term == null) {
-        throw Exception('当前周次获取失败');
-      }
-
-      final now = DateTime.now();
-      final thisMonday = now.subtract(Duration(days: now.weekday - 1));
-      final firstMonday = thisMonday.subtract(
-        Duration(days: (int.parse(week) - 1) * 7),
-      );
-
-      final info = CurrentWeek(
-        week: int.parse(week),
-        year: int.parse(year),
-        term: int.parse(term),
-        firstMonday: firstMonday,
-      );
-      saveWeekInfo(info.week, info.firstMonday);
-      return info;
-    } catch (_) {
-      final cached = await loadWeekCache();
-      if (cached != null) {
-        final (week, fm) = cached;
-        return CurrentWeek(week: week, year: 0, term: 0, firstMonday: fm);
-      }
-      rethrow;
-    }
-  }
-
-  Future<void> saveWeekInfo(int week, DateTime firstMonday) async {
+  Future<DateTime?> loadFirstMondayForTerm(String term) async {
     final sp = await SharedPreferences.getInstance();
-    sp.setInt(SpKeys.cacheCurrentWeek, week);
-    sp.setString(SpKeys.cacheFirstMonday, firstMonday.toIso8601String());
-  }
-
-  Future<(int, DateTime)?> loadWeekCache() async {
-    final sp = await SharedPreferences.getInstance();
-    final week = sp.getInt(SpKeys.cacheCurrentWeek);
-    final fm = sp.getString(SpKeys.cacheFirstMonday);
-    if (week == null || fm == null) return null;
-    return (week, DateTime.parse(fm));
-  }
-
-  Future<List<Course>?> loadCoursesCache() async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(SpKeys.cacheCourses);
+    final raw = sp.getString(SpKeys.cacheFirstMondayMap);
     if (raw == null) return null;
-    return (jsonDecode(raw) as List).map((c) => Course.fromJson(c)).toList();
+    final map = Map<String, dynamic>.from(jsonDecode(raw));
+    final val = map[term];
+    if (val == null) return null;
+    return DateTime.tryParse(val);
   }
+
+  // ─── 当前周次 ───
+
+  Future<CurrentWeek> getCurrentWeek() async {
+    final resp = await _dio.get<List<int>>(
+      _weekUrl,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final html = utf8.decode(resp.data!, allowMalformed: true);
+    final week = RegExp(r'var week = "(\d+)"').firstMatch(html)?.group(1);
+    final year = RegExp(r'var xn = "(\d{4})"').firstMatch(html)?.group(1);
+    final term = RegExp(r'var xq = "(\d{2})"').firstMatch(html)?.group(1);
+    if (week == null || year == null || term == null) {
+      throw Exception('当前周次获取失败');
+    }
+
+    final now = DateTime.now();
+    final thisMonday = now.subtract(Duration(days: now.weekday - 1));
+    final firstMonday = thisMonday.subtract(
+      Duration(days: (int.parse(week) - 1) * 7),
+    );
+
+    return CurrentWeek(
+      week: int.parse(week),
+      year: int.parse(year),
+      term: int.parse(term),
+      firstMonday: firstMonday,
+    );
+  }
+
+  // ─── 学期列表 ───
 
   Future<TermInfo> getTerms() async {
     final resp = await _dio.get<List<int>>(
@@ -131,19 +132,34 @@ class CourseService {
     );
   }
 
-  Future<List<Course>> getCourses(
-    String term,
-    String viewState,
-    String eventValidation,
-  ) async {
+  // ─── 课程列表 ───
+
+  /// 获取指定学期的课程列表。
+  /// [useCache] 为 true 时优先返回缓存数据。
+  Future<List<Course>> getCourses(String term, {bool useCache = true}) async {
+    // 先尝试缓存
+    if (useCache) {
+      final cached = await _loadCourseCache(term);
+      if (cached != null) {
+        return (cached['courses'] as List)
+            .map((c) => Course.fromJson(c))
+            .toList();
+      }
+    }
+
+    // 获取表单状态（并缓存供页面使用）
+    final termInfo = await getTerms();
+    _cachedTermInfo = termInfo;
+
+    // 网络请求
     final resp = await _dio.post<List<int>>(
       _courseUrl,
       queryParameters: {'id': ApiClient.instance.userId},
       data: {
         'ctl00\$ContentPlaceHolder1\$DDL_xnxq': term,
         'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
-        '__VIEWSTATE': viewState,
-        '__EVENTVALIDATION': eventValidation,
+        '__VIEWSTATE': termInfo.viewState,
+        '__EVENTVALIDATION': termInfo.eventValidation,
       },
       options: Options(responseType: ResponseType.bytes),
     );
@@ -154,7 +170,6 @@ class CourseService {
     if (table == null) return [];
 
     final rows = table.querySelectorAll('tbody > tr');
-    // 跳过前两行（标题栏）
     if (rows.length <= 2) return [];
 
     final courses = <Course>[];
@@ -167,6 +182,14 @@ class CourseService {
 
       courses.add(_parseCourse(cells));
     }
+
+    // 写入缓存
+    _saveCourseCache(
+      term,
+      courses,
+      termInfo.viewState,
+      termInfo.eventValidation,
+    );
     return courses;
   }
 
@@ -199,7 +222,6 @@ class CourseService {
       final parts = line.split(RegExp(r'\s+'));
       if (parts.length < 3) continue;
 
-      // 整周课程: "03周  星期1  -  04周  星期7"
       if (parts[0].contains('周') && parts.length >= 5) {
         final startWeek = _parseInt(parts[0].replaceAll('周', ''));
         final startWeekday = _parseInt(parts[1].replaceAll('星期', ''));
@@ -229,8 +251,6 @@ class CourseService {
         continue;
       }
 
-      // 普通课程: "08-16 星期5:7-8节 铜盘A508"
-      // 或: "02-14 星期1:1-2节(双) 旗山西1-206"
       final weekInfo = parts[0].split('-');
       final dayParts = parts[1].split(':');
       if (weekInfo.length < 2 || dayParts.length < 2) continue;
@@ -262,7 +282,6 @@ class CourseService {
   List<CourseAdjustRule> _parseAdjustRules(Element cell) {
     final lines = _innerTextWithBr(cell).split('\n');
     final rules = <CourseAdjustRule>[];
-    // "06周 星期3:5-6节  调至  09周 星期1:7-8节  旗山西1-206"
     final regex = RegExp(
       r'(\d+)\s*周\s*星期(\d):(\d+)-(\d+)节\s*调至\s*(\d+)\s*周\s*星期(\d):(\d+)-(\d+)节\s*(\S+)',
     );

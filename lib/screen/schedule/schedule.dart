@@ -4,7 +4,9 @@ import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/screen/schedule/schedule_grid.dart';
+import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
+import 'package:fzu_assistant/service/settings/app_settings.dart';
 
 const _totalWeeks = 19;
 
@@ -13,15 +15,18 @@ class SchedulePage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = AppSettingsProvider.of(context);
     final courses = useState<List<Course>>([]);
-    final currentWeek = useState<int>(1);
     final displayWeek = useState<int>(1);
-    final firstMonday = useState<DateTime?>(null);
     final loading = useState(true);
     final error = useState<String?>(null);
     final service = useMemoized(() => CourseService());
     final pageController = useState<PageController?>(null);
+    final firstMonday = useState<DateTime?>(null);
     final mounted = useRef(true);
+    // 记录当前正在显示的学期，用于检测切换
+    final currentLoadedTerm = useState<String?>(null);
+
     useEffect(
       () => () {
         mounted.value = false;
@@ -29,43 +34,124 @@ class SchedulePage extends HookWidget {
       [],
     );
 
-    // 加载缓存 → 创建 PageController → 刷新 API
+    // 统一的刷新方法
+    Future<void> refresh() async {
+      error.value = null;
+      loading.value = true;
+      try {
+        // 1. 获取当前周次
+        final weekInfo = await service.getCurrentWeek();
+        if (!mounted.value) return;
+        settings.currentWeekKey.value = weekInfo.week;
+
+        // 2. 确定目标学期
+        final selected = settings.selectedSemesterKey.value;
+        final currentTermStr =
+            '${weekInfo.year}${weekInfo.term.toString().padLeft(2, '0')}';
+        final targetTerm = selected.isNotEmpty ? selected : currentTermStr;
+        final isCurrent = targetTerm == currentTermStr;
+
+        // 3. 如果学期没变且已有数据，跳过
+        if (currentLoadedTerm.value == targetTerm && courses.value.isNotEmpty) {
+          if (isCurrent) {
+            firstMonday.value = weekInfo.firstMonday;
+            service.saveFirstMondayForTerm(targetTerm, weekInfo.firstMonday);
+            displayWeek.value = weekInfo.week;
+            _animateToWeek(pageController.value, weekInfo.week);
+          }
+          loading.value = false;
+          return;
+        }
+
+        // 4. 获取课程（service 内部处理缓存 + getTerms）
+        final list = await service.getCourses(targetTerm, useCache: false);
+        if (!mounted.value) return;
+        courses.value = list;
+        currentLoadedTerm.value = targetTerm;
+        settings.termsKey.value = service.cachedTerms;
+
+        // 5. 更新周次和 firstMonday
+        if (isCurrent) {
+          firstMonday.value = weekInfo.firstMonday;
+          service.saveFirstMondayForTerm(targetTerm, weekInfo.firstMonday);
+          displayWeek.value = weekInfo.week;
+          _animateToWeek(pageController.value, weekInfo.week);
+        } else {
+          // 旧学期：从缓存或校历获取 firstMonday
+          var fm = await service.loadFirstMondayForTerm(targetTerm);
+          debugPrint('[Schedule] old term=$targetTerm, cached fm=$fm');
+          if (fm == null) {
+            final cal = await AcademicService().getSchoolCalendar();
+            debugPrint(
+              '[Schedule] calendar terms: ${cal.terms.map((t) => '${t.term}/${t.startDate}').toList()}',
+            );
+            final termData = cal.terms.where((t) => t.term == targetTerm);
+            debugPrint(
+              '[Schedule] matched termData: ${termData.map((t) => '${t.term}/${t.startDate}').toList()}',
+            );
+            if (termData.isNotEmpty) {
+              final startDate = DateTime.tryParse(termData.first.startDate);
+              debugPrint('[Schedule] startDate=$startDate');
+              if (startDate != null) {
+                final offset = (startDate.weekday + 6) % 7;
+                fm = startDate.subtract(Duration(days: offset));
+                debugPrint('[Schedule] computed firstMonday=$fm');
+                service.saveFirstMondayForTerm(targetTerm, fm);
+              }
+            }
+          }
+          firstMonday.value = fm;
+          debugPrint('[Schedule] final firstMonday=$fm');
+          displayWeek.value = 1;
+        }
+      } catch (e) {
+        if (!mounted.value) return;
+        if (courses.value.isEmpty) error.value = e.toString();
+      } finally {
+        if (mounted.value) loading.value = false;
+      }
+    }
+
+    // 初始化：创建 PageController + 首次刷新
     useEffect(() {
       () async {
-        // 1. 读周次缓存（splash 已持久化）
-        final weekCache = await service.loadWeekCache();
-        int startWeek = 1;
-        if (weekCache != null) {
-          final (week, fm) = weekCache;
-          currentWeek.value = week;
-          displayWeek.value = week;
-          firstMonday.value = fm;
-          startWeek = week;
+        final startWeek = settings.currentWeekKey.value;
+        displayWeek.value = startWeek;
+
+        // 用缓存快速填充（getCourses 内部处理缓存逻辑）
+        final selected = settings.selectedSemesterKey.value;
+        if (selected.isNotEmpty) {
+          try {
+            final cached = await service.getCourses(selected, useCache: true);
+            if (cached.isNotEmpty && mounted.value) {
+              courses.value = cached;
+              currentLoadedTerm.value = selected;
+            }
+            firstMonday.value = await service.loadFirstMondayForTerm(selected);
+          } catch (_) {}
         }
 
-        // 2. 读课程缓存
-        final coursesCache = await service.loadCoursesCache();
-        if (coursesCache != null) {
-          courses.value = coursesCache;
-        }
-
-        // 3. 创建 PageController（正确的 initialPage）
         pageController.value = PageController(initialPage: startWeek - 1);
-
-        // 4. 后台刷新 API
-        _refresh(
-          service,
-          courses,
-          currentWeek,
-          displayWeek,
-          firstMonday,
-          loading,
-          error,
-          pageController,
-          mounted,
-        );
+        refresh();
       }();
       return null;
+    }, []);
+
+    // 监听学期切换
+    useEffect(() {
+      void onSemesterChanged() {
+        final selected = settings.selectedSemesterKey.value;
+        if (selected != currentLoadedTerm.value) {
+          // 切换学期时先清空课程，避免显示旧数据
+          courses.value = [];
+          currentLoadedTerm.value = null;
+          refresh();
+        }
+      }
+
+      settings.selectedSemesterKey.addListener(onSemesterChanged);
+      return () =>
+          settings.selectedSemesterKey.removeListener(onSemesterChanged);
     }, []);
 
     final pc = pageController.value;
@@ -88,10 +174,13 @@ class SchedulePage extends HookWidget {
               ),
         title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
         actions: [
-          if (pc != null && currentWeek.value != displayWeek.value)
+          _buildTermSelector(context, settings),
+          if (pc != null &&
+              settings.currentWeekKey.value != displayWeek.value &&
+              _isCurrentSemester(settings, firstMonday.value))
             TextButton(
               onPressed: () => pc.animateToPage(
-                currentWeek.value - 1,
+                settings.currentWeekKey.value - 1,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
               ),
@@ -117,7 +206,7 @@ class SchedulePage extends HookWidget {
           ),
         ],
       ),
-      body: pc == null || firstMonday.value == null
+      body: pc == null
           ? const Center(child: CircularProgressIndicator())
           : error.value != null && courses.value.isEmpty
           ? Center(
@@ -131,17 +220,7 @@ class SchedulePage extends HookWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => _refresh(
-                      service,
-                      courses,
-                      currentWeek,
-                      displayWeek,
-                      firstMonday,
-                      loading,
-                      error,
-                      pageController,
-                      mounted,
-                    ),
+                    onPressed: refresh,
                     child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
@@ -163,58 +242,71 @@ class SchedulePage extends HookWidget {
     );
   }
 
-  Future<void> _refresh(
-    CourseService service,
-    ValueNotifier<List<Course>> courses,
-    ValueNotifier<int> currentWeek,
-    ValueNotifier<int> displayWeek,
-    ValueNotifier<DateTime?> firstMonday,
-    ValueNotifier<bool> loading,
-    ValueNotifier<String?> error,
-    ValueNotifier<PageController?> pageController,
-    ObjectRef<bool> mounted,
-  ) async {
-    error.value = null;
-    loading.value = true;
-    try {
-      final weekInfo = await service.getCurrentWeek();
-      if (!mounted.value) return;
-      final termStr =
-          '${weekInfo.year}${weekInfo.term.toString().padLeft(2, '0')}';
-      final termInfo = await service.getTerms();
-      if (!mounted.value) return;
-      final targetTerm = termInfo.terms.contains(termStr)
-          ? termStr
-          : termInfo.terms.first;
+  static bool _isCurrentSemester(AppSettings settings, DateTime? fm) {
+    final selected = settings.selectedSemesterKey.value;
+    if (selected.isEmpty) return true; // 自动模式 = 当前学期
+    if (fm == null) return true;
+    final week = settings.currentWeekKey.value;
+    // 计算当前学期的 firstMonday，与选中学期的比较
+    final now = DateTime.now();
+    final thisMonday = now.subtract(Duration(days: now.weekday - 1));
+    final currentFirstMonday = thisMonday.subtract(
+      Duration(days: (week - 1) * 7),
+    );
+    return (currentFirstMonday.difference(fm).inDays.abs() < 7);
+  }
 
-      final list = await service.getCourses(
-        targetTerm,
-        termInfo.viewState,
-        termInfo.eventValidation,
+  Widget _buildTermSelector(BuildContext context, AppSettings settings) {
+    final terms = settings.termsKey.value;
+    if (terms.isEmpty) return const SizedBox.shrink();
+
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.calendar_month),
+      tooltip: AppLocalizations.of(context)!.selectSemester,
+      onSelected: (term) {
+        settings.selectedSemesterKey.value = term;
+      },
+      itemBuilder: (_) => [
+        // 自动选项
+        PopupMenuItem(
+          value: '',
+          child: Row(
+            children: [
+              if (settings.selectedSemesterKey.value.isEmpty)
+                const Icon(Icons.check, size: 18)
+              else
+                const SizedBox(width: 18),
+              const SizedBox(width: 8),
+              Text(AppLocalizations.of(context)!.autoSemester),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        for (final term in terms)
+          PopupMenuItem(
+            value: term,
+            child: Row(
+              children: [
+                if (settings.selectedSemesterKey.value == term)
+                  const Icon(Icons.check, size: 18)
+                else
+                  const SizedBox(width: 18),
+                const SizedBox(width: 8),
+                Text(AppSettings.formatSemester(term)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  static void _animateToWeek(PageController? pc, int week) {
+    if (pc != null && pc.hasClients && pc.page?.round() != week - 1) {
+      pc.animateToPage(
+        week - 1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
-      if (!mounted.value) return;
-      courses.value = list;
-      currentWeek.value = weekInfo.week;
-      displayWeek.value = weekInfo.week;
-      firstMonday.value = weekInfo.firstMonday;
-      service.saveCache(weekInfo.week, list, weekInfo.firstMonday);
-
-      // API 返回的周次和缓存不同时，动画跳转
-      final pc = pageController.value;
-      if (pc != null &&
-          pc.hasClients &&
-          pc.page?.round() != weekInfo.week - 1) {
-        pc.animateToPage(
-          weekInfo.week - 1,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    } catch (e) {
-      if (!mounted.value) return;
-      if (courses.value.isEmpty) error.value = e.toString();
-    } finally {
-      if (mounted.value) loading.value = false;
     }
   }
 }

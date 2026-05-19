@@ -351,4 +351,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearCookies => 'Clear Cookies';
+
+  @override
+  String get selectSemester => 'Select semester';
+
+  @override
+  String get autoSemester => 'Auto (current semester)';
 }

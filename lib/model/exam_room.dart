@@ -14,4 +14,22 @@ class ExamRoomInfo {
     required this.time,
     required this.location,
   });
+
+  Map<String, dynamic> toJson() => {
+    'courseName': courseName,
+    'credit': credit,
+    'teacher': teacher,
+    'date': date,
+    'time': time,
+    'location': location,
+  };
+
+  factory ExamRoomInfo.fromJson(Map<String, dynamic> json) => ExamRoomInfo(
+    courseName: json['courseName'] ?? '',
+    credit: json['credit'] ?? '',
+    teacher: json['teacher'] ?? '',
+    date: json['date'] ?? '',
+    time: json['time'] ?? '',
+    location: json['location'] ?? '',
+  );
 }

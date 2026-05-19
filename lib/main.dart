@@ -60,6 +60,9 @@ class MyApp extends HookWidget {
         settings.themeKey,
         settings.themeModeKey,
         settings.localeKey,
+        settings.selectedSemesterKey,
+        settings.termsKey,
+        settings.currentWeekKey,
       ]),
       builder: (_, _) => AppSettingsProvider(
         settings: settings,

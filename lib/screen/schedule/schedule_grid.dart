@@ -203,12 +203,32 @@ class ScheduleGrid extends StatelessWidget {
   ) {
     final cards = <Widget>[];
     for (final c in courses) {
+      // 收集本周该星期被调课取消的节次范围
+      final canceledSlots = <(int, int)>[];
+      // 收集本周该星期的调课新增
+      final adjustedSlots = <CourseAdjustRule>[];
+
+      for (final a in c.adjustRules) {
+        if (a.canceled && a.oldWeek == week && a.oldWeekday == wd) {
+          canceledSlots.add((a.oldStartClass, a.oldEndClass));
+        }
+        if (a.newWeek == week && a.newWeekday == wd) {
+          adjustedSlots.add(a);
+        }
+      }
+
       for (final r in c.scheduleRules) {
         if (r.weekday != wd) continue;
         if (r.startWeek > week || r.endWeek < week) continue;
         if (r.single && !r.double && week % 2 == 0) continue;
         if (r.double && !r.single && week % 2 == 1) continue;
         if (r.startClass < 1 || r.startClass > _maxPeriod) continue;
+
+        // 检查是否被调课取消
+        final isCanceled = canceledSlots.any(
+          (slot) => r.startClass == slot.$1 && r.endClass == slot.$2,
+        );
+        if (isCanceled) continue;
 
         final end = r.endClass > _maxPeriod ? _maxPeriod : r.endClass;
         final top = (r.startClass - 1) * cellHeight;
@@ -221,6 +241,24 @@ class ScheduleGrid extends StatelessWidget {
             right: 2,
             height: height - 2,
             child: CourseCard(course: c, location: r.location),
+          ),
+        );
+      }
+
+      // 绘制调课新增的卡片
+      for (final a in adjustedSlots) {
+        if (a.newStartClass < 1 || a.newStartClass > _maxPeriod) continue;
+        final end = a.newEndClass > _maxPeriod ? _maxPeriod : a.newEndClass;
+        final top = (a.newStartClass - 1) * cellHeight;
+        final height = (end - a.newStartClass + 1) * cellHeight;
+
+        cards.add(
+          Positioned(
+            top: top + 1,
+            left: 2,
+            right: 2,
+            height: height - 2,
+            child: CourseCard(course: c, location: a.newLocation),
           ),
         );
       }

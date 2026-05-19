@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'package:charset/charset.dart';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html_parser;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/credit.dart';
 import 'package:fzu_assistant/model/empty_room.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/model/gpa.dart';
+import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
@@ -172,25 +176,51 @@ class AcademicService {
     return exams;
   }
 
-  // ─── 考场查询 ───
+  // ─── 考场学期列表 ───
 
-  Future<List<ExamRoomInfo>> getExamRooms() async {
+  Future<TermInfo> getExamTerms() async {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    // 先 GET 拿 __VIEWSTATE / __EVENTVALIDATION
-    final getResp = await _dio.get<List<int>>(
+    final resp = await _dio.get<List<int>>(
       _examRoomUrl,
       queryParameters: {'id': id},
       options: Options(responseType: ResponseType.bytes),
     );
-    final getHtml = utf8.decode(getResp.data!, allowMalformed: true);
-    final getDoc = html_parser.parse(getHtml);
+    final html = utf8.decode(resp.data!, allowMalformed: true);
+    final doc = html_parser.parse(html);
 
     final viewState =
-        getDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
+        doc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
     final eventValidation =
-        getDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
+        doc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
+
+    final options = doc.querySelectorAll(
+      '#ContentPlaceHolder1_DDL_xnxq option',
+    );
+    final terms = options
+        .map((o) => o.attributes['value'] ?? '')
+        .where((v) => v.isNotEmpty)
+        .toList();
+
+    if (terms.isEmpty) throw Exception('无可用学期');
+
+    return TermInfo(
+      terms: terms,
+      viewState: viewState,
+      eventValidation: eventValidation,
+    );
+  }
+
+  // ─── 考场查询 ───
+
+  Future<List<ExamRoomInfo>> getExamRooms(
+    String term,
+    String viewState,
+    String eventValidation,
+  ) async {
+    final id = ApiClient.instance.userId;
+    if (id == null) throw Exception('未登录');
 
     // POST 查询
     final postResp = await _dio.post<List<int>>(
@@ -199,6 +229,7 @@ class AcademicService {
       data: {
         '__VIEWSTATE': viewState,
         '__EVENTVALIDATION': eventValidation,
+        'ctl00\$ContentPlaceHolder1\$DDL_xnxq': term,
         'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
       },
       options: Options(responseType: ResponseType.bytes),
@@ -237,6 +268,31 @@ class AcademicService {
     final parts = raw.split(RegExp(r'\s+'));
     if (parts.length < 3) return (raw, '', '');
     return (parts[0], parts[1], parts[2]);
+  }
+
+  // ─── 考场缓存 ───
+
+  Future<void> saveExamRoomsForTerm(
+    String term,
+    List<ExamRoomInfo> rooms,
+  ) async {
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(SpKeys.cacheExamRoomsMap);
+    final map = raw != null
+        ? Map<String, dynamic>.from(jsonDecode(raw))
+        : <String, dynamic>{};
+    map[term] = rooms.map((r) => r.toJson()).toList();
+    sp.setString(SpKeys.cacheExamRoomsMap, jsonEncode(map));
+  }
+
+  Future<List<ExamRoomInfo>?> loadExamRoomsForTerm(String term) async {
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(SpKeys.cacheExamRoomsMap);
+    if (raw == null) return null;
+    final map = Map<String, dynamic>.from(jsonDecode(raw));
+    final list = map[term];
+    if (list == null) return null;
+    return (list as List).map((r) => ExamRoomInfo.fromJson(r)).toList();
   }
 
   // ─── 学分统计 ───
@@ -320,21 +376,22 @@ class AcademicService {
     final terms = <CalTerm>[];
     for (final opt in options) {
       final raw = opt.attributes['value'] ?? '';
+      debugPrint('[Calendar] raw="$raw" len=${raw.length}');
       if (raw.length < 22) continue;
       if (terms.length >= 16) break;
 
-      final startDate =
-          '${raw.substring(6, 8)}-${raw.substring(8, 10)}-${raw.substring(10, 12)}';
-      final endDate =
-          '${raw.substring(14, 16)}-${raw.substring(16, 18)}-${raw.substring(18, 20)}';
+      final startRaw = raw.substring(6, 14); // YYYYMMDD
+      final endRaw = raw.substring(14, 22); // YYYYMMDD
 
       terms.add(
         CalTerm(
           termId: raw,
           schoolYear: raw.substring(0, 4),
           term: raw.substring(0, 6),
-          startDate: '${raw.substring(0, 4)}-$startDate',
-          endDate: '${raw.substring(0, 4)}-$endDate',
+          startDate:
+              '${startRaw.substring(0, 4)}-${startRaw.substring(4, 6)}-${startRaw.substring(6, 8)}',
+          endDate:
+              '${endRaw.substring(0, 4)}-${endRaw.substring(4, 6)}-${endRaw.substring(6, 8)}',
         ),
       );
     }
