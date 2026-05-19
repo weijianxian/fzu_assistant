@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/main.dart' show webViewEnvironment;
@@ -105,9 +106,12 @@ class _WebViewPageState extends State<WebViewPage> {
                   _controller?.reload();
                   break;
                 case 'copy':
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(_currentUrl)));
+                  await Clipboard.setData(ClipboardData(text: _currentUrl));
+                  if (mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(l10n.copied)));
+                  }
                   break;
                 case 'open':
                   final uri = Uri.parse(_currentUrl);
@@ -158,6 +162,17 @@ class _WebViewPageState extends State<WebViewPage> {
                     onProgressChanged: (controller, progress) {
                       setState(() => _progress = progress / 100.0);
                     },
+                    onReceivedServerTrustAuthRequest:
+                        (controller, challenge) async {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.sslWarning)),
+                            );
+                          }
+                          return ServerTrustAuthResponse(
+                            action: ServerTrustAuthResponseAction.PROCEED,
+                          );
+                        },
                     onLoadStop: (controller, url) {
                       _injectForDomain(controller, url);
                     },

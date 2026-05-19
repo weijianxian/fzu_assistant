@@ -152,6 +152,7 @@ class CourseService {
   Course _parseCourse(List<Element> cells) {
     final scheduleRules = _parseScheduleRules(cells[8]);
     final adjustRules = _parseAdjustRules(cells[11]);
+    final links = _extractLinks(cells[2]);
 
     return Course(
       type: _innerText(cells[0]),
@@ -164,7 +165,25 @@ class CourseService {
       adjustRules: adjustRules,
       rawExamTime: _innerText(cells[9]).trim(),
       remark: _innerText(cells[10]).trim(),
+      syllabus: links.isNotEmpty ? links[0] : '',
+      lessonplan: links.length > 1 ? links[1] : '',
     );
+  }
+
+  List<String> _extractLinks(Element cell) {
+    final links = <String>[];
+    final anchors = cell.querySelectorAll('a');
+    final regex = RegExp(r"javascript:pop1\('(.*?)&");
+
+    for (final a in anchors) {
+      final href = a.attributes['href'] ?? '';
+      final match = regex.firstMatch(href);
+      if (match != null) {
+        final url = 'https://jwcjwxt2.fzu.edu.cn:81${match.group(1)}';
+        links.add(url);
+      }
+    }
+    return links;
   }
 
   List<CourseScheduleRule> _parseScheduleRules(Element cell) {

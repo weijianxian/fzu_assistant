@@ -466,6 +466,10 @@
   "@webView": {
     "description": "webView"
   },
+  "sslWarning": "SSL 证书验证已跳过，请注意网页安全",
+  "@sslWarning": {
+    "description": "warning shown when SSL certificate verification is bypassed in WebView"
+  },
   "refresh": "刷新",
   "@refresh": {
     "description": "refresh"
@@ -473,6 +477,10 @@
   "copyLink": "复制链接",
   "@copyLink": {
     "description": "copyLink"
+  },
+  "copied": "已复制",
+  "@copied": {
+    "description": "snackbar message after copying to clipboard"
   },
   "clearCookies": "清除Cookie",
   "@clearCookies": {

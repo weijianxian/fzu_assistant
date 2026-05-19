@@ -466,6 +466,10 @@
   "@webView": {
     "description": "webView"
   },
+  "sslWarning": "SSL certificate verification bypassed, please stay alert",
+  "@sslWarning": {
+    "description": "warning shown when SSL certificate verification is bypassed in WebView"
+  },
   "refresh": "Refresh",
   "@refresh": {
     "description": "refresh"
@@ -473,6 +477,10 @@
   "copyLink": "Copy Link",
   "@copyLink": {
     "description": "copyLink"
+  },
+  "copied": "Copied",
+  "@copied": {
+    "description": "snackbar message after copying to clipboard"
   },
   "clearCookies": "Clear Cookies",
   "@clearCookies": {

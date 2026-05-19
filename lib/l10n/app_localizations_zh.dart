@@ -342,10 +342,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get webView => '网页浏览';
 
   @override
+  String get sslWarning => 'SSL 证书验证已跳过，请注意网页安全';
+
+  @override
   String get refresh => '刷新';
 
   @override
   String get copyLink => '复制链接';
+
+  @override
+  String get copied => '已复制';
 
   @override
   String get clearCookies => '清除Cookie';

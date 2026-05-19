@@ -127,6 +127,8 @@ class Course {
   final List<CourseAdjustRule> adjustRules;
   final String rawExamTime;
   final String remark;
+  final String syllabus;
+  final String lessonplan;
 
   const Course({
     required this.type,
@@ -139,6 +141,8 @@ class Course {
     required this.adjustRules,
     required this.rawExamTime,
     required this.remark,
+    this.syllabus = '',
+    this.lessonplan = '',
   });
 
   Map<String, dynamic> toJson() => {
@@ -152,6 +156,8 @@ class Course {
     'adjustRules': adjustRules.map((r) => r.toJson()).toList(),
     'rawExamTime': rawExamTime,
     'remark': remark,
+    'syllabus': syllabus,
+    'lessonplan': lessonplan,
   };
 
   factory Course.fromJson(Map<String, dynamic> json) => Course(
@@ -173,5 +179,7 @@ class Course {
         [],
     rawExamTime: json['rawExamTime'] ?? '',
     remark: json['remark'] ?? '',
+    syllabus: json['syllabus'] ?? '',
+    lessonplan: json['lessonplan'] ?? '',
   );
 }

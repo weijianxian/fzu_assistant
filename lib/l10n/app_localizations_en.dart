@@ -344,10 +344,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get webView => 'Web View';
 
   @override
+  String get sslWarning =>
+      'SSL certificate verification bypassed, please stay alert';
+
+  @override
   String get refresh => 'Refresh';
 
   @override
   String get copyLink => 'Copy Link';
+
+  @override
+  String get copied => 'Copied';
 
   @override
   String get clearCookies => 'Clear Cookies';

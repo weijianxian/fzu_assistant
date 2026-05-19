@@ -716,6 +716,12 @@ abstract class AppLocalizations {
   /// **'网页浏览'**
   String get webView;
 
+  /// warning shown when SSL certificate verification is bypassed in WebView
+  ///
+  /// In zh, this message translates to:
+  /// **'SSL 证书验证已跳过，请注意网页安全'**
+  String get sslWarning;
+
   /// refresh
   ///
   /// In zh, this message translates to:
@@ -727,6 +733,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'复制链接'**
   String get copyLink;
+
+  /// snackbar message after copying to clipboard
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制'**
+  String get copied;
 
   /// clearCookies
   ///
