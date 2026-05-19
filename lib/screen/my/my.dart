@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
@@ -21,13 +22,7 @@ class MyPage extends HookWidget {
     final error = useState<String?>(null);
     final auth = useMemoized(() => AuthStorage());
     final userService = useMemoized(() => UserService());
-    final mounted = useRef(true);
-    useEffect(
-      () => () {
-        mounted.value = false;
-      },
-      [],
-    );
+    final mounted = useMounted();
 
     useEffect(() {
       auth.loadCredentials().then((creds) {

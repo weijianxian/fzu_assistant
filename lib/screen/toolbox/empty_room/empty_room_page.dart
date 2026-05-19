@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
-import 'package:fzu_assistant/common/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/widget/masonry_sliver_grid.dart';
+import 'package:fzu_assistant/common/widget/tool_page_wrapper.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/empty_room.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
@@ -28,13 +29,7 @@ class EmptyRoomPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final hasSearched = useState(false);
     final service = useMemoized(() => AcademicService());
-    final mounted = useRef(true);
-    useEffect(
-      () => () {
-        mounted.value = false;
-      },
-      [],
-    );
+    final mounted = useMounted();
 
     final selectedDate = useState(DateTime.now());
     final startPeriod = useState('1');

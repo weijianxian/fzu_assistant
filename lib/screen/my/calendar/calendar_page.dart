@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar.dart';
-import 'package:fzu_assistant/common/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/widget/tool_page_wrapper.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 
 class CalendarPage extends HookWidget {
@@ -19,13 +20,7 @@ class CalendarPage extends HookWidget {
     final eventsLoadingMap = useState<Map<String, bool>>({});
     final eventsErrorMap = useState<Map<String, String>>({});
     final service = useMemoized(() => AcademicService());
-    final mounted = useRef(true);
-    useEffect(
-      () => () {
-        mounted.value = false;
-      },
-      [],
-    );
+    final mounted = useMounted();
 
     Future<void> load() async {
       try {

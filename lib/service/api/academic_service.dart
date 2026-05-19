@@ -1,10 +1,7 @@
-import 'dart:convert';
-import 'package:charset/charset.dart';
 import 'package:flutter/foundation.dart';
-import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
-import 'package:html/parser.dart' as html_parser;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/common/utils/cache_helper.dart';
+import 'package:fzu_assistant/common/utils/html_utils.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/credit.dart';
@@ -16,6 +13,7 @@ import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/api/html_helper.dart';
 
 class AcademicService {
   static const _gpaUrl =
@@ -35,20 +33,25 @@ class AcademicService {
       'https://jwcjwxt2.fzu.edu.cn:81/kkgl/kbcx/kbcx_kjs.aspx';
   static const _noticeUrl = 'https://jwch.fzu.edu.cn/jxtz.htm';
 
-  Dio get _dio => ApiClient.instance.dio;
+  // ─── 工具 ───
+
+  Map<String, dynamic> get _idParam => {'id': ApiClient.instance.userId};
+
+  Future<Document> _fetch(String url) {
+    return HtmlHelper.fetchHtml(url, queryParameters: _idParam);
+  }
+
+  Future<Document> _post(String url, Map<String, dynamic> data) {
+    return HtmlHelper.postHtml(url, data: data, queryParameters: _idParam);
+  }
+
+  // ─── GPA ───
 
   Future<GPABean> getGPA() async {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final resp = await _dio.get<List<int>>(
-      _gpaUrl,
-      queryParameters: {'id': id},
-      options: Options(responseType: ResponseType.bytes),
-    );
-
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
+    final doc = await _fetch(_gpaUrl);
 
     // 更新时间
     final timeEl = doc.getElementById('ContentPlaceHolder1_Label1');
@@ -84,18 +87,13 @@ class AcademicService {
     return GPABean(time: time, data: data);
   }
 
+  // ─── 成绩 ───
+
   Future<List<Mark>> getMarks() async {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final resp = await _dio.get<List<int>>(
-      _marksUrl,
-      queryParameters: {'id': id},
-      options: Options(responseType: ResponseType.bytes),
-    );
-
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
+    final doc = await _fetch(_marksUrl);
 
     final table = doc.getElementById('ContentPlaceHolder1_DataList_xxk');
     if (table == null) throw Exception('未找到成绩表格');
@@ -116,12 +114,12 @@ class AcademicService {
           type: cells[0].text.trim(),
           semester: cells[1].text.trim(),
           name: cells[2].text.trim(),
-          credits: _extractFromTag(cells[3], 'span'),
-          score: _extractFromTag(cells[4], 'font'),
+          credits: extractText(cells[3], 'span'),
+          score: extractText(cells[4], 'font'),
           gpa: cells[5].text.trim(),
           earnedCredits: cells[6].text.trim(),
-          electiveType: _chineseOnly(cells[7].text.trim()),
-          examType: _chineseOnly(cells[8].text.trim()),
+          electiveType: chineseOnly(cells[7].text.trim()),
+          examType: chineseOnly(cells[8].text.trim()),
           teacher: cells[9].text.trim(),
           classroom: cells[10].text.trim(),
           examTime: cells[11].text.trim(),
@@ -129,14 +127,6 @@ class AcademicService {
       );
     }
     return marks;
-  }
-
-  static String _extractFromTag(Element el, String tag) {
-    return el.querySelector(tag)?.text.trim() ?? el.text.trim();
-  }
-
-  static String _chineseOnly(String s) {
-    return s.replaceAll(RegExp(r'[^一-龥0-9]'), '');
   }
 
   // ─── 统考成绩（CET / 省计算机） ───
@@ -148,14 +138,7 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final resp = await _dio.get<List<int>>(
-      url,
-      queryParameters: {'id': id},
-      options: Options(responseType: ResponseType.bytes),
-    );
-
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
+    final doc = await _fetch(url);
 
     final table = doc.getElementById('ContentPlaceHolder1_DataList_xxk');
     if (table == null) return [];
@@ -182,13 +165,7 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final resp = await _dio.get<List<int>>(
-      _examRoomUrl,
-      queryParameters: {'id': id},
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
+    final doc = await _fetch(_examRoomUrl);
 
     final viewState =
         doc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
@@ -223,19 +200,12 @@ class AcademicService {
     if (id == null) throw Exception('未登录');
 
     // POST 查询
-    final postResp = await _dio.post<List<int>>(
-      _examRoomUrl,
-      queryParameters: {'id': id},
-      data: {
-        '__VIEWSTATE': viewState,
-        '__EVENTVALIDATION': eventValidation,
-        'ctl00\$ContentPlaceHolder1\$DDL_xnxq': term,
-        'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
-      },
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final postHtml = utf8.decode(postResp.data!, allowMalformed: true);
-    final postDoc = html_parser.parse(postHtml);
+    final postDoc = await _post(_examRoomUrl, {
+      '__VIEWSTATE': viewState,
+      '__EVENTVALIDATION': eventValidation,
+      'ctl00\$ContentPlaceHolder1\$DDL_xnxq': term,
+      'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
+    });
 
     final table = postDoc.getElementById('ContentPlaceHolder1_DataList_xxk');
     if (table == null) return [];
@@ -272,27 +242,20 @@ class AcademicService {
 
   // ─── 考场缓存 ───
 
-  Future<void> saveExamRoomsForTerm(
-    String term,
-    List<ExamRoomInfo> rooms,
-  ) async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(SpKeys.cacheExamRoomsMap);
-    final map = raw != null
-        ? Map<String, dynamic>.from(jsonDecode(raw))
-        : <String, dynamic>{};
-    map[term] = rooms.map((r) => r.toJson()).toList();
-    sp.setString(SpKeys.cacheExamRoomsMap, jsonEncode(map));
+  Future<void> saveExamRoomsForTerm(String term, List<ExamRoomInfo> rooms) {
+    return CacheHelper.saveForKey(
+      SpKeys.cacheExamRoomsMap,
+      term,
+      rooms.map((r) => r.toJson()).toList(),
+    );
   }
 
-  Future<List<ExamRoomInfo>?> loadExamRoomsForTerm(String term) async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(SpKeys.cacheExamRoomsMap);
-    if (raw == null) return null;
-    final map = Map<String, dynamic>.from(jsonDecode(raw));
-    final list = map[term];
-    if (list == null) return null;
-    return (list as List).map((r) => ExamRoomInfo.fromJson(r)).toList();
+  Future<List<ExamRoomInfo>?> loadExamRoomsForTerm(String term) {
+    return CacheHelper.loadForKey<List<ExamRoomInfo>>(
+      SpKeys.cacheExamRoomsMap,
+      term,
+      (json) => (json as List).map((r) => ExamRoomInfo.fromJson(r)).toList(),
+    );
   }
 
   // ─── 学分统计 ───
@@ -301,14 +264,7 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final resp = await _dio.get<List<int>>(
-      _creditUrl,
-      queryParameters: {'id': id},
-      options: Options(responseType: ResponseType.bytes),
-    );
-
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
+    final doc = await _fetch(_creditUrl);
 
     final spanNode = doc.getElementById('ContentPlaceHolder1_LB_kb');
     if (spanNode == null) throw Exception('未找到学分统计');
@@ -358,14 +314,10 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final resp = await _dio.get<List<int>>(
+    final (doc, html) = await HtmlHelper.fetchHtmlGbk(
       _calendarUrl,
-      queryParameters: {'id': id},
-      options: Options(responseType: ResponseType.bytes),
+      queryParameters: _idParam,
     );
-
-    var html = gbk.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
 
     // 当前学期
     final curTermMatch = RegExp(r'当前学期：(\d{6})').firstMatch(html);
@@ -403,15 +355,11 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final resp = await _dio.post<List<int>>(
+    final (doc, _) = await HtmlHelper.postHtmlGbk(
       _calendarUrl,
-      queryParameters: {'id': id},
       data: {'xq': termId, 'submit': '提交'},
-      options: Options(responseType: ResponseType.bytes),
+      queryParameters: _idParam,
     );
-
-    var html = gbk.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
 
     final table = doc.querySelectorAll('table');
     if (table.length < 2) {
@@ -423,7 +371,7 @@ class AcademicService {
       return CalTermEvents(termId: termId, events: []);
     }
 
-    final raw = tr.text.replaceAll(' ', ' ');
+    final raw = tr.text.replaceAll(' ', ' ');
     final parts = raw.split('；');
     final events = <CalTermEvent>[];
 
@@ -470,13 +418,7 @@ class AcademicService {
     if (id == null) throw Exception('未登录');
 
     // Step 1: GET 拿 __VIEWSTATE / __EVENTVALIDATION
-    final getResp = await _dio.get<List<int>>(
-      _emptyRoomUrl,
-      queryParameters: {'id': id},
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final getHtml = utf8.decode(getResp.data!, allowMalformed: true);
-    final getDoc = html_parser.parse(getHtml);
+    final getDoc = await _fetch(_emptyRoomUrl);
 
     final viewState =
         getDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
@@ -484,26 +426,19 @@ class AcademicService {
         getDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
 
     // Step 2: POST 查询教室类型
-    final typeResp = await _dio.post<List<int>>(
-      _emptyRoomUrl,
-      queryParameters: {'id': id},
-      data: {
-        '__VIEWSTATE': viewState,
-        '__EVENTVALIDATION': eventValidation,
-        'ctl00\$TB_rq': date,
-        'ctl00\$qsjdpl': startPeriod,
-        'ctl00\$zzjdpl': endPeriod,
-        'ctl00\$xqdpl': campus,
-        'ctl00\$xz1': '>=',
-        'ctl00\$jsrldpl': '0',
-        'ctl00\$xz2': '>=',
-        'ctl00\$ksrldpl': '0',
-        'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
-      },
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final typeHtml = utf8.decode(typeResp.data!, allowMalformed: true);
-    final typeDoc = html_parser.parse(typeHtml);
+    final typeDoc = await _post(_emptyRoomUrl, {
+      '__VIEWSTATE': viewState,
+      '__EVENTVALIDATION': eventValidation,
+      'ctl00\$TB_rq': date,
+      'ctl00\$qsjdpl': startPeriod,
+      'ctl00\$zzjdpl': endPeriod,
+      'ctl00\$xqdpl': campus,
+      'ctl00\$xz1': '>=',
+      'ctl00\$jsrldpl': '0',
+      'ctl00\$xz2': '>=',
+      'ctl00\$ksrldpl': '0',
+      'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
+    });
 
     // 获取教室类型列表
     final roomTypeOptions = typeDoc.querySelectorAll('#jslxdpl option');
@@ -521,27 +456,20 @@ class AcademicService {
     // Step 3: 按教室类型逐个查询
     final allRooms = <EmptyRoom>[];
     for (final roomType in roomTypes) {
-      final roomResp = await _dio.post<List<int>>(
-        _emptyRoomUrl,
-        queryParameters: {'id': id},
-        data: {
-          '__VIEWSTATE': vs2,
-          '__EVENTVALIDATION': ev2,
-          'ctl00\$TB_rq': date,
-          'ctl00\$qsjdpl': startPeriod,
-          'ctl00\$zzjdpl': endPeriod,
-          'ctl00\$jslxdpl': roomType,
-          'ctl00\$xqdpl': campus,
-          'ctl00\$xz1': '>=',
-          'ctl00\$jsrldpl': '0',
-          'ctl00\$xz2': '>=',
-          'ctl00\$ksrldpl': '0',
-          'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
-        },
-        options: Options(responseType: ResponseType.bytes),
-      );
-      final roomHtml = utf8.decode(roomResp.data!, allowMalformed: true);
-      final roomDoc = html_parser.parse(roomHtml);
+      final roomDoc = await _post(_emptyRoomUrl, {
+        '__VIEWSTATE': vs2,
+        '__EVENTVALIDATION': ev2,
+        'ctl00\$TB_rq': date,
+        'ctl00\$qsjdpl': startPeriod,
+        'ctl00\$zzjdpl': endPeriod,
+        'ctl00\$jslxdpl': roomType,
+        'ctl00\$xqdpl': campus,
+        'ctl00\$xz1': '>=',
+        'ctl00\$jsrldpl': '0',
+        'ctl00\$xz2': '>=',
+        'ctl00\$ksrldpl': '0',
+        'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
+      });
 
       final roomOptions = roomDoc.querySelectorAll('#jsdpl option');
       for (final opt in roomOptions) {
@@ -565,12 +493,7 @@ class AcademicService {
     // pageNum 1 直接爬取首页（最新），pageNum > 1 用反向公式
 
     if (pageNum == 1) {
-      final resp = await _dio.get<List<int>>(
-        _noticeUrl,
-        options: Options(responseType: ResponseType.bytes),
-      );
-      final html = utf8.decode(resp.data!, allowMalformed: true);
-      final doc = html_parser.parse(html);
+      final doc = await HtmlHelper.fetchHtml(_noticeUrl);
 
       // 首次加载时获取总页数
       _cachedNoticeTotalPages ??= _parseTotalPages(doc);
@@ -583,12 +506,9 @@ class AcademicService {
     final websitePage = totalPages - pageNum + 1;
     if (websitePage < 1) return (<NoticeInfo>[], totalPages);
 
-    final resp = await _dio.get<List<int>>(
+    final doc = await HtmlHelper.fetchHtml(
       'https://jwch.fzu.edu.cn/jxtz/$websitePage.htm',
-      options: Options(responseType: ResponseType.bytes),
     );
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
 
     return (_parseNoticeList(doc), totalPages);
   }
@@ -615,12 +535,7 @@ class AcademicService {
     for (final tryPage in [2, 3, 1]) {
       final url = 'https://jwch.fzu.edu.cn/jxtz/$tryPage.htm';
       try {
-        final resp = await _dio.get<List<int>>(
-          url,
-          options: Options(responseType: ResponseType.bytes),
-        );
-        final html = utf8.decode(resp.data!, allowMalformed: true);
-        final doc = html_parser.parse(html);
+        final doc = await HtmlHelper.fetchHtml(url);
 
         int maxWebsitePage = 0;
         // 策略1: p_pages 链接文字

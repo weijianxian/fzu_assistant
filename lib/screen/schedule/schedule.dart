@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/widget/term_selector_button.dart';
 import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
@@ -23,16 +25,9 @@ class SchedulePage extends HookWidget {
     final service = useMemoized(() => CourseService());
     final pageController = useState<PageController?>(null);
     final firstMonday = useState<DateTime?>(null);
-    final mounted = useRef(true);
+    final mounted = useMounted();
     // 记录当前正在显示的学期，用于检测切换
     final currentLoadedTerm = useState<String?>(null);
-
-    useEffect(
-      () => () {
-        mounted.value = false;
-      },
-      [],
-    );
 
     // 统一的刷新方法
     Future<void> refresh() async {
@@ -174,7 +169,11 @@ class SchedulePage extends HookWidget {
               ),
         title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
         actions: [
-          _buildTermSelector(context, settings),
+          TermSelectorButton(
+            terms: settings.termsKey.value,
+            selected: settings.selectedSemesterKey.value,
+            onSelected: (term) => settings.selectedSemesterKey.value = term,
+          ),
           if (pc != null &&
               settings.currentWeekKey.value != displayWeek.value &&
               _isCurrentSemester(settings, firstMonday.value))
@@ -254,50 +253,6 @@ class SchedulePage extends HookWidget {
       Duration(days: (week - 1) * 7),
     );
     return (currentFirstMonday.difference(fm).inDays.abs() < 7);
-  }
-
-  Widget _buildTermSelector(BuildContext context, AppSettings settings) {
-    final terms = settings.termsKey.value;
-    if (terms.isEmpty) return const SizedBox.shrink();
-
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.calendar_month),
-      tooltip: AppLocalizations.of(context)!.selectSemester,
-      onSelected: (term) {
-        settings.selectedSemesterKey.value = term;
-      },
-      itemBuilder: (_) => [
-        // 自动选项
-        PopupMenuItem(
-          value: '',
-          child: Row(
-            children: [
-              if (settings.selectedSemesterKey.value.isEmpty)
-                const Icon(Icons.check, size: 18)
-              else
-                const SizedBox(width: 18),
-              const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.autoSemester),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
-        for (final term in terms)
-          PopupMenuItem(
-            value: term,
-            child: Row(
-              children: [
-                if (settings.selectedSemesterKey.value == term)
-                  const Icon(Icons.check, size: 18)
-                else
-                  const SizedBox(width: 18),
-                const SizedBox(width: 8),
-                Text(AppSettings.formatSemester(term)),
-              ],
-            ),
-          ),
-      ],
-    );
   }
 
   static void _animateToWeek(PageController? pc, int week) {

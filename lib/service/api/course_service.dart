@@ -1,18 +1,15 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
-import 'package:html/parser.dart' as html_parser;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/common/utils/cache_helper.dart';
+import 'package:fzu_assistant/common/utils/html_utils.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/api/html_helper.dart';
 
 class CourseService {
   static const _courseUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xkjg/wdxk/xkjg_list.aspx';
   static const _weekUrl = 'https://jwcjwxt2.fzu.edu.cn:82/week.asp';
-
-  Dio get _dio => ApiClient.instance.dio;
 
   TermInfo? _cachedTermInfo;
 
@@ -21,12 +18,12 @@ class CourseService {
 
   // ─── 按学期缓存课程 ───
 
-  Future<Map<String, dynamic>?> _loadCourseCache(String term) async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(SpKeys.cacheCoursesMap);
-    if (raw == null) return null;
-    final map = Map<String, dynamic>.from(jsonDecode(raw));
-    return map[term] as Map<String, dynamic>?;
+  Future<Map<String, dynamic>?> _loadCourseCache(String term) {
+    return CacheHelper.loadForKey<Map<String, dynamic>>(
+      SpKeys.cacheCoursesMap,
+      term,
+      (json) => Map<String, dynamic>.from(json as Map),
+    );
   }
 
   Future<void> _saveCourseCache(
@@ -34,50 +31,39 @@ class CourseService {
     List<Course> courses,
     String viewState,
     String eventValidation,
-  ) async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(SpKeys.cacheCoursesMap);
-    final map = raw != null
-        ? Map<String, dynamic>.from(jsonDecode(raw))
-        : <String, dynamic>{};
-    map[term] = {
+  ) {
+    return CacheHelper.saveForKey(SpKeys.cacheCoursesMap, term, {
       'courses': courses.map((c) => c.toJson()).toList(),
       'viewState': viewState,
       'eventValidation': eventValidation,
-    };
-    sp.setString(SpKeys.cacheCoursesMap, jsonEncode(map));
+    });
   }
 
   // ─── 按学期缓存 firstMonday ───
 
-  Future<void> saveFirstMondayForTerm(String term, DateTime firstMonday) async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(SpKeys.cacheFirstMondayMap);
-    final map = raw != null
-        ? Map<String, dynamic>.from(jsonDecode(raw))
-        : <String, dynamic>{};
-    map[term] = firstMonday.toIso8601String();
-    sp.setString(SpKeys.cacheFirstMondayMap, jsonEncode(map));
+  Future<void> saveFirstMondayForTerm(String term, DateTime firstMonday) {
+    return CacheHelper.saveForKey(
+      SpKeys.cacheFirstMondayMap,
+      term,
+      firstMonday.toIso8601String(),
+    );
   }
 
   Future<DateTime?> loadFirstMondayForTerm(String term) async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(SpKeys.cacheFirstMondayMap);
-    if (raw == null) return null;
-    final map = Map<String, dynamic>.from(jsonDecode(raw));
-    final val = map[term];
-    if (val == null) return null;
-    return DateTime.tryParse(val);
+    final val = await CacheHelper.loadForKey<String>(
+      SpKeys.cacheFirstMondayMap,
+      term,
+      (json) => json as String,
+    );
+    return val != null ? DateTime.tryParse(val) : null;
   }
 
   // ─── 当前周次 ───
 
   Future<CurrentWeek> getCurrentWeek() async {
-    final resp = await _dio.get<List<int>>(
-      _weekUrl,
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final html = utf8.decode(resp.data!, allowMalformed: true);
+    final doc = await HtmlHelper.fetchHtml(_weekUrl);
+    final html = doc.outerHtml;
+
     final week = RegExp(r'var week = "(\d+)"').firstMatch(html)?.group(1);
     final year = RegExp(r'var xn = "(\d{4})"').firstMatch(html)?.group(1);
     final term = RegExp(r'var xq = "(\d{2})"').firstMatch(html)?.group(1);
@@ -102,13 +88,10 @@ class CourseService {
   // ─── 学期列表 ───
 
   Future<TermInfo> getTerms() async {
-    final resp = await _dio.get<List<int>>(
+    final doc = await HtmlHelper.fetchHtml(
       _courseUrl,
       queryParameters: {'id': ApiClient.instance.userId},
-      options: Options(responseType: ResponseType.bytes),
     );
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
 
     final viewState =
         doc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
@@ -152,7 +135,7 @@ class CourseService {
     _cachedTermInfo = termInfo;
 
     // 网络请求
-    final resp = await _dio.post<List<int>>(
+    final doc = await HtmlHelper.postHtml(
       _courseUrl,
       queryParameters: {'id': ApiClient.instance.userId},
       data: {
@@ -161,10 +144,7 @@ class CourseService {
         '__VIEWSTATE': termInfo.viewState,
         '__EVENTVALIDATION': termInfo.eventValidation,
       },
-      options: Options(responseType: ResponseType.bytes),
     );
-    final html = utf8.decode(resp.data!, allowMalformed: true);
-    final doc = html_parser.parse(html);
 
     final table = doc.getElementById('ContentPlaceHolder1_DataList_xxk');
     if (table == null) return [];
@@ -200,9 +180,9 @@ class CourseService {
     return Course(
       type: _innerText(cells[0]),
       name: _innerText(cells[1]),
-      credits: _extractText(cells[4], 'span'),
-      electiveType: _chineseOnly(_innerText(cells[5])),
-      examType: _chineseOnly(_innerText(cells[6])),
+      credits: extractText(cells[4], 'span'),
+      electiveType: chineseOnly(_innerText(cells[5])),
+      examType: chineseOnly(_innerText(cells[6])),
       teacher: _innerText(cells[7]),
       scheduleRules: scheduleRules,
       adjustRules: adjustRules,
@@ -328,14 +308,6 @@ class CourseService {
         _walk(child, buf);
       }
     }
-  }
-
-  static String _extractText(Element el, String tag) {
-    return el.querySelector(tag)?.text.trim() ?? '';
-  }
-
-  static String _chineseOnly(String s) {
-    return s.replaceAll(RegExp(r'[^一-龥0-9]'), '');
   }
 
   static int _parseInt(String s) => int.tryParse(s.trim()) ?? 0;

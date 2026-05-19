@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
-import 'package:fzu_assistant/common/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/widget/masonry_sliver_grid.dart';
+import 'package:fzu_assistant/common/widget/tool_page_wrapper.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
@@ -20,13 +21,7 @@ class NoticePage extends HookWidget {
     final currentPage = useState(1);
     final totalPages = useState(1);
     final service = useMemoized(() => AcademicService());
-    final mounted = useRef(true);
-    useEffect(
-      () => () {
-        mounted.value = false;
-      },
-      [],
-    );
+    final mounted = useMounted();
 
     Future<void> load([int? page]) async {
       final p = page ?? currentPage.value;

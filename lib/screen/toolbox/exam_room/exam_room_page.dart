@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/masonry_sliver_grid.dart';
+import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/widget/masonry_sliver_grid.dart';
+import 'package:fzu_assistant/common/widget/term_selector_button.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
-import 'package:fzu_assistant/common/tool_page_wrapper.dart';
+import 'package:fzu_assistant/common/widget/tool_page_wrapper.dart';
 
 class ExamRoomPage extends HookWidget {
   const ExamRoomPage({super.key});
@@ -20,13 +22,7 @@ class ExamRoomPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
     final termInfo = useState<TermInfo?>(null);
-    final mounted = useRef(true);
-    useEffect(
-      () => () {
-        mounted.value = false;
-      },
-      [],
-    );
+    final mounted = useMounted();
 
     Future<void> load() async {
       error.value = null;
@@ -95,10 +91,14 @@ class ExamRoomPage extends HookWidget {
         title: Text(
           selectedTerm.isEmpty || terms.isEmpty
               ? AppLocalizations.of(context)!.examRoom
-              : _formatTermTitle(selectedTerm),
+              : AppSettings.formatSemester(selectedTerm),
         ),
         actions: [
-          if (terms.isNotEmpty) _buildTermSelector(context, settings, terms),
+          TermSelectorButton(
+            terms: terms,
+            selected: selectedTerm,
+            onSelected: (term) => settings.selectedSemesterKey.value = term,
+          ),
         ],
       ),
       body: ToolPageWrapper(
@@ -111,58 +111,6 @@ class ExamRoomPage extends HookWidget {
         slivers: _buildSlivers(context, rooms.value),
       ),
     );
-  }
-
-  Widget _buildTermSelector(
-    BuildContext context,
-    AppSettings settings,
-    List<String> terms,
-  ) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.calendar_month),
-      tooltip: AppLocalizations.of(context)!.selectSemester,
-      onSelected: (term) {
-        settings.selectedSemesterKey.value = term;
-      },
-      itemBuilder: (_) => [
-        // 自动选项（默认第一个学期）
-        PopupMenuItem(
-          value: '',
-          child: Row(
-            children: [
-              if (settings.selectedSemesterKey.value.isEmpty)
-                const Icon(Icons.check, size: 18)
-              else
-                const SizedBox(width: 18),
-              const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.autoSemester),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
-        for (final term in terms)
-          PopupMenuItem(
-            value: term,
-            child: Row(
-              children: [
-                if (settings.selectedSemesterKey.value == term)
-                  const Icon(Icons.check, size: 18)
-                else
-                  const SizedBox(width: 18),
-                const SizedBox(width: 8),
-                Text(_formatTermTitle(term)),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  static String _formatTermTitle(String term) {
-    if (term.length < 6) return term;
-    final year = int.tryParse(term.substring(0, 4)) ?? 0;
-    final sem = int.tryParse(term.substring(4, 6)) ?? 0;
-    return '$year-${year + 1} 第$sem学期';
   }
 
   List<Widget> _buildSlivers(BuildContext context, List<ExamRoomInfo> rooms) {
