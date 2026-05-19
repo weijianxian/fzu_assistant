@@ -81,6 +81,7 @@ class ScheduleGrid extends StatelessWidget {
                       child: Center(
                         child: weekDates.isNotEmpty
                             ? _buildDateHeader(
+                                context,
                                 weekdays[i],
                                 weekDates[i],
                                 weekDates[i] == today,
@@ -179,19 +180,41 @@ class ScheduleGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildDateHeader(String weekday, DateTime date, bool isToday) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          weekday,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          '${date.month}/${date.day}',
-          style: TextStyle(fontSize: 10, color: isToday ? null : Colors.grey),
-        ),
-      ],
+  Widget _buildDateHeader(
+    BuildContext context,
+    String weekday,
+    DateTime date,
+    bool isToday,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: isToday
+          ? BoxDecoration(
+              color: scheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            )
+          : null,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            weekday,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: isToday ? scheme.onPrimaryContainer : null,
+            ),
+          ),
+          Text(
+            '${date.month}/${date.day}',
+            style: TextStyle(
+              fontSize: 10,
+              color: isToday ? scheme.onPrimaryContainer : Colors.grey,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
