@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../guest/editor_page.dart';
@@ -47,19 +48,16 @@ class SharedPrefsPage extends HookWidget {
                   key_: e.key,
                   value: displayValue,
                   onTap: () async {
-                    final edited = await Navigator.push<String>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EditorPage(
-                          title: e.key,
-                          initialValue: displayValue,
-                          onSave: (text) async {
-                            final sp = await SharedPreferences.getInstance();
-                            if (text == displayValue) return true;
-                            await _saveTyped(sp, e.key, text, value);
-                            return true;
-                          },
-                        ),
+                    final edited = await context.push<String>(
+                      EditorPage(
+                        title: e.key,
+                        initialValue: displayValue,
+                        onSave: (text) async {
+                          final sp = await SharedPreferences.getInstance();
+                          if (text == displayValue) return true;
+                          await _saveTyped(sp, e.key, text, value);
+                          return true;
+                        },
                       ),
                     );
                     if (edited != null) await load();

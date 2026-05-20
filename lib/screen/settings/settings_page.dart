@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/settings/schedule_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
@@ -26,9 +27,7 @@ class SettingsPage extends HookWidget {
               ),
               subtitle: Text(l10n.selectSemester),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ScheduleSettingsPage()),
-              ),
+              onTap: () => context.push(const ScheduleSettingsPage()),
             ),
           ),
           Card(
@@ -40,9 +39,7 @@ class SettingsPage extends HookWidget {
               ),
               subtitle: Text(l10n.language),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const GeneralSettingsPage()),
-              ),
+              onTap: () => context.push(const GeneralSettingsPage()),
             ),
           ),
           Card(
@@ -54,9 +51,7 @@ class SettingsPage extends HookWidget {
               ),
               subtitle: Text(l10n.themeColor),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const ThemeSection())),
+              onTap: () => context.push(const ThemeSection()),
             ),
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
 import 'package:fzu_assistant/screen/guest/login.dart';
 import 'package:fzu_assistant/screen/my/about/about_page.dart';
@@ -46,9 +47,7 @@ class MyPage extends HookWidget {
     Future<void> handleLogout() async {
       await auth.clearCredentials();
       if (context.mounted) {
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
+        context.pushReplacement(const LoginPage());
       }
     }
 
@@ -58,9 +57,7 @@ class MyPage extends HookWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.developer_board),
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const DevToolPage())),
+            onPressed: () => context.push(const DevToolPage()),
           ),
         ],
       ),
@@ -136,25 +133,19 @@ class MyPage extends HookWidget {
           leading: const Icon(Icons.calendar_month_outlined),
           title: Text(AppLocalizations.of(context)!.calendar),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const CalendarPage())),
+          onTap: () => context.push(const CalendarPage()),
         ),
         ListTile(
           leading: const Icon(Icons.settings_outlined),
           title: Text(AppLocalizations.of(context)!.settings),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const SettingsPage())),
+          onTap: () => context.push(const SettingsPage()),
         ),
         ListTile(
           leading: const Icon(Icons.info_outline),
           title: Text(AppLocalizations.of(context)!.about),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const AboutPage())),
+          onTap: () => context.push(const AboutPage()),
         ),
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),

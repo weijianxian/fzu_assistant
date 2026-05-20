@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
@@ -35,10 +36,7 @@ class DevToolPage extends StatelessWidget {
               leading: Icon(tool['icon']),
               title: Text(tool['title']),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => tool['page']),
-              ),
+              onTap: () => context.push(tool['page']),
             ),
           ),
           const Divider(),
@@ -61,14 +59,11 @@ class DevToolPage extends StatelessWidget {
             onTap: () {
               final id = ApiClient.instance.userId;
               if (id == null) return;
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WebViewPage(
-                    url:
-                        'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
-                    injectCookies: true,
-                  ),
+              context.push(
+                WebViewPage(
+                  url:
+                      'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
+                  injectCookies: true,
                 ),
               );
             },
@@ -76,17 +71,12 @@ class DevToolPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.css),
             title: const Text('Test CSS/JS Injection'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const WebViewPage(
-                    url: 'https://example.com/',
-                    injectCookies: false,
-                  ),
-                ),
-              );
-            },
+            onTap: () => context.push(
+              const WebViewPage(
+                url: 'https://example.com/',
+                injectCookies: false,
+              ),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.public),
@@ -94,14 +84,11 @@ class DevToolPage extends StatelessWidget {
             onTap: () {
               final id = ApiClient.instance.userId;
               if (id == null) return;
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WebViewPage(
-                    url:
-                        'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
-                    injectCookies: false,
-                  ),
+              context.push(
+                WebViewPage(
+                  url:
+                      'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
+                  injectCookies: false,
                 ),
               );
             },

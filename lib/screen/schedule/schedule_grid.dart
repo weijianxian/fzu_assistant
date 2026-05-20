@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/screen/schedule/course_card.dart';
 
@@ -409,24 +410,14 @@ class ScheduleGrid extends StatelessWidget {
               leading: const Icon(Icons.description),
               title: const Text('教学大纲'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WebViewPage(url: course.syllabus),
-                ),
-              ),
+              onTap: () => context.push(WebViewPage(url: course.syllabus)),
             ),
           if (course.lessonplan.isNotEmpty)
             ListTile(
               leading: const Icon(Icons.menu_book),
               title: const Text('授课计划'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WebViewPage(url: course.lessonplan),
-                ),
-              ),
+              onTap: () => context.push(WebViewPage(url: course.lessonplan)),
             ),
         ],
       ),

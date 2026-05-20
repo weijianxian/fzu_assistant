@@ -9,6 +9,7 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/guest/login.dart';
 import 'package:fzu_assistant/screen/schedule/schedule.dart';
 import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
@@ -77,6 +78,7 @@ class MyApp extends HookWidget {
           locale: settings.currentLocale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
           home: const SplashScreen(),
         ),
       ),
@@ -102,11 +104,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _autoLogin() async {
     final ok = await ApiClient.instance.relogin();
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => ok ? const HomeScreen() : const LoginPage(),
-      ),
-    );
+    context.pushReplacement(ok ? const HomeScreen() : const LoginPage());
   }
 
   @override

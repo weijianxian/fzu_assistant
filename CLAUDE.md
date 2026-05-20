@@ -50,6 +50,8 @@ lib/
       term_selector_button.dart # 学期选择按钮
       half_screen_sheet.dart # 半屏弹窗
       update_dialog.dart # 更新对话框
+  router/                # 路由
+    app_routes.dart      # 路由表 + onGenerateRoute + context.push() 扩展
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式断点（kNavBreakpoint、kTileMinWidth）
@@ -108,6 +110,7 @@ lib/
 - **每次项目结构或技术栈变更后，必须同步更新本 CLAUDE.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
+- 导航统一使用 `context.push(page)` / `context.pushReplacement(page)` / `context.pushNamed(route)` 扩展方法（定义在 `lib/router/app_routes.dart`），禁止直接写 `Navigator.push(context, MaterialPageRoute(...))`
 - 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
 - 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取
 - 横屏/宽屏自动切换侧栏导航（NavigationRail），窄屏使用底部导航栏（BottomNavigationBar），断点为 `kNavBreakpoint`

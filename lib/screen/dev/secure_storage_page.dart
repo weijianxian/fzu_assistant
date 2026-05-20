@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 
 import '../guest/editor_page.dart';
 import 'kv_tile.dart';
@@ -36,19 +37,16 @@ class SecureStoragePage extends HookWidget {
                   key_: e.key,
                   value: e.value,
                   onTap: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EditorPage(
-                          title: e.key,
-                          initialValue: e.value,
-                          onSave: (text) async {
-                            const ss = FlutterSecureStorage();
-                            if (text == e.value) return true;
-                            await ss.write(key: e.key, value: text);
-                            return true;
-                          },
-                        ),
+                    await context.push(
+                      EditorPage(
+                        title: e.key,
+                        initialValue: e.value,
+                        onSave: (text) async {
+                          const ss = FlutterSecureStorage();
+                          if (text == e.value) return true;
+                          await ss.write(key: e.key, value: text);
+                          return true;
+                        },
                       ),
                     );
                     await load();
