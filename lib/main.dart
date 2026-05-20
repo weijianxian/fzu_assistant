@@ -237,24 +237,26 @@ class HomeScreen extends HookWidget {
           ),
           bottomNavigationBar: isWide
               ? null
-              : BottomNavigationBar(
-                  type: BottomNavigationBarType.fixed,
-                  currentIndex: currentPage.value,
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.home),
+              : NavigationBar(
+                  selectedIndex: currentPage.value,
+                  destinations: [
+                    NavigationDestination(
+                      icon: const Icon(Icons.home_outlined),
+                      selectedIcon: const Icon(Icons.home),
                       label: l10n.navSchedule,
                     ),
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.build),
+                    NavigationDestination(
+                      icon: const Icon(Icons.build_outlined),
+                      selectedIcon: const Icon(Icons.build),
                       label: l10n.navToolbox,
                     ),
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.person),
+                    NavigationDestination(
+                      icon: const Icon(Icons.person_outline),
+                      selectedIcon: const Icon(Icons.person),
                       label: l10n.navMy,
                     ),
                   ],
-                  onTap: (i) => currentPage.value = i,
+                  onDestinationSelected: (i) => currentPage.value = i,
                 ),
         );
       },
