@@ -14,28 +14,40 @@
 
 | 模块 | 说明 |
 |------|------|
-| **课程表** | 自动同步教务系统课表，支持按周查看 |
+| **课程表** | 自动同步教务系统课表，支持按周查看，下拉刷新 |
 | **成绩查询** | GPA、学分、各科成绩一站式查询 |
 | **考试安排** | 考场、座位、时间一目了然 |
 | **校历** | 学期起止、假期安排随时查看 |
 | **统一考试** | 四六级等统一考试信息查询 |
+| **空教室查询** | 按日期、节次、校区查询空闲教室 |
+| **教务通知** | 教务通知分页列表，WebView 打开详情 |
 | **深色模式** | 亮暗主题无缝切换，支持自定义主题色 |
-| **多语言** | 支持中文 / English，可在"我的"页面切换 |
+| **多语言** | 支持中文 / English，可在"设置 → 一般设置"中切换 |
+| **内置浏览器** | 支持 Cookie 注入、自动拼接教务处 URL id、可选 CSS/JS 注入的 WebView（Windows + Android） |
+| **更新检查** | 自动检查新版本，支持跳过版本 |
+| **开发者工具** | SharedPreferences、SecureStorage 查看编辑 |
 
 ## 技术架构
 
 ```
 lib/
-├── l10n/               # 国际化 — ARB 翻译文件 + 自动生成的 AppLocalizations
+├── l10n/               # 国际化 — 自动生成的 AppLocalizations + 翻译文件
 ├── model/              # 数据模型层 — StudentInfo, Course, GPA, Mark ...
-├── service/            # 网络与业务层 — API 客户端、登录、课表、学业数据
+├── common/             # 通用组件
+│   ├── hooks/          #   自定义 Hooks
+│   ├── utils/          #   工具函数
+│   └── widget/         #   通用 UI 组件
+├── constants/          # 常量定义
+├── service/            # 网络与业务层
+│   ├── api/            #   API 客户端、登录、课表、学业数据
+│   └── settings/       #   应用设置管理
 ├── screen/             # 页面层
 │   ├── schedule/       #   课程表
 │   ├── toolbox/        #   工具箱（成绩、GPA、考场、学分、统考）
 │   ├── my/             #   个人中心、校历、关于
-│   ├── settings/       #   主题设置
-│   └── guest/          #   登录
-├── theme/              # 主题配置
+│   ├── settings/       #   设置页（课表设置/一般设置/主题设置）
+│   ├── dev/            #   开发者工具
+│   └── guest/          #   登录、编辑器、WebView
 └── main.dart           # 应用入口
 ```
 
@@ -46,6 +58,9 @@ lib/
 - **安全存储** — 凭据通过 `flutter_secure_storage` 加密存储，不落明文
 - **响应式状态** — 基于 `flutter_hooks` 管理页面状态
 - **国际化** — Flutter `gen-l10n` + ARB 文件，支持中英双语
+- **响应式布局** — 宽屏自动切换侧栏导航，窄屏使用底部导航栏
+- **瀑布流网格** — 使用 `flutter_staggered_grid_view` 实现自适应多列布局
+- **WebView 集成** — 支持 Cookie 注入、自动拼接教务处 URL id、可选 CSS/JS 注入的内置浏览器，Windows + Android 双平台
 
 ## 快速开始
 
@@ -53,6 +68,7 @@ lib/
 
 - Flutter 3.x / Dart 3.x
 - Android Studio 或 VS Code（含 Flutter 插件）
+- Windows 开发需要安装 WebView2 Runtime
 
 ### 运行
 
@@ -108,9 +124,9 @@ base64 -i release.jks | tr -d '\n'
 
 项目使用 Flutter 官方 `gen-l10n` 方案：
 
-- 翻译文件位于 `lib/l10n/app_zh.arb`（中文）和 `lib/l10n/app_en.arb`（英文）
-- 添加新语言：新建 `app_XX.arb`，运行 `flutter gen-l10n`，在 `LocaleState.locales` 中注册
-- 用户可在「我的 → 语言」中切换语言，选择会持久化保存
+- ARB 文件：`lib/l10n/app_zh.arb`（中文）、`lib/l10n/app_en.arb`（英文）
+- 添加新语言：新建 `app_XX.arb`，运行 `flutter gen-l10n`，在 `AppSettings._localeOptions` 中注册
+- 用户可在「设置 → 一般设置 → 语言」中切换语言，选择会持久化保存
 
 ## 项目依赖
 
@@ -123,6 +139,14 @@ base64 -i release.jks | tr -d '\n'
 | `flutter_localizations` + `intl` | 国际化 |
 | `html` | 教务系统页面解析 |
 | `crypto` | 密码加密处理 |
+| `charset` | GBK 编码处理 |
+| `flutter_staggered_grid_view` | 瀑布流网格布局 |
+| `re_editor` + `re_highlight` | 代码编辑器（JSON 语法高亮） |
+| `flutter_inappwebview` | 内置浏览器（Windows + Android） |
+| `dynamic_color` | 动态主题色 |
+| `package_info_plus` | 应用信息获取 |
+| `url_launcher` | 链接打开 |
+| `path_provider` | 路径获取 |
 
 ## 参与贡献
 

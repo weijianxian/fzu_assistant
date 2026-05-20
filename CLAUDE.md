@@ -21,8 +21,9 @@
 lib/
   main.dart              # 入口，IndexedStack + LayoutBuilder 自适应导航
   l10n/                  # 国际化
-    app_zh.arb           # 中文翻译
-    app_en.arb           # 英文翻译
+    app_localizations.dart    # 自动生成的本地化类
+    app_localizations_zh.dart # 中文翻译
+    app_localizations_en.dart # 英文翻译
   model/                 # 数据模型（纯 Dart class）
     course.dart          # 课程、课表规则、调课规则、当前周次、学期信息
     gpa.dart             # 绩点数据
@@ -34,10 +35,21 @@ lib/
     student_info.dart    # 学生个人信息
     empty_room.dart      # 空教室
     notice.dart          # 教务通知（列表 + 部门）
-    lecture.dart         # 讲座信息
+    github_release.dart  # GitHub Release 信息
+    login_result.dart    # 登录结果
   common/                # 通用组件
-    tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
-    masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
+    hooks/               # 自定义 Hooks
+      use_mounted.dart   # 组件挂载状态 Hook
+    utils/               # 工具函数
+      cache_helper.dart  # 缓存辅助工具
+      html_utils.dart    # HTML 解析工具
+    widget/              # 通用组件
+      tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
+      masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
+      section.dart       # 区域组件
+      term_selector_button.dart # 学期选择按钮
+      half_screen_sheet.dart # 半屏弹窗
+      update_dialog.dart # 更新对话框
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式断点（kNavBreakpoint、kTileMinWidth）
@@ -46,8 +58,11 @@ lib/
     guest/               # 匿名页面 如编辑器，webview等
       login.dart         # 登录页
       editor_page.dart   # 通用代码编辑器（re_editor + JSON 高亮）
-      webview_page.dart  # 内置浏览器（flutter_inappwebview，支持 Cookie 注入，Windows+Android）
+      webview_page.dart  # 内置浏览器（flutter_inappwebview，支持 Cookie 注入，自动拼接教务处 URL 的 id 参数，CSS/JS 注入受 siteInjectionEnabled 控制，Windows+Android）
     schedule/            # 课程表（首页 tab）
+      schedule.dart      # 课程表主页（状态管理 + _ScheduleBody 组件）
+      schedule_grid.dart # 课程表网格（RefreshIndicator + SingleChildScrollView 包裹，支持下拉刷新）
+      course_card.dart   # 课程卡片
     toolbox/             # 工具箱（首页 tab）
       toolbox.dart       # 工具箱主页（MasonrySliverGrid 自适应多列）
       gpa/               # 绩点信息
@@ -58,25 +73,34 @@ lib/
       empty_room/        # 空教室查询（日期/节次/校区选择 + 结果列表）
       notice/            # 教务通知（分页列表，WebView 打开详情）
     my/                  # 我的（首页 tab）
+      my.dart            # 我的页面主页
       about/             # 关于页
       calendar/          # 校历
-    settings/            # 设置页（主题 + 语言统一管理）
+    settings/            # 设置页（三个入口卡片）
+      settings_page.dart # 设置页面主页（课表设置/一般设置/主题设置 三个入口）
+      schedule_settings_page.dart # 课表设置（学期选择）
+      general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
+      theme/             # 主题相关
+        theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
     dev/                 # 开发者工具
       dev_tool.dart      # 开发者工具主页（导航入口）
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
       secure_storage_page.dart # SecureStorage 查看/编辑
       kv_tile.dart       # 通用键值对列表项组件（支持 onTap 编辑）
   service/               # 业务逻辑
-    api_client.dart      # Dio 单例，登录/重登/拦截器
-    academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
-    user_service.dart    # 用户信息
-    course_service.dart  # 课程表
     auth_storage.dart    # 凭据存储
     captcha_solver.dart  # 验证码识别
-    settings/
-      app_settings.dart  # 统一设置管理（主题 + 语言，InheritedWidget + SP 持久化）
-  theme/                 # 主题配置
+    update_service.dart  # 更新检查服务
     app_themes.dart      # 主题色列表 + buildTheme()
+    api/                 # API 相关服务
+      api_client.dart    # Dio 单例，登录/重登/拦截器
+      academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
+      user_service.dart  # 用户信息
+      course_service.dart # 课程表
+      login_service.dart # 登录服务
+      html_helper.dart   # HTML 解析辅助
+    settings/
+      app_settings.dart  # 统一设置管理（主题 + 语言 + 学期 + 网页注入，InheritedWidget + SP 持久化）
 ```
 
 ## 编码规范
@@ -102,7 +126,7 @@ lib/
 - 使用 Flutter 官方 `gen-l10n` 方案，配置文件 `l10n.yaml`
 - ARB 文件：`lib/l10n/app_zh.arb`（中文）、`lib/l10n/app_en.arb`（英文）
 - 添加新语言：新建 `app_XX.arb` → `flutter gen-l10n` → 在 `AppSettings._localeOptions` 注册
-- 语言切换：「我的 → 设置 → 语言」SegmentedButton 选择，通过 `AppSettings` 持久化到 SharedPreferences
+- 语言切换：「我的 → 设置 → 一般设置 → 语言」SegmentedButton 选择，通过 `AppSettings` 持久化到 SharedPreferences
 - `MaterialApp.locale` 绑定 `AppSettings.currentLocale`，`null` 表示跟随系统
 
 ## Windows 注意事项
