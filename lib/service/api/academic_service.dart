@@ -158,12 +158,31 @@ class AcademicService {
     return exams;
   }
 
-  // ─── 考场学期列表 ───
+  // ─── 考场 ───
 
-  Future<TermInfo> getExamTerms() async {
+  TermInfo? _cachedExamTermInfo;
+
+  /// 最近一次 getExamRooms 内部获取的学期列表。
+  List<String> get cachedExamTerms => _cachedExamTermInfo?.terms ?? [];
+
+  Future<List<ExamRoomInfo>> getExamRooms(
+    String term, {
+    bool useCache = true,
+  }) async {
+    // 先尝试缓存
+    if (useCache) {
+      final cached = await CacheHelper.loadForKey<List<ExamRoomInfo>>(
+        SpKeys.cacheExamRoomsMap,
+        term,
+        (json) => (json as List).map((r) => ExamRoomInfo.fromJson(r)).toList(),
+      );
+      if (cached != null) return cached;
+    }
+
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
+    // 获取表单状态
     final doc = await _fetch(_examRoomUrl);
 
     final viewState =
@@ -181,22 +200,11 @@ class AcademicService {
 
     if (terms.isEmpty) throw Exception('无可用学期');
 
-    return TermInfo(
+    _cachedExamTermInfo = TermInfo(
       terms: terms,
       viewState: viewState,
       eventValidation: eventValidation,
     );
-  }
-
-  // ─── 考场查询 ───
-
-  Future<List<ExamRoomInfo>> getExamRooms(
-    String term,
-    String viewState,
-    String eventValidation,
-  ) async {
-    final id = ApiClient.instance.userId;
-    if (id == null) throw Exception('未登录');
 
     // POST 查询
     final postDoc = await _post(_examRoomUrl, {
@@ -229,6 +237,14 @@ class AcademicService {
         ),
       );
     }
+
+    // 写入缓存
+    CacheHelper.saveForKey(
+      SpKeys.cacheExamRoomsMap,
+      term,
+      rooms.map((r) => r.toJson()).toList(),
+    );
+
     return rooms;
   }
 
@@ -237,24 +253,6 @@ class AcademicService {
     final parts = raw.split(RegExp(r'\s+'));
     if (parts.length < 3) return (raw, '', '');
     return (parts[0], parts[1], parts[2]);
-  }
-
-  // ─── 考场缓存 ───
-
-  Future<void> saveExamRoomsForTerm(String term, List<ExamRoomInfo> rooms) {
-    return CacheHelper.saveForKey(
-      SpKeys.cacheExamRoomsMap,
-      term,
-      rooms.map((r) => r.toJson()).toList(),
-    );
-  }
-
-  Future<List<ExamRoomInfo>?> loadExamRoomsForTerm(String term) {
-    return CacheHelper.loadForKey<List<ExamRoomInfo>>(
-      SpKeys.cacheExamRoomsMap,
-      term,
-      (json) => (json as List).map((r) => ExamRoomInfo.fromJson(r)).toList(),
-    );
   }
 
   // ─── 学分统计 ───

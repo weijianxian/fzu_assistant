@@ -8,4 +8,5 @@ abstract final class SpKeys {
   static const cacheExamRoomsMap = 'cache_exam_rooms_map';
   static const skipUpdateVersion = 'skip_update_version';
   static const siteInjectionEnabled = 'site_injection_enabled';
+  static const showExamOnSchedule = 'show_exam_on_schedule';
 }

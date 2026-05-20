@@ -545,5 +545,9 @@
   "updateCheckFailed": "检查更新失败",
   "@updateCheckFailed": {
     "description": "updateCheckFailed"
+  },
+  "showExamOnSchedule": "在课表中显示考试",
+  "@showExamOnSchedule": {
+    "description": "showExamOnSchedule"
   }
 }

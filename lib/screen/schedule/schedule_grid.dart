@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/screen/schedule/course_card.dart';
+import 'package:fzu_assistant/service/settings/app_settings.dart';
 
 const _maxPeriod = 11;
 const _headerHeight = 48.0;
@@ -37,6 +39,7 @@ List<String> _weekdays(AppLocalizations l10n) => [
 
 class ScheduleGrid extends StatelessWidget {
   final List<Course> courses;
+  final List<ExamRoomInfo> examRooms;
   final int week;
   final DateTime? firstMonday;
   final Future<void> Function() onRefresh;
@@ -44,6 +47,7 @@ class ScheduleGrid extends StatelessWidget {
   const ScheduleGrid({
     super.key,
     required this.courses,
+    required this.examRooms,
     required this.week,
     required this.firstMonday,
     required this.onRefresh,
@@ -353,7 +357,101 @@ class ScheduleGrid extends StatelessWidget {
         );
       }
     }
+    // 渲染考试卡片
+    if (firstMonday != null &&
+        AppSettingsProvider.of(context).showExamOnSchedule.value) {
+      for (final exam in examRooms) {
+        final examDate = _parseExamDate(exam.date);
+        if (examDate == null) continue;
+
+        final examWeekday = examDate.weekday;
+        if (examWeekday != wd) continue;
+
+        final examWeek = examDate.difference(firstMonday!).inDays ~/ 7 + 1;
+        if (examWeek != week) continue;
+
+        final (startClass, endClass) = _mapExamTimeToPeriods(exam.time);
+        if (startClass < 1 || startClass > _maxPeriod) continue;
+
+        final end = endClass > _maxPeriod ? _maxPeriod : endClass;
+        final top = (startClass - 1) * cellHeight;
+        final height = (end - startClass + 1) * cellHeight;
+
+        final examCourse = Course(
+          type: '',
+          name: '[考试]${exam.courseName}',
+          credits: exam.credit,
+          electiveType: '',
+          examType: '',
+          teacher: exam.teacher,
+          scheduleRules: const [],
+          adjustRules: const [],
+          rawExamTime: '${exam.date} ${exam.time}',
+          remark: '',
+          syllabus: '',
+          lessonplan: '',
+        );
+        cards.add(
+          Positioned(
+            top: top + 1,
+            left: 2,
+            right: 2,
+            height: height - 2,
+            child: CourseCard(
+              course: examCourse,
+              location: exam.location,
+              onTap: () =>
+                  _showCourseDetail(context, examCourse, exam.location),
+            ),
+          ),
+        );
+      }
+    }
+
     return cards;
+  }
+
+  static DateTime? _parseExamDate(String dateStr) {
+    final match = RegExp(r'(\d{4})年(\d{1,2})月(\d{1,2})日').firstMatch(dateStr);
+    if (match == null) return null;
+    return DateTime(
+      int.parse(match.group(1)!),
+      int.parse(match.group(2)!),
+      int.parse(match.group(3)!),
+    );
+  }
+
+  /// 将考试时间（如 "12:30-17:30"）映射到课表节次
+  static (int, int) _mapExamTimeToPeriods(String timeStr) {
+    final match = RegExp(
+      r'(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})',
+    ).firstMatch(timeStr);
+    if (match == null) return (0, 0);
+    final startMin =
+        int.parse(match.group(1)!) * 60 + int.parse(match.group(2)!);
+    final endMin = int.parse(match.group(3)!) * 60 + int.parse(match.group(4)!);
+
+    int? startPeriod;
+    int? endPeriod;
+
+    for (var i = 0; i < _timeSlots.length; i++) {
+      final slot = _timeSlots[i];
+      final sParts = slot.$1.split(':');
+      final eParts = slot.$2.split(':');
+      final slotStart = int.parse(sParts[0]) * 60 + int.parse(sParts[1]);
+      final slotEnd = int.parse(eParts[0]) * 60 + int.parse(eParts[1]);
+
+      // 考试开始时间在此节次之前或之内 → 起始节次
+      if (startPeriod == null && startMin <= slotEnd) {
+        startPeriod = i + 1;
+      }
+      // 考试结束时间在此节次之内或之后 → 结束节次
+      if (endMin >= slotStart) {
+        endPeriod = i + 1;
+      }
+    }
+
+    return (startPeriod ?? 0, endPeriod ?? 0);
   }
 
   void _showCourseDetail(BuildContext context, Course course, String location) {
@@ -368,31 +466,24 @@ class ScheduleGrid extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('教师'),
-            subtitle: Text(course.teacher),
-          ),
-          ListTile(
-            leading: const Icon(Icons.location_on),
-            title: const Text('地点'),
-            subtitle: Text(location),
-          ),
-          ListTile(
-            leading: const Icon(Icons.star),
-            title: const Text('学分'),
-            subtitle: Text(course.credits),
-          ),
-          ListTile(
-            leading: const Icon(Icons.category),
-            title: const Text('类型'),
-            subtitle: Text(course.electiveType),
-          ),
-          ListTile(
-            leading: const Icon(Icons.quiz),
-            title: const Text('考试'),
-            subtitle: Text(course.examType),
-          ),
+          if (course.teacher.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('教师'),
+              subtitle: Text(course.teacher),
+            ),
+          if (location.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.location_on),
+              title: const Text('地点'),
+              subtitle: Text(location),
+            ),
+          if (course.credits.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.star),
+              title: const Text('学分'),
+              subtitle: Text(course.credits),
+            ),
           if (course.rawExamTime.isNotEmpty)
             ListTile(
               leading: const Icon(Icons.schedule),
@@ -404,6 +495,18 @@ class ScheduleGrid extends StatelessWidget {
               leading: const Icon(Icons.info),
               title: const Text('备注'),
               subtitle: Text(course.remark),
+            ),
+          if (course.electiveType.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.category),
+              title: const Text('类型'),
+              subtitle: Text(course.electiveType),
+            ),
+          if (course.examType.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.quiz),
+              title: const Text('考试'),
+              subtitle: Text(course.examType),
             ),
           if (course.syllabus.isNotEmpty)
             ListTile(

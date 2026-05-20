@@ -24,6 +24,9 @@ class AppSettings {
   // 网页注入
   final siteInjectionEnabled = ValueNotifier<bool>(true);
 
+  // 课表显示考试
+  final showExamOnSchedule = ValueNotifier<bool>(true);
+
   static const _modeMap = {
     'system': ThemeMode.system,
     'light': ThemeMode.light,
@@ -71,6 +74,9 @@ class AppSettings {
     siteInjectionEnabled.value =
         sp.getBool(SpKeys.siteInjectionEnabled) ?? true;
 
+    // 课表显示考试
+    showExamOnSchedule.value = sp.getBool(SpKeys.showExamOnSchedule) ?? true;
+
     final termsRaw = sp.getString('terms_list');
     if (termsRaw != null) {
       try {
@@ -108,6 +114,11 @@ class AppSettings {
       SharedPreferences.getInstance().then(
         (sp) =>
             sp.setBool(SpKeys.siteInjectionEnabled, siteInjectionEnabled.value),
+      );
+    });
+    showExamOnSchedule.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setBool(SpKeys.showExamOnSchedule, showExamOnSchedule.value),
       );
     });
   }
@@ -187,6 +198,7 @@ class AppSettings {
     selectedSemesterKey.dispose();
     termsKey.dispose();
     siteInjectionEnabled.dispose();
+    showExamOnSchedule.dispose();
   }
 }
 

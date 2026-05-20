@@ -96,6 +96,18 @@ class ScheduleSettingsPage extends HookWidget {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          Section(
+            title: l10n.scheduleSettings,
+            child: ValueListenableBuilder(
+              valueListenable: settings.showExamOnSchedule,
+              builder: (_, showExam, _) => SwitchListTile(
+                title: Text(l10n.showExamOnSchedule),
+                value: showExam,
+                onChanged: (v) => settings.showExamOnSchedule.value = v,
+              ),
+            ),
+          ),
           const SizedBox(height: 32),
         ],
       ),

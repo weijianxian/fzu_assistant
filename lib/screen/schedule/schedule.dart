@@ -5,6 +5,7 @@ import 'package:fzu_assistant/common/widget/term_selector_button.dart';
 import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/screen/schedule/schedule_grid.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
@@ -19,10 +20,12 @@ class SchedulePage extends HookWidget {
   Widget build(BuildContext context) {
     final settings = AppSettingsProvider.of(context);
     final courses = useState<List<Course>>([]);
+    final examRooms = useState<List<ExamRoomInfo>>([]);
     final displayWeek = useState<int>(1);
     final loading = useState(true);
     final error = useState<String?>(null);
     final service = useMemoized(() => CourseService());
+    final academic = useMemoized(() => AcademicService());
     final pageController = useState<PageController?>(null);
     final firstMonday = useState<DateTime?>(null);
     final mounted = useMounted();
@@ -40,6 +43,11 @@ class SchedulePage extends HookWidget {
         courses.value = list;
         currentLoadedTerm.value = term;
         if (!useCache) settings.termsKey.value = service.cachedTerms;
+
+        // 从缓存加载考试数据
+        final exams = await academic.getExamRooms(term);
+        if (!mounted.value) return week;
+        examRooms.value = exams;
 
         final fm = await service.getFirstMondayForTerm(term);
         if (!mounted.value) return week;
@@ -161,6 +169,7 @@ class SchedulePage extends HookWidget {
         loading: loading.value,
         error: error.value,
         courses: courses.value,
+        examRooms: examRooms.value,
         pageController: pc,
         displayWeek: displayWeek,
         firstMonday: firstMonday.value,
@@ -188,6 +197,7 @@ class _ScheduleBody extends StatelessWidget {
   final bool loading;
   final String? error;
   final List<Course> courses;
+  final List<ExamRoomInfo> examRooms;
   final PageController? pageController;
   final ValueNotifier<int> displayWeek;
   final DateTime? firstMonday;
@@ -198,6 +208,7 @@ class _ScheduleBody extends StatelessWidget {
     required this.loading,
     required this.error,
     required this.courses,
+    required this.examRooms,
     required this.pageController,
     required this.displayWeek,
     required this.firstMonday,
@@ -238,6 +249,7 @@ class _ScheduleBody extends StatelessWidget {
       onPageChanged: (i) => displayWeek.value = i + 1,
       itemBuilder: (context, i) => ScheduleGrid(
         courses: courses,
+        examRooms: examRooms,
         week: i + 1,
         firstMonday: firstMonday,
         onRefresh: onRefresh,

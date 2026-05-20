@@ -4,7 +4,6 @@ import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widget/masonry_sliver_grid.dart';
 import 'package:fzu_assistant/common/widget/term_selector_button.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
@@ -21,45 +20,31 @@ class ExamRoomPage extends HookWidget {
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
-    final termInfo = useState<TermInfo?>(null);
     final mounted = useMounted();
 
-    Future<void> load() async {
+    Future<void> load({bool useCache = true}) async {
       error.value = null;
       loading.value = true;
       try {
-        // 获取学期列表 + ViewState
-        final info = await service.getExamTerms();
-        if (!mounted.value) return;
-        termInfo.value = info;
-
         // 确定目标学期
         final selected = settings.selectedSemesterKey.value;
         final targetTerm = selected.isNotEmpty
-            ? (info.terms.contains(selected) ? selected : info.terms.first)
-            : info.terms.first;
+            ? (service.cachedExamTerms.contains(selected)
+                  ? selected
+                  : service.cachedExamTerms.firstOrNull ?? selected)
+            : service.cachedExamTerms.firstOrNull ?? '';
 
-        // 先从缓存加载
-        final cached = await service.loadExamRoomsForTerm(targetTerm);
-        if (cached != null && mounted.value) {
-          rooms.value = cached;
-          refreshTime.value = DateTime.now();
+        if (targetTerm.isEmpty) {
+          loading.value = false;
+          return;
         }
 
-        // 从 API 获取
-        final data = await service.getExamRooms(
-          targetTerm,
-          info.viewState,
-          info.eventValidation,
-        );
+        final data = await service.getExamRooms(targetTerm, useCache: useCache);
         if (!mounted.value) return;
         data.sort((a, b) => _parseDate(b.date).compareTo(_parseDate(a.date)));
         rooms.value = data;
         refreshTime.value = DateTime.now();
         error.value = null;
-
-        // 缓存
-        service.saveExamRoomsForTerm(targetTerm, data);
       } catch (e) {
         if (!mounted.value) return;
         error.value = e.toString();
@@ -68,14 +53,14 @@ class ExamRoomPage extends HookWidget {
     }
 
     useEffect(() {
-      load();
+      load(useCache: false);
       return null;
     }, []);
 
     // 监听学期切换
     useEffect(() {
       void onSemesterChanged() {
-        load();
+        load(useCache: false);
       }
 
       settings.selectedSemesterKey.addListener(onSemesterChanged);
@@ -84,7 +69,7 @@ class ExamRoomPage extends HookWidget {
     }, []);
 
     final selectedTerm = settings.selectedSemesterKey.value;
-    final terms = termInfo.value?.terms ?? [];
+    final terms = service.cachedExamTerms;
 
     return Scaffold(
       appBar: AppBar(
@@ -102,7 +87,7 @@ class ExamRoomPage extends HookWidget {
         ],
       ),
       body: ToolPageWrapper(
-        onRefresh: load,
+        onRefresh: () => load(useCache: false),
         loading: loading.value,
         error: error.value,
         refreshTime: refreshTime.value,

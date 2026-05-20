@@ -400,4 +400,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get updateCheckFailed => '检查更新失败';
+
+  @override
+  String get showExamOnSchedule => '在课表中显示考试';
 }

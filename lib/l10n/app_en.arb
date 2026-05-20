@@ -545,5 +545,9 @@
   "updateCheckFailed": "Failed to check for updates",
   "@updateCheckFailed": {
     "description": "updateCheckFailed"
+  },
+  "showExamOnSchedule": "Show exams on schedule",
+  "@showExamOnSchedule": {
+    "description": "showExamOnSchedule"
   }
 }
