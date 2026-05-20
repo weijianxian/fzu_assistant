@@ -157,50 +157,91 @@ class SchedulePage extends HookWidget {
           ),
         ],
       ),
-      body: loading.value && courses.value.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : error.value != null && courses.value.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.loadingFailed(error.value ?? ''),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      final selected = settings.selectedSemesterKey.value;
-                      final target = selected.isNotEmpty
-                          ? selected
-                          : currentTerm.value;
-                      if (target.isNotEmpty) refresh(target);
-                    },
-                    child: Text(AppLocalizations.of(context)!.retry),
-                  ),
-                ],
-              ),
-            )
-          : courses.value.isEmpty
-          ? Center(child: Text(AppLocalizations.of(context)!.noScheduleData))
-          : PageView.builder(
-              controller: pc,
-              physics: const BouncingScrollPhysics(),
-              itemCount: _totalWeeks,
-              onPageChanged: (i) => displayWeek.value = i + 1,
-              itemBuilder: (context, i) => ScheduleGrid(
-                courses: courses.value,
-                week: i + 1,
-                firstMonday: firstMonday.value,
-              ),
-            ),
+      body: _ScheduleBody(
+        loading: loading.value,
+        error: error.value,
+        courses: courses.value,
+        pageController: pc,
+        displayWeek: displayWeek,
+        firstMonday: firstMonday.value,
+        onRetry: () {
+          final selected = settings.selectedSemesterKey.value;
+          final target = selected.isNotEmpty ? selected : currentTerm.value;
+          if (target.isNotEmpty) refresh(target);
+        },
+        onRefresh: () async {
+          final selected = settings.selectedSemesterKey.value;
+          final target = selected.isNotEmpty ? selected : currentTerm.value;
+          if (target.isNotEmpty) await refresh(target, useCache: false);
+        },
+      ),
     );
   }
 
   static bool _isCurrentSemester(String currentTerm, String? loadedTerm) {
     if (currentTerm.isEmpty || loadedTerm == null) return false;
     return currentTerm == loadedTerm;
+  }
+}
+
+class _ScheduleBody extends StatelessWidget {
+  final bool loading;
+  final String? error;
+  final List<Course> courses;
+  final PageController? pageController;
+  final ValueNotifier<int> displayWeek;
+  final DateTime? firstMonday;
+  final VoidCallback onRetry;
+  final Future<void> Function() onRefresh;
+
+  const _ScheduleBody({
+    required this.loading,
+    required this.error,
+    required this.courses,
+    required this.pageController,
+    required this.displayWeek,
+    required this.firstMonday,
+    required this.onRetry,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading && courses.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (error != null && courses.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(AppLocalizations.of(context)!.loadingFailed(error!)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: Text(AppLocalizations.of(context)!.retry),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (courses.isEmpty) {
+      return Center(child: Text(AppLocalizations.of(context)!.noScheduleData));
+    }
+
+    return PageView.builder(
+      controller: pageController,
+      physics: const BouncingScrollPhysics(),
+      itemCount: _totalWeeks,
+      onPageChanged: (i) => displayWeek.value = i + 1,
+      itemBuilder: (context, i) => ScheduleGrid(
+        courses: courses,
+        week: i + 1,
+        firstMonday: firstMonday,
+        onRefresh: onRefresh,
+      ),
+    );
   }
 }

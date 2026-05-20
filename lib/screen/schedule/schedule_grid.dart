@@ -39,12 +39,14 @@ class ScheduleGrid extends StatelessWidget {
   final List<Course> courses;
   final int week;
   final DateTime? firstMonday;
+  final Future<void> Function() onRefresh;
 
   const ScheduleGrid({
     super.key,
     required this.courses,
     required this.week,
     required this.firstMonday,
+    required this.onRefresh,
   });
 
   @override
@@ -154,8 +156,16 @@ class ScheduleGrid extends StatelessWidget {
           ],
         );
 
-        if (canFill) return content;
-        return SingleChildScrollView(child: content);
+        return RefreshIndicator(
+          onRefresh: onRefresh,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: canFill ? gridHeight + _headerHeight : null,
+              child: content,
+            ),
+          ),
+        );
       },
     );
   }
