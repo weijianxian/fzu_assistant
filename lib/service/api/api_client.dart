@@ -131,7 +131,6 @@ class ApiClient {
       await login(creds.username, creds.password, solution.toString());
       return true;
     } catch (_) {
-      await auth.clearCredentials();
       return false;
     }
   }
