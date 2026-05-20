@@ -132,13 +132,33 @@
   "@calendar": {
     "description": "calendar"
   },
-  "themeSettings": "Theme",
+  "themeSettings": "Appearance",
   "@themeSettings": {
     "description": "themeSettings"
   },
   "settings": "Settings",
   "@settings": {
     "description": "settings"
+  },
+  "scheduleSettings": "Schedule Settings",
+  "@scheduleSettings": {
+    "description": "scheduleSettings"
+  },
+  "generalSettings": "General Settings",
+  "@generalSettings": {
+    "description": "generalSettings"
+  },
+  "webEnhancement": "Web Enhancement",
+  "@webEnhancement": {
+    "description": "webEnhancement"
+  },
+  "siteInjection": "Inject Web Styles",
+  "@siteInjection": {
+    "description": "siteInjection"
+  },
+  "siteInjectionDescription": "Inject custom CSS/JS to improve web page appearance",
+  "@siteInjectionDescription": {
+    "description": "siteInjectionDescription"
   },
   "about": "About",
   "@about": {

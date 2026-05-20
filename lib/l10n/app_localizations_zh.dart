@@ -104,10 +104,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendar => '校历';
 
   @override
-  String get themeSettings => '主题设置';
+  String get themeSettings => '外观设置';
 
   @override
   String get settings => '设置';
+
+  @override
+  String get scheduleSettings => '课表设置';
+
+  @override
+  String get generalSettings => '一般设置';
+
+  @override
+  String get webEnhancement => '网页增强';
+
+  @override
+  String get siteInjection => '注入网页样式';
+
+  @override
+  String get siteInjectionDescription => '注入自定义 CSS/JS 以改善网页外观';
 
   @override
   String get about => '关于';

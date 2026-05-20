@@ -4,7 +4,6 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/screen/schedule/course_card.dart';
-import 'package:fzu_assistant/service/api/api_client.dart';
 
 const _maxPeriod = 11;
 const _headerHeight = 48.0;
@@ -410,32 +409,24 @@ class ScheduleGrid extends StatelessWidget {
               leading: const Icon(Icons.description),
               title: const Text('教学大纲'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                final id = ApiClient.instance.userId;
-                final url = id != null
-                    ? '${course.syllabus}&id=$id'
-                    : course.syllabus;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => WebViewPage(url: url)),
-                );
-              },
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => WebViewPage(url: course.syllabus),
+                ),
+              ),
             ),
           if (course.lessonplan.isNotEmpty)
             ListTile(
               leading: const Icon(Icons.menu_book),
               title: const Text('授课计划'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                final id = ApiClient.instance.userId;
-                final url = id != null
-                    ? '${course.lessonplan}&id=$id'
-                    : course.lessonplan;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => WebViewPage(url: url)),
-                );
-              },
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => WebViewPage(url: course.lessonplan),
+                ),
+              ),
             ),
         ],
       ),

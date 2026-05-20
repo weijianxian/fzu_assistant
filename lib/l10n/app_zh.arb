@@ -132,13 +132,33 @@
   "@calendar": {
     "description": "calendar"
   },
-  "themeSettings": "主题设置",
+  "themeSettings": "外观设置",
   "@themeSettings": {
     "description": "themeSettings"
   },
   "settings": "设置",
   "@settings": {
     "description": "settings"
+  },
+  "scheduleSettings": "课表设置",
+  "@scheduleSettings": {
+    "description": "scheduleSettings"
+  },
+  "generalSettings": "一般设置",
+  "@generalSettings": {
+    "description": "generalSettings"
+  },
+  "webEnhancement": "网页增强",
+  "@webEnhancement": {
+    "description": "webEnhancement"
+  },
+  "siteInjection": "注入网页样式",
+  "@siteInjection": {
+    "description": "siteInjection"
+  },
+  "siteInjectionDescription": "注入自定义 CSS/JS 以改善网页外观",
+  "@siteInjectionDescription": {
+    "description": "siteInjectionDescription"
   },
   "about": "关于",
   "@about": {

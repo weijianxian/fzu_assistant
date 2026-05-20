@@ -6,6 +6,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/main.dart' show webViewEnvironment;
 import 'package:fzu_assistant/constants/site_injections.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WebViewPage extends StatefulWidget {
@@ -31,10 +32,20 @@ class _WebViewPageState extends State<WebViewPage> {
   double _progress = 0;
   bool _ready = false;
 
+  static final _idDomains = RegExp(r'jwcjwxt2\.fzu\.edu\.cn');
+
+  String _ensureUserId(String url) {
+    if (!_idDomains.hasMatch(url)) return url;
+    if (url.contains('id=')) return url;
+    final id = ApiClient.instance.userId;
+    if (id == null) return url;
+    return url.contains('?') ? '$url&id=$id' : '$url?id=$id';
+  }
+
   @override
   void initState() {
     super.initState();
-    _currentUrl = widget.url;
+    _currentUrl = _ensureUserId(widget.url);
     _pageTitle = widget.title ?? '';
     if (widget.injectCookies) {
       _initCookies();
@@ -75,6 +86,7 @@ class _WebViewPageState extends State<WebViewPage> {
     InAppWebViewController controller,
     Uri? uri,
   ) async {
+    if (!AppSettingsProvider.of(context).siteInjectionEnabled.value) return;
     final url = uri?.toString() ?? '';
     for (final injection in kSiteInjections) {
       if (RegExp(injection.pattern).hasMatch(url)) {
@@ -142,7 +154,7 @@ class _WebViewPageState extends State<WebViewPage> {
                 Expanded(
                   child: InAppWebView(
                     webViewEnvironment: webViewEnvironment,
-                    initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+                    initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
                     initialSettings: InAppWebViewSettings(
                       javaScriptEnabled: true,
                       useHybridComposition: !Platform.isAndroid,

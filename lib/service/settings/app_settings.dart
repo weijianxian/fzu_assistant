@@ -3,7 +3,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
-import 'package:fzu_assistant/screen/settings/theme/app_themes.dart';
+import 'package:fzu_assistant/service/app_themes.dart';
 
 class AppSettings {
   static ColorScheme? _systemLightScheme;
@@ -20,6 +20,9 @@ class AppSettings {
   // 学期相关
   final selectedSemesterKey = ValueNotifier<String>(''); // 空 = 自动当前学期
   final termsKey = ValueNotifier<List<String>>([]);
+
+  // 网页注入
+  final siteInjectionEnabled = ValueNotifier<bool>(true);
 
   static const _modeMap = {
     'system': ThemeMode.system,
@@ -64,6 +67,10 @@ class AppSettings {
     // 学期相关
     selectedSemesterKey.value = sp.getString('selected_semester') ?? '';
 
+    // 网页注入
+    siteInjectionEnabled.value =
+        sp.getBool(SpKeys.siteInjectionEnabled) ?? true;
+
     final termsRaw = sp.getString('terms_list');
     if (termsRaw != null) {
       try {
@@ -95,6 +102,12 @@ class AppSettings {
     termsKey.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setString('terms_list', jsonEncode(termsKey.value)),
+      );
+    });
+    siteInjectionEnabled.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) =>
+            sp.setBool(SpKeys.siteInjectionEnabled, siteInjectionEnabled.value),
       );
     });
   }
@@ -173,6 +186,7 @@ class AppSettings {
     localeKey.dispose();
     selectedSemesterKey.dispose();
     termsKey.dispose();
+    siteInjectionEnabled.dispose();
   }
 }
 
