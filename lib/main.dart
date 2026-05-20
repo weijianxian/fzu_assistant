@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:fzu_assistant/constants/breakpoints.dart';
+import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
@@ -180,84 +180,92 @@ class _SplashScreenContentState extends State<SplashScreenContent>
   }
 }
 
-const _pages = [SchedulePage(), ToolboxPage(), MyPage()];
-
 class HomeScreen extends HookWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final currentPage = useState(0);
+    final jumpToWeekTrigger = useState(0);
     final l10n = AppLocalizations.of(context)!;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= kNavBreakpoint;
+    final pages = [
+      SchedulePage(jumpToWeekTrigger: jumpToWeekTrigger),
+      const ToolboxPage(),
+      const MyPage(),
+    ];
 
-        return Scaffold(
-          body: Row(
-            children: [
-              if (isWide)
-                NavigationRail(
-                  leading: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Hero(
-                      tag: 'app-icon',
-                      child: Image.asset(
-                        'assets/icon/icon.png',
-                        width: 40,
-                        height: 40,
-                      ),
-                    ),
+    void onTabTapped(int i) {
+      if (i == currentPage.value && i == 0) {
+        // 已在课表 tab，再次点击 → 跳转本周
+        jumpToWeekTrigger.value++;
+      } else {
+        currentPage.value = i;
+      }
+    }
+
+    return Scaffold(
+      body: Row(
+        children: [
+          if (context.isLandscape)
+            NavigationRail(
+              leading: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Hero(
+                  tag: 'app-icon',
+                  child: Image.asset(
+                    'assets/icon/icon.png',
+                    width: 40,
+                    height: 40,
                   ),
-                  selectedIndex: currentPage.value,
-                  onDestinationSelected: (i) => currentPage.value = i,
-                  labelType: NavigationRailLabelType.all,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: const Icon(Icons.home),
-                      label: Text(l10n.navSchedule),
-                    ),
-                    NavigationRailDestination(
-                      icon: const Icon(Icons.build),
-                      label: Text(l10n.navToolbox),
-                    ),
-                    NavigationRailDestination(
-                      icon: const Icon(Icons.person),
-                      label: Text(l10n.navMy),
-                    ),
-                  ],
                 ),
-              Expanded(
-                child: IndexedStack(index: currentPage.value, children: _pages),
               ),
-            ],
-          ),
-          bottomNavigationBar: isWide
-              ? null
-              : NavigationBar(
-                  selectedIndex: currentPage.value,
-                  destinations: [
-                    NavigationDestination(
-                      icon: const Icon(Icons.home_outlined),
-                      selectedIcon: const Icon(Icons.home),
-                      label: l10n.navSchedule,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.build_outlined),
-                      selectedIcon: const Icon(Icons.build),
-                      label: l10n.navToolbox,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.person_outline),
-                      selectedIcon: const Icon(Icons.person),
-                      label: l10n.navMy,
-                    ),
-                  ],
-                  onDestinationSelected: (i) => currentPage.value = i,
+              selectedIndex: currentPage.value,
+              onDestinationSelected: onTabTapped,
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                NavigationRailDestination(
+                  icon: const Icon(Icons.home),
+                  label: Text(l10n.navSchedule),
                 ),
-        );
-      },
+                NavigationRailDestination(
+                  icon: const Icon(Icons.build),
+                  label: Text(l10n.navToolbox),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.person),
+                  label: Text(l10n.navMy),
+                ),
+              ],
+            ),
+          Expanded(
+            child: IndexedStack(index: currentPage.value, children: pages),
+          ),
+        ],
+      ),
+      bottomNavigationBar: context.isLandscape
+          ? null
+          : NavigationBar(
+              selectedIndex: currentPage.value,
+              destinations: [
+                NavigationDestination(
+                  icon: const Icon(Icons.home_outlined),
+                  selectedIcon: const Icon(Icons.home),
+                  label: l10n.navSchedule,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.build_outlined),
+                  selectedIcon: const Icon(Icons.build),
+                  label: l10n.navToolbox,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.person_outline),
+                  selectedIcon: const Icon(Icons.person),
+                  label: l10n.navMy,
+                ),
+              ],
+              onDestinationSelected: onTabTapped,
+            ),
     );
   }
 }

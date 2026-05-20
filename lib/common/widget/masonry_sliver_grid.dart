@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:fzu_assistant/constants/breakpoints.dart';
 
 class MasonrySliverGrid extends StatelessWidget {
   final int childCount;
@@ -19,7 +18,7 @@ class MasonrySliverGrid extends StatelessWidget {
     return SliverPadding(
       padding: padding,
       sliver: SliverMasonryGrid.extent(
-        maxCrossAxisExtent: kTileMinWidth,
+        maxCrossAxisExtent: 600,
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
         childCount: childCount,

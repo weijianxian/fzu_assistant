@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
-import 'package:fzu_assistant/common/widget/term_selector_button.dart';
-import 'package:fzu_assistant/constants/breakpoints.dart';
+import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/schedule/schedule_grid.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
@@ -14,7 +14,9 @@ import 'package:fzu_assistant/service/settings/app_settings.dart';
 const _totalWeeks = 19;
 
 class SchedulePage extends HookWidget {
-  const SchedulePage({super.key});
+  final ValueNotifier<int>? jumpToWeekTrigger;
+
+  const SchedulePage({super.key, this.jumpToWeekTrigger});
 
   @override
   Widget build(BuildContext context) {
@@ -110,12 +112,31 @@ class SchedulePage extends HookWidget {
           settings.selectedSemesterKey.removeListener(onSemesterChanged);
     }, []);
 
+    // 监听底部 tab 再次点击 → 跳转本周
+    final trigger = jumpToWeekTrigger;
+    useEffect(() {
+      if (trigger == null) return null;
+      void onTrigger() {
+        final pc = pageController.value;
+        if (pc != null && currentWeek.value > 0) {
+          pc.animateToPage(
+            currentWeek.value - 1,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      }
+
+      trigger.addListener(onTrigger);
+      return () => trigger.removeListener(onTrigger);
+    }, [trigger]);
+
     final pc = pageController.value;
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: MediaQuery.sizeOf(context).width >= kNavBreakpoint
+        leading: context.isLandscape
             ? null
             : Padding(
                 padding: const EdgeInsets.all(4),
@@ -130,39 +151,30 @@ class SchedulePage extends HookWidget {
               ),
         title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
         actions: [
-          TermSelectorButton(
-            terms: settings.termsKey.value,
-            selected: settings.selectedSemesterKey.value,
-            onSelected: (term) => settings.selectedSemesterKey.value = term,
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.pushNamed(AppRoutes.scheduleSettings),
           ),
-          if (displayWeek.value != currentWeek.value &&
-              _isCurrentSemester(currentTerm.value, currentLoadedTerm.value))
-            TextButton(
-              onPressed: () => pc?.animateToPage(
-                currentWeek.value - 1,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              ),
-              child: Text(AppLocalizations.of(context)!.thisWeek),
+          if (context.isLandscape) ...[
+            IconButton(
+              icon: const Icon(Icons.chevron_left),
+              onPressed: pc != null && displayWeek.value > 1
+                  ? () => pc.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    )
+                  : null,
             ),
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: pc != null && displayWeek.value > 1
-                ? () => pc.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  )
-                : null,
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: pc != null && displayWeek.value < _totalWeeks
-                ? () => pc.nextPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  )
-                : null,
-          ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right),
+              onPressed: pc != null && displayWeek.value < _totalWeeks
+                  ? () => pc.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    )
+                  : null,
+            ),
+          ],
         ],
       ),
       body: _ScheduleBody(
@@ -185,11 +197,6 @@ class SchedulePage extends HookWidget {
         },
       ),
     );
-  }
-
-  static bool _isCurrentSemester(String currentTerm, String? loadedTerm) {
-    if (currentTerm.isEmpty || loadedTerm == null) return false;
-    return currentTerm == loadedTerm;
   }
 }
 

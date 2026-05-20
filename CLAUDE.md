@@ -43,6 +43,7 @@ lib/
     utils/               # 工具函数
       cache_helper.dart  # 缓存辅助工具
       html_utils.dart    # HTML 解析工具
+      context_ext.dart   # BuildContext 扩展（isLandscape 方向判断）
     widget/              # 通用组件
       tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
       masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
@@ -54,7 +55,7 @@ lib/
     app_routes.dart      # 路由表 + onGenerateRoute + context.push() 扩展
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
-    breakpoints.dart     # 响应式断点（kNavBreakpoint、kTileMinWidth）
+    breakpoints.dart     # 响应式断点（kTileMinWidth）
     site_injections.dart # WebView URI 正则 CSS/JS 注入规则
   screen/
     guest/               # 匿名页面 如编辑器，webview等
@@ -113,7 +114,7 @@ lib/
 - 导航统一使用 `context.push(page)` / `context.pushReplacement(page)` / `context.pushNamed(route)` 扩展方法（定义在 `lib/router/app_routes.dart`），禁止直接写 `Navigator.push(context, MaterialPageRoute(...))`
 - 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
 - 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取
-- 横屏/宽屏自动切换侧栏导航（NavigationRail），窄屏使用底部导航栏（BottomNavigationBar），断点为 `kNavBreakpoint`
+- 横屏/宽屏自动切换侧栏导航（NavigationRail），窄屏使用底部导航栏（BottomNavigationBar），通过 `context.isLandscape`（`common/utils/context_ext.dart`）判断方向
 - 响应式断点常量统一定义在 `lib/constants/breakpoints.dart`
 - 教务处数据抓取在 AcademicService 中实现，用 Dio GET/POST 请求 HTML 页面，html 包解析 DOM
 - 教务处页面多为 GBK 编码，用 `charset` 包的 `gbk.decode()` 解码

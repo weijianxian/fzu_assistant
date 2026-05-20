@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:fzu_assistant/constants/breakpoints.dart';
+import 'package:fzu_assistant/common/utils/context_ext.dart';
 
 Future<T?> showHalfScreenSheet<T>(
   BuildContext context, {
   required Widget Function(ScrollController controller) builder,
 }) {
-  final isWide = MediaQuery.sizeOf(context).width >= kNavBreakpoint;
-
-  if (isWide) {
+  if (context.isLandscape) {
     return _showSideSheet<T>(context, builder: builder);
   }
   return _showBottomSheet<T>(context, builder: builder);
