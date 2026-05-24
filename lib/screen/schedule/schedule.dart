@@ -83,8 +83,8 @@ class SchedulePage extends HookWidget {
           }
 
           final week = await refresh(targetTerm);
-          displayWeek.value = week;
           pageController.value = PageController(initialPage: week - 1);
+          displayWeek.value = week;
         } catch (e) {
           if (mounted.value) error.value = e.toString();
         }
@@ -225,7 +225,7 @@ class _ScheduleBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (loading && courses.isEmpty) {
+    if (loading && (courses.isEmpty || pageController == null)) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -247,6 +247,10 @@ class _ScheduleBody extends StatelessWidget {
 
     if (courses.isEmpty) {
       return Center(child: Text(AppLocalizations.of(context)!.noScheduleData));
+    }
+
+    if (pageController == null) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     return PageView.builder(

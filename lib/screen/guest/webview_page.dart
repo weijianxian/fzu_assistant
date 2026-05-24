@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart' hide Cookie;
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/main.dart' show webViewEnvironment;
 import 'package:fzu_assistant/constants/site_injections.dart';
@@ -60,22 +60,34 @@ class _WebViewPageState extends State<WebViewPage> {
     final manager = CookieManager.instance(
       webViewEnvironment: webViewEnvironment,
     );
+    final now = DateTime.now();
     await manager.deleteAllCookies();
     for (final domain in domains) {
       final cookies = await cookieJar.loadForRequest(Uri.parse(domain));
       for (final c in cookies) {
+        if (_isExpiredCookie(c, now)) continue;
         await manager.setCookie(
           url: WebUri(domain),
           name: c.name,
           value: c.value,
           path: c.path ?? '/',
           domain: c.domain,
+          expiresDate: c.expires?.millisecondsSinceEpoch,
+          maxAge: c.maxAge,
           isSecure: c.secure,
           isHttpOnly: c.httpOnly,
         );
       }
     }
     if (mounted) setState(() => _ready = true);
+  }
+
+  bool _isExpiredCookie(Cookie cookie, DateTime now) {
+    final maxAge = cookie.maxAge;
+    if (maxAge != null && maxAge <= 0) return true;
+
+    final expires = cookie.expires;
+    return expires != null && !expires.isAfter(now);
   }
 
   static String _jsStringLiteral(String s) {
@@ -119,7 +131,7 @@ class _WebViewPageState extends State<WebViewPage> {
                   break;
                 case 'copy':
                   await Clipboard.setData(ClipboardData(text: _currentUrl));
-                  if (mounted) {
+                  if (context.mounted) {
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(SnackBar(content: Text(l10n.copied)));
