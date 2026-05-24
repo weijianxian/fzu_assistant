@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// appName
   ///
   /// In zh, this message translates to:
-  /// **'FZU Assistant'**
+  /// **'福大助手'**
   String get appName;
 
   /// navSchedule

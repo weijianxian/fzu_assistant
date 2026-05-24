@@ -70,7 +70,7 @@ class MyApp extends HookWidget {
       builder: (_, _) => AppSettingsProvider(
         settings: settings,
         child: MaterialApp(
-          title: 'FZU Assistant',
+          onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
           debugShowCheckedModeBanner: false,
           theme: settings.lightTheme,
           darkTheme: settings.darkTheme,
