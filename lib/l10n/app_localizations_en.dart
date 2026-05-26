@@ -407,4 +407,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showExamOnSchedule => 'Show exams on schedule';
+
+  @override
+  String get permissionManagement => 'Permissions';
+
+  @override
+  String get permissionManagementSubtitle =>
+      'Notifications, exact alarms, etc.';
+
+  @override
+  String get notificationPermission => 'Notifications';
+
+  @override
+  String get notificationPermissionDesc =>
+      'Receive course reminders, exam alerts and other push messages';
+
+  @override
+  String get exactAlarmPermission => 'Exact Alarm';
+
+  @override
+  String get exactAlarmPermissionDesc =>
+      'Trigger notifications at precise scheduled times';
 }

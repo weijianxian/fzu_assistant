@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
+import 'package:fzu_assistant/screen/dev/notification_debug_page.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
@@ -17,6 +18,11 @@ final List<Map<String, dynamic>> tools = [
     'icon': Icons.lock,
     'title': 'SecureStorage',
     'page': const SecureStoragePage(),
+  },
+  {
+    'icon': Icons.notifications_active,
+    'title': 'Notification Debug',
+    'page': const NotificationDebugPage(),
   },
 ];
 

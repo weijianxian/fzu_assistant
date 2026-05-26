@@ -549,5 +549,29 @@
   "showExamOnSchedule": "在课表中显示考试",
   "@showExamOnSchedule": {
     "description": "showExamOnSchedule"
+  },
+  "permissionManagement": "权限管理",
+  "@permissionManagement": {
+    "description": "permissionManagement"
+  },
+  "permissionManagementSubtitle": "通知、精确闹钟等权限",
+  "@permissionManagementSubtitle": {
+    "description": "permissionManagementSubtitle"
+  },
+  "notificationPermission": "通知权限",
+  "@notificationPermission": {
+    "description": "notificationPermission"
+  },
+  "notificationPermissionDesc": "接收课程提醒、考试通知等推送消息",
+  "@notificationPermissionDesc": {
+    "description": "notificationPermissionDesc"
+  },
+  "exactAlarmPermission": "精确闹钟权限",
+  "@exactAlarmPermission": {
+    "description": "exactAlarmPermission"
+  },
+  "exactAlarmPermissionDesc": "定时触发通知，确保在指定时间准时提醒",
+  "@exactAlarmPermissionDesc": {
+    "description": "exactAlarmPermissionDesc"
   }
 }

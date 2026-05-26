@@ -13,6 +13,9 @@
 - flutter_staggered_grid_view 瀑布流网格布局
 - re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
+- flutter_local_notifications 本地通知（Android/iOS/Windows/macOS/Linux）
+- android_alarm_manager_plus Android 精确闹钟调度（AlarmManager）
+- timezone 时区支持（通知定时调度需要）
 
 ## 项目结构
 
@@ -85,16 +88,19 @@ lib/
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
+      permission_settings_page.dart # 权限管理（通知、精确闹钟权限检查与跳转）
     dev/                 # 开发者工具
       dev_tool.dart      # 开发者工具主页（导航入口）
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
       secure_storage_page.dart # SecureStorage 查看/编辑
+      notification_debug_page.dart # 通知通道调试（AlarmManager vs WorkManager）
       kv_tile.dart       # 通用键值对列表项组件（支持 onTap 编辑）
   service/               # 业务逻辑
     auth_storage.dart    # 凭据存储
     captcha_solver.dart  # 验证码识别
     update_service.dart  # 更新检查服务
     app_themes.dart      # 主题色列表 + buildTheme()
+    notification_service.dart # 通知服务（AlarmManager 调度，flutter_local_notifications 显示）
     api/                 # API 相关服务
       api_client.dart    # Dio 单例，登录/重登/拦截器
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）

@@ -549,5 +549,29 @@
   "showExamOnSchedule": "Show exams on schedule",
   "@showExamOnSchedule": {
     "description": "showExamOnSchedule"
+  },
+  "permissionManagement": "Permissions",
+  "@permissionManagement": {
+    "description": "permissionManagement"
+  },
+  "permissionManagementSubtitle": "Notifications, exact alarms, etc.",
+  "@permissionManagementSubtitle": {
+    "description": "permissionManagementSubtitle"
+  },
+  "notificationPermission": "Notifications",
+  "@notificationPermission": {
+    "description": "notificationPermission"
+  },
+  "notificationPermissionDesc": "Receive course reminders, exam alerts and other push messages",
+  "@notificationPermissionDesc": {
+    "description": "notificationPermissionDesc"
+  },
+  "exactAlarmPermission": "Exact Alarm",
+  "@exactAlarmPermission": {
+    "description": "exactAlarmPermission"
+  },
+  "exactAlarmPermissionDesc": "Trigger notifications at precise scheduled times",
+  "@exactAlarmPermissionDesc": {
+    "description": "exactAlarmPermissionDesc"
   }
 }

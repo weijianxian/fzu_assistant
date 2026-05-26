@@ -403,4 +403,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get showExamOnSchedule => '在课表中显示考试';
+
+  @override
+  String get permissionManagement => '权限管理';
+
+  @override
+  String get permissionManagementSubtitle => '通知、精确闹钟等权限';
+
+  @override
+  String get notificationPermission => '通知权限';
+
+  @override
+  String get notificationPermissionDesc => '接收课程提醒、考试通知等推送消息';
+
+  @override
+  String get exactAlarmPermission => '精确闹钟权限';
+
+  @override
+  String get exactAlarmPermissionDesc => '定时触发通知，确保在指定时间准时提醒';
 }

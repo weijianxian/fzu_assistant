@@ -841,6 +841,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'在课表中显示考试'**
   String get showExamOnSchedule;
+
+  /// permissionManagement
+  ///
+  /// In zh, this message translates to:
+  /// **'权限管理'**
+  String get permissionManagement;
+
+  /// permissionManagementSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'通知、精确闹钟等权限'**
+  String get permissionManagementSubtitle;
+
+  /// notificationPermission
+  ///
+  /// In zh, this message translates to:
+  /// **'通知权限'**
+  String get notificationPermission;
+
+  /// notificationPermissionDesc
+  ///
+  /// In zh, this message translates to:
+  /// **'接收课程提醒、考试通知等推送消息'**
+  String get notificationPermissionDesc;
+
+  /// exactAlarmPermission
+  ///
+  /// In zh, this message translates to:
+  /// **'精确闹钟权限'**
+  String get exactAlarmPermission;
+
+  /// exactAlarmPermissionDesc
+  ///
+  /// In zh, this message translates to:
+  /// **'定时触发通知，确保在指定时间准时提醒'**
+  String get exactAlarmPermissionDesc;
 }
 
 class _AppLocalizationsDelegate

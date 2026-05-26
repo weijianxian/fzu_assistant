@@ -6,6 +6,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/notification_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -33,6 +34,7 @@ Future<void> _initWebViewEnvironment() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initWebViewEnvironment();
+  await NotificationService.init();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
