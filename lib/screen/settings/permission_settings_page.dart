@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:fzu_assistant/common/hooks/use_permission.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/service/notification_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PermissionSettingsPage extends HookWidget {
   const PermissionSettingsPage({super.key});
@@ -10,32 +10,26 @@ class PermissionSettingsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final notifGranted = useState<bool?>(null);
-    final exactGranted = useState<bool?>(null);
-
-    AndroidFlutterLocalNotificationsPlugin? getAndroid() => NotificationService
-        .plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-
-    Future<void> checkAll() async {
-      final android = getAndroid();
-      if (android == null) return;
-      notifGranted.value = await android.requestNotificationsPermission();
-      exactGranted.value = await android.canScheduleExactNotifications();
-    }
-
-    useEffect(() {
-      checkAll();
-      return null;
-    }, []);
+    final notifPerm = usePermission(Permission.notification);
+    final exactPerm = usePermission(Permission.scheduleExactAlarm);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.permissionManagement),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: checkAll),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () async {
+              await refreshPermissionFromStatus(
+                notifPerm,
+                Permission.notification,
+              );
+              await refreshPermissionFromStatus(
+                exactPerm,
+                Permission.scheduleExactAlarm,
+              );
+            },
+          ),
         ],
       ),
       body: ListView(
@@ -44,27 +38,16 @@ class PermissionSettingsPage extends HookWidget {
             icon: Icons.notifications_outlined,
             title: l10n.notificationPermission,
             description: l10n.notificationPermissionDesc,
-            granted: notifGranted.value,
-            onTap: () async {
-              final android = getAndroid();
-              if (android == null || notifGranted.value == true) return;
-              await android.requestNotificationsPermission();
-              notifGranted.value = await android
-                  .requestNotificationsPermission();
-            },
+            granted: notifPerm.value?.isGranted ?? false,
+            onTap: () => requestPermission(notifPerm, Permission.notification),
           ),
           _PermTile(
             icon: Icons.alarm_outlined,
             title: l10n.exactAlarmPermission,
             description: l10n.exactAlarmPermissionDesc,
-            granted: exactGranted.value,
-            onTap: () async {
-              final android = getAndroid();
-              if (android == null || exactGranted.value == true) return;
-              await android.requestExactAlarmsPermission();
-              exactGranted.value = await android
-                  .canScheduleExactNotifications();
-            },
+            granted: exactPerm.value?.isGranted ?? false,
+            onTap: () =>
+                requestPermission(exactPerm, Permission.scheduleExactAlarm),
           ),
         ],
       ),
@@ -72,11 +55,19 @@ class PermissionSettingsPage extends HookWidget {
   }
 }
 
+/// 刷新权限状态（不弹系统弹窗）
+Future<void> refreshPermissionFromStatus(
+  ValueNotifier<PermissionStatus?> state,
+  Permission permission,
+) async {
+  state.value = await permission.status;
+}
+
 class _PermTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-  final bool? granted;
+  final bool granted;
   final VoidCallback onTap;
 
   const _PermTile({
@@ -95,7 +86,7 @@ class _PermTile extends StatelessWidget {
       leading: Icon(icon),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(description),
-      trailing: granted == true
+      trailing: granted
           ? Icon(Icons.check_circle, color: colorScheme.primary)
           : const Icon(Icons.chevron_right),
       onTap: onTap,

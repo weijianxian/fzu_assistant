@@ -16,6 +16,7 @@
 - flutter_local_notifications 本地通知（Android/iOS/Windows/macOS/Linux）
 - android_alarm_manager_plus Android 精确闹钟调度（AlarmManager）
 - timezone 时区支持（通知定时调度需要）
+- permission_handler 统一权限管理（通知、精确闹钟等）
 
 ## 项目结构
 
@@ -43,6 +44,7 @@ lib/
   common/                # 通用组件
     hooks/               # 自定义 Hooks
       use_mounted.dart   # 组件挂载状态 Hook
+      use_permission.dart # 通用权限 Hook（permission_handler + ValueNotifier）
     utils/               # 工具函数
       cache_helper.dart  # 缓存辅助工具
       html_utils.dart    # HTML 解析工具
