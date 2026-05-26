@@ -62,6 +62,7 @@ lib/
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式断点（kTileMinWidth）
     site_injections.dart # WebView URI 正则 CSS/JS 注入规则
+    time_slots.dart      # 课程时间段常量（11 个时段，1-based index）
   screen/
     guest/               # 匿名页面 如编辑器，webview等
       login.dart         # 登录页
@@ -91,11 +92,13 @@ lib/
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
       permission_settings_page.dart # 权限管理（通知、精确闹钟权限检查与跳转）
+      early_class_reminder_settings_page.dart # 早课提醒设置（开关/分钟/跳过周末/权限检查）
     dev/                 # 开发者工具
       dev_tool.dart      # 开发者工具主页（导航入口）
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
       secure_storage_page.dart # SecureStorage 查看/编辑
       notification_debug_page.dart # 通知通道调试（AlarmManager vs WorkManager）
+      early_class_reminder_page.dart # 早课提醒管理（开关/分钟滑块/跳过周末/重新调度）
       kv_tile.dart       # 通用键值对列表项组件（支持 onTap 编辑）
   service/               # 业务逻辑
     auth_storage.dart    # 凭据存储
@@ -103,6 +106,7 @@ lib/
     update_service.dart  # 更新检查服务
     app_themes.dart      # 主题色列表 + buildTheme()
     notification_service.dart # 通知服务（AlarmManager 调度，flutter_local_notifications 显示）
+    early_class_reminder_service.dart # 早课提醒（每天晚上提醒明天第一节课，AlarmManager 定时调度）
     api/                 # API 相关服务
       api_client.dart    # Dio 单例，登录/重登/拦截器
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）

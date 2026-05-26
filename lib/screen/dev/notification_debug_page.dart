@@ -66,7 +66,7 @@ class NotificationDebugPage extends HookWidget {
                   when: when,
                 );
                 alarmStatus.value = ok
-                    ? 'Scheduled → ${when.hour}:${when.minute.toString().padLeft(2, '0')}'
+                    ? 'A notification should appear at ${when.toLocal()}'
                     : 'Failed';
               },
               child: const Text('Schedule'),
@@ -85,7 +85,7 @@ class NotificationDebugPage extends HookWidget {
                 await NotificationService.showNow(
                   id: 9999,
                   title: 'Test Notification',
-                  body: 'If you see this, notifications are working',
+                  body: 'This is a test notification.',
                 );
               },
               child: const Text('Send'),

@@ -877,6 +877,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'定时触发通知，确保在指定时间准时提醒'**
   String get exactAlarmPermissionDesc;
+
+  /// earlyClassReminder
+  ///
+  /// In zh, this message translates to:
+  /// **'早课提醒'**
+  String get earlyClassReminder;
+
+  /// earlyClassReminderSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'每天晚上提醒明天第一节课'**
+  String get earlyClassReminderSubtitle;
+
+  /// earlyClassReminderEnable
+  ///
+  /// In zh, this message translates to:
+  /// **'开启提醒'**
+  String get earlyClassReminderEnable;
+
+  /// earlyClassReminderEnableDesc
+  ///
+  /// In zh, this message translates to:
+  /// **'每天晚上通知明天的第一节课'**
+  String get earlyClassReminderEnableDesc;
+
+  /// No description provided for @earlyClassReminderMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'提前分钟数：{minutes}'**
+  String earlyClassReminderMinutes(int minutes);
+
+  /// earlyClassReminderSkipWeekend
+  ///
+  /// In zh, this message translates to:
+  /// **'跳过周末'**
+  String get earlyClassReminderSkipWeekend;
+
+  /// earlyClassReminderSkipWeekendDesc
+  ///
+  /// In zh, this message translates to:
+  /// **'明天是周六/周日时不通知'**
+  String get earlyClassReminderSkipWeekendDesc;
+
+  /// earlyClassReminderScheduled
+  ///
+  /// In zh, this message translates to:
+  /// **'已调度闹钟'**
+  String get earlyClassReminderScheduled;
+
+  /// earlyClassReminderReschedule
+  ///
+  /// In zh, this message translates to:
+  /// **'重新调度'**
+  String get earlyClassReminderReschedule;
+
+  /// earlyClassReminderRescheduled
+  ///
+  /// In zh, this message translates to:
+  /// **'已重新调度'**
+  String get earlyClassReminderRescheduled;
+
+  /// No description provided for @earlyClassReminderAlarmInfo.
+  ///
+  /// In zh, this message translates to:
+  /// **'闹钟时间 = 最后一节课结束 - {minutes} 分钟\n无课时使用默认最后一节下课时间 ({time})\n闹钟 ID：3001-3007（周一~周日）'**
+  String earlyClassReminderAlarmInfo(int minutes, String time);
 }
 
 class _AppLocalizationsDelegate

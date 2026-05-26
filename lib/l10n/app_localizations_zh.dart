@@ -421,4 +421,41 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get exactAlarmPermissionDesc => '定时触发通知，确保在指定时间准时提醒';
+
+  @override
+  String get earlyClassReminder => '早课提醒';
+
+  @override
+  String get earlyClassReminderSubtitle => '每天晚上提醒明天第一节课';
+
+  @override
+  String get earlyClassReminderEnable => '开启提醒';
+
+  @override
+  String get earlyClassReminderEnableDesc => '每天晚上通知明天的第一节课';
+
+  @override
+  String earlyClassReminderMinutes(int minutes) {
+    return '提前分钟数：$minutes';
+  }
+
+  @override
+  String get earlyClassReminderSkipWeekend => '跳过周末';
+
+  @override
+  String get earlyClassReminderSkipWeekendDesc => '明天是周六/周日时不通知';
+
+  @override
+  String get earlyClassReminderScheduled => '已调度闹钟';
+
+  @override
+  String get earlyClassReminderReschedule => '重新调度';
+
+  @override
+  String get earlyClassReminderRescheduled => '已重新调度';
+
+  @override
+  String earlyClassReminderAlarmInfo(int minutes, String time) {
+    return '闹钟时间 = 最后一节课结束 - $minutes 分钟\n无课时使用默认最后一节下课时间 ($time)\n闹钟 ID：3001-3007（周一~周日）';
+  }
 }

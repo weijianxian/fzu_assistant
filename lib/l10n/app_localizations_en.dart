@@ -428,4 +428,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get exactAlarmPermissionDesc =>
       'Trigger notifications at precise scheduled times';
+
+  @override
+  String get earlyClassReminder => 'Early Class Reminder';
+
+  @override
+  String get earlyClassReminderSubtitle =>
+      'Notify tomorrow\'s first class each evening';
+
+  @override
+  String get earlyClassReminderEnable => 'Enable Reminder';
+
+  @override
+  String get earlyClassReminderEnableDesc =>
+      'Notify tomorrow\'s first class every evening';
+
+  @override
+  String earlyClassReminderMinutes(int minutes) {
+    return 'Minutes before: $minutes';
+  }
+
+  @override
+  String get earlyClassReminderSkipWeekend => 'Skip Weekend';
+
+  @override
+  String get earlyClassReminderSkipWeekendDesc =>
+      'Don\'t notify if tomorrow is Sat/Sun';
+
+  @override
+  String get earlyClassReminderScheduled => 'Scheduled Alarms';
+
+  @override
+  String get earlyClassReminderReschedule => 'Reschedule';
+
+  @override
+  String get earlyClassReminderRescheduled => 'Rescheduled';
+
+  @override
+  String earlyClassReminderAlarmInfo(int minutes, String time) {
+    return 'Alarm time = last class end - $minutes min\nIf no class, uses default last slot ($time)\nAlarm IDs: 3001-3007 (Mon-Sun)';
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
+import 'package:fzu_assistant/screen/settings/early_class_reminder_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/permission_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/schedule_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
@@ -45,6 +46,13 @@ class SettingsPage extends HookWidget {
             subtitle: Text(l10n.permissionManagementSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(const PermissionSettingsPage()),
+          ),
+          ListTile(
+            leading: const Icon(Icons.alarm),
+            title: Text(l10n.earlyClassReminder),
+            subtitle: Text(l10n.earlyClassReminderSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(const EarlyClassReminderSettingsPage()),
           ),
         ],
       ),
