@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
-import 'package:fzu_assistant/constants/time_slots.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
@@ -13,6 +12,20 @@ const _maxPeriod = 11;
 const _headerHeight = 48.0;
 const _labelWidth = 44.0;
 const _minCellHeight = 52.0;
+
+const _timeSlots = [
+  ('8:20', '9:05'),
+  ('9:15', '10:00'),
+  ('10:20', '11:05'),
+  ('11:15', '12:00'),
+  ('14:00', '14:45'),
+  ('14:55', '15:40'),
+  ('15:50', '16:35'),
+  ('16:45', '17:30'),
+  ('19:00', '19:45'),
+  ('19:55', '20:40'),
+  ('20:50', '21:35'),
+];
 
 List<String> _weekdays(AppLocalizations l10n) => [
   l10n.monday,
@@ -207,7 +220,7 @@ class ScheduleGrid extends StatelessWidget {
     int nowMinutes,
   ) {
     final scheme = Theme.of(context).colorScheme;
-    final slot = timeSlots[index];
+    final slot = _timeSlots[index];
     final startParts = slot.$1.split(':');
     final endParts = slot.$2.split(':');
     final startMin = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
@@ -421,8 +434,8 @@ class ScheduleGrid extends StatelessWidget {
     int? startPeriod;
     int? endPeriod;
 
-    for (var i = 0; i < timeSlots.length; i++) {
-      final slot = timeSlots[i];
+    for (var i = 0; i < _timeSlots.length; i++) {
+      final slot = _timeSlots[i];
       final sParts = slot.$1.split(':');
       final eParts = slot.$2.split(':');
       final slotStart = int.parse(sParts[0]) * 60 + int.parse(sParts[1]);
