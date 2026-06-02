@@ -82,9 +82,13 @@ class SchedulePage extends HookWidget {
             return;
           }
 
+          // 先从缓存加载，快速显示
           final week = await refresh(targetTerm);
           pageController.value = PageController(initialPage: week - 1);
           displayWeek.value = week;
+
+          // 异步强制刷新，更新最新数据
+          refresh(targetTerm, useCache: false);
         } catch (e) {
           if (mounted.value) error.value = e.toString();
         }
