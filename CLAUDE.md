@@ -147,6 +147,10 @@ flutter build apk              # Android 打包
 flutter analyze                # 静态分析
 flutter gen-l10n               # 重新生成国际化代码
 ```
+## Release 发布流程
+1. 更新版本号：修改 `pubspec.yaml` 中的 `version: x.y.z+build`，其中 `x.y.z` 是语义化版本号，`build` 是构建号，build号在pre-commit hook 中会自动递增，无需手动修改
+2. tag `vx.y.z`：在 GitHub 上为当前 commit 创建一个 tag，格式为 `v` 加版本号，例如 `v1.2.3`
+
 
 ## 参考
 
