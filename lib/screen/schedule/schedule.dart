@@ -151,6 +151,27 @@ class SchedulePage extends HookWidget {
               ),
         title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
         actions: [
+          if (context.isLandscape)
+            IconButton(
+              icon: loading.value
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
+              onPressed: loading.value
+                  ? null
+                  : () async {
+                      final selected = settings.selectedSemesterKey.value;
+                      final target = selected.isNotEmpty
+                          ? selected
+                          : currentTerm.value;
+                      if (target.isNotEmpty) {
+                        await refresh(target, useCache: false);
+                      }
+                    },
+            ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.pushNamed(AppRoutes.scheduleSettings),
