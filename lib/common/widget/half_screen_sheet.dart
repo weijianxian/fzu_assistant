@@ -25,7 +25,22 @@ Future<T?> _showBottomSheet<T>(
       initialChildSize: 0.5,
       maxChildSize: 1.0,
       expand: false,
-      builder: (context, controller) => builder(controller),
+      builder: (context, controller) => Column(
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Expanded(child: builder(controller)),
+        ],
+      ),
     ),
   );
 }
@@ -58,9 +73,18 @@ Future<T?> _showSideSheet<T>(
           child: SizedBox(
             width: sheetWidth,
             height: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: builder(ScrollController()),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  behavior: HitTestBehavior.opaque,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: Icon(Icons.chevron_right),
+                  ),
+                ),
+                Expanded(child: builder(ScrollController())),
+              ],
             ),
           ),
         ),
