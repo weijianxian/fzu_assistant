@@ -26,17 +26,21 @@ class ExamRoomPage extends HookWidget {
       error.value = null;
       loading.value = true;
       try {
-        // 确定目标学期
+        // 确定目标学期：优先使用用户选择的，否则使用缓存的
         final selected = settings.selectedSemesterKey.value;
-        final targetTerm = selected.isNotEmpty
-            ? (service.cachedExamTerms.contains(selected)
-                  ? selected
-                  : service.cachedExamTerms.firstOrNull ?? selected)
+        var targetTerm = selected.isNotEmpty
+            ? selected
             : service.cachedExamTerms.firstOrNull ?? '';
 
+        // 如果没有学期信息，先调用一次获取可用学期列表
         if (targetTerm.isEmpty) {
-          loading.value = false;
-          return;
+          await service.getExamRooms('', useCache: false);
+          if (!mounted.value) return;
+          targetTerm = service.cachedExamTerms.firstOrNull ?? '';
+          if (targetTerm.isEmpty) {
+            loading.value = false;
+            return;
+          }
         }
 
         final data = await service.getExamRooms(targetTerm, useCache: useCache);

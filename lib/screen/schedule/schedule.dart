@@ -47,7 +47,7 @@ class SchedulePage extends HookWidget {
         if (!useCache) settings.termsKey.value = service.cachedTerms;
 
         // 从缓存加载考试数据
-        final exams = await academic.getExamRooms(term);
+        final exams = await academic.getExamRooms(term, useCache: useCache);
         if (!mounted.value) return week;
         examRooms.value = exams;
 
