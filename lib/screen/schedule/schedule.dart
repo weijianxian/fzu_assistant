@@ -34,25 +34,32 @@ class SchedulePage extends HookWidget {
     final currentLoadedTerm = useState<String?>(null);
     final currentWeek = useState<int>(1);
     final currentTerm = useState<String>('');
+    final refreshSerial = useRef(0);
 
-    Future<int> refresh(String term, {bool useCache = true}) async {
+    Future<int?> refresh(String term, {bool useCache = true}) async {
+      refreshSerial.value += 1;
+      final serial = refreshSerial.value;
+      bool isLatest() => mounted.value && serial == refreshSerial.value;
+
       error.value = null;
       loading.value = true;
       var week = 1;
       try {
         final list = await service.getCourses(term, useCache: useCache);
-        if (!mounted.value) return week;
+        if (!isLatest()) return null;
         courses.value = list;
         currentLoadedTerm.value = term;
-        if (!useCache) settings.termsKey.value = service.cachedTerms;
+        if (service.cachedTerms.isNotEmpty) {
+          settings.termsKey.value = service.cachedTerms;
+        }
 
         // 从缓存加载考试数据
         final exams = await academic.getExamRooms(term, useCache: useCache);
-        if (!mounted.value) return week;
+        if (!isLatest()) return null;
         examRooms.value = exams;
 
         final fm = await service.getFirstMondayForTerm(term);
-        if (!mounted.value) return week;
+        if (!isLatest()) return null;
         firstMonday.value = fm;
 
         if (fm != null) {
@@ -60,10 +67,10 @@ class SchedulePage extends HookWidget {
           currentWeek.value = week;
         }
       } catch (e) {
-        if (!mounted.value) return week;
+        if (!isLatest()) return null;
         if (courses.value.isEmpty) error.value = e.toString();
       } finally {
-        if (mounted.value) loading.value = false;
+        if (isLatest()) loading.value = false;
       }
       return week;
     }
@@ -82,13 +89,26 @@ class SchedulePage extends HookWidget {
             return;
           }
 
+          final hasCachedData = await Future.wait([
+            service.hasCachedCourses(targetTerm),
+            academic.hasCachedExamRooms(targetTerm),
+          ]);
+          final latestSelected = settings.selectedSemesterKey.value;
+          final latestTarget = latestSelected.isNotEmpty
+              ? latestSelected
+              : currentTerm.value;
+          if (latestTarget != targetTerm) return;
+
           // 先从缓存加载，快速显示
           final week = await refresh(targetTerm);
+          if (week == null || !mounted.value) return;
           pageController.value = PageController(initialPage: week - 1);
           displayWeek.value = week;
 
-          // 异步强制刷新，更新最新数据
-          refresh(targetTerm, useCache: false);
+          if (hasCachedData.every((cached) => cached)) {
+            // 异步强制刷新，更新最新数据
+            refresh(targetTerm, useCache: false);
+          }
         } catch (e) {
           if (mounted.value) error.value = e.toString();
         }

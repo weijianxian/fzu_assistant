@@ -26,6 +26,11 @@ class CourseService {
     );
   }
 
+  Future<bool> hasCachedCourses(String term) async {
+    final map = await CacheHelper.loadMap(SpKeys.cacheCoursesMap);
+    return map.containsKey(term);
+  }
+
   Future<void> _saveCourseCache(
     String term,
     List<Course> courses,

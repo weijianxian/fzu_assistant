@@ -19,6 +19,7 @@ class ExamRoomPage extends HookWidget {
     final loading = useState(true);
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
+    final effectiveTerm = useState<String>('');
     final service = useMemoized(() => AcademicService());
     final mounted = useMounted();
 
@@ -28,25 +29,14 @@ class ExamRoomPage extends HookWidget {
       try {
         // 确定目标学期：优先使用用户选择的，否则使用缓存的
         final selected = settings.selectedSemesterKey.value;
-        var targetTerm = selected.isNotEmpty
-            ? selected
-            : service.cachedExamTerms.firstOrNull ?? '';
-
-        // 如果没有学期信息，先调用一次获取可用学期列表
-        if (targetTerm.isEmpty) {
-          await service.getExamRooms('', useCache: false);
-          if (!mounted.value) return;
-          targetTerm = service.cachedExamTerms.firstOrNull ?? '';
-          if (targetTerm.isEmpty) {
-            loading.value = false;
-            return;
-          }
-        }
-
-        final data = await service.getExamRooms(targetTerm, useCache: useCache);
+        final (targetTerm, data) = await service.getExamRoomsForPreferredTerm(
+          selected,
+          useCache: useCache,
+        );
         if (!mounted.value) return;
         data.sort((a, b) => _parseDate(b.date).compareTo(_parseDate(a.date)));
         rooms.value = data;
+        effectiveTerm.value = targetTerm;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
@@ -74,18 +64,23 @@ class ExamRoomPage extends HookWidget {
 
     final selectedTerm = settings.selectedSemesterKey.value;
     final terms = service.cachedExamTerms;
+    final menuTerm = selectedTerm.isEmpty
+        ? ''
+        : terms.contains(selectedTerm)
+        ? selectedTerm
+        : effectiveTerm.value;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          selectedTerm.isEmpty || terms.isEmpty
+          menuTerm.isEmpty || terms.isEmpty
               ? AppLocalizations.of(context)!.examRoom
-              : AppSettings.formatSemester(selectedTerm),
+              : AppSettings.formatSemester(menuTerm),
         ),
         actions: [
           TermSelectorButton(
             terms: terms,
-            selected: selectedTerm,
+            selected: menuTerm,
             onSelected: (term) => settings.selectedSemesterKey.value = term,
           ),
         ],

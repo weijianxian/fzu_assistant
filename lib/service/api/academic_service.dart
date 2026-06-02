@@ -165,24 +165,52 @@ class AcademicService {
   /// 最近一次 getExamRooms 内部获取的学期列表。
   List<String> get cachedExamTerms => _cachedExamTermInfo?.terms ?? [];
 
-  Future<List<ExamRoomInfo>> getExamRooms(
-    String term, {
+  Future<bool> hasCachedExamRooms(String term) async {
+    final map = await CacheHelper.loadMap(SpKeys.cacheExamRoomsMap);
+    return map.containsKey(term);
+  }
+
+  Future<List<String>> getExamTerms({bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedExamTermInfo != null) {
+      return _cachedExamTermInfo!.terms;
+    }
+    final termInfo = await _fetchExamTermInfo();
+    return termInfo.terms;
+  }
+
+  Future<(String, List<ExamRoomInfo>)> getExamRoomsForPreferredTerm(
+    String preferredTerm, {
     bool useCache = true,
   }) async {
-    // 先尝试缓存
+    final termInfo = await _fetchExamTermInfo();
+    final targetTerm =
+        preferredTerm.isNotEmpty && termInfo.terms.contains(preferredTerm)
+        ? preferredTerm
+        : termInfo.terms.firstOrNull ?? '';
+
+    if (targetTerm.isEmpty) return ('', <ExamRoomInfo>[]);
+
     if (useCache) {
-      final cached = await CacheHelper.loadForKey<List<ExamRoomInfo>>(
-        SpKeys.cacheExamRoomsMap,
-        term,
-        (json) => (json as List).map((r) => ExamRoomInfo.fromJson(r)).toList(),
-      );
-      if (cached != null) return cached;
+      final cached = await _loadCachedExamRooms(targetTerm);
+      if (cached != null) return (targetTerm, cached);
     }
 
+    final rooms = await _fetchExamRooms(targetTerm, termInfo);
+    return (targetTerm, rooms);
+  }
+
+  Future<List<ExamRoomInfo>?> _loadCachedExamRooms(String term) {
+    return CacheHelper.loadForKey<List<ExamRoomInfo>>(
+      SpKeys.cacheExamRoomsMap,
+      term,
+      (json) => (json as List).map((r) => ExamRoomInfo.fromJson(r)).toList(),
+    );
+  }
+
+  Future<TermInfo> _fetchExamTermInfo() async {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    // 获取表单状态
     final doc = await _fetch(_examRoomUrl);
 
     final viewState =
@@ -200,16 +228,41 @@ class AcademicService {
 
     if (terms.isEmpty) throw Exception('无可用学期');
 
-    _cachedExamTermInfo = TermInfo(
+    final termInfo = TermInfo(
       terms: terms,
       viewState: viewState,
       eventValidation: eventValidation,
     );
+    _cachedExamTermInfo = termInfo;
+    return termInfo;
+  }
+
+  Future<List<ExamRoomInfo>> getExamRooms(
+    String term, {
+    bool useCache = true,
+  }) async {
+    if (term.isEmpty) return [];
+
+    // 先尝试缓存
+    if (useCache) {
+      final cached = await _loadCachedExamRooms(term);
+      if (cached != null) return cached;
+    }
+
+    final termInfo = await _fetchExamTermInfo();
+    return _fetchExamRooms(term, termInfo);
+  }
+
+  Future<List<ExamRoomInfo>> _fetchExamRooms(
+    String term,
+    TermInfo termInfo,
+  ) async {
+    if (!termInfo.terms.contains(term)) return [];
 
     // POST 查询
     final postDoc = await _post(_examRoomUrl, {
-      '__VIEWSTATE': viewState,
-      '__EVENTVALIDATION': eventValidation,
+      '__VIEWSTATE': termInfo.viewState,
+      '__EVENTVALIDATION': termInfo.eventValidation,
       'ctl00\$ContentPlaceHolder1\$DDL_xnxq': term,
       'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
     });
