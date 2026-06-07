@@ -5,7 +5,8 @@ String chineseOnly(String s) {
   return s.replaceAll(RegExp(r'[^一-龥0-9]'), '');
 }
 
-/// 从子元素 [tag] 中提取文本，找不到则返回空串。
+/// 从子元素 [tag] 中提取文本，找不到则返回整个元素的文本。
 String extractText(Element el, String tag) {
-  return el.querySelector(tag)?.text.trim() ?? '';
+  final child = el.querySelector(tag);
+  return child != null ? child.text.trim() : el.text.trim();
 }
