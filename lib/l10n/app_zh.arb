@@ -549,5 +549,101 @@
   "showExamOnSchedule": "在课表中显示考试",
   "@showExamOnSchedule": {
     "description": "showExamOnSchedule"
+  },
+  "evaluation": "一键评议",
+  "@evaluation": {
+    "description": "evaluation"
+  },
+  "evaluationSubtitle": "批量评议任课教师",
+  "@evaluationSubtitle": {
+    "description": "evaluationSubtitle"
+  },
+  "noEvaluationData": "暂无待评议的课程",
+  "@noEvaluationData": {
+    "description": "noEvaluationData"
+  },
+  "evalTabXqxk": "学期选课",
+  "@evalTabXqxk": {
+    "description": "evalTabXqxk"
+  },
+  "evalTabScore": "成绩查询",
+  "@evalTabScore": {
+    "description": "evalTabScore"
+  },
+  "evalScoreHint": "百分制评分",
+  "@evalScoreHint": {
+    "description": "evalScoreHint"
+  },
+  "evalSelectComment": "选择评语",
+  "@evalSelectComment": {
+    "description": "evalSelectComment"
+  },
+  "evalCustomComment": "自己评价",
+  "@evalCustomComment": {
+    "description": "evalCustomComment"
+  },
+  "evalCustomHint": "来评价一下老师吧",
+  "@evalCustomHint": {
+    "description": "evalCustomHint"
+  },
+  "evalSubmit": "提交",
+  "@evalSubmit": {
+    "description": "evalSubmit"
+  },
+  "evalSubmitAll": "全部提交",
+  "@evalSubmitAll": {
+    "description": "evalSubmitAll"
+  },
+  "evalFillCaptcha": "填写验证码",
+  "@evalFillCaptcha": {
+    "description": "evalFillCaptcha"
+  },
+  "evalCaptchaRequired": "验证码不能为空",
+  "@evalCaptchaRequired": {
+    "description": "evalCaptchaRequired"
+  },
+  "evalCaptchaError": "验证码错误",
+  "@evalCaptchaError": {
+    "description": "evalCaptchaError"
+  },
+  "evalSuccess": "评议成功！",
+  "@evalSuccess": {
+    "description": "evalSuccess"
+  },
+  "evalScoreRequired": "{course} 的评分未填写",
+  "@evalScoreRequired": {
+    "placeholders": {
+      "course": {
+        "type": "String"
+      }
+    }
+  },
+  "evalCommentRequired": "{course} 的评语未填写",
+  "@evalCommentRequired": {
+    "placeholders": {
+      "course": {
+        "type": "String"
+      }
+    }
+  },
+  "evalRefreshCaptcha": "看不清，换一张",
+  "@evalRefreshCaptcha": {
+    "description": "evalRefreshCaptcha"
+  },
+  "evalNotAvailable": "当前没有待评议的课程，您已经完成全部课程的评议，或评议尚未开始。",
+  "@evalNotAvailable": {
+    "description": "evalNotAvailable"
+  },
+  "evalNoFilled": "请先填写评议内容",
+  "@evalNoFilled": {
+    "description": "evalNoFilled"
+  },
+  "evalSubmitFailed": "评议提交失败: {error}",
+  "@evalSubmitFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

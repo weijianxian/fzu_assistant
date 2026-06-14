@@ -549,5 +549,101 @@
   "showExamOnSchedule": "Show exams on schedule",
   "@showExamOnSchedule": {
     "description": "showExamOnSchedule"
+  },
+  "evaluation": "One-Key Evaluation",
+  "@evaluation": {
+    "description": "evaluation"
+  },
+  "evaluationSubtitle": "Batch evaluate your teachers",
+  "@evaluationSubtitle": {
+    "description": "evaluationSubtitle"
+  },
+  "noEvaluationData": "No courses to evaluate",
+  "@noEvaluationData": {
+    "description": "noEvaluationData"
+  },
+  "evalTabXqxk": "Course Selection",
+  "@evalTabXqxk": {
+    "description": "evalTabXqxk"
+  },
+  "evalTabScore": "Grade Query",
+  "@evalTabScore": {
+    "description": "evalTabScore"
+  },
+  "evalScoreHint": "Score (0-100)",
+  "@evalScoreHint": {
+    "description": "evalScoreHint"
+  },
+  "evalSelectComment": "Select comment",
+  "@evalSelectComment": {
+    "description": "evalSelectComment"
+  },
+  "evalCustomComment": "Custom",
+  "@evalCustomComment": {
+    "description": "evalCustomComment"
+  },
+  "evalCustomHint": "Write your own comment",
+  "@evalCustomHint": {
+    "description": "evalCustomHint"
+  },
+  "evalSubmit": "Submit",
+  "@evalSubmit": {
+    "description": "evalSubmit"
+  },
+  "evalSubmitAll": "Submit All",
+  "@evalSubmitAll": {
+    "description": "evalSubmitAll"
+  },
+  "evalFillCaptcha": "Enter Captcha",
+  "@evalFillCaptcha": {
+    "description": "evalFillCaptcha"
+  },
+  "evalCaptchaRequired": "Captcha cannot be empty",
+  "@evalCaptchaRequired": {
+    "description": "evalCaptchaRequired"
+  },
+  "evalCaptchaError": "Incorrect captcha",
+  "@evalCaptchaError": {
+    "description": "evalCaptchaError"
+  },
+  "evalSuccess": "Evaluation submitted!",
+  "@evalSuccess": {
+    "description": "evalSuccess"
+  },
+  "evalScoreRequired": "Score not filled for {course}",
+  "@evalScoreRequired": {
+    "placeholders": {
+      "course": {
+        "type": "String"
+      }
+    }
+  },
+  "evalCommentRequired": "Comment not filled for {course}",
+  "@evalCommentRequired": {
+    "placeholders": {
+      "course": {
+        "type": "String"
+      }
+    }
+  },
+  "evalRefreshCaptcha": "Refresh captcha",
+  "@evalRefreshCaptcha": {
+    "description": "evalRefreshCaptcha"
+  },
+  "evalNotAvailable": "No courses to evaluate. You have completed all evaluations, or evaluation has not started yet.",
+  "@evalNotAvailable": {
+    "description": "evalNotAvailable"
+  },
+  "evalNoFilled": "Please fill in evaluation content first",
+  "@evalNoFilled": {
+    "description": "evalNoFilled"
+  },
+  "evalSubmitFailed": "Evaluation failed: {error}",
+  "@evalSubmitFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

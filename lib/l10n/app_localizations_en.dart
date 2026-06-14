@@ -407,4 +407,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showExamOnSchedule => 'Show exams on schedule';
+
+  @override
+  String get evaluation => 'One-Key Evaluation';
+
+  @override
+  String get evaluationSubtitle => 'Batch evaluate your teachers';
+
+  @override
+  String get noEvaluationData => 'No courses to evaluate';
+
+  @override
+  String get evalTabXqxk => 'Course Selection';
+
+  @override
+  String get evalTabScore => 'Grade Query';
+
+  @override
+  String get evalScoreHint => 'Score (0-100)';
+
+  @override
+  String get evalSelectComment => 'Select comment';
+
+  @override
+  String get evalCustomComment => 'Custom';
+
+  @override
+  String get evalCustomHint => 'Write your own comment';
+
+  @override
+  String get evalSubmit => 'Submit';
+
+  @override
+  String get evalSubmitAll => 'Submit All';
+
+  @override
+  String get evalFillCaptcha => 'Enter Captcha';
+
+  @override
+  String get evalCaptchaRequired => 'Captcha cannot be empty';
+
+  @override
+  String get evalCaptchaError => 'Incorrect captcha';
+
+  @override
+  String get evalSuccess => 'Evaluation submitted!';
+
+  @override
+  String evalScoreRequired(String course) {
+    return 'Score not filled for $course';
+  }
+
+  @override
+  String evalCommentRequired(String course) {
+    return 'Comment not filled for $course';
+  }
+
+  @override
+  String get evalRefreshCaptcha => 'Refresh captcha';
+
+  @override
+  String get evalNotAvailable =>
+      'No courses to evaluate. You have completed all evaluations, or evaluation has not started yet.';
+
+  @override
+  String get evalNoFilled => 'Please fill in evaluation content first';
+
+  @override
+  String evalSubmitFailed(String error) {
+    return 'Evaluation failed: $error';
+  }
 }

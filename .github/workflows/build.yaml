@@ -13,24 +13,23 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    # Pin to Visual Studio 2022; windows-latest/windows-2025 now use VS 2026.
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.41.9"
           cache: true
-
-      - name: Cache build
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ runner.os }}-build-${{ hashFiles('pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
 
       - name: Get dependencies
         run: flutter pub get

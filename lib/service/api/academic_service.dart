@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/common/utils/html_utils.dart';
@@ -5,6 +8,7 @@ import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/credit.dart';
 import 'package:fzu_assistant/model/empty_room.dart';
+import 'package:fzu_assistant/model/evaluation.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/model/gpa.dart';
 import 'package:fzu_assistant/model/course.dart';
@@ -31,6 +35,11 @@ class AcademicService {
   static const _emptyRoomUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/kkgl/kbcx/kbcx_kjs.aspx';
   static const _noticeUrl = 'https://jwch.fzu.edu.cn/jxtz.htm';
+  static const _evalBaseUrl = 'https://jwcjwxt2.fzu.edu.cn:81';
+  static const _evalTeacherListUrl = '$_evalBaseUrl/student/jscp/TeaList.aspx';
+  static const _evalTeacherUrl =
+      '$_evalBaseUrl/student/jscp/TeaEvaluation.aspx';
+  static const _evalCaptchaUrl = '$_evalBaseUrl/student/jscp/ValidNums.aspx';
 
   // ─── 工具 ───
 
@@ -714,5 +723,87 @@ class AcademicService {
     }
 
     return (cleaned, '', '');
+  }
+
+  // ─── 一键评议 ───
+
+  /// 获取待评议的教师列表。
+  /// [type] 为 'xqxk'（学期选课）或 'score'（成绩查询）。
+  Future<List<EvaluationTeacher>> getEvaluationTeachers(String type) async {
+    final id = ApiClient.instance.userId;
+    if (id == null) throw Exception('未登录');
+
+    final doc = await _fetch('$_evalTeacherListUrl?bj=$type');
+
+    final anchors = doc.querySelectorAll('a[href^="TeaEvaluation.aspx"]');
+    final teachers = <EvaluationTeacher>[];
+
+    for (final a in anchors) {
+      final href = a.attributes['href'] ?? '';
+      if (href.isEmpty) continue;
+
+      final uri = Uri.parse('$_evalBaseUrl/student/jscp/$href');
+      final params = uri.queryParameters;
+      teachers.add(
+        EvaluationTeacher(
+          courseName: params['kcmc'] ?? '',
+          teacherName: params['jsxm'] ?? '',
+          params: params,
+        ),
+      );
+    }
+
+    return teachers;
+  }
+
+  /// 获取评议验证码图片。
+  Future<Uint8List> getEvaluationCaptcha() async {
+    final resp = await ApiClient.instance.dio.get<List<int>>(
+      _evalCaptchaUrl,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(resp.data!);
+  }
+
+  /// 提交单个教师的评议。
+  /// 返回 true 表示成功，false 表示验证码错误。
+  Future<bool> submitEvaluation(
+    Map<String, String> teacherParams,
+    String score,
+    String comment,
+    String captcha,
+  ) async {
+    // Step 1: GET 获取 ASP.NET 表单令牌
+    final getUrl = Uri.parse(
+      _evalTeacherUrl,
+    ).replace(queryParameters: teacherParams);
+    final getDoc = await HtmlHelper.fetchHtml(getUrl.toString());
+
+    final viewState =
+        getDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
+    final viewStateGenerator =
+        getDoc.getElementById('__VIEWSTATEGENERATOR')?.attributes['value'] ??
+        '';
+    final eventValidation =
+        getDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
+
+    // Step 2: POST 提交评议
+    final postUrl = getUrl.toString();
+    final resp = await ApiClient.instance.dio.post<List<int>>(
+      postUrl,
+      data: {
+        '__VIEWSTATE': viewState,
+        '__VIEWSTATEGENERATOR': viewStateGenerator,
+        '__EVENTVALIDATION': eventValidation,
+        'ctl00\$ContentPlaceHolder1\$TB_zf': score,
+        'ctl00\$ContentPlaceHolder1\$TB_pj': comment,
+        'ctl00\$ContentPlaceHolder1\$verifycode': captcha,
+        'ctl00\$ContentPlaceHolder1\$Button_xk': '确定',
+      },
+      options: Options(responseType: ResponseType.bytes),
+    );
+
+    final body = utf8.decode(resp.data!, allowMalformed: true);
+    return !body.contains('验证码校验错误');
   }
 }

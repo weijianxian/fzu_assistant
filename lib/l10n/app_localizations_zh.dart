@@ -403,4 +403,73 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get showExamOnSchedule => '在课表中显示考试';
+
+  @override
+  String get evaluation => '一键评议';
+
+  @override
+  String get evaluationSubtitle => '批量评议任课教师';
+
+  @override
+  String get noEvaluationData => '暂无待评议的课程';
+
+  @override
+  String get evalTabXqxk => '学期选课';
+
+  @override
+  String get evalTabScore => '成绩查询';
+
+  @override
+  String get evalScoreHint => '百分制评分';
+
+  @override
+  String get evalSelectComment => '选择评语';
+
+  @override
+  String get evalCustomComment => '自己评价';
+
+  @override
+  String get evalCustomHint => '来评价一下老师吧';
+
+  @override
+  String get evalSubmit => '提交';
+
+  @override
+  String get evalSubmitAll => '全部提交';
+
+  @override
+  String get evalFillCaptcha => '填写验证码';
+
+  @override
+  String get evalCaptchaRequired => '验证码不能为空';
+
+  @override
+  String get evalCaptchaError => '验证码错误';
+
+  @override
+  String get evalSuccess => '评议成功！';
+
+  @override
+  String evalScoreRequired(String course) {
+    return '$course 的评分未填写';
+  }
+
+  @override
+  String evalCommentRequired(String course) {
+    return '$course 的评语未填写';
+  }
+
+  @override
+  String get evalRefreshCaptcha => '看不清，换一张';
+
+  @override
+  String get evalNotAvailable => '当前没有待评议的课程，您已经完成全部课程的评议，或评议尚未开始。';
+
+  @override
+  String get evalNoFilled => '请先填写评议内容';
+
+  @override
+  String evalSubmitFailed(String error) {
+    return '评议提交失败: $error';
+  }
 }

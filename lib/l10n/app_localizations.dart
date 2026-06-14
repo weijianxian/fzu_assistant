@@ -841,6 +841,132 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'在课表中显示考试'**
   String get showExamOnSchedule;
+
+  /// evaluation
+  ///
+  /// In zh, this message translates to:
+  /// **'一键评议'**
+  String get evaluation;
+
+  /// evaluationSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'批量评议任课教师'**
+  String get evaluationSubtitle;
+
+  /// noEvaluationData
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无待评议的课程'**
+  String get noEvaluationData;
+
+  /// evalTabXqxk
+  ///
+  /// In zh, this message translates to:
+  /// **'学期选课'**
+  String get evalTabXqxk;
+
+  /// evalTabScore
+  ///
+  /// In zh, this message translates to:
+  /// **'成绩查询'**
+  String get evalTabScore;
+
+  /// evalScoreHint
+  ///
+  /// In zh, this message translates to:
+  /// **'百分制评分'**
+  String get evalScoreHint;
+
+  /// evalSelectComment
+  ///
+  /// In zh, this message translates to:
+  /// **'选择评语'**
+  String get evalSelectComment;
+
+  /// evalCustomComment
+  ///
+  /// In zh, this message translates to:
+  /// **'自己评价'**
+  String get evalCustomComment;
+
+  /// evalCustomHint
+  ///
+  /// In zh, this message translates to:
+  /// **'来评价一下老师吧'**
+  String get evalCustomHint;
+
+  /// evalSubmit
+  ///
+  /// In zh, this message translates to:
+  /// **'提交'**
+  String get evalSubmit;
+
+  /// evalSubmitAll
+  ///
+  /// In zh, this message translates to:
+  /// **'全部提交'**
+  String get evalSubmitAll;
+
+  /// evalFillCaptcha
+  ///
+  /// In zh, this message translates to:
+  /// **'填写验证码'**
+  String get evalFillCaptcha;
+
+  /// evalCaptchaRequired
+  ///
+  /// In zh, this message translates to:
+  /// **'验证码不能为空'**
+  String get evalCaptchaRequired;
+
+  /// evalCaptchaError
+  ///
+  /// In zh, this message translates to:
+  /// **'验证码错误'**
+  String get evalCaptchaError;
+
+  /// evalSuccess
+  ///
+  /// In zh, this message translates to:
+  /// **'评议成功！'**
+  String get evalSuccess;
+
+  /// No description provided for @evalScoreRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'{course} 的评分未填写'**
+  String evalScoreRequired(String course);
+
+  /// No description provided for @evalCommentRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'{course} 的评语未填写'**
+  String evalCommentRequired(String course);
+
+  /// evalRefreshCaptcha
+  ///
+  /// In zh, this message translates to:
+  /// **'看不清，换一张'**
+  String get evalRefreshCaptcha;
+
+  /// evalNotAvailable
+  ///
+  /// In zh, this message translates to:
+  /// **'当前没有待评议的课程，您已经完成全部课程的评议，或评议尚未开始。'**
+  String get evalNotAvailable;
+
+  /// evalNoFilled
+  ///
+  /// In zh, this message translates to:
+  /// **'请先填写评议内容'**
+  String get evalNoFilled;
+
+  /// No description provided for @evalSubmitFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'评议提交失败: {error}'**
+  String evalSubmitFailed(String error);
 }
 
 class _AppLocalizationsDelegate

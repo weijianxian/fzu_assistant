@@ -6,6 +6,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/toolbox/credit/credit_page.dart';
 import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
+import 'package:fzu_assistant/screen/toolbox/evaluation/evaluation_page.dart';
 import 'package:fzu_assistant/screen/toolbox/exam_room/exam_room_page.dart';
 import 'package:fzu_assistant/screen/toolbox/gpa/gpa_page.dart';
 import 'package:fzu_assistant/screen/toolbox/marks/marks_page.dart';
@@ -75,6 +76,12 @@ class ToolboxPage extends HookWidget {
             l10n.officeNoticeSubtitle,
             () => const NoticePage(),
           ),
+          (
+            Icons.rate_review_outlined,
+            l10n.evaluation,
+            l10n.evaluationSubtitle,
+            () => const EvaluationPage(),
+          ),
         ],
       ),
     ];
@@ -107,6 +114,7 @@ class ToolboxPage extends HookWidget {
                 },
               ),
             ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       ),
     );
