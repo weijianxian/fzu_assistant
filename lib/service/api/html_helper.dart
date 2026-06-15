@@ -5,6 +5,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/evaluation_required_exception.dart';
+import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 
 /// 共享的 HTML 页面抓取方法，封装 GET/POST → decode → parse。
 /// 内含评议检测逻辑，与 jwch 库 GetWithIdentifier / PostWithIdentifier 一致。
@@ -53,6 +54,7 @@ abstract final class HtmlHelper {
     );
     final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
     final html = gbk.decode(bytes, allowMalformed: true);
+    _checkNologin(html);
     _checkEvaluation(html);
     return (html_parser.parse(html), html);
   }
@@ -70,6 +72,7 @@ abstract final class HtmlHelper {
     );
     final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
     final html = gbk.decode(bytes, allowMalformed: true);
+    _checkNologin(html);
     _checkEvaluation(html);
     return (html_parser.parse(html), html);
   }
@@ -96,8 +99,15 @@ abstract final class HtmlHelper {
 
   static Document _parse(List<int> bytes) {
     final html = utf8.decode(bytes, allowMalformed: true);
+    _checkNologin(html);
     _checkEvaluation(html);
     return html_parser.parse(html);
+  }
+
+  static void _checkNologin(String html) {
+    if (html.contains('"nologin"') || html.contains('nologin')) {
+      throw const SessionExpiredException();
+    }
   }
 
   /// 检测是否被重定向到评议页面（与 jwch 库逻辑一致）。

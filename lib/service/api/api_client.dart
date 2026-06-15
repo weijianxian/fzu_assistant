@@ -9,6 +9,7 @@ import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/captcha_solver.dart';
+import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 
 class ApiClient {
   ApiClient._() {
@@ -156,6 +157,10 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.error is SessionExpiredException) {
+      _handleExpiredError(err.requestOptions, handler);
+      return;
+    }
     handler.next(err);
   }
 
@@ -209,4 +214,35 @@ class _AuthInterceptor extends Interceptor {
     type: DioExceptionType.unknown,
     error: 'Session expired and re-login failed',
   );
+
+  Future<void> _handleExpiredError(
+    RequestOptions options,
+    ErrorInterceptorHandler handler,
+  ) async {
+    if (_api._reloginCompleter != null) {
+      final ok = await _api._reloginCompleter!.future;
+      if (ok) {
+        handler.resolve(await _api.retry(options));
+      } else {
+        handler.reject(_expiredError(options));
+      }
+      return;
+    }
+
+    _api._reloginCompleter = Completer<bool>();
+    try {
+      final ok = await _api.relogin();
+      _api._reloginCompleter!.complete(ok);
+      if (ok) {
+        handler.resolve(await _api.retry(options));
+      } else {
+        handler.reject(_expiredError(options));
+      }
+    } catch (_) {
+      _api._reloginCompleter!.complete(false);
+      handler.reject(_expiredError(options));
+    } finally {
+      _api._reloginCompleter = null;
+    }
+  }
 }
