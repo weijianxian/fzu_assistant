@@ -842,6 +842,12 @@ abstract class AppLocalizations {
   /// **'在课表中显示考试'**
   String get showExamOnSchedule;
 
+  /// autoAdjustCourse
+  ///
+  /// In zh, this message translates to:
+  /// **'自动调课'**
+  String get autoAdjustCourse;
+
   /// evaluation
   ///
   /// In zh, this message translates to:

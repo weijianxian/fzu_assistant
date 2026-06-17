@@ -27,6 +27,9 @@ class AppSettings {
   // 课表显示考试
   final showExamOnSchedule = ValueNotifier<bool>(true);
 
+  // 自动调课
+  final autoAdjustCourse = ValueNotifier<bool>(true);
+
   static const _modeMap = {
     'system': ThemeMode.system,
     'light': ThemeMode.light,
@@ -77,6 +80,9 @@ class AppSettings {
     // 课表显示考试
     showExamOnSchedule.value = sp.getBool(SpKeys.showExamOnSchedule) ?? true;
 
+    // 自动调课
+    autoAdjustCourse.value = sp.getBool(SpKeys.autoAdjustCourse) ?? true;
+
     final termsRaw = sp.getString('terms_list');
     if (termsRaw != null) {
       try {
@@ -119,6 +125,11 @@ class AppSettings {
     showExamOnSchedule.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setBool(SpKeys.showExamOnSchedule, showExamOnSchedule.value),
+      );
+    });
+    autoAdjustCourse.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setBool(SpKeys.autoAdjustCourse, autoAdjustCourse.value),
       );
     });
   }
@@ -199,6 +210,7 @@ class AppSettings {
     termsKey.dispose();
     siteInjectionEnabled.dispose();
     showExamOnSchedule.dispose();
+    autoAdjustCourse.dispose();
   }
 }
 

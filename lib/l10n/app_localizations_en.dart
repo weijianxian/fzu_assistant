@@ -409,6 +409,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showExamOnSchedule => 'Show exams on schedule';
 
   @override
+  String get autoAdjustCourse => 'Auto adjust courses';
+
+  @override
   String get evaluation => 'One-Key Evaluation';
 
   @override

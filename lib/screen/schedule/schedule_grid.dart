@@ -271,20 +271,24 @@ class ScheduleGrid extends StatelessWidget {
     double cellHeight,
   ) {
     final cards = <Widget>[];
+    final autoAdjust = AppSettingsProvider.of(context).autoAdjustCourse.value;
+
     for (final c in courses) {
       // 收集本周该星期被调课取消的节次范围
       final canceledSlots = <(int, int)>[];
       // 收集本周该星期的调课新增
       final adjustedSlots = <CourseAdjustRule>[];
 
-      for (final a in c.adjustRules) {
-        // 原位置被调走（显式取消 或 普通调课的原位置）
-        if (a.oldWeek == week && a.oldWeekday == wd) {
-          canceledSlots.add((a.oldStartClass, a.oldEndClass));
-        }
-        // 调课目标位置
-        if (a.newWeek == week && a.newWeekday == wd) {
-          adjustedSlots.add(a);
+      if (autoAdjust) {
+        for (final a in c.adjustRules) {
+          // 原位置被调走（显式取消 或 普通调课的原位置）
+          if (a.oldWeek == week && a.oldWeekday == wd) {
+            canceledSlots.add((a.oldStartClass, a.oldEndClass));
+          }
+          // 调课目标位置
+          if (a.newWeek == week && a.newWeekday == wd) {
+            adjustedSlots.add(a);
+          }
         }
       }
 

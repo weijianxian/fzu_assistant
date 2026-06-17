@@ -9,4 +9,5 @@ abstract final class SpKeys {
   static const skipUpdateVersion = 'skip_update_version';
   static const siteInjectionEnabled = 'site_injection_enabled';
   static const showExamOnSchedule = 'show_exam_on_schedule';
+  static const autoAdjustCourse = 'auto_adjust_course';
 }

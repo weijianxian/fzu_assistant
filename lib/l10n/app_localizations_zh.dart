@@ -405,6 +405,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showExamOnSchedule => '在课表中显示考试';
 
   @override
+  String get autoAdjustCourse => '自动调课';
+
+  @override
   String get evaluation => '一键评议';
 
   @override

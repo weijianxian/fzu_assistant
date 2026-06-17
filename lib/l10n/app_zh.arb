@@ -550,6 +550,10 @@
   "@showExamOnSchedule": {
     "description": "showExamOnSchedule"
   },
+  "autoAdjustCourse": "自动调课",
+  "@autoAdjustCourse": {
+    "description": "autoAdjustCourse"
+  },
   "evaluation": "一键评议",
   "@evaluation": {
     "description": "evaluation"
