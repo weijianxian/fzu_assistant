@@ -112,7 +112,7 @@ abstract final class HtmlHelper {
 
   /// 检测是否被重定向到评议页面（与 jwch 库逻辑一致）。
   static void _checkEvaluation(String html) {
-    if (html.contains('请先对任课教师进行测评')) {
+    if (html.contains('请先对任课教师和教材进行测评')) {
       throw const EvaluationRequiredException();
     }
   }
