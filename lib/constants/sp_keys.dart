@@ -7,6 +7,7 @@ abstract final class SpKeys {
   static const cacheSchoolCalendar = 'cache_school_calendar';
   static const cacheExamRoomsMap = 'cache_exam_rooms_map';
   static const skipUpdateVersion = 'skip_update_version';
+  static const skipUpdatesPermanently = 'skip_updates_permanently';
   static const siteInjectionEnabled = 'site_injection_enabled';
   static const showExamOnSchedule = 'show_exam_on_schedule';
   static const autoAdjustCourse = 'auto_adjust_course';

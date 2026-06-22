@@ -818,11 +818,53 @@ abstract class AppLocalizations {
   /// **'跳过此版本'**
   String get skipThisVersion;
 
+  /// Button text for disabling automatic update prompts permanently
+  ///
+  /// In zh, this message translates to:
+  /// **'永久跳过'**
+  String get skipUpdatesPermanently;
+
   /// downloadUpdate
   ///
   /// In zh, this message translates to:
   /// **'前往下载'**
   String get downloadUpdate;
+
+  /// Button text for downloading and installing an update in app
+  ///
+  /// In zh, this message translates to:
+  /// **'下载并安装'**
+  String get installUpdate;
+
+  /// Shown when no compatible update package asset is found
+  ///
+  /// In zh, this message translates to:
+  /// **'未找到适配当前设备的安装包，已打开下载页面'**
+  String get updateNoCompatiblePackage;
+
+  /// Shown when Android install permission is required
+  ///
+  /// In zh, this message translates to:
+  /// **'请允许安装未知来源应用后，再点击下载并安装'**
+  String get updateInstallPermissionRequired;
+
+  /// Shown when update download fails
+  ///
+  /// In zh, this message translates to:
+  /// **'下载更新失败'**
+  String get updateDownloadFailed;
+
+  /// Shown when opening Android installer fails
+  ///
+  /// In zh, this message translates to:
+  /// **'打开安装器失败'**
+  String get updateInstallFailed;
+
+  /// Shown while opening the Android package installer
+  ///
+  /// In zh, this message translates to:
+  /// **'打开安装器'**
+  String get updateOpeningInstaller;
 
   /// alreadyLatest
   ///

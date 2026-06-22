@@ -534,9 +534,37 @@
   "@skipThisVersion": {
     "description": "skipThisVersion"
   },
+  "skipUpdatesPermanently": "永久跳过",
+  "@skipUpdatesPermanently": {
+    "description": "Button text for disabling automatic update prompts permanently"
+  },
   "downloadUpdate": "前往下载",
   "@downloadUpdate": {
     "description": "downloadUpdate"
+  },
+  "installUpdate": "下载并安装",
+  "@installUpdate": {
+    "description": "Button text for downloading and installing an update in app"
+  },
+  "updateNoCompatiblePackage": "未找到适配当前设备的安装包，已打开下载页面",
+  "@updateNoCompatiblePackage": {
+    "description": "Shown when no compatible update package asset is found"
+  },
+  "updateInstallPermissionRequired": "请允许安装未知来源应用后，再点击下载并安装",
+  "@updateInstallPermissionRequired": {
+    "description": "Shown when Android install permission is required"
+  },
+  "updateDownloadFailed": "下载更新失败",
+  "@updateDownloadFailed": {
+    "description": "Shown when update download fails"
+  },
+  "updateInstallFailed": "打开安装器失败",
+  "@updateInstallFailed": {
+    "description": "Shown when opening Android installer fails"
+  },
+  "updateOpeningInstaller": "打开安装器",
+  "@updateOpeningInstaller": {
+    "description": "Shown while opening the Android package installer"
   },
   "alreadyLatest": "已是最新版本",
   "@alreadyLatest": {

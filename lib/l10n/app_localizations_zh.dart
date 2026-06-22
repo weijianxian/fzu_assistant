@@ -393,7 +393,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get skipThisVersion => '跳过此版本';
 
   @override
+  String get skipUpdatesPermanently => '永久跳过';
+
+  @override
   String get downloadUpdate => '前往下载';
+
+  @override
+  String get installUpdate => '下载并安装';
+
+  @override
+  String get updateNoCompatiblePackage => '未找到适配当前设备的安装包，已打开下载页面';
+
+  @override
+  String get updateInstallPermissionRequired => '请允许安装未知来源应用后，再点击下载并安装';
+
+  @override
+  String get updateDownloadFailed => '下载更新失败';
+
+  @override
+  String get updateInstallFailed => '打开安装器失败';
+
+  @override
+  String get updateOpeningInstaller => '打开安装器';
 
   @override
   String get alreadyLatest => '已是最新版本';

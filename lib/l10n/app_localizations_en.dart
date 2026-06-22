@@ -397,7 +397,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skipThisVersion => 'Skip This Version';
 
   @override
+  String get skipUpdatesPermanently => 'Skip Permanently';
+
+  @override
   String get downloadUpdate => 'Download';
+
+  @override
+  String get installUpdate => 'Download & Install';
+
+  @override
+  String get updateNoCompatiblePackage =>
+      'No compatible package found. Opening the download page.';
+
+  @override
+  String get updateInstallPermissionRequired =>
+      'Allow installing unknown apps, then tap Download & Install again.';
+
+  @override
+  String get updateDownloadFailed => 'Failed to download update';
+
+  @override
+  String get updateInstallFailed => 'Failed to open installer';
+
+  @override
+  String get updateOpeningInstaller => 'Opening installer';
 
   @override
   String get alreadyLatest => 'You are on the latest version';

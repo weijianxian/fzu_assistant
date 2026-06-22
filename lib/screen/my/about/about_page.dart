@@ -63,7 +63,9 @@ class _AboutPageState extends State<AboutPage> {
     setState(() => _isChecking = true);
 
     try {
-      final result = await _updateService.checkForUpdate();
+      final result = await _updateService.checkForUpdate(
+        respectPermanentlySkipped: silent,
+      );
       if (!mounted) return;
 
       switch (result.status) {
@@ -72,6 +74,7 @@ class _AboutPageState extends State<AboutPage> {
             context,
             release: result.release!,
             onSkip: () => _updateService.skipVersion(result.release!.version),
+            onSkipForever: _updateService.skipUpdatesPermanently,
           );
           break;
         case VersionCompareResult.upToDate:
@@ -86,6 +89,8 @@ class _AboutPageState extends State<AboutPage> {
           break;
         case VersionCompareResult.skipped:
           // User already skipped this version, do nothing
+          break;
+        case VersionCompareResult.permanentlySkipped:
           break;
       }
     } catch (_) {
