@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widget/section.dart';
+import 'package:fzu_assistant/common/widget/setting_switch_tile.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
@@ -101,23 +102,15 @@ class ScheduleSettingsPage extends HookWidget {
             title: l10n.scheduleSettings,
             child: Column(
               children: [
-                ValueListenableBuilder(
-                  valueListenable: settings.showExamOnSchedule,
-                  builder: (_, showExam, _) => SwitchListTile(
-                    title: Text(l10n.showExamOnSchedule),
-                    subtitle: Text(l10n.showExamOnScheduleDescription),
-                    value: showExam,
-                    onChanged: (v) => settings.showExamOnSchedule.value = v,
-                  ),
+                SettingSwitchTile(
+                  notifier: settings.showExamOnSchedule,
+                  title: Text(l10n.showExamOnSchedule),
+                  subtitle: Text(l10n.showExamOnScheduleDescription),
                 ),
-                ValueListenableBuilder(
-                  valueListenable: settings.autoAdjustCourse,
-                  builder: (_, autoAdjust, _) => SwitchListTile(
-                    title: Text(l10n.autoAdjustCourse),
-                    subtitle: Text(l10n.autoAdjustCourseDescription),
-                    value: autoAdjust,
-                    onChanged: (v) => settings.autoAdjustCourse.value = v,
-                  ),
+                SettingSwitchTile(
+                  notifier: settings.autoAdjustCourse,
+                  title: Text(l10n.autoAdjustCourse),
+                  subtitle: Text(l10n.autoAdjustCourseDescription),
                 ),
               ],
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widget/section.dart';
+import 'package:fzu_assistant/common/widget/setting_switch_tile.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 
@@ -47,14 +48,10 @@ class GeneralSettingsPage extends HookWidget {
           ),
           Section(
             title: l10n.webEnhancement,
-            child: ValueListenableBuilder(
-              valueListenable: settings.siteInjectionEnabled,
-              builder: (_, enabled, _) => SwitchListTile(
-                title: Text(l10n.siteInjection),
-                subtitle: Text(l10n.siteInjectionDescription),
-                value: enabled,
-                onChanged: (v) => settings.siteInjectionEnabled.value = v,
-              ),
+            child: SettingSwitchTile(
+              notifier: settings.siteInjectionEnabled,
+              title: Text(l10n.siteInjection),
+              subtitle: Text(l10n.siteInjectionDescription),
             ),
           ),
           const SizedBox(height: 32),

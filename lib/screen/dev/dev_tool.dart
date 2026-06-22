@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/chevron_list_tile.dart';
 import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
@@ -34,10 +35,9 @@ class DevToolPage extends StatelessWidget {
       body: ListView(
         children: [
           ...tools.map(
-            (tool) => ListTile(
+            (tool) => ChevronListTile(
               leading: Icon(tool['icon']),
               title: Text(tool['title']),
-              trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push(tool['page']),
             ),
           ),

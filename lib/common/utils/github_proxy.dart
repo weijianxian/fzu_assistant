@@ -7,8 +7,7 @@ class GitHubProxy {
   GitHubProxy._();
 
   static Future<String> proxiedUrl(String url) async {
-    final uri = Uri.tryParse(url);
-    if (uri == null || !_isGitHubUri(uri)) {
+    if (!shouldProxyUrl(url)) {
       return url;
     }
 
@@ -24,6 +23,23 @@ class GitHubProxy {
     return '$baseUrl$url';
   }
 
+  static bool shouldProxyUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null || uri.host.isEmpty) return false;
+    if (uri.scheme != 'http' && uri.scheme != 'https') return false;
+    return isProxyableHost(uri.host);
+  }
+
+  static bool isProxyableHost(String host) {
+    final normalizedHost = host.toLowerCase();
+    if (normalizedHost == 'api.github.com') return false;
+
+    return normalizedHost == 'github.com' ||
+        normalizedHost.endsWith('.github.com') ||
+        normalizedHost == 'githubusercontent.com' ||
+        normalizedHost.endsWith('.githubusercontent.com');
+  }
+
   static String normalizeBaseUrl(String value) {
     var normalized = value.trim();
     if (normalized.isEmpty) return defaultBaseUrl;
@@ -35,15 +51,5 @@ class GitHubProxy {
       normalized = '$normalized/';
     }
     return normalized;
-  }
-
-  static bool _isGitHubUri(Uri uri) {
-    final host = uri.host.toLowerCase();
-    if (host == 'api.github.com') return false;
-
-    return host == 'github.com' ||
-        host.endsWith('.github.com') ||
-        host == 'githubusercontent.com' ||
-        host.endsWith('.githubusercontent.com');
   }
 }

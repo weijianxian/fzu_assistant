@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/widget/chevron_list_tile.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
@@ -129,22 +130,19 @@ class MyPage extends HookWidget {
         //     _infoRow('学籍异动', info.statusChanges),
         //   ]),
         const Divider(),
-        ListTile(
+        ChevronListTile(
           leading: const Icon(Icons.calendar_month_outlined),
           title: Text(AppLocalizations.of(context)!.calendar),
-          trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push(const CalendarPage()),
         ),
-        ListTile(
+        ChevronListTile(
           leading: const Icon(Icons.settings_outlined),
           title: Text(AppLocalizations.of(context)!.settings),
-          trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push(const SettingsPage()),
         ),
-        ListTile(
+        ChevronListTile(
           leading: const Icon(Icons.info_outline),
           title: Text(AppLocalizations.of(context)!.about),
-          trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push(const AboutPage()),
         ),
         ListTile(
