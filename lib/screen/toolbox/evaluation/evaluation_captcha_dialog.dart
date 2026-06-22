@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/widget/success_checkmark.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/evaluation.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
@@ -52,11 +53,13 @@ class _CaptchaDialogContent extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final captchaImage = useState<Uint8List?>(null);
     final captchaInput = useState('');
     final submitting = useState(false);
     final submitError = useState<String?>(null);
     final currentIndex = useState(0);
+    final showSuccess = useState(false);
     final mounted = useMounted();
 
     Future<void> refreshCaptcha() async {
@@ -90,7 +93,6 @@ class _CaptchaDialogContent extends HookWidget {
           );
 
           if (!ok) {
-            // 验证码错误，停止提交
             if (!mounted.value) return;
             submitError.value = l10n.evalCaptchaError;
             captchaInput.value = '';
@@ -100,7 +102,6 @@ class _CaptchaDialogContent extends HookWidget {
             return;
           }
 
-          // 提交间隔，避免服务端处理不过来
           if (i < items.length - 1) {
             await Future.delayed(const Duration(milliseconds: 500));
             if (!mounted.value) return;
@@ -108,7 +109,9 @@ class _CaptchaDialogContent extends HookWidget {
         }
 
         if (!mounted.value || !context.mounted) return;
-
+        showSuccess.value = true;
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (!mounted.value || !context.mounted) return;
         Navigator.of(context).pop();
         if (!context.mounted) return;
         ScaffoldMessenger.of(
@@ -136,87 +139,91 @@ class _CaptchaDialogContent extends HookWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // 拖拽条
           Center(
             child: Container(
               width: 40,
               height: 4,
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                color: theme.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.4,
+                ),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
-          if (items.length == 1)
+
+          // 标题
+          if (!submitting.value)
             Text(
-              '${items[0].teacher.courseName} · ${items[0].teacher.teacherName}',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              items.length == 1
+                  ? '${items[0].teacher.courseName} · ${items[0].teacher.teacherName}'
+                  : '${items.length} 位教师',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             )
           else
             Text(
-              '${items.length} 位教师',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              l10n.evalFillCaptcha,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           const SizedBox(height: 16),
-          Text(
-            l10n.evalFillCaptcha,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          if (captchaImage.value != null)
-            GestureDetector(
-              onTap: refreshCaptcha,
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Image.memory(captchaImage.value!, fit: BoxFit.contain),
-              ),
-            ),
-          const SizedBox(height: 8),
-          Center(
-            child: TextButton.icon(
-              onPressed: refreshCaptcha,
-              icon: const Icon(Icons.refresh, size: 16),
-              label: Text(l10n.evalRefreshCaptcha),
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            autofocus: true,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, letterSpacing: 8),
-            decoration: InputDecoration(
-              hintText: l10n.captcha,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-            onChanged: (v) => captchaInput.value = v,
-            onSubmitted: (_) => doSubmit(),
-          ),
-          if (submitError.value != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                submitError.value!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 13,
+
+          // 验证码区域（提交时隐藏）
+          if (!submitting.value) ...[
+            if (captchaImage.value != null)
+              GestureDetector(
+                onTap: refreshCaptcha,
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.memory(captchaImage.value!, fit: BoxFit.contain),
                 ),
               ),
+            Center(
+              child: TextButton.icon(
+                onPressed: refreshCaptcha,
+                icon: const Icon(Icons.refresh, size: 16),
+                label: Text(l10n.evalRefreshCaptcha),
+              ),
             ),
-          if (submitting.value && items.length > 1) ...[
-            const SizedBox(height: 16),
+            TextField(
+              autofocus: true,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, letterSpacing: 8),
+              decoration: InputDecoration(
+                hintText: l10n.captcha,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+              ),
+              onChanged: (v) => captchaInput.value = v,
+              onSubmitted: (_) => doSubmit(),
+            ),
+          ],
+
+          // 提交动画区域
+          if (submitting.value && !showSuccess.value) ...[
+            // 当前提交的卡片（带左滑动画）
+            _AnimatedTeacherCard(
+              key: ValueKey(currentIndex.value),
+              teacher: items[currentIndex.value - 1].teacher,
+              score: items[currentIndex.value - 1].score,
+            ),
+            const SizedBox(height: 12),
+            // 进度条
             Row(
               children: [
                 Expanded(
@@ -225,25 +232,52 @@ class _CaptchaDialogContent extends HookWidget {
                     child: LinearProgressIndicator(
                       value: currentIndex.value / items.length,
                       minHeight: 8,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                      color: Theme.of(context).colorScheme.primary,
+                      backgroundColor:
+                          theme.colorScheme.surfaceContainerHighest,
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Text(
                   '${currentIndex.value}/${items.length}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ],
+
+          // 成功动画
+          if (showSuccess.value) ...[
+            const SizedBox(height: 32),
+            const SuccessCheckmark(),
+            const SizedBox(height: 16),
+            Text(
+              l10n.evalSuccess,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+
+          // 错误提示
+          if (submitError.value != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                submitError.value!,
+                style: TextStyle(color: theme.colorScheme.error, fontSize: 13),
+              ),
+            ),
           const SizedBox(height: 16),
+
+          // 提交按钮
           FilledButton(
             onPressed: submitting.value ? null : doSubmit,
             child: submitting.value
@@ -255,6 +289,119 @@ class _CaptchaDialogContent extends HookWidget {
                 : Text(l10n.evalSubmit),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 带左滑进入动画的教师卡片
+class _AnimatedTeacherCard extends StatefulWidget {
+  final EvaluationTeacher teacher;
+  final String score;
+
+  const _AnimatedTeacherCard({
+    super.key,
+    required this.teacher,
+    required this.score,
+  });
+
+  @override
+  State<_AnimatedTeacherCard> createState() => _AnimatedTeacherCardState();
+}
+
+class _AnimatedTeacherCardState extends State<_AnimatedTeacherCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SlideTransition(
+      position: _slideAnimation,
+      child: Card(
+        elevation: 0,
+        color: theme.colorScheme.surfaceContainerHigh,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: theme.colorScheme.primaryContainer,
+                child: Text(
+                  widget.teacher.teacherName.isNotEmpty
+                      ? widget.teacher.teacherName[0]
+                      : '?',
+                  style: TextStyle(
+                    color: theme.colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.teacher.courseName,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      widget.teacher.teacherName,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  widget.score,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
