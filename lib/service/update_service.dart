@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
+import 'package:fzu_assistant/common/utils/update_utils.dart';
 import 'package:fzu_assistant/model/github_release.dart';
 
 enum VersionCompareResult { outdated, upToDate, skipped, permanentlySkipped }
@@ -26,13 +27,6 @@ class UpdateService {
   static const _releasesUrl =
       'https://api.github.com/repos/$_repo/releases/latest';
   static const _platform = MethodChannel('com.weijx.fzu_assistant/update');
-
-  static const _abiAliases = <String, List<String>>{
-    'arm64-v8a': ['arm64-v8a', 'arm64', 'aarch64'],
-    'armeabi-v7a': ['armeabi-v7a', 'armeabi', 'armv7', 'arm32'],
-    'x86_64': ['x86_64', 'x64', 'amd64'],
-    'x86': ['x86', 'i686'],
-  };
 
   final Dio _dio;
 
@@ -66,7 +60,7 @@ class UpdateService {
 
     try {
       final info = await PackageInfo.fromPlatform();
-      final cmp = _compareVersions(release.version, info.version);
+      final cmp = UpdateUtils.compareVersions(release.version, info.version);
       if (cmp <= 0) {
         return const UpdateCheckResult(VersionCompareResult.upToDate);
       }
@@ -121,39 +115,14 @@ class UpdateService {
 
   Future<GitHubReleaseAsset?> findAndroidAsset(GitHubRelease release) async {
     final abis = await getSupportedAbis();
-    return pickAndroidAsset(release.assets, abis);
+    return UpdateUtils.pickAndroidAsset(release.assets, abis);
   }
 
   static GitHubReleaseAsset? pickAndroidAsset(
     List<GitHubReleaseAsset> assets,
     List<String> supportedAbis,
   ) {
-    final apkAssets = assets
-        .where(
-          (asset) =>
-              asset.downloadUrl.isNotEmpty &&
-              asset.name.toLowerCase().endsWith('.apk'),
-        )
-        .toList(growable: false);
-    if (apkAssets.isEmpty) return null;
-
-    for (final abi in supportedAbis.map((abi) => abi.toLowerCase())) {
-      final aliases = _abiAliases[abi] ?? [abi];
-      for (final asset in apkAssets) {
-        if (_containsAnyToken(asset.name, aliases)) {
-          return asset;
-        }
-      }
-    }
-
-    const universalAliases = ['universal', 'all', 'noarch', 'multi'];
-    for (final asset in apkAssets) {
-      if (_containsAnyToken(asset.name, universalAliases)) {
-        return asset;
-      }
-    }
-
-    return apkAssets.length == 1 ? apkAssets.single : null;
+    return UpdateUtils.pickAndroidAsset(assets, supportedAbis);
   }
 
   Future<bool> canInstallPackages() async {
@@ -180,7 +149,7 @@ class UpdateService {
     }
 
     final dir = await getTemporaryDirectory();
-    final fileName = _safeFileName(
+    final fileName = UpdateUtils.safeFileName(
       asset.name.isEmpty ? 'fzu_assistant_update.apk' : asset.name,
     );
     final targetPath = '${dir.path}${Platform.pathSeparator}$fileName';
@@ -222,31 +191,5 @@ class UpdateService {
     } catch (_) {
       return InstallApkResult.failed;
     }
-  }
-
-  /// Returns negative if a < b, 0 if equal, positive if a > b.
-  static int _compareVersions(String a, String b) {
-    final aParts = a.split('.').map((s) => int.tryParse(s) ?? 0).toList();
-    final bParts = b.split('.').map((s) => int.tryParse(s) ?? 0).toList();
-    for (var i = 0; i < 3; i++) {
-      final ai = i < aParts.length ? aParts[i] : 0;
-      final bi = i < bParts.length ? bParts[i] : 0;
-      if (ai != bi) return ai - bi;
-    }
-    return 0;
-  }
-
-  static bool _containsAnyToken(String value, List<String> tokens) {
-    final lowerValue = value.toLowerCase();
-    return tokens.any((token) => _containsToken(lowerValue, token));
-  }
-
-  static bool _containsToken(String value, String token) {
-    final escaped = RegExp.escape(token.toLowerCase());
-    return RegExp('(^|[^a-z0-9])$escaped([^a-z0-9]|\$)').hasMatch(value);
-  }
-
-  static String _safeFileName(String fileName) {
-    return fileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
   }
 }
