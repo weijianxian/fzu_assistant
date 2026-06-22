@@ -24,7 +24,7 @@ abstract final class HtmlHelper {
       options: Options(responseType: ResponseType.bytes),
     );
     final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
-    return _parse(bytes);
+    return _parse(bytes, url: url);
   }
 
   static Future<Document> postHtml(
@@ -39,7 +39,7 @@ abstract final class HtmlHelper {
       options: Options(responseType: ResponseType.bytes),
     );
     final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
-    return _parse(bytes);
+    return _parse(bytes, url: url);
   }
 
   /// GBK 编码页面专用（如校历）。
@@ -55,7 +55,7 @@ abstract final class HtmlHelper {
     final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
     final html = gbk.decode(bytes, allowMalformed: true);
     _checkNologin(html);
-    _checkEvaluation(html);
+    if (!_isEvaluationPage(url)) _checkEvaluation(html);
     return (html_parser.parse(html), html);
   }
 
@@ -73,7 +73,7 @@ abstract final class HtmlHelper {
     final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
     final html = gbk.decode(bytes, allowMalformed: true);
     _checkNologin(html);
-    _checkEvaluation(html);
+    if (!_isEvaluationPage(url)) _checkEvaluation(html);
     return (html_parser.parse(html), html);
   }
 
@@ -97,12 +97,19 @@ abstract final class HtmlHelper {
     return resp.data ?? [];
   }
 
-  static Document _parse(List<int> bytes) {
+  static Document _parse(List<int> bytes, {String? url}) {
     final html = utf8.decode(bytes, allowMalformed: true);
     _checkNologin(html);
-    _checkEvaluation(html);
+    if (url == null || !_isEvaluationPage(url)) {
+      _checkEvaluation(html);
+    }
     return html_parser.parse(html);
   }
+
+  static bool _isEvaluationPage(String url) =>
+      url.contains('/jscp/') ||
+      url.contains('TeaEvaluation') ||
+      url.contains('TeaList');
 
   static void _checkNologin(String html) {
     if (html.contains('"nologin"') || html.contains('nologin')) {

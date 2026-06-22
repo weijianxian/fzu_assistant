@@ -56,7 +56,7 @@ class _CaptchaDialogContent extends HookWidget {
     final captchaInput = useState('');
     final submitting = useState(false);
     final submitError = useState<String?>(null);
-    final progress = useState<String?>(null);
+    final currentIndex = useState(0);
     final mounted = useMounted();
 
     Future<void> refreshCaptcha() async {
@@ -80,9 +80,7 @@ class _CaptchaDialogContent extends HookWidget {
 
       try {
         for (var i = 0; i < items.length; i++) {
-          if (items.length > 1) {
-            progress.value = '${i + 1} / ${items.length}';
-          }
+          currentIndex.value = i + 1;
 
           final ok = await service.submitEvaluation(
             items[i].teacher.params,
@@ -92,17 +90,25 @@ class _CaptchaDialogContent extends HookWidget {
           );
 
           if (!ok) {
+            // 验证码错误，停止提交
             if (!mounted.value) return;
             submitError.value = l10n.evalCaptchaError;
             captchaInput.value = '';
-            progress.value = null;
+            currentIndex.value = 0;
             await refreshCaptcha();
             submitting.value = false;
             return;
           }
+
+          // 提交间隔，避免服务端处理不过来
+          if (i < items.length - 1) {
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (!mounted.value) return;
+          }
         }
 
         if (!mounted.value || !context.mounted) return;
+
         Navigator.of(context).pop();
         if (!context.mounted) return;
         ScaffoldMessenger.of(
@@ -115,7 +121,7 @@ class _CaptchaDialogContent extends HookWidget {
       }
       if (mounted.value) {
         submitting.value = false;
-        progress.value = null;
+        currentIndex.value = 0;
       }
     }
 
@@ -203,21 +209,40 @@ class _CaptchaDialogContent extends HookWidget {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 submitError.value!,
-                style: const TextStyle(color: Colors.red, fontSize: 13),
-              ),
-            ),
-          if (progress.value != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                progress.value!,
-                textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 13,
                 ),
               ),
             ),
+          if (submitting.value && items.length > 1) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: currentIndex.value / items.length,
+                      minHeight: 8,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  '${currentIndex.value}/${items.length}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
           FilledButton(
             onPressed: submitting.value ? null : doSubmit,
