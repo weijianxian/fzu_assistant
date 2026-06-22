@@ -105,6 +105,7 @@ class ScheduleSettingsPage extends HookWidget {
                   valueListenable: settings.showExamOnSchedule,
                   builder: (_, showExam, _) => SwitchListTile(
                     title: Text(l10n.showExamOnSchedule),
+                    subtitle: Text(l10n.showExamOnScheduleDescription),
                     value: showExam,
                     onChanged: (v) => settings.showExamOnSchedule.value = v,
                   ),
@@ -113,6 +114,7 @@ class ScheduleSettingsPage extends HookWidget {
                   valueListenable: settings.autoAdjustCourse,
                   builder: (_, autoAdjust, _) => SwitchListTile(
                     title: Text(l10n.autoAdjustCourse),
+                    subtitle: Text(l10n.autoAdjustCourseDescription),
                     value: autoAdjust,
                     onChanged: (v) => settings.autoAdjustCourse.value = v,
                   ),

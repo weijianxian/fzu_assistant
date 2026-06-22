@@ -107,16 +107,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themeSettings => '外观设置';
 
   @override
+  String get themeSettingsSubtitle => '深浅色模式和主题色';
+
+  @override
   String get settings => '设置';
 
   @override
   String get scheduleSettings => '课表设置';
 
   @override
+  String get scheduleSettingsSubtitle => '学期选择、考试显示和自动调课';
+
+  @override
   String get generalSettings => '一般设置';
 
   @override
+  String get generalSettingsSubtitle => '语言、网页增强和常用偏好';
+
+  @override
   String get advancedSettings => '高级设置';
+
+  @override
+  String get advancedSettingsSubtitle => '网络代理等进阶选项';
 
   @override
   String get githubProxy => 'GitHub 代理';
@@ -125,10 +137,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get githubProxyEnabled => '启用 GitHub 代理';
 
   @override
-  String get githubProxyDescription => '用于 GitHub API 和更新包下载';
+  String get githubProxyDescription => '更新包和 GitHub 资源下载会使用代理';
 
   @override
   String get githubProxyBaseUrl => '代理地址';
+
+  @override
+  String get githubProxyBaseUrlDescription =>
+      '例如 https://gh-proxy.org/，会自动补全协议和斜杠';
 
   @override
   String get webEnhancement => '网页增强';
@@ -444,7 +460,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showExamOnSchedule => '在课表中显示考试';
 
   @override
+  String get showExamOnScheduleDescription => '把考试安排显示在对应日期的课程表里';
+
+  @override
   String get autoAdjustCourse => '自动调课';
+
+  @override
+  String get autoAdjustCourseDescription => '自动应用临时调课、停课等课程变动';
 
   @override
   String get evaluation => '一键评议';

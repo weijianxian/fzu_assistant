@@ -278,6 +278,12 @@ abstract class AppLocalizations {
   /// **'外观设置'**
   String get themeSettings;
 
+  /// themeSettingsSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'深浅色模式和主题色'**
+  String get themeSettingsSubtitle;
+
   /// settings
   ///
   /// In zh, this message translates to:
@@ -290,17 +296,35 @@ abstract class AppLocalizations {
   /// **'课表设置'**
   String get scheduleSettings;
 
+  /// scheduleSettingsSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'学期选择、考试显示和自动调课'**
+  String get scheduleSettingsSubtitle;
+
   /// generalSettings
   ///
   /// In zh, this message translates to:
   /// **'一般设置'**
   String get generalSettings;
 
+  /// generalSettingsSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'语言、网页增强和常用偏好'**
+  String get generalSettingsSubtitle;
+
   /// advancedSettings
   ///
   /// In zh, this message translates to:
   /// **'高级设置'**
   String get advancedSettings;
+
+  /// advancedSettingsSubtitle
+  ///
+  /// In zh, this message translates to:
+  /// **'网络代理等进阶选项'**
+  String get advancedSettingsSubtitle;
 
   /// githubProxy
   ///
@@ -317,7 +341,7 @@ abstract class AppLocalizations {
   /// githubProxyDescription
   ///
   /// In zh, this message translates to:
-  /// **'用于 GitHub API 和更新包下载'**
+  /// **'更新包和 GitHub 资源下载会使用代理'**
   String get githubProxyDescription;
 
   /// githubProxyBaseUrl
@@ -325,6 +349,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'代理地址'**
   String get githubProxyBaseUrl;
+
+  /// githubProxyBaseUrlDescription
+  ///
+  /// In zh, this message translates to:
+  /// **'例如 https://gh-proxy.org/，会自动补全协议和斜杠'**
+  String get githubProxyBaseUrlDescription;
 
   /// webEnhancement
   ///
@@ -920,11 +950,23 @@ abstract class AppLocalizations {
   /// **'在课表中显示考试'**
   String get showExamOnSchedule;
 
+  /// showExamOnScheduleDescription
+  ///
+  /// In zh, this message translates to:
+  /// **'把考试安排显示在对应日期的课程表里'**
+  String get showExamOnScheduleDescription;
+
   /// autoAdjustCourse
   ///
   /// In zh, this message translates to:
   /// **'自动调课'**
   String get autoAdjustCourse;
+
+  /// autoAdjustCourseDescription
+  ///
+  /// In zh, this message translates to:
+  /// **'自动应用临时调课、停课等课程变动'**
+  String get autoAdjustCourseDescription;
 
   /// evaluation
   ///

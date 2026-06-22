@@ -60,6 +60,7 @@ class AdvancedSettingsPage extends HookWidget {
                       enabled: enabled,
                       decoration: InputDecoration(
                         labelText: l10n.githubProxyBaseUrl,
+                        helperText: l10n.githubProxyBaseUrlDescription,
                         hintText: GitHubProxy.defaultBaseUrl,
                         suffixIcon: IconButton(
                           tooltip: l10n.reset,

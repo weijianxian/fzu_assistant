@@ -108,16 +108,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeSettings => 'Appearance';
 
   @override
+  String get themeSettingsSubtitle => 'Light/dark mode and theme color';
+
+  @override
   String get settings => 'Settings';
 
   @override
   String get scheduleSettings => 'Schedule Settings';
 
   @override
+  String get scheduleSettingsSubtitle =>
+      'Semester selection, exam display, and course adjustments';
+
+  @override
   String get generalSettings => 'General Settings';
 
   @override
+  String get generalSettingsSubtitle =>
+      'Language, web enhancement, and common preferences';
+
+  @override
   String get advancedSettings => 'Advanced Settings';
+
+  @override
+  String get advancedSettingsSubtitle => 'Network proxy and advanced options';
 
   @override
   String get githubProxy => 'GitHub Proxy';
@@ -127,10 +141,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get githubProxyDescription =>
-      'Used for GitHub API and update package downloads';
+      'Update packages and GitHub resource downloads use the proxy';
 
   @override
   String get githubProxyBaseUrl => 'Proxy URL';
+
+  @override
+  String get githubProxyBaseUrlDescription =>
+      'For example https://gh-proxy.org/. Scheme and trailing slash are added automatically.';
 
   @override
   String get webEnhancement => 'Web Enhancement';
@@ -451,7 +469,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showExamOnSchedule => 'Show exams on schedule';
 
   @override
+  String get showExamOnScheduleDescription =>
+      'Show exam arrangements on their corresponding schedule dates';
+
+  @override
   String get autoAdjustCourse => 'Auto adjust courses';
+
+  @override
+  String get autoAdjustCourseDescription =>
+      'Apply temporary course changes and cancellations automatically';
 
   @override
   String get evaluation => 'One-Key Evaluation';

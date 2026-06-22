@@ -136,6 +136,10 @@
   "@themeSettings": {
     "description": "themeSettings"
   },
+  "themeSettingsSubtitle": "Light/dark mode and theme color",
+  "@themeSettingsSubtitle": {
+    "description": "themeSettingsSubtitle"
+  },
   "settings": "Settings",
   "@settings": {
     "description": "settings"
@@ -144,13 +148,25 @@
   "@scheduleSettings": {
     "description": "scheduleSettings"
   },
+  "scheduleSettingsSubtitle": "Semester selection, exam display, and course adjustments",
+  "@scheduleSettingsSubtitle": {
+    "description": "scheduleSettingsSubtitle"
+  },
   "generalSettings": "General Settings",
   "@generalSettings": {
     "description": "generalSettings"
   },
+  "generalSettingsSubtitle": "Language, web enhancement, and common preferences",
+  "@generalSettingsSubtitle": {
+    "description": "generalSettingsSubtitle"
+  },
   "advancedSettings": "Advanced Settings",
   "@advancedSettings": {
     "description": "advancedSettings"
+  },
+  "advancedSettingsSubtitle": "Network proxy and advanced options",
+  "@advancedSettingsSubtitle": {
+    "description": "advancedSettingsSubtitle"
   },
   "githubProxy": "GitHub Proxy",
   "@githubProxy": {
@@ -160,13 +176,17 @@
   "@githubProxyEnabled": {
     "description": "githubProxyEnabled"
   },
-  "githubProxyDescription": "Used for GitHub API and update package downloads",
+  "githubProxyDescription": "Update packages and GitHub resource downloads use the proxy",
   "@githubProxyDescription": {
     "description": "githubProxyDescription"
   },
   "githubProxyBaseUrl": "Proxy URL",
   "@githubProxyBaseUrl": {
     "description": "githubProxyBaseUrl"
+  },
+  "githubProxyBaseUrlDescription": "For example https://gh-proxy.org/. Scheme and trailing slash are added automatically.",
+  "@githubProxyBaseUrlDescription": {
+    "description": "githubProxyBaseUrlDescription"
   },
   "webEnhancement": "Web Enhancement",
   "@webEnhancement": {
@@ -602,9 +622,17 @@
   "@showExamOnSchedule": {
     "description": "showExamOnSchedule"
   },
+  "showExamOnScheduleDescription": "Show exam arrangements on their corresponding schedule dates",
+  "@showExamOnScheduleDescription": {
+    "description": "showExamOnScheduleDescription"
+  },
   "autoAdjustCourse": "Auto adjust courses",
   "@autoAdjustCourse": {
     "description": "autoAdjustCourse"
+  },
+  "autoAdjustCourseDescription": "Apply temporary course changes and cancellations automatically",
+  "@autoAdjustCourseDescription": {
+    "description": "autoAdjustCourseDescription"
   },
   "evaluation": "One-Key Evaluation",
   "@evaluation": {
