@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/service/settings/app_settings.dart';
 
 /// 通用的学期选择下拉按钮。
 ///
@@ -50,7 +50,7 @@ class TermSelectorButton extends StatelessWidget {
                 else
                   const SizedBox(width: 18),
                 const SizedBox(width: 8),
-                Text(AppSettings.formatSemester(term)),
+                Text(SemesterUtils.formatSemester(term)),
               ],
             ),
           ),

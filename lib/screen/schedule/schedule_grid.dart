@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/utils/date_text.dart';
 import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
@@ -365,7 +366,7 @@ class ScheduleGrid extends StatelessWidget {
     if (firstMonday != null &&
         AppSettingsProvider.of(context).showExamOnSchedule.value) {
       for (final exam in examRooms) {
-        final examDate = _parseExamDate(exam.date);
+        final examDate = DateText.parseChineseDate(exam.date);
         if (examDate == null) continue;
 
         final examWeekday = examDate.weekday;
@@ -413,16 +414,6 @@ class ScheduleGrid extends StatelessWidget {
     }
 
     return cards;
-  }
-
-  static DateTime? _parseExamDate(String dateStr) {
-    final match = RegExp(r'(\d{4})年(\d{1,2})月(\d{1,2})日').firstMatch(dateStr);
-    if (match == null) return null;
-    return DateTime(
-      int.parse(match.group(1)!),
-      int.parse(match.group(2)!),
-      int.parse(match.group(3)!),
-    );
   }
 
   /// 将考试时间（如 "12:30-17:30"）映射到课表节次

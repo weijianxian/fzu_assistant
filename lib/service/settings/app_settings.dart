@@ -51,14 +51,6 @@ class AppSettings {
       .firstWhere((o) => o.$1 == key, orElse: () => _localeOptions.first)
       .$3;
 
-  /// 格式化学期显示，如 "202401" → "2024-2025 学年 第1学期"
-  static String formatSemester(String term) {
-    if (term.length < 6) return term;
-    final year = int.tryParse(term.substring(0, 4)) ?? 0;
-    final sem = int.tryParse(term.substring(4, 6)) ?? 0;
-    return '$year-${year + 1} 学年 第$sem学期';
-  }
-
   Future<void> load() async {
     final sp = await SharedPreferences.getInstance();
 

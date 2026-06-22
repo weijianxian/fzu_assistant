@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/utils/date_text.dart';
+import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/common/widget/masonry_sliver_grid.dart';
 import 'package:fzu_assistant/common/widget/term_selector_button.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -34,7 +36,11 @@ class ExamRoomPage extends HookWidget {
           useCache: useCache,
         );
         if (!mounted.value) return;
-        data.sort((a, b) => _parseDate(b.date).compareTo(_parseDate(a.date)));
+        data.sort(
+          (a, b) => DateText.parseChineseDateOrEpoch(
+            b.date,
+          ).compareTo(DateText.parseChineseDateOrEpoch(a.date)),
+        );
         rooms.value = data;
         effectiveTerm.value = targetTerm;
         refreshTime.value = DateTime.now();
@@ -75,7 +81,7 @@ class ExamRoomPage extends HookWidget {
         title: Text(
           menuTerm.isEmpty || terms.isEmpty
               ? AppLocalizations.of(context)!.examRoom
-              : AppSettings.formatSemester(menuTerm),
+              : SemesterUtils.formatSemester(menuTerm),
         ),
         actions: [
           TermSelectorButton(
@@ -106,7 +112,7 @@ class ExamRoomPage extends HookWidget {
         childCount: rooms.length,
         itemBuilder: (context, i) {
           final r = rooms[i];
-          final examDate = _parseDate(r.date);
+          final examDate = DateText.parseChineseDateOrEpoch(r.date);
           final past = examDate.isBefore(now) && r.date.isNotEmpty;
 
           return Card(
@@ -203,17 +209,6 @@ class ExamRoomPage extends HookWidget {
           ),
         ),
       ],
-    );
-  }
-
-  static DateTime _parseDate(String dateStr) {
-    // "2024年11月17日" → DateTime
-    final match = RegExp(r'(\d{4})年(\d{1,2})月(\d{1,2})日').firstMatch(dateStr);
-    if (match == null) return DateTime(1970);
-    return DateTime(
-      int.parse(match.group(1)!),
-      int.parse(match.group(2)!),
-      int.parse(match.group(3)!),
     );
   }
 }

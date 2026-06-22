@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/common/widget/section.dart';
 import 'package:fzu_assistant/common/widget/setting_switch_tile.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -86,7 +87,7 @@ class ScheduleSettingsPage extends HookWidget {
                       for (final term in terms)
                         DropdownMenuItem(
                           value: term,
-                          child: Text(AppSettings.formatSemester(term)),
+                          child: Text(SemesterUtils.formatSemester(term)),
                         ),
                     ],
                     onChanged: (v) {
