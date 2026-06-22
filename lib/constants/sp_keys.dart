@@ -11,4 +11,6 @@ abstract final class SpKeys {
   static const siteInjectionEnabled = 'site_injection_enabled';
   static const showExamOnSchedule = 'show_exam_on_schedule';
   static const autoAdjustCourse = 'auto_adjust_course';
+  static const githubProxyEnabled = 'github_proxy_enabled';
+  static const githubProxyBaseUrl = 'github_proxy_base_url';
 }

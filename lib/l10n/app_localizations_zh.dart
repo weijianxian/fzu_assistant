@@ -116,6 +116,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get generalSettings => '一般设置';
 
   @override
+  String get advancedSettings => '高级设置';
+
+  @override
+  String get githubProxy => 'GitHub 代理';
+
+  @override
+  String get githubProxyEnabled => '启用 GitHub 代理';
+
+  @override
+  String get githubProxyDescription => '用于 GitHub API 和更新包下载';
+
+  @override
+  String get githubProxyBaseUrl => '代理地址';
+
+  @override
   String get webEnhancement => '网页增强';
 
   @override
@@ -364,6 +379,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get refresh => '刷新';
+
+  @override
+  String get reset => '重置';
 
   @override
   String get copyLink => '复制链接';

@@ -3,6 +3,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
+import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 
 class AppSettings {
@@ -29,6 +30,10 @@ class AppSettings {
 
   // 自动调课
   final autoAdjustCourse = ValueNotifier<bool>(true);
+
+  // GitHub 代理
+  final githubProxyEnabled = ValueNotifier<bool>(true);
+  final githubProxyBaseUrl = ValueNotifier<String>(GitHubProxy.defaultBaseUrl);
 
   static const _modeMap = {
     'system': ThemeMode.system,
@@ -83,6 +88,12 @@ class AppSettings {
     // 自动调课
     autoAdjustCourse.value = sp.getBool(SpKeys.autoAdjustCourse) ?? true;
 
+    // GitHub 代理
+    githubProxyEnabled.value = sp.getBool(SpKeys.githubProxyEnabled) ?? true;
+    githubProxyBaseUrl.value = GitHubProxy.normalizeBaseUrl(
+      sp.getString(SpKeys.githubProxyBaseUrl) ?? GitHubProxy.defaultBaseUrl,
+    );
+
     final termsRaw = sp.getString('terms_list');
     if (termsRaw != null) {
       try {
@@ -130,6 +141,19 @@ class AppSettings {
     autoAdjustCourse.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setBool(SpKeys.autoAdjustCourse, autoAdjustCourse.value),
+      );
+    });
+    githubProxyEnabled.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setBool(SpKeys.githubProxyEnabled, githubProxyEnabled.value),
+      );
+    });
+    githubProxyBaseUrl.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString(
+          SpKeys.githubProxyBaseUrl,
+          GitHubProxy.normalizeBaseUrl(githubProxyBaseUrl.value),
+        ),
       );
     });
   }
@@ -211,6 +235,8 @@ class AppSettings {
     siteInjectionEnabled.dispose();
     showExamOnSchedule.dispose();
     autoAdjustCourse.dispose();
+    githubProxyEnabled.dispose();
+    githubProxyBaseUrl.dispose();
   }
 }
 

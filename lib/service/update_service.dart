@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fzu_assistant/constants/sp_keys.dart';
+import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/model/github_release.dart';
 
 enum VersionCompareResult { outdated, upToDate, skipped, permanentlySkipped }
@@ -39,8 +40,9 @@ class UpdateService {
 
   Future<GitHubRelease?> fetchLatestRelease() async {
     try {
+      final releasesUrl = await GitHubProxy.proxiedUrl(_releasesUrl);
       final resp = await _dio.get<Map<String, dynamic>>(
-        _releasesUrl,
+        releasesUrl,
         options: Options(headers: {'Accept': 'application/vnd.github+json'}),
       );
       if (resp.data == null) return null;
@@ -187,8 +189,9 @@ class UpdateService {
       await targetFile.delete();
     }
 
+    final downloadUrl = await GitHubProxy.proxiedUrl(asset.downloadUrl);
     await _dio.download(
-      asset.downloadUrl,
+      downloadUrl,
       targetPath,
       options: Options(
         followRedirects: true,

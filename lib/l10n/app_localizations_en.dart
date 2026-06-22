@@ -117,6 +117,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generalSettings => 'General Settings';
 
   @override
+  String get advancedSettings => 'Advanced Settings';
+
+  @override
+  String get githubProxy => 'GitHub Proxy';
+
+  @override
+  String get githubProxyEnabled => 'Enable GitHub Proxy';
+
+  @override
+  String get githubProxyDescription =>
+      'Used for GitHub API and update package downloads';
+
+  @override
+  String get githubProxyBaseUrl => 'Proxy URL';
+
+  @override
   String get webEnhancement => 'Web Enhancement';
 
   @override
@@ -368,6 +384,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get reset => 'Reset';
 
   @override
   String get copyLink => 'Copy Link';

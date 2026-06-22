@@ -148,6 +148,26 @@
   "@generalSettings": {
     "description": "generalSettings"
   },
+  "advancedSettings": "Advanced Settings",
+  "@advancedSettings": {
+    "description": "advancedSettings"
+  },
+  "githubProxy": "GitHub Proxy",
+  "@githubProxy": {
+    "description": "githubProxy"
+  },
+  "githubProxyEnabled": "Enable GitHub Proxy",
+  "@githubProxyEnabled": {
+    "description": "githubProxyEnabled"
+  },
+  "githubProxyDescription": "Used for GitHub API and update package downloads",
+  "@githubProxyDescription": {
+    "description": "githubProxyDescription"
+  },
+  "githubProxyBaseUrl": "Proxy URL",
+  "@githubProxyBaseUrl": {
+    "description": "githubProxyBaseUrl"
+  },
   "webEnhancement": "Web Enhancement",
   "@webEnhancement": {
     "description": "webEnhancement"
@@ -497,6 +517,10 @@
   "refresh": "Refresh",
   "@refresh": {
     "description": "refresh"
+  },
+  "reset": "Reset",
+  "@reset": {
+    "description": "reset"
   },
   "copyLink": "Copy Link",
   "@copyLink": {

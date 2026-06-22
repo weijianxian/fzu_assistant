@@ -148,6 +148,26 @@
   "@generalSettings": {
     "description": "generalSettings"
   },
+  "advancedSettings": "高级设置",
+  "@advancedSettings": {
+    "description": "advancedSettings"
+  },
+  "githubProxy": "GitHub 代理",
+  "@githubProxy": {
+    "description": "githubProxy"
+  },
+  "githubProxyEnabled": "启用 GitHub 代理",
+  "@githubProxyEnabled": {
+    "description": "githubProxyEnabled"
+  },
+  "githubProxyDescription": "用于 GitHub API 和更新包下载",
+  "@githubProxyDescription": {
+    "description": "githubProxyDescription"
+  },
+  "githubProxyBaseUrl": "代理地址",
+  "@githubProxyBaseUrl": {
+    "description": "githubProxyBaseUrl"
+  },
   "webEnhancement": "网页增强",
   "@webEnhancement": {
     "description": "webEnhancement"
@@ -497,6 +517,10 @@
   "refresh": "刷新",
   "@refresh": {
     "description": "refresh"
+  },
+  "reset": "重置",
+  "@reset": {
+    "description": "reset"
   },
   "copyLink": "复制链接",
   "@copyLink": {

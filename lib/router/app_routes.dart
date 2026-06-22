@@ -14,6 +14,7 @@ import 'package:fzu_assistant/screen/my/about/about_page.dart';
 import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/screen/settings/schedule_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/advanced_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
@@ -35,6 +36,7 @@ class AppRoutes {
   static const settings = '/settings';
   static const scheduleSettings = '/settings/schedule';
   static const generalSettings = '/settings/general';
+  static const advancedSettings = '/settings/advanced';
   static const themeSettings = '/settings/theme';
   static const about = '/about';
   static const dev = '/dev';
@@ -56,6 +58,7 @@ class AppRoutes {
     settings: (_) => const SettingsPage(),
     scheduleSettings: (_) => const ScheduleSettingsPage(),
     generalSettings: (_) => const GeneralSettingsPage(),
+    advancedSettings: (_) => const AdvancedSettingsPage(),
     themeSettings: (_) => const ThemeSection(),
     about: (_) => const AboutPage(),
     dev: (_) => const DevToolPage(),

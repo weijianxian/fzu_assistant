@@ -296,6 +296,36 @@ abstract class AppLocalizations {
   /// **'一般设置'**
   String get generalSettings;
 
+  /// advancedSettings
+  ///
+  /// In zh, this message translates to:
+  /// **'高级设置'**
+  String get advancedSettings;
+
+  /// githubProxy
+  ///
+  /// In zh, this message translates to:
+  /// **'GitHub 代理'**
+  String get githubProxy;
+
+  /// githubProxyEnabled
+  ///
+  /// In zh, this message translates to:
+  /// **'启用 GitHub 代理'**
+  String get githubProxyEnabled;
+
+  /// githubProxyDescription
+  ///
+  /// In zh, this message translates to:
+  /// **'用于 GitHub API 和更新包下载'**
+  String get githubProxyDescription;
+
+  /// githubProxyBaseUrl
+  ///
+  /// In zh, this message translates to:
+  /// **'代理地址'**
+  String get githubProxyBaseUrl;
+
   /// webEnhancement
   ///
   /// In zh, this message translates to:
@@ -763,6 +793,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'刷新'**
   String get refresh;
+
+  /// reset
+  ///
+  /// In zh, this message translates to:
+  /// **'重置'**
+  String get reset;
 
   /// copyLink
   ///

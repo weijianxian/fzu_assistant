@@ -4,8 +4,10 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
+import 'package:fzu_assistant/screen/my/about/update_dialog.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/update_service.dart';
 
 final List<Map<String, dynamic>> tools = [
   {
@@ -52,6 +54,31 @@ class DevToolPage extends StatelessWidget {
                     ListTile(title: Text('Item ${index + 1}')),
               ),
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.system_update),
+            title: const Text('Force Update Dialog'),
+            subtitle: const Text('Fetch latest release and show installer'),
+            onTap: () async {
+              final release = await UpdateService().fetchLatestRelease();
+              if (!context.mounted) return;
+
+              if (release == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Failed to fetch latest release'),
+                  ),
+                );
+                return;
+              }
+
+              showUpdateSheet(
+                context,
+                release: release,
+                onSkip: () {},
+                onSkipForever: () {},
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.language),

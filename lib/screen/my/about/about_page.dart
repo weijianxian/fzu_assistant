@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:fzu_assistant/common/widget/update_dialog.dart';
+import 'package:fzu_assistant/screen/my/about/update_dialog.dart';
+import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/update_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -41,9 +42,10 @@ class _AboutPageState extends State<AboutPage> {
 
   Future<void> _loadContributors() async {
     try {
-      final resp = await Dio().get<List<dynamic>>(
+      final contributorsUrl = await GitHubProxy.proxiedUrl(
         'https://api.github.com/repos/weijianxian/fzu_assistant/contributors',
       );
+      final resp = await Dio().get<List<dynamic>>(contributorsUrl);
       setState(() {
         _contributors = (resp.data ?? [])
             .map(

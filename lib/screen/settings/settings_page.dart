@@ -4,6 +4,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/settings/schedule_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/advanced_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
 
 class SettingsPage extends HookWidget {
@@ -37,6 +38,13 @@ class SettingsPage extends HookWidget {
             subtitle: Text(l10n.themeColor),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(const ThemeSection()),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings_ethernet),
+            title: Text(l10n.advancedSettings),
+            subtitle: Text(l10n.githubProxy),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(const AdvancedSettingsPage()),
           ),
         ],
       ),
