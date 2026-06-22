@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/gpa.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
-import 'package:fzu_assistant/common/widget/tool_page_wrapper.dart';
 
 class GpaPage extends HookWidget {
   const GpaPage({super.key});

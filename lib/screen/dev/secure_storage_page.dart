@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 
 import '../guest/editor_page.dart';
-import 'kv_tile.dart';
+import 'widgets/kv_tile.dart';
 
 class SecureStoragePage extends HookWidget {
   const SecureStoragePage({super.key});

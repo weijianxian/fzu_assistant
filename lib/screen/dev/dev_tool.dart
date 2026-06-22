@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fzu_assistant/common/widget/chevron_list_tile.dart';
-import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
-import 'package:fzu_assistant/screen/my/about/update_dialog.dart';
+import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/update_service.dart';

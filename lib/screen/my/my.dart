@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
-import 'package:fzu_assistant/common/widget/chevron_list_tile.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/router/app_routes.dart';

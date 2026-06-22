@@ -6,7 +6,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
-import 'package:fzu_assistant/screen/schedule/schedule_grid.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/schedule_grid.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';

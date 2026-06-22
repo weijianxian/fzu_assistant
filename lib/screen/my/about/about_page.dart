@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:fzu_assistant/screen/my/about/update_dialog.dart';
+import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/update_service.dart';

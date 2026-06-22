@@ -5,7 +5,7 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../guest/editor_page.dart';
-import 'kv_tile.dart';
+import 'widgets/kv_tile.dart';
 
 class SharedPrefsPage extends HookWidget {
   const SharedPrefsPage({super.key});

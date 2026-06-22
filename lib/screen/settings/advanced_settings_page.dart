@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
-import 'package:fzu_assistant/common/widget/section.dart';
-import 'package:fzu_assistant/common/widget/setting_switch_tile.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 

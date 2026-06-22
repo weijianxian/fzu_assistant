@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fzu_assistant/common/widget/chevron_list_tile.dart';
-import 'package:fzu_assistant/common/widget/setting_switch_tile.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 
 void main() {
   testWidgets('SettingSwitchTile writes changes back to notifier', (

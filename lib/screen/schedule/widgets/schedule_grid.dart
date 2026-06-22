@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/utils/date_text.dart';
-import 'package:fzu_assistant/common/widget/half_screen_sheet.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
-import 'package:fzu_assistant/screen/schedule/course_card.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/course_card.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 
 const _maxPeriod = 11;
