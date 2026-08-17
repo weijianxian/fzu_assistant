@@ -6,7 +6,6 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
-import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/course_card.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
@@ -451,14 +450,20 @@ class ScheduleGrid extends StatelessWidget {
               leading: const Icon(Icons.description),
               title: const Text('教学大纲'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(WebViewPage(url: course.syllabus)),
+              onTap: () => context.pushNamed(
+                AppRoutes.webview,
+                arguments: WebViewArgs(url: course.syllabus),
+              ),
             ),
           if (course.lessonplan.isNotEmpty)
             ListTile(
               leading: const Icon(Icons.menu_book),
               title: const Text('授课计划'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(WebViewPage(url: course.lessonplan)),
+              onTap: () => context.pushNamed(
+                AppRoutes.webview,
+                arguments: WebViewArgs(url: course.lessonplan),
+              ),
             ),
         ],
       ),

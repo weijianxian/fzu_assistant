@@ -64,6 +64,15 @@ class ApiClient {
 
   // ─── 登录 ───
 
+  Future<(Uint8List, int?)> getCaptchaWithSolution() async {
+    final response = await _dio.get<List<int>>(
+      _urls['verifyCode']!,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final image = Uint8List.fromList(response.data!);
+    return (image, CaptchaSolver.solve(image));
+  }
+
   Future<void> login(String user, String pass, String captcha) async {
     // Step 1: loginCheck
     final checkResp = await _dio.post<List<int>>(
@@ -120,13 +129,7 @@ class ApiClient {
     try {
       _userId = creds.username;
 
-      // 获取验证码
-      final captchaResp = await _dio.get<List<int>>(
-        _urls['verifyCode']!,
-        options: Options(responseType: ResponseType.bytes),
-      );
-      final image = Uint8List.fromList(captchaResp.data!);
-      final solution = CaptchaSolver.solve(image);
+      final (_, solution) = await getCaptchaWithSolution();
       if (solution == null) return false;
 
       await login(creds.username, creds.password, solution.toString());

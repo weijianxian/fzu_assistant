@@ -2,24 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
-import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
-import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
 import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
-import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/update_service.dart';
 
-final List<Map<String, dynamic>> tools = [
-  {
-    'icon': Icons.storage,
-    'title': 'SharedPreferences',
-    'page': const SharedPrefsPage(),
-  },
-  {
-    'icon': Icons.lock,
-    'title': 'SecureStorage',
-    'page': const SecureStoragePage(),
-  },
+const _tools = [
+  (Icons.storage, 'SharedPreferences', AppRoutes.devSharedPrefs),
+  (Icons.lock, 'SecureStorage', AppRoutes.devSecureStorage),
 ];
 
 class DevToolPage extends StatelessWidget {
@@ -33,11 +22,11 @@ class DevToolPage extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.devTools)),
       body: ListView(
         children: [
-          ...tools.map(
+          ..._tools.map(
             (tool) => ChevronListTile(
-              leading: Icon(tool['icon']),
-              title: Text(tool['title']),
-              onTap: () => context.push(tool['page']),
+              leading: Icon(tool.$1),
+              title: Text(tool.$2),
+              onTap: () => context.pushNamed(tool.$3),
             ),
           ),
           const Divider(),
@@ -85,8 +74,9 @@ class DevToolPage extends StatelessWidget {
             onTap: () {
               final id = ApiClient.instance.userId;
               if (id == null) return;
-              context.push(
-                WebViewPage(
+              context.pushNamed(
+                AppRoutes.webview,
+                arguments: WebViewArgs(
                   url:
                       'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
                   injectCookies: true,
@@ -97,8 +87,9 @@ class DevToolPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.css),
             title: const Text('Test CSS/JS Injection'),
-            onTap: () => context.push(
-              const WebViewPage(
+            onTap: () => context.pushNamed(
+              AppRoutes.webview,
+              arguments: const WebViewArgs(
                 url: 'https://example.com/',
                 injectCookies: false,
               ),
@@ -110,8 +101,9 @@ class DevToolPage extends StatelessWidget {
             onTap: () {
               final id = ApiClient.instance.userId;
               if (id == null) return;
-              context.push(
-                WebViewPage(
+              context.pushNamed(
+                AppRoutes.webview,
+                arguments: WebViewArgs(
                   url:
                       'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
                   injectCookies: false,

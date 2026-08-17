@@ -1,39 +1,16 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/router/app_router.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
-import 'package:path_provider/path_provider.dart';
-
-import 'package:fzu_assistant/router/app_routes.dart';
-import 'package:fzu_assistant/screen/guest/login.dart';
-import 'package:fzu_assistant/screen/home/home_timeline_page.dart';
-import 'package:fzu_assistant/screen/schedule/schedule.dart';
-import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
-import 'package:fzu_assistant/screen/my/my.dart';
-
-WebViewEnvironment? webViewEnvironment;
-
-Future<void> _initWebViewEnvironment() async {
-  if (!Platform.isWindows) return;
-  try {
-    if (await WebViewEnvironment.getAvailableVersion() == null) return;
-    final dir = await getApplicationSupportDirectory();
-    webViewEnvironment = await WebViewEnvironment.create(
-      settings: WebViewEnvironmentSettings(
-        userDataFolder: '${dir.path}/flutter_inappwebview',
-      ),
-    );
-  } catch (_) {}
-}
+import 'package:fzu_assistant/service/webview_environment.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _initWebViewEnvironment();
+  await initWebViewEnvironment();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -79,7 +56,7 @@ class MyApp extends HookWidget {
           locale: settings.currentLocale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          onGenerateRoute: AppRoutes.onGenerateRoute,
+          onGenerateRoute: AppRouter.onGenerateRoute,
           home: const SplashScreen(),
         ),
       ),
@@ -95,31 +72,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _autoLogin();
-  }
-
-  Future<void> _autoLogin() async {
-    final ok = await ApiClient.instance.relogin();
-    if (!mounted) return;
-    context.pushReplacement(ok ? const HomeScreen() : const LoginPage());
-  }
-
-  @override
-  Widget build(BuildContext context) => const SplashScreenContent();
-}
-
-class SplashScreenContent extends StatefulWidget {
-  const SplashScreenContent({super.key});
-
-  @override
-  State<SplashScreenContent> createState() => _SplashScreenContentState();
-}
-
-class _SplashScreenContentState extends State<SplashScreenContent>
+class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   late final Animation<double> _scale;
@@ -140,6 +93,13 @@ class _SplashScreenContentState extends State<SplashScreenContent>
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _autoLogin();
+  }
+
+  Future<void> _autoLogin() async {
+    final ok = await ApiClient.instance.relogin();
+    if (!mounted) return;
+    context.pushReplacementNamed(ok ? AppRoutes.home : AppRoutes.login);
   }
 
   @override
@@ -177,111 +137,6 @@ class _SplashScreenContentState extends State<SplashScreenContent>
           ),
         ),
       ),
-    );
-  }
-}
-
-class HomeScreen extends HookWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final currentPage = useState(0);
-    final jumpToWeekTrigger = useState(0);
-    final refreshTimelineTrigger = useState(0);
-    final l10n = AppLocalizations.of(context)!;
-    final settings = AppSettingsProvider.of(context);
-
-    return ValueListenableBuilder<String>(
-      valueListenable: settings.homeStyleKey,
-      builder: (_, homeStyle, _) {
-        final isTimeline = homeStyle == AppSettings.timelineHomeStyle;
-        final pages = [
-          if (isTimeline)
-            TimelineHomePage(refreshTrigger: refreshTimelineTrigger)
-          else
-            SchedulePage(jumpToWeekTrigger: jumpToWeekTrigger),
-          const ToolboxPage(),
-          const MyPage(),
-        ];
-
-        void onTabTapped(int i) {
-          if (i == currentPage.value && i == 0) {
-            if (isTimeline) {
-              refreshTimelineTrigger.value++;
-            } else {
-              jumpToWeekTrigger.value++;
-            }
-          } else {
-            currentPage.value = i;
-          }
-        }
-
-        final homeLabel = isTimeline ? l10n.navHome : l10n.navSchedule;
-        return Scaffold(
-          body: Row(
-            children: [
-              if (context.isLandscape)
-                NavigationRail(
-                  leading: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Hero(
-                      tag: 'app-icon',
-                      child: Image.asset(
-                        'assets/icon/icon.png',
-                        width: 40,
-                        height: 40,
-                      ),
-                    ),
-                  ),
-                  selectedIndex: currentPage.value,
-                  onDestinationSelected: onTabTapped,
-                  labelType: NavigationRailLabelType.all,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: const Icon(Icons.home),
-                      label: Text(homeLabel),
-                    ),
-                    NavigationRailDestination(
-                      icon: const Icon(Icons.build),
-                      label: Text(l10n.navToolbox),
-                    ),
-                    NavigationRailDestination(
-                      icon: const Icon(Icons.person),
-                      label: Text(l10n.navMy),
-                    ),
-                  ],
-                ),
-              Expanded(
-                child: IndexedStack(index: currentPage.value, children: pages),
-              ),
-            ],
-          ),
-          bottomNavigationBar: context.isLandscape
-              ? null
-              : NavigationBar(
-                  selectedIndex: currentPage.value,
-                  destinations: [
-                    NavigationDestination(
-                      icon: const Icon(Icons.home_outlined),
-                      selectedIcon: const Icon(Icons.home),
-                      label: homeLabel,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.build_outlined),
-                      selectedIcon: const Icon(Icons.build),
-                      label: l10n.navToolbox,
-                    ),
-                    NavigationDestination(
-                      icon: const Icon(Icons.person_outline),
-                      selectedIcon: const Icon(Icons.person),
-                      label: l10n.navMy,
-                    ),
-                  ],
-                  onDestinationSelected: onTabTapped,
-                ),
-        );
-      },
     );
   }
 }

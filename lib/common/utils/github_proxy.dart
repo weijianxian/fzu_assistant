@@ -27,10 +27,10 @@ class GitHubProxy {
     final uri = Uri.tryParse(url);
     if (uri == null || uri.host.isEmpty) return false;
     if (uri.scheme != 'http' && uri.scheme != 'https') return false;
-    return isProxyableHost(uri.host);
+    return _isProxyableHost(uri.host);
   }
 
-  static bool isProxyableHost(String host) {
+  static bool _isProxyableHost(String host) {
     final normalizedHost = host.toLowerCase();
     if (normalizedHost == 'api.github.com') return false;
 

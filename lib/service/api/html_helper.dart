@@ -18,12 +18,7 @@ abstract final class HtmlHelper {
     String url, {
     Map<String, dynamic>? queryParameters,
   }) async {
-    final resp = await _dio.get<List<int>>(
-      url,
-      queryParameters: queryParameters,
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
+    final bytes = await _requestBytes(url, queryParameters: queryParameters);
     return _parse(bytes, url: url);
   }
 
@@ -32,13 +27,11 @@ abstract final class HtmlHelper {
     required Map<String, dynamic> data,
     Map<String, dynamic>? queryParameters,
   }) async {
-    final resp = await _dio.post<List<int>>(
+    final bytes = await _requestBytes(
       url,
       queryParameters: queryParameters,
       data: data,
-      options: Options(responseType: ResponseType.bytes),
     );
-    final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
     return _parse(bytes, url: url);
   }
 
@@ -47,16 +40,8 @@ abstract final class HtmlHelper {
     String url, {
     Map<String, dynamic>? queryParameters,
   }) async {
-    final resp = await _dio.get<List<int>>(
-      url,
-      queryParameters: queryParameters,
-      options: Options(responseType: ResponseType.bytes),
-    );
-    final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
-    final html = gbk.decode(bytes, allowMalformed: true);
-    _checkNologin(html);
-    if (!_isEvaluationPage(url)) _checkEvaluation(html);
-    return (html_parser.parse(html), html);
+    final bytes = await _requestBytes(url, queryParameters: queryParameters);
+    return _parseGbk(bytes, url: url);
   }
 
   static Future<(Document, String)> postHtmlGbk(
@@ -64,13 +49,36 @@ abstract final class HtmlHelper {
     required Map<String, dynamic> data,
     Map<String, dynamic>? queryParameters,
   }) async {
-    final resp = await _dio.post<List<int>>(
+    final bytes = await _requestBytes(
       url,
       queryParameters: queryParameters,
       data: data,
-      options: Options(responseType: ResponseType.bytes),
     );
-    final bytes = await _followIfNeeded(resp, queryParameters: queryParameters);
+    return _parseGbk(bytes, url: url);
+  }
+
+  static Future<List<int>> _requestBytes(
+    String url, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    final options = Options(responseType: ResponseType.bytes);
+    final response = data == null
+        ? await _dio.get<List<int>>(
+            url,
+            queryParameters: queryParameters,
+            options: options,
+          )
+        : await _dio.post<List<int>>(
+            url,
+            queryParameters: queryParameters,
+            data: data,
+            options: options,
+          );
+    return _followIfNeeded(response, queryParameters: queryParameters);
+  }
+
+  static (Document, String) _parseGbk(List<int> bytes, {required String url}) {
     final html = gbk.decode(bytes, allowMalformed: true);
     _checkNologin(html);
     if (!_isEvaluationPage(url)) _checkEvaluation(html);

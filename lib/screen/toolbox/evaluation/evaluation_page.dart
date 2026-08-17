@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/evaluation.dart';
@@ -74,7 +73,6 @@ class _EvaluationTab extends HookWidget {
     final loading = useState(true);
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
-    final mounted = useMounted();
 
     final scores = useState<List<String>>([]);
     final selectedComments = useState<List<int?>>([]);
@@ -85,7 +83,7 @@ class _EvaluationTab extends HookWidget {
       error.value = null;
       try {
         final data = await service.getEvaluationTeachers(type);
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         teachers.value = data;
         scores.value = List.filled(data.length, '');
         selectedComments.value = List.filled(data.length, null);
@@ -93,10 +91,10 @@ class _EvaluationTab extends HookWidget {
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         error.value = e.toString();
       }
-      if (mounted.value) loading.value = false;
+      if (context.mounted) loading.value = false;
     }
 
     useEffect(() {

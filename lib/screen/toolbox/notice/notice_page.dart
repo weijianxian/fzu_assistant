@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/notice.dart';
-import 'package:fzu_assistant/screen/guest/webview_page.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 
 class NoticePage extends HookWidget {
@@ -20,7 +19,6 @@ class NoticePage extends HookWidget {
     final currentPage = useState(1);
     final totalPages = useState(1);
     final service = useMemoized(() => AcademicService());
-    final mounted = useMounted();
 
     Future<void> load([int? page]) async {
       final p = page ?? currentPage.value;
@@ -28,17 +26,17 @@ class NoticePage extends HookWidget {
       error.value = null;
       try {
         final (list, total) = await service.getNotices(p);
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         notices.value = list;
         totalPages.value = total;
         currentPage.value = p;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         error.value = e.toString();
       }
-      if (mounted.value) loading.value = false;
+      if (context.mounted) loading.value = false;
     }
 
     useEffect(() {
@@ -95,12 +93,11 @@ class NoticePage extends HookWidget {
                           ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => WebViewPage(
-                                  url: notice.url,
-                                  title: notice.title,
-                                ),
+                            context.pushNamed(
+                              AppRoutes.webview,
+                              arguments: WebViewArgs(
+                                url: notice.url,
+                                title: notice.title,
                               ),
                             );
                           },

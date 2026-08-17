@@ -2,10 +2,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/main.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
-import 'package:fzu_assistant/service/api/login_service.dart';
 
 class LoginPage extends HookWidget {
   const LoginPage({super.key});
@@ -19,16 +18,18 @@ class LoginPage extends HookWidget {
     final errorMessage = useState<String?>(null);
     final captchaImage = useState<Uint8List?>(null);
     final obscurePassword = useState(true);
-    final loginService = useMemoized(() => LoginService());
 
     Future<void> refreshCaptcha() async {
       try {
-        final (image, solution) = await loginService.getCaptchaWithSolution();
+        final (image, solution) = await ApiClient.instance
+            .getCaptchaWithSolution();
+        if (!context.mounted) return;
         captchaImage.value = image;
         if (solution != null) {
           captchaController.text = solution.toString();
         }
       } catch (e) {
+        if (!context.mounted) return;
         errorMessage.value = AppLocalizations.of(
           context,
         )!.captchaFetchFailed(e.toString());
@@ -37,6 +38,7 @@ class LoginPage extends HookWidget {
 
     useEffect(() {
       AuthStorage().loadCredentials().then((creds) {
+        if (!context.mounted) return;
         if (creds != null) {
           usernameController.text = creds.username;
           passwordController.text = creds.password;
@@ -62,16 +64,14 @@ class LoginPage extends HookWidget {
       try {
         await ApiClient.instance.login(username, password, captcha);
         await AuthStorage().saveCredentials(username, password);
-        if (context.mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
-        }
+        if (!context.mounted) return;
+        context.pushReplacementNamed(AppRoutes.home);
       } catch (e) {
+        if (!context.mounted) return;
         errorMessage.value = e.toString().replaceFirst('Exception: ', '');
         await refreshCaptcha();
       } finally {
-        isLoading.value = false;
+        if (context.mounted) isLoading.value = false;
       }
     }
 

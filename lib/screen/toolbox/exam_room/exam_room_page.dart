@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/utils/date_text.dart';
 import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/common/widgets.dart';
@@ -21,7 +20,6 @@ class ExamRoomPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final effectiveTerm = useState<String>('');
     final service = useMemoized(() => AcademicService());
-    final mounted = useMounted();
 
     Future<void> load({bool useCache = true}) async {
       error.value = null;
@@ -33,7 +31,7 @@ class ExamRoomPage extends HookWidget {
           selected,
           useCache: useCache,
         );
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         data.sort(
           (a, b) => DateText.parseChineseDateOrEpoch(
             b.date,
@@ -44,10 +42,10 @@ class ExamRoomPage extends HookWidget {
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         error.value = e.toString();
       }
-      if (mounted.value) loading.value = false;
+      if (context.mounted) loading.value = false;
     }
 
     useEffect(() {

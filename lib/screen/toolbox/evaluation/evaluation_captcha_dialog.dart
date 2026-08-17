@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/evaluation.dart';
@@ -60,11 +59,12 @@ class _CaptchaDialogContent extends HookWidget {
     final submitError = useState<String?>(null);
     final currentIndex = useState(0);
     final showSuccess = useState(false);
-    final mounted = useMounted();
 
     Future<void> refreshCaptcha() async {
       try {
-        captchaImage.value = await service.getEvaluationCaptcha();
+        final image = await service.getEvaluationCaptcha();
+        if (!context.mounted) return;
+        captchaImage.value = image;
       } catch (_) {}
     }
 
@@ -93,7 +93,7 @@ class _CaptchaDialogContent extends HookWidget {
           );
 
           if (!ok) {
-            if (!mounted.value) return;
+            if (!context.mounted) return;
             submitError.value = l10n.evalCaptchaError;
             captchaInput.value = '';
             currentIndex.value = 0;
@@ -104,14 +104,14 @@ class _CaptchaDialogContent extends HookWidget {
 
           if (i < items.length - 1) {
             await Future.delayed(const Duration(milliseconds: 500));
-            if (!mounted.value) return;
+            if (!context.mounted) return;
           }
         }
 
-        if (!mounted.value || !context.mounted) return;
+        if (!context.mounted) return;
         showSuccess.value = true;
         await Future.delayed(const Duration(milliseconds: 1500));
-        if (!mounted.value || !context.mounted) return;
+        if (!context.mounted) return;
         Navigator.of(context).pop();
         if (!context.mounted) return;
         ScaffoldMessenger.of(
@@ -119,10 +119,10 @@ class _CaptchaDialogContent extends HookWidget {
         ).showSnackBar(SnackBar(content: Text(l10n.evalSuccess)));
         onSuccess();
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         submitError.value = l10n.evalSubmitFailed(e.toString());
       }
-      if (mounted.value) {
+      if (context.mounted) {
         submitting.value = false;
         currentIndex.value = 0;
       }

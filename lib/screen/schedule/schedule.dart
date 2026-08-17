@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -29,7 +28,6 @@ class SchedulePage extends HookWidget {
     final academic = useMemoized(() => AcademicService());
     final pageController = useState<PageController?>(null);
     final firstMonday = useState<DateTime?>(null);
-    final mounted = useMounted();
     final currentLoadedTerm = useState<String?>(null);
     final currentWeek = useState<int>(1);
     final currentTerm = useState<String>('');
@@ -38,7 +36,7 @@ class SchedulePage extends HookWidget {
     Future<int?> refresh(String term, {bool useCache = true}) async {
       refreshSerial.value += 1;
       final serial = refreshSerial.value;
-      bool isLatest() => mounted.value && serial == refreshSerial.value;
+      bool isLatest() => context.mounted && serial == refreshSerial.value;
 
       error.value = null;
       loading.value = true;
@@ -100,7 +98,7 @@ class SchedulePage extends HookWidget {
 
           // 先从缓存加载，快速显示
           final week = await refresh(targetTerm);
-          if (week == null || !mounted.value) return;
+          if (week == null || !context.mounted) return;
           pageController.value = PageController(initialPage: week - 1);
           displayWeek.value = week;
 
@@ -109,7 +107,7 @@ class SchedulePage extends HookWidget {
             refresh(targetTerm, useCache: false);
           }
         } catch (e) {
-          if (mounted.value) error.value = e.toString();
+          if (context.mounted) error.value = e.toString();
         }
       }();
       return null;

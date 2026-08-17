@@ -82,11 +82,6 @@ class UpdateService {
     await prefs.setString(SpKeys.skipUpdateVersion, version);
   }
 
-  Future<void> clearSkippedVersion() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(SpKeys.skipUpdateVersion);
-  }
-
   Future<bool> isPermanentlySkipped() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(SpKeys.skipUpdatesPermanently) ?? false;
@@ -95,11 +90,6 @@ class UpdateService {
   Future<void> skipUpdatesPermanently() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(SpKeys.skipUpdatesPermanently, true);
-  }
-
-  Future<void> clearPermanentSkip() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(SpKeys.skipUpdatesPermanently);
   }
 
   Future<List<String>> getSupportedAbis() async {
@@ -116,13 +106,6 @@ class UpdateService {
   Future<GitHubReleaseAsset?> findAndroidAsset(GitHubRelease release) async {
     final abis = await getSupportedAbis();
     return UpdateUtils.pickAndroidAsset(release.assets, abis);
-  }
-
-  static GitHubReleaseAsset? pickAndroidAsset(
-    List<GitHubReleaseAsset> assets,
-    List<String> supportedAbis,
-  ) {
-    return UpdateUtils.pickAndroidAsset(assets, supportedAbis);
   }
 
   Future<bool> canInstallPackages() async {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/empty_room.dart';
@@ -28,7 +27,6 @@ class EmptyRoomPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final hasSearched = useState(false);
     final service = useMemoized(() => AcademicService());
-    final mounted = useMounted();
 
     final selectedDate = useState(DateTime.now());
     final startPeriod = useState('1');
@@ -42,20 +40,21 @@ class EmptyRoomPage extends HookWidget {
       try {
         final dateStr =
             '${selectedDate.value.year}-${selectedDate.value.month.toString().padLeft(2, '0')}-${selectedDate.value.day.toString().padLeft(2, '0')}';
-        rooms.value = await service.getEmptyRooms(
+        final data = await service.getEmptyRooms(
           dateStr,
           startPeriod.value,
           endPeriod.value,
           selectedCampus.value,
         );
-        if (!mounted.value) return;
+        if (!context.mounted) return;
+        rooms.value = data;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         error.value = e.toString();
       }
-      if (mounted.value) loading.value = false;
+      if (context.mounted) loading.value = false;
     }
 
     return Scaffold(

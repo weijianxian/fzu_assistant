@@ -34,16 +34,9 @@ class CourseService {
     return map.containsKey(term);
   }
 
-  Future<void> _saveCourseCache(
-    String term,
-    List<Course> courses,
-    String viewState,
-    String eventValidation,
-  ) {
+  Future<void> _saveCourseCache(String term, List<Course> courses) {
     return CacheHelper.saveForKey(SpKeys.cacheCoursesMap, term, {
       'courses': courses.map((c) => c.toJson()).toList(),
-      'viewState': viewState,
-      'eventValidation': eventValidation,
     });
   }
 
@@ -174,12 +167,7 @@ class CourseService {
     }
 
     // 写入缓存
-    _saveCourseCache(
-      term,
-      courses,
-      termInfo.viewState,
-      termInfo.eventValidation,
-    );
+    _saveCourseCache(term, courses);
     return courses;
   }
 

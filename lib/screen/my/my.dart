@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
-import 'package:fzu_assistant/screen/dev/dev_tool.dart';
-import 'package:fzu_assistant/screen/guest/login.dart';
-import 'package:fzu_assistant/screen/my/about/about_page.dart';
-import 'package:fzu_assistant/screen/my/calendar/calendar_page.dart';
-import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/api/user_service.dart';
 
@@ -24,21 +18,20 @@ class MyPage extends HookWidget {
     final error = useState<String?>(null);
     final auth = useMemoized(() => AuthStorage());
     final userService = useMemoized(() => UserService());
-    final mounted = useMounted();
 
     useEffect(() {
       auth.loadCredentials().then((creds) {
-        if (mounted.value) username.value = creds?.username;
+        if (context.mounted) username.value = creds?.username;
       });
       userService
           .getUserInfo()
           .then((data) {
-            if (!mounted.value) return;
+            if (!context.mounted) return;
             info.value = data;
             loading.value = false;
           })
           .catchError((e) {
-            if (!mounted.value) return;
+            if (!context.mounted) return;
             error.value = e.toString();
             loading.value = false;
           });
@@ -48,7 +41,7 @@ class MyPage extends HookWidget {
     Future<void> handleLogout() async {
       await auth.clearCredentials();
       if (context.mounted) {
-        context.pushReplacement(const LoginPage());
+        context.pushReplacementNamed(AppRoutes.login);
       }
     }
 
@@ -58,7 +51,7 @@ class MyPage extends HookWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.developer_board),
-            onPressed: () => context.push(const DevToolPage()),
+            onPressed: () => context.pushNamed(AppRoutes.dev),
           ),
         ],
       ),
@@ -106,44 +99,26 @@ class MyPage extends HookWidget {
           ),
         ),
         const SizedBox(height: 24),
-        // _infoCard([
-        //   _infoRow('性别', info.sex),
-        //   _infoRow('民族', info.nationality),
-        //   _infoRow('出生日期', info.birthday),
-        //   _infoRow('政治面貌', info.politicalStatus),
-        // ]),
         _infoCard([
           _infoRow(AppLocalizations.of(context)!.college, info.college),
           _infoRow(AppLocalizations.of(context)!.major, info.major),
           _infoRow(AppLocalizations.of(context)!.grade, info.grade),
-          // _infoRow('辅导员', info.counselor),
         ]),
-        // _infoCard([
-        //   _infoRow('手机号', info.phone),
-        //   _infoRow('邮箱', info.email),
-        //   _infoRow('生源地', info.source),
-        //   _infoRow('考生类别', info.examineeCategory),
-        //   _infoRow('国别', info.country),
-        // ]),
-        // if (info.statusChanges.isNotEmpty)
-        //   _infoCard([
-        //     _infoRow('学籍异动', info.statusChanges),
-        //   ]),
         const Divider(),
         ChevronListTile(
           leading: const Icon(Icons.calendar_month_outlined),
           title: Text(AppLocalizations.of(context)!.calendar),
-          onTap: () => context.push(const CalendarPage()),
+          onTap: () => context.pushNamed(AppRoutes.calendar),
         ),
         ChevronListTile(
           leading: const Icon(Icons.settings_outlined),
           title: Text(AppLocalizations.of(context)!.settings),
-          onTap: () => context.push(const SettingsPage()),
+          onTap: () => context.pushNamed(AppRoutes.settings),
         ),
         ChevronListTile(
           leading: const Icon(Icons.info_outline),
           title: Text(AppLocalizations.of(context)!.about),
-          onTap: () => context.push(const AboutPage()),
+          onTap: () => context.pushNamed(AppRoutes.about),
         ),
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),

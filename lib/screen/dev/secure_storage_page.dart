@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 
-import '../guest/editor_page.dart';
 import 'widgets/kv_tile.dart';
 
 class SecureStoragePage extends HookWidget {
@@ -37,8 +36,9 @@ class SecureStoragePage extends HookWidget {
                   key_: e.key,
                   value: e.value,
                   onTap: () async {
-                    await context.push(
-                      EditorPage(
+                    await context.pushNamed(
+                      AppRoutes.editor,
+                      arguments: EditorArgs(
                         title: e.key,
                         initialValue: e.value,
                         onSave: (text) async {

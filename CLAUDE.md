@@ -19,7 +19,7 @@
 如果你需要新建页面，请严格按照以下结构放置代码:
 ```
 lib/
-  main.dart              # 入口，IndexedStack + LayoutBuilder 自适应导航
+  main.dart              # 应用初始化、主题配置与启动页
   l10n/                  # 国际化
     app_localizations.dart    # 自动生成的本地化类
     app_localizations_zh.dart # 中文翻译
@@ -36,10 +36,7 @@ lib/
     empty_room.dart      # 空教室
     notice.dart          # 教务通知（列表 + 部门）
     github_release.dart  # GitHub Release 信息
-    login_result.dart    # 登录结果
   common/                # 通用组件
-    hooks/               # 自定义 Hooks
-      use_mounted.dart   # 组件挂载状态 Hook
     utils/               # 工具函数
       cache_helper.dart  # 缓存辅助工具
       html_utils.dart    # HTML 解析工具
@@ -54,7 +51,8 @@ lib/
       half_screen_sheet.dart # 半屏弹窗
       update_dialog.dart # 更新对话框
   router/                # 路由
-    app_routes.dart      # 路由表 + onGenerateRoute + context.push() 扩展
+    app_routes.dart      # 路由名、参数对象与命名导航扩展
+    app_router.dart      # 集中式路由表与页面构建
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式断点（kTileMinWidth）
@@ -69,6 +67,7 @@ lib/
       schedule_grid.dart # 课程表网格（RefreshIndicator + SingleChildScrollView 包裹，支持下拉刷新）
       course_card.dart   # 课程卡片
     home/                # 首页天视图
+      home_screen.dart   # 首页壳，管理自适应导航与三个主 Tab
       home_timeline_page.dart # 时间线首页（课程 + 校历事件 + 学期概览）
       timeline_events.dart # 校历事件日期解析与单日/跨日拆分
     toolbox/             # 工具箱（首页 tab）
@@ -100,12 +99,12 @@ lib/
     captcha_solver.dart  # 验证码识别
     update_service.dart  # 更新检查服务
     app_themes.dart      # 主题色列表 + buildTheme()
+    webview_environment.dart # Windows WebView2 环境初始化
     api/                 # API 相关服务
       api_client.dart    # Dio 单例，登录/重登/拦截器
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
       user_service.dart  # 用户信息
       course_service.dart # 课程表
-      login_service.dart # 登录服务
       html_helper.dart   # HTML 解析辅助
     settings/
       app_settings.dart  # 统一设置管理（主题 + 语言 + 学期 + 网页注入，InheritedWidget + SP 持久化）
@@ -116,7 +115,7 @@ lib/
 - **每次项目结构或技术栈变更后，必须同步更新本 CLAUDE.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
-- 导航统一使用 `context.push(page)` / `context.pushReplacement(page)` / `context.pushNamed(route)` 扩展方法（定义在 `lib/router/app_routes.dart`），禁止直接写 `Navigator.push(context, MaterialPageRoute(...))`
+- 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
 - 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
 - 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取
 - 横屏/宽屏自动切换侧栏导航（NavigationRail），窄屏使用底部导航栏（BottomNavigationBar），通过 `context.isLandscape`（`common/utils/context_ext.dart`）判断方向
@@ -142,7 +141,7 @@ lib/
 
 - `flutter_inappwebview` 在 Windows 上需要 WebView2 Runtime
 - `windows/runner/flutter_window.cpp` 中有 `closeWindow` 方法频道的 workaround（修复关窗 bug）
-- `main.dart` 中需初始化 `WebViewEnvironment`，`userDataFolder` 设在 app support 目录
+- `service/webview_environment.dart` 中初始化 `WebViewEnvironment`，`userDataFolder` 设在 app support 目录
 
 ## 构建
 

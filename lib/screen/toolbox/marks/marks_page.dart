@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/mark.dart';
@@ -17,14 +16,14 @@ class MarksPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final expandedKeys = useState<Set<String>>({});
     final service = useMemoized(() => AcademicService());
-    final mounted = useMounted();
 
     final unknownSemester = AppLocalizations.of(context)!.unknownSemester;
 
     Future<void> load() async {
       try {
-        marks.value = await service.getMarks();
-        if (!mounted.value) return;
+        final data = await service.getMarks();
+        if (!context.mounted) return;
+        marks.value = data;
         refreshTime.value = DateTime.now();
         error.value = null;
         if (marks.value.isNotEmpty) {
@@ -32,10 +31,10 @@ class MarksPage extends HookWidget {
           expandedKeys.value = {first.isEmpty ? unknownSemester : first};
         }
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         error.value = e.toString();
       }
-      if (mounted.value) loading.value = false;
+      if (context.mounted) loading.value = false;
     }
 
     useEffect(() {

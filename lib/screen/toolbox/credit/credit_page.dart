@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/credit.dart';
@@ -16,19 +15,19 @@ class CreditPage extends HookWidget {
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
-    final mounted = useMounted();
 
     Future<void> load() async {
       try {
-        credits.value = await service.getCredit();
-        if (!mounted.value) return;
+        final data = await service.getCredit();
+        if (!context.mounted) return;
+        credits.value = data;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         error.value = e.toString();
       }
-      if (mounted.value) loading.value = false;
+      if (context.mounted) loading.value = false;
     }
 
     useEffect(() {

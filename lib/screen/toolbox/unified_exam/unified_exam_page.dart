@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
@@ -17,21 +16,20 @@ class UnifiedExamPage extends HookWidget {
     final error = useState<String?>(null);
     final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
-    final mounted = useMounted();
 
     Future<void> load() async {
       try {
         final results = await Future.wait([service.getCET(), service.getJS()]);
+        if (!context.mounted) return;
         cet.value = results[0];
         js.value = results[1];
-        if (!mounted.value) return;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
-        if (!mounted.value) return;
+        if (!context.mounted) return;
         error.value = e.toString();
       }
-      if (mounted.value) loading.value = false;
+      if (context.mounted) loading.value = false;
     }
 
     useEffect(() {

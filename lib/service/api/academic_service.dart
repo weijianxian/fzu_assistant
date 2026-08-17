@@ -179,14 +179,6 @@ class AcademicService {
     return map.containsKey(term);
   }
 
-  Future<List<String>> getExamTerms({bool forceRefresh = false}) async {
-    if (!forceRefresh && _cachedExamTermInfo != null) {
-      return _cachedExamTermInfo!.terms;
-    }
-    final termInfo = await _fetchExamTermInfo();
-    return termInfo.terms;
-  }
-
   Future<(String, List<ExamRoomInfo>)> getExamRoomsForPreferredTerm(
     String preferredTerm, {
     bool useCache = true,

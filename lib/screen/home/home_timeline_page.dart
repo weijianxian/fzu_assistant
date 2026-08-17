@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/common/widgets.dart';
@@ -30,13 +29,12 @@ class TimelineHomePage extends HookWidget {
     final error = useState<String?>(null);
     final academic = useMemoized(AcademicService.new);
     final courseService = useMemoized(CourseService.new);
-    final mounted = useMounted();
     final refreshSerial = useRef(0);
 
     Future<void> load({bool useCache = true}) async {
       refreshSerial.value++;
       final serial = refreshSerial.value;
-      bool isLatest() => mounted.value && serial == refreshSerial.value;
+      bool isLatest() => context.mounted && serial == refreshSerial.value;
 
       loading.value = true;
       error.value = null;
