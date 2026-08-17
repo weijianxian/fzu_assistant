@@ -48,6 +48,12 @@ class ApiClient {
   CookieJar get cookieJar => _cookieJar;
   String? get userId => _userId;
 
+  /// 仅供开发者工具模拟 Cookie 过期。
+  ///
+  /// 保留当前 identifier 和安全存储中的凭据，使下一个教务请求
+  /// 收到未登录响应，从而完整验证自动重登与请求重试链路。
+  Future<void> expireCookiesForDebug() => _cookieJar.deleteAll();
+
   static const _urls = {
     'loginCheck': 'https://jwcjwxt2.fzu.edu.cn:82/logincheck.asp',
     'verifyCode': 'https://jwcjwxt2.fzu.edu.cn:82/plus/verifycode.asp',
@@ -141,17 +147,65 @@ class ApiClient {
 
   // ─── 供拦截器调用 ───
 
-  Future<Response<T>> retry<T>(RequestOptions options) => _dio.fetch(options);
+  /// 同一时刻只执行一次重登，并让并发请求共用结果。
+  Future<bool> refreshSession() async {
+    final pending = _reloginCompleter;
+    if (pending != null) return pending.future;
+
+    final completer = Completer<bool>();
+    _reloginCompleter = completer;
+    try {
+      final ok = await relogin();
+      completer.complete(ok);
+      return ok;
+    } catch (_) {
+      completer.complete(false);
+      return false;
+    } finally {
+      if (identical(_reloginCompleter, completer)) {
+        _reloginCompleter = null;
+      }
+    }
+  }
+
+  Future<Response<T>> retry<T>(RequestOptions options) {
+    // Identifier 会在重登后变更，不能原样重放旧 id。
+    _refreshIdentifier(options);
+    options.extra = {
+      ...options.extra,
+      _AuthInterceptor.sessionRetriedKey: true,
+    };
+    return _dio.fetch(options);
+  }
+
+  void _refreshIdentifier(RequestOptions options) {
+    if (options.queryParameters.containsKey('id') && _userId != null) {
+      options.queryParameters = {...options.queryParameters, 'id': _userId};
+    }
+  }
 }
 
-/// 检测 session 过期（410 nologin）→ 自动重登 → 重试请求
+/// 检测 session 过期 → 自动重登 → 最多重试一次请求。
 class _AuthInterceptor extends Interceptor {
+  static const sessionRetriedKey = '_sessionRetried';
+
   final ApiClient _api;
   _AuthInterceptor(this._api);
 
   @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    // 业务层可能在重登前已经构造了参数，发送前统一刷新 id。
+    _api._refreshIdentifier(options);
+    handler.next(options);
+  }
+
+  @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (_isNologin(response)) {
+      if (response.requestOptions.extra[sessionRetriedKey] == true) {
+        handler.reject(_expiredError(response.requestOptions));
+        return;
+      }
       _handleExpired(response.requestOptions, handler);
       return;
     }
@@ -161,6 +215,10 @@ class _AuthInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.error is SessionExpiredException) {
+      if (err.requestOptions.extra[sessionRetriedKey] == true) {
+        handler.next(err);
+        return;
+      }
       _handleExpiredError(err.requestOptions, handler);
       return;
     }
@@ -169,12 +227,13 @@ class _AuthInterceptor extends Interceptor {
 
   bool _isNologin(Response response) {
     try {
-      final body = response.data;
-      if (body is List<int>) {
-        final str = utf8.decode(body, allowMalformed: true);
-        return str.contains('"nologin"');
+      if (SessionExpiryDetector.isRedirect(
+        response.statusCode,
+        response.headers.value('Location'),
+      )) {
+        return true;
       }
-      if (body is Map) return body['info'] == 'nologin';
+      return SessionExpiryDetector.isPayload(response.data);
     } catch (_) {}
     return false;
   }
@@ -183,32 +242,15 @@ class _AuthInterceptor extends Interceptor {
     RequestOptions options,
     ResponseInterceptorHandler handler,
   ) async {
-    // 已有请求在重登，等它完成再重试
-    if (_api._reloginCompleter != null) {
-      final ok = await _api._reloginCompleter!.future;
-      if (ok) {
-        handler.resolve(await _api.retry(options));
-      } else {
-        handler.reject(_expiredError(options));
-      }
-      return;
-    }
-
-    // 发起重登
-    _api._reloginCompleter = Completer<bool>();
     try {
-      final ok = await _api.relogin();
-      _api._reloginCompleter!.complete(ok);
+      final ok = await _api.refreshSession();
       if (ok) {
         handler.resolve(await _api.retry(options));
       } else {
         handler.reject(_expiredError(options));
       }
     } catch (_) {
-      _api._reloginCompleter!.complete(false);
       handler.reject(_expiredError(options));
-    } finally {
-      _api._reloginCompleter = null;
     }
   }
 
@@ -222,30 +264,15 @@ class _AuthInterceptor extends Interceptor {
     RequestOptions options,
     ErrorInterceptorHandler handler,
   ) async {
-    if (_api._reloginCompleter != null) {
-      final ok = await _api._reloginCompleter!.future;
-      if (ok) {
-        handler.resolve(await _api.retry(options));
-      } else {
-        handler.reject(_expiredError(options));
-      }
-      return;
-    }
-
-    _api._reloginCompleter = Completer<bool>();
     try {
-      final ok = await _api.relogin();
-      _api._reloginCompleter!.complete(ok);
+      final ok = await _api.refreshSession();
       if (ok) {
         handler.resolve(await _api.retry(options));
       } else {
         handler.reject(_expiredError(options));
       }
     } catch (_) {
-      _api._reloginCompleter!.complete(false);
       handler.reject(_expiredError(options));
-    } finally {
-      _api._reloginCompleter = null;
     }
   }
 }

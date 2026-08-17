@@ -17,44 +17,56 @@ abstract final class HtmlHelper {
   static Future<Document> fetchHtml(
     String url, {
     Map<String, dynamic>? queryParameters,
-  }) async {
+  }) => _withSessionRetry(() async {
     final bytes = await _requestBytes(url, queryParameters: queryParameters);
     return _parse(bytes, url: url);
-  }
+  });
 
   static Future<Document> postHtml(
     String url, {
     required Map<String, dynamic> data,
     Map<String, dynamic>? queryParameters,
-  }) async {
+  }) => _withSessionRetry(() async {
     final bytes = await _requestBytes(
       url,
       queryParameters: queryParameters,
       data: data,
     );
     return _parse(bytes, url: url);
-  }
+  });
 
   /// GBK 编码页面专用（如校历）。
   static Future<(Document, String)> fetchHtmlGbk(
     String url, {
     Map<String, dynamic>? queryParameters,
-  }) async {
+  }) => _withSessionRetry(() async {
     final bytes = await _requestBytes(url, queryParameters: queryParameters);
     return _parseGbk(bytes, url: url);
-  }
+  });
 
   static Future<(Document, String)> postHtmlGbk(
     String url, {
     required Map<String, dynamic> data,
     Map<String, dynamic>? queryParameters,
-  }) async {
+  }) => _withSessionRetry(() async {
     final bytes = await _requestBytes(
       url,
       queryParameters: queryParameters,
       data: data,
     );
     return _parseGbk(bytes, url: url);
+  });
+
+  /// 有些过期提示只能在解析 HTML 后识别，已经离开 Dio 拦截器，
+  /// 因此在 HTML 请求边界再做一次有上限的重登重试。
+  static Future<T> _withSessionRetry<T>(Future<T> Function() request) async {
+    try {
+      return await request();
+    } on SessionExpiredException {
+      final ok = await ApiClient.instance.refreshSession();
+      if (!ok) rethrow;
+      return request();
+    }
   }
 
   static Future<List<int>> _requestBytes(
@@ -120,7 +132,7 @@ abstract final class HtmlHelper {
       url.contains('TeaList');
 
   static void _checkNologin(String html) {
-    if (html.contains('"nologin"') || html.contains('nologin')) {
+    if (SessionExpiryDetector.isHtml(html)) {
       throw const SessionExpiredException();
     }
   }

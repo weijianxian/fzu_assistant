@@ -31,6 +31,45 @@ class DevToolPage extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
+            leading: const Icon(Icons.cookie_outlined),
+            title: const Text('Expire Cookies'),
+            subtitle: const Text(
+              'Clear academic session cookies to test automatic re-login and request retry',
+            ),
+            onTap: () async {
+              try {
+                await ApiClient.instance.expireCookiesForDebug();
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Cookies have been expired')),
+                );
+              } catch (error) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to expire cookies: $error')),
+                );
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.login),
+            title: const Text('Re-login'),
+            subtitle: const Text(
+              'Sign in again with the credentials stored on this device',
+            ),
+            onTap: () async {
+              final success = await ApiClient.instance.refreshSession();
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success ? 'Re-login succeeded' : 'Re-login failed',
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.drag_handle),
             title: const Text('Native BottomSheet'),
             onTap: () => showHalfScreenSheet(
