@@ -44,7 +44,9 @@ lib/
       cache_helper.dart  # 缓存辅助工具
       html_utils.dart    # HTML 解析工具
       context_ext.dart   # BuildContext 扩展（isLandscape 方向判断）
+      course_sessions.dart # 周/天视图共用的课程筛选与节次时间
     widget/              # 通用组件
+      navigation/home_view_toggle.dart # 首页周视图/天视图切换
       tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
       masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
       section.dart       # 区域组件
@@ -66,6 +68,9 @@ lib/
       schedule.dart      # 课程表主页（状态管理 + _ScheduleBody 组件）
       schedule_grid.dart # 课程表网格（RefreshIndicator + SingleChildScrollView 包裹，支持下拉刷新）
       course_card.dart   # 课程卡片
+    home/                # 首页天视图
+      home_timeline_page.dart # 时间线首页（课程 + 校历事件 + 学期概览）
+      timeline_events.dart # 校历事件日期解析与单日/跨日拆分
     toolbox/             # 工具箱（首页 tab）
       toolbox.dart       # 工具箱主页（MasonrySliverGrid 自适应多列）
       gpa/               # 绩点信息
@@ -79,9 +84,9 @@ lib/
       my.dart            # 我的页面主页
       about/             # 关于页
       calendar/          # 校历
-    settings/            # 设置页（三个入口卡片）
-      settings_page.dart # 设置页面主页（课表设置/一般设置/主题设置 三个入口）
-      schedule_settings_page.dart # 课表设置（学期选择）
+    settings/            # 设置页（首页/一般/主题/高级设置入口）
+      settings_page.dart # 设置页面主页
+      home_settings_page.dart # 首页设置（视图、时间线范围、学期及课表选项）
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）

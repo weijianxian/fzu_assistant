@@ -144,19 +144,19 @@
   "@settings": {
     "description": "settings"
   },
-  "scheduleSettings": "Schedule Settings",
-  "@scheduleSettings": {
-    "description": "scheduleSettings"
+  "homeSettings": "Home Settings",
+  "@homeSettings": {
+    "description": "homeSettings"
   },
-  "scheduleSettingsSubtitle": "Semester selection, exam display, and course adjustments",
-  "@scheduleSettingsSubtitle": {
-    "description": "scheduleSettingsSubtitle"
+  "homeSettingsSubtitle": "Home view, timeline range, and schedule options",
+  "@homeSettingsSubtitle": {
+    "description": "homeSettingsSubtitle"
   },
   "generalSettings": "General Settings",
   "@generalSettings": {
     "description": "generalSettings"
   },
-  "generalSettingsSubtitle": "Language, web enhancement, and common preferences",
+  "generalSettingsSubtitle": "Language and web enhancement",
   "@generalSettingsSubtitle": {
     "description": "generalSettingsSubtitle"
   },
@@ -729,5 +729,58 @@
         "type": "String"
       }
     }
-  }
+  },
+  "navHome": "Home",
+  "homeStyle": "Home View",
+  "homeStyleSchedule": "Week",
+  "homeStyleTimeline": "Day",
+  "semesterStart": "Semester starts",
+  "semesterEnd": "Semester ends",
+  "today": "Today",
+  "notStarted": "Not started",
+  "daysLeft": "{days} days left",
+  "@daysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "inProgress": "In progress",
+  "finished": "Finished",
+  "semesterProgress": "Semester progress",
+  "otherEvents": "Other events",
+  "timeline": "Timeline",
+  "starts": " starts",
+  "ends": " ends",
+  "classPeriod": "Period {period}",
+  "@classPeriod": {
+    "placeholders": {
+      "period": {
+        "type": "int"
+      }
+    }
+  },
+  "classPeriodRange": "Periods {start}-{end}",
+  "@classPeriodRange": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustedMark": "[Adjusted] ",
+  "timelineCourseRange": "Timeline course range",
+  "daysN": "{days} days",
+  "@daysN": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "nextMonth": "Next month"
 }

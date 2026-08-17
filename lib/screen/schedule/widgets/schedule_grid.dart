@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/common/utils/date_text.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -7,26 +8,12 @@ import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/course_card.dart';
+import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 
-const _maxPeriod = 11;
 const _headerHeight = 48.0;
 const _labelWidth = 44.0;
 const _minCellHeight = 52.0;
-
-const _timeSlots = [
-  ('8:20', '9:05'),
-  ('9:15', '10:00'),
-  ('10:20', '11:05'),
-  ('11:15', '12:00'),
-  ('14:00', '14:45'),
-  ('14:55', '15:40'),
-  ('15:50', '16:35'),
-  ('16:45', '17:30'),
-  ('19:00', '19:45'),
-  ('19:55', '20:40'),
-  ('20:50', '21:35'),
-];
 
 List<String> _weekdays(AppLocalizations l10n) => [
   l10n.monday,
@@ -56,14 +43,16 @@ class ScheduleGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final minGridHeight = _maxPeriod * _minCellHeight;
+    final minGridHeight = maxCoursePeriod * _minCellHeight;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final available = constraints.maxHeight - _headerHeight;
         final canFill = available >= minGridHeight;
-        final cellHeight = canFill ? available / _maxPeriod : _minCellHeight;
-        final gridHeight = _maxPeriod * cellHeight;
+        final cellHeight = canFill
+            ? available / maxCoursePeriod
+            : _minCellHeight;
+        final gridHeight = maxCoursePeriod * cellHeight;
 
         final weekDates = <DateTime>[];
         if (firstMonday != null) {
@@ -122,7 +111,7 @@ class ScheduleGrid extends StatelessWidget {
                     bottom: 0,
                     child: Column(
                       children: [
-                        for (var p = 0; p < _maxPeriod; p++)
+                        for (var p = 0; p < maxCoursePeriod; p++)
                           _buildPeriodLabel(context, p, cellHeight, nowMinutes),
                       ],
                     ),
@@ -221,7 +210,7 @@ class ScheduleGrid extends StatelessWidget {
     int nowMinutes,
   ) {
     final scheme = Theme.of(context).colorScheme;
-    final slot = _timeSlots[index];
+    final slot = coursePeriodTimes[index];
     final startParts = slot.$1.split(':');
     final endParts = slot.$2.split(':');
     final startMin = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
@@ -274,93 +263,39 @@ class ScheduleGrid extends StatelessWidget {
     final cards = <Widget>[];
     final autoAdjust = AppSettingsProvider.of(context).autoAdjustCourse.value;
 
-    for (final c in courses) {
-      // 收集本周该星期被调课取消的节次范围
-      final canceledSlots = <(int, int)>[];
-      // 收集本周该星期的调课新增
-      final adjustedSlots = <CourseAdjustRule>[];
+    final sessions = CourseSessions.forDay(
+      courses: courses,
+      week: week,
+      weekday: wd,
+      autoAdjust: autoAdjust,
+    );
+    final l10n = AppLocalizations.of(context)!;
+    for (final session in sessions) {
+      final top = (session.startClass - 1) * cellHeight;
+      final height = (session.endClass - session.startClass + 1) * cellHeight;
+      final displayName = session.adjusted
+          ? '${l10n.adjustedMark}${session.course.name}'
+          : session.course.name;
 
-      if (autoAdjust) {
-        for (final a in c.adjustRules) {
-          // 原位置被调走（显式取消 或 普通调课的原位置）
-          if (a.oldWeek == week && a.oldWeekday == wd) {
-            canceledSlots.add((a.oldStartClass, a.oldEndClass));
-          }
-          // 调课目标位置
-          if (a.newWeek == week && a.newWeekday == wd) {
-            adjustedSlots.add(a);
-          }
-        }
-      }
-
-      for (final r in c.scheduleRules) {
-        if (r.weekday != wd) continue;
-        if (r.startWeek > week || r.endWeek < week) continue;
-        if (r.single && !r.double && week % 2 == 0) continue;
-        if (r.double && !r.single && week % 2 == 1) continue;
-        if (r.startClass < 1 || r.startClass > _maxPeriod) continue;
-
-        // 检查是否被调课取消
-        final isCanceled = canceledSlots.any(
-          (slot) => r.startClass == slot.$1 && r.endClass == slot.$2,
-        );
-        if (isCanceled) continue;
-
-        final end = r.endClass > _maxPeriod ? _maxPeriod : r.endClass;
-        final top = (r.startClass - 1) * cellHeight;
-        final height = (end - r.startClass + 1) * cellHeight;
-
-        cards.add(
-          Positioned(
-            top: top + 1,
-            left: 2,
-            right: 2,
-            height: height - 2,
-            child: CourseCard(
-              course: c,
-              location: r.location,
-              onTap: () => _showCourseDetail(context, c, r.location),
+      cards.add(
+        Positioned(
+          top: top + 1,
+          left: 2,
+          right: 2,
+          height: height - 2,
+          child: CourseCard(
+            course: session.course,
+            location: session.location,
+            displayName: displayName,
+            onTap: () => _showCourseDetail(
+              context,
+              session.course,
+              session.location,
+              displayName: displayName,
             ),
           ),
-        );
-      }
-
-      // 绘制调课新增的卡片
-      for (final a in adjustedSlots) {
-        if (a.newStartClass < 1 || a.newStartClass > _maxPeriod) continue;
-        final end = a.newEndClass > _maxPeriod ? _maxPeriod : a.newEndClass;
-        final top = (a.newStartClass - 1) * cellHeight;
-        final height = (end - a.newStartClass + 1) * cellHeight;
-
-        final adjustedCourse = Course(
-          type: c.type,
-          name: '[调课]${c.name}',
-          credits: c.credits,
-          electiveType: c.electiveType,
-          examType: c.examType,
-          teacher: c.teacher,
-          scheduleRules: c.scheduleRules,
-          adjustRules: c.adjustRules,
-          rawExamTime: c.rawExamTime,
-          remark: c.remark,
-          syllabus: c.syllabus,
-          lessonplan: c.lessonplan,
-        );
-        cards.add(
-          Positioned(
-            top: top + 1,
-            left: 2,
-            right: 2,
-            height: height - 2,
-            child: CourseCard(
-              course: adjustedCourse,
-              location: a.newLocation,
-              onTap: () =>
-                  _showCourseDetail(context, adjustedCourse, a.newLocation),
-            ),
-          ),
-        );
-      }
+        ),
+      );
     }
     // 渲染考试卡片
     if (firstMonday != null &&
@@ -372,13 +307,16 @@ class ScheduleGrid extends StatelessWidget {
         final examWeekday = examDate.weekday;
         if (examWeekday != wd) continue;
 
-        final examWeek = examDate.difference(firstMonday!).inDays ~/ 7 + 1;
+        final examWeek = CourseService.getScheduleWeekForDate(
+          firstMonday!,
+          examDate,
+        );
         if (examWeek != week) continue;
 
         final (startClass, endClass) = _mapExamTimeToPeriods(exam.time);
-        if (startClass < 1 || startClass > _maxPeriod) continue;
+        if (startClass < 1 || startClass > maxCoursePeriod) continue;
 
-        final end = endClass > _maxPeriod ? _maxPeriod : endClass;
+        final end = endClass > maxCoursePeriod ? maxCoursePeriod : endClass;
         final top = (startClass - 1) * cellHeight;
         final height = (end - startClass + 1) * cellHeight;
 
@@ -429,8 +367,8 @@ class ScheduleGrid extends StatelessWidget {
     int? startPeriod;
     int? endPeriod;
 
-    for (var i = 0; i < _timeSlots.length; i++) {
-      final slot = _timeSlots[i];
+    for (var i = 0; i < coursePeriodTimes.length; i++) {
+      final slot = coursePeriodTimes[i];
       final sParts = slot.$1.split(':');
       final eParts = slot.$2.split(':');
       final slotStart = int.parse(sParts[0]) * 60 + int.parse(sParts[1]);
@@ -449,7 +387,12 @@ class ScheduleGrid extends StatelessWidget {
     return (startPeriod ?? 0, endPeriod ?? 0);
   }
 
-  void _showCourseDetail(BuildContext context, Course course, String location) {
+  void _showCourseDetail(
+    BuildContext context,
+    Course course,
+    String location, {
+    String? displayName,
+  }) {
     showHalfScreenSheet(
       context,
       builder: (controller) => ListView(
@@ -457,7 +400,7 @@ class ScheduleGrid extends StatelessWidget {
         children: [
           ListTile(
             title: Text(
-              course.name,
+              displayName ?? course.name,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),

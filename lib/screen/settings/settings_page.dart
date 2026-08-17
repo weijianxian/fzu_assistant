@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
-import 'package:fzu_assistant/screen/settings/schedule_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/home_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/advanced_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
@@ -20,10 +20,10 @@ class SettingsPage extends HookWidget {
       body: ListView(
         children: [
           ChevronListTile(
-            leading: const Icon(Icons.calendar_month_outlined),
-            title: Text(l10n.scheduleSettings),
-            subtitle: Text(l10n.scheduleSettingsSubtitle),
-            onTap: () => context.push(const ScheduleSettingsPage()),
+            leading: const Icon(Icons.home_outlined),
+            title: Text(l10n.homeSettings),
+            subtitle: Text(l10n.homeSettingsSubtitle),
+            onTap: () => context.push(const HomeSettingsPage()),
           ),
           ChevronListTile(
             leading: const Icon(Icons.tune),

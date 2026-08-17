@@ -73,7 +73,7 @@ class CalendarPage extends HookWidget {
     if (eventsMap.value.containsKey(termId)) return;
     loadingMap.value = {...loadingMap.value, termId: true};
     try {
-      final data = await service.getTermEvents(termId);
+      final data = await service.loadOrFetchTermEvents(termId);
       eventsMap.value = {...eventsMap.value, termId: data};
     } catch (e) {
       errorMap.value = {...errorMap.value, termId: e.toString()};

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_mounted.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
@@ -10,8 +11,6 @@ import 'package:fzu_assistant/screen/schedule/widgets/schedule_grid.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
-
-const _totalWeeks = 19;
 
 class SchedulePage extends HookWidget {
   final ValueNotifier<int>? jumpToWeekTrigger;
@@ -175,30 +174,10 @@ class SchedulePage extends HookWidget {
               ),
         title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
         actions: [
-          if (context.isLandscape)
-            IconButton(
-              icon: loading.value
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.refresh),
-              onPressed: loading.value
-                  ? null
-                  : () async {
-                      final selected = settings.selectedSemesterKey.value;
-                      final target = selected.isNotEmpty
-                          ? selected
-                          : currentTerm.value;
-                      if (target.isNotEmpty) {
-                        await refresh(target, useCache: false);
-                      }
-                    },
-            ),
+          const HomeViewToggle(),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.pushNamed(AppRoutes.scheduleSettings),
+            onPressed: () => context.pushNamed(AppRoutes.homeSettings),
           ),
           if (context.isLandscape) ...[
             IconButton(
@@ -212,7 +191,9 @@ class SchedulePage extends HookWidget {
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right),
-              onPressed: pc != null && displayWeek.value < _totalWeeks
+              onPressed:
+                  pc != null &&
+                      displayWeek.value < CourseService.totalScheduleWeeks
                   ? () => pc.nextPage(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
@@ -301,7 +282,7 @@ class _ScheduleBody extends StatelessWidget {
     return PageView.builder(
       controller: pageController,
       physics: const BouncingScrollPhysics(),
-      itemCount: _totalWeeks,
+      itemCount: CourseService.totalScheduleWeeks,
       onPageChanged: (i) => displayWeek.value = i + 1,
       itemBuilder: (context, i) => ScheduleGrid(
         courses: courses,

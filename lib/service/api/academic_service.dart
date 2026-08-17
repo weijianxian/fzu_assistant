@@ -439,6 +439,31 @@ class AcademicService {
     return SchoolCalendar(currentTerm: currentTerm, terms: terms);
   }
 
+  /// 从缓存加载指定学期的校历事件，缓存未命中时走网络并写入缓存。
+  Future<CalTermEvents> loadOrFetchTermEvents(
+    String termId, {
+    bool useCache = true,
+  }) async {
+    if (useCache) {
+      final cached = await CacheHelper.loadForKey<CalTermEvents>(
+        SpKeys.cacheTermEventsMap,
+        termId,
+        (json) =>
+            CalTermEvents.fromJson(Map<String, dynamic>.from(json as Map)),
+      );
+      if (cached != null) return cached;
+    }
+
+    final result = await getTermEvents(termId);
+    await CacheHelper.saveForKey(
+      SpKeys.cacheTermEventsMap,
+      termId,
+      result.toJson(),
+    );
+    return result;
+  }
+
+  /// 从教务系统获取指定学期的校历事件。
   Future<CalTermEvents> getTermEvents(String termId) async {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');

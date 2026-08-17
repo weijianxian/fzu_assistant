@@ -7,6 +7,10 @@ import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 
 class AppSettings {
+  static const scheduleHomeStyle = 'schedule';
+  static const timelineHomeStyle = 'timeline';
+  static const timelineDayOptions = [1, 3, 7, 30];
+
   static ColorScheme? _systemLightScheme;
   static ColorScheme? _systemDarkScheme;
   static bool dynamicColorSupported = false;
@@ -17,6 +21,10 @@ class AppSettings {
   final themeKey = ValueNotifier<String>('deep_purple');
   final themeModeKey = ValueNotifier<String>('system');
   final localeKey = ValueNotifier<String>('system');
+
+  // 首页
+  final homeStyleKey = ValueNotifier<String>(scheduleHomeStyle);
+  final timelineDaysKey = ValueNotifier<int>(1);
 
   // 学期相关
   final selectedSemesterKey = ValueNotifier<String>(''); // 空 = 自动当前学期
@@ -67,6 +75,16 @@ class AppSettings {
     final validLocale = _localeOptions.any((o) => o.$1 == savedLocale);
     localeKey.value = validLocale ? savedLocale : 'system';
 
+    final savedHomeStyle = sp.getString(SpKeys.homeStyle) ?? scheduleHomeStyle;
+    homeStyleKey.value =
+        {scheduleHomeStyle, timelineHomeStyle}.contains(savedHomeStyle)
+        ? savedHomeStyle
+        : scheduleHomeStyle;
+    final savedTimelineDays = sp.getInt(SpKeys.timelineDays) ?? 1;
+    timelineDaysKey.value = timelineDayOptions.contains(savedTimelineDays)
+        ? savedTimelineDays
+        : 1;
+
     // 学期相关
     selectedSemesterKey.value = sp.getString('selected_semester') ?? '';
 
@@ -107,6 +125,16 @@ class AppSettings {
     localeKey.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setString(SpKeys.localeKey, localeKey.value),
+      );
+    });
+    homeStyleKey.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString(SpKeys.homeStyle, homeStyleKey.value),
+      );
+    });
+    timelineDaysKey.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setInt(SpKeys.timelineDays, timelineDaysKey.value),
       );
     });
     selectedSemesterKey.addListener(() {
@@ -222,6 +250,8 @@ class AppSettings {
     themeKey.dispose();
     themeModeKey.dispose();
     localeKey.dispose();
+    homeStyleKey.dispose();
+    timelineDaysKey.dispose();
     selectedSemesterKey.dispose();
     termsKey.dispose();
     siteInjectionEnabled.dispose();

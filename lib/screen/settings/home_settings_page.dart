@@ -6,8 +6,8 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 
-class ScheduleSettingsPage extends HookWidget {
-  const ScheduleSettingsPage({super.key});
+class HomeSettingsPage extends HookWidget {
+  const HomeSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +36,64 @@ class ScheduleSettingsPage extends HookWidget {
     }, []);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.scheduleSettings)),
+      appBar: AppBar(title: Text(l10n.homeSettings)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          Section(
+            title: l10n.homeStyle,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ValueListenableBuilder<String>(
+                valueListenable: settings.homeStyleKey,
+                builder: (_, homeStyle, _) => DropdownButton<String>(
+                  value: homeStyle,
+                  isExpanded: true,
+                  items: [
+                    DropdownMenuItem(
+                      value: AppSettings.scheduleHomeStyle,
+                      child: Text(l10n.homeStyleSchedule),
+                    ),
+                    DropdownMenuItem(
+                      value: AppSettings.timelineHomeStyle,
+                      child: Text(l10n.homeStyleTimeline),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) settings.homeStyleKey.value = value;
+                  },
+                ),
+              ),
+            ),
+          ),
+          Section(
+            title: l10n.timelineCourseRange,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ValueListenableBuilder(
+                valueListenable: settings.timelineDaysKey,
+                builder: (_, days, _) => DropdownButton<int>(
+                  value: days,
+                  isExpanded: true,
+                  items: AppSettings.timelineDayOptions
+                      .map(
+                        (option) => DropdownMenuItem(
+                          value: option,
+                          child: Text(switch (option) {
+                            1 => l10n.today,
+                            30 => l10n.nextMonth,
+                            _ => l10n.daysN(option),
+                          }),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) settings.timelineDaysKey.value = value;
+                  },
+                ),
+              ),
+            ),
+          ),
           Section(
             title: l10n.selectSemester,
             child: Padding(
@@ -99,7 +153,7 @@ class ScheduleSettingsPage extends HookWidget {
           ),
           const SizedBox(height: 16),
           Section(
-            title: l10n.scheduleSettings,
+            title: l10n.navSchedule,
             child: Column(
               children: [
                 SettingSwitchTile(

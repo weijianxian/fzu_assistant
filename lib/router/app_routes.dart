@@ -12,7 +12,7 @@ import 'package:fzu_assistant/screen/toolbox/notice/notice_page.dart';
 import 'package:fzu_assistant/screen/my/calendar/calendar_page.dart';
 import 'package:fzu_assistant/screen/my/about/about_page.dart';
 import 'package:fzu_assistant/screen/settings/settings_page.dart';
-import 'package:fzu_assistant/screen/settings/schedule_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/home_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/advanced_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
@@ -34,7 +34,7 @@ class AppRoutes {
   static const notice = '/notice';
   static const calendar = '/calendar';
   static const settings = '/settings';
-  static const scheduleSettings = '/settings/schedule';
+  static const homeSettings = '/settings/home';
   static const generalSettings = '/settings/general';
   static const advancedSettings = '/settings/advanced';
   static const themeSettings = '/settings/theme';
@@ -56,7 +56,7 @@ class AppRoutes {
     notice: (_) => const NoticePage(),
     calendar: (_) => const CalendarPage(),
     settings: (_) => const SettingsPage(),
-    scheduleSettings: (_) => const ScheduleSettingsPage(),
+    homeSettings: (_) => const HomeSettingsPage(),
     generalSettings: (_) => const GeneralSettingsPage(),
     advancedSettings: (_) => const AdvancedSettingsPage(),
     themeSettings: (_) => const ThemeSection(),

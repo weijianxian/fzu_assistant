@@ -4,6 +4,7 @@ import 'package:fzu_assistant/model/course.dart';
 class CourseCard extends StatelessWidget {
   final Course course;
   final String location;
+  final String? displayName;
   final VoidCallback? onTap;
 
   // Tailwind CSS 300 级浅色
@@ -58,6 +59,7 @@ class CourseCard extends StatelessWidget {
     super.key,
     required this.course,
     required this.location,
+    this.displayName,
     this.onTap,
   });
 
@@ -81,7 +83,7 @@ class CourseCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              course.name,
+              displayName ?? course.name,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,

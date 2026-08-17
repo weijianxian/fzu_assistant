@@ -113,16 +113,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settings => '设置';
 
   @override
-  String get scheduleSettings => '课表设置';
+  String get homeSettings => '首页设置';
 
   @override
-  String get scheduleSettingsSubtitle => '学期选择、考试显示和自动调课';
+  String get homeSettingsSubtitle => '首页视图、时间线范围与课表选项';
 
   @override
   String get generalSettings => '一般设置';
 
   @override
-  String get generalSettingsSubtitle => '语言、网页增强和常用偏好';
+  String get generalSettingsSubtitle => '语言与网页增强';
 
   @override
   String get advancedSettings => '高级设置';
@@ -536,4 +536,78 @@ class AppLocalizationsZh extends AppLocalizations {
   String evalSubmitFailed(String error) {
     return '评议提交失败: $error';
   }
+
+  @override
+  String get navHome => '首页';
+
+  @override
+  String get homeStyle => '首页视图';
+
+  @override
+  String get homeStyleSchedule => '周视图';
+
+  @override
+  String get homeStyleTimeline => '天视图';
+
+  @override
+  String get semesterStart => '开学';
+
+  @override
+  String get semesterEnd => '学期结束';
+
+  @override
+  String get today => '今天';
+
+  @override
+  String get notStarted => '未开学';
+
+  @override
+  String daysLeft(int days) {
+    return '还有 $days 天';
+  }
+
+  @override
+  String get inProgress => '进行中';
+
+  @override
+  String get finished => '已结束';
+
+  @override
+  String get semesterProgress => '学期进度';
+
+  @override
+  String get otherEvents => '其他安排';
+
+  @override
+  String get timeline => '时间线';
+
+  @override
+  String get starts => '开始';
+
+  @override
+  String get ends => '结束';
+
+  @override
+  String classPeriod(int period) {
+    return '第 $period 节';
+  }
+
+  @override
+  String classPeriodRange(int start, int end) {
+    return '第 $start-$end 节';
+  }
+
+  @override
+  String get adjustedMark => '[调课]';
+
+  @override
+  String get timelineCourseRange => '时间线课程范围';
+
+  @override
+  String daysN(int days) {
+    return '$days 天';
+  }
+
+  @override
+  String get nextMonth => '未来一个月';
 }

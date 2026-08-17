@@ -144,19 +144,19 @@
   "@settings": {
     "description": "settings"
   },
-  "scheduleSettings": "课表设置",
-  "@scheduleSettings": {
-    "description": "scheduleSettings"
+  "homeSettings": "首页设置",
+  "@homeSettings": {
+    "description": "homeSettings"
   },
-  "scheduleSettingsSubtitle": "学期选择、考试显示和自动调课",
-  "@scheduleSettingsSubtitle": {
-    "description": "scheduleSettingsSubtitle"
+  "homeSettingsSubtitle": "首页视图、时间线范围与课表选项",
+  "@homeSettingsSubtitle": {
+    "description": "homeSettingsSubtitle"
   },
   "generalSettings": "一般设置",
   "@generalSettings": {
     "description": "generalSettings"
   },
-  "generalSettingsSubtitle": "语言、网页增强和常用偏好",
+  "generalSettingsSubtitle": "语言与网页增强",
   "@generalSettingsSubtitle": {
     "description": "generalSettingsSubtitle"
   },
@@ -729,5 +729,58 @@
         "type": "String"
       }
     }
-  }
+  },
+  "navHome": "首页",
+  "homeStyle": "首页视图",
+  "homeStyleSchedule": "周视图",
+  "homeStyleTimeline": "天视图",
+  "semesterStart": "开学",
+  "semesterEnd": "学期结束",
+  "today": "今天",
+  "notStarted": "未开学",
+  "daysLeft": "还有 {days} 天",
+  "@daysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "inProgress": "进行中",
+  "finished": "已结束",
+  "semesterProgress": "学期进度",
+  "otherEvents": "其他安排",
+  "timeline": "时间线",
+  "starts": "开始",
+  "ends": "结束",
+  "classPeriod": "第 {period} 节",
+  "@classPeriod": {
+    "placeholders": {
+      "period": {
+        "type": "int"
+      }
+    }
+  },
+  "classPeriodRange": "第 {start}-{end} 节",
+  "@classPeriodRange": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustedMark": "[调课]",
+  "timelineCourseRange": "时间线课程范围",
+  "daysN": "{days} 天",
+  "@daysN": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "nextMonth": "未来一个月"
 }

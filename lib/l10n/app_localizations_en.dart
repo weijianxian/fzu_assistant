@@ -114,18 +114,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String get scheduleSettings => 'Schedule Settings';
+  String get homeSettings => 'Home Settings';
 
   @override
-  String get scheduleSettingsSubtitle =>
-      'Semester selection, exam display, and course adjustments';
+  String get homeSettingsSubtitle =>
+      'Home view, timeline range, and schedule options';
 
   @override
   String get generalSettings => 'General Settings';
 
   @override
-  String get generalSettingsSubtitle =>
-      'Language, web enhancement, and common preferences';
+  String get generalSettingsSubtitle => 'Language and web enhancement';
 
   @override
   String get advancedSettings => 'Advanced Settings';
@@ -548,4 +547,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String evalSubmitFailed(String error) {
     return 'Evaluation failed: $error';
   }
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get homeStyle => 'Home View';
+
+  @override
+  String get homeStyleSchedule => 'Week';
+
+  @override
+  String get homeStyleTimeline => 'Day';
+
+  @override
+  String get semesterStart => 'Semester starts';
+
+  @override
+  String get semesterEnd => 'Semester ends';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get notStarted => 'Not started';
+
+  @override
+  String daysLeft(int days) {
+    return '$days days left';
+  }
+
+  @override
+  String get inProgress => 'In progress';
+
+  @override
+  String get finished => 'Finished';
+
+  @override
+  String get semesterProgress => 'Semester progress';
+
+  @override
+  String get otherEvents => 'Other events';
+
+  @override
+  String get timeline => 'Timeline';
+
+  @override
+  String get starts => ' starts';
+
+  @override
+  String get ends => ' ends';
+
+  @override
+  String classPeriod(int period) {
+    return 'Period $period';
+  }
+
+  @override
+  String classPeriodRange(int start, int end) {
+    return 'Periods $start-$end';
+  }
+
+  @override
+  String get adjustedMark => '[Adjusted] ';
+
+  @override
+  String get timelineCourseRange => 'Timeline course range';
+
+  @override
+  String daysN(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get nextMonth => 'Next month';
 }

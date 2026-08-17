@@ -40,6 +40,18 @@ class CalTermEvent {
     required this.startDate,
     required this.endDate,
   });
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'startDate': startDate,
+    'endDate': endDate,
+  };
+
+  factory CalTermEvent.fromJson(Map<String, dynamic> json) => CalTermEvent(
+    name: json['name'] as String,
+    startDate: json['startDate'] as String,
+    endDate: json['endDate'] as String,
+  );
 }
 
 class CalTermEvents {
@@ -47,6 +59,21 @@ class CalTermEvents {
   final List<CalTermEvent> events;
 
   const CalTermEvents({required this.termId, required this.events});
+
+  Map<String, dynamic> toJson() => {
+    'termId': termId,
+    'events': events.map((event) => event.toJson()).toList(),
+  };
+
+  factory CalTermEvents.fromJson(Map<String, dynamic> json) => CalTermEvents(
+    termId: json['termId'] as String,
+    events: (json['events'] as List)
+        .map(
+          (event) =>
+              CalTermEvent.fromJson(Map<String, dynamic>.from(event as Map)),
+        )
+        .toList(),
+  );
 }
 
 class SchoolCalendar {

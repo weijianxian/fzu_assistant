@@ -2,12 +2,15 @@ import 'package:html/dom.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/common/utils/html_utils.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
+import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/html_helper.dart';
 
 class CourseService {
+  static const totalScheduleWeeks = 19;
+
   static const _courseUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xkjg/wdxk/xkjg_list.aspx';
 
@@ -52,19 +55,45 @@ class CourseService {
     final match = cal.terms.where((t) => t.term == term);
     if (match.isEmpty) return null;
 
-    final startDate = DateTime.tryParse(match.first.startDate);
+    return getFirstMondayFromTerm(match.first);
+  }
+
+  static DateTime? getFirstMondayFromTerm(CalTerm term) {
+    final startDate = DateTime.tryParse(term.startDate);
     if (startDate == null) return null;
 
     final offset = (startDate.weekday + 6) % 7;
     return startDate.subtract(Duration(days: offset));
   }
 
-  /// 由 firstMonday 计算当前是第几周。
-  static int getWeekFromFirstMonday(DateTime firstMonday) {
-    final week =
-        (DateTime.now().difference(firstMonday).inDays / 7).floor() + 1;
-    return week.clamp(1, 19);
+  /// 由 firstMonday 计算指定日期是第几周，缺省为今天。
+  static int getWeekFromFirstMonday(DateTime firstMonday, [DateTime? date]) {
+    final dayOffset = _dayOffset(firstMonday, date ?? DateTime.now());
+    final week = _weekFromDayOffset(dayOffset);
+    return week.clamp(1, totalScheduleWeeks);
   }
+
+  /// 将日期映射到课表周。首周之前或课表范围之后返回 null，避免把范围外日期
+  /// 夹到第 1 周或最后一周而重复显示课程。
+  static int? getScheduleWeekForDate(DateTime firstMonday, DateTime date) {
+    final dayOffset = _dayOffset(firstMonday, date);
+    if (dayOffset < 0) return null;
+
+    final week = _weekFromDayOffset(dayOffset);
+    return week <= totalScheduleWeeks ? week : null;
+  }
+
+  static int _dayOffset(DateTime firstMonday, DateTime date) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    final normalizedMonday = DateTime(
+      firstMonday.year,
+      firstMonday.month,
+      firstMonday.day,
+    );
+    return normalizedDate.difference(normalizedMonday).inDays;
+  }
+
+  static int _weekFromDayOffset(int dayOffset) => (dayOffset / 7).floor() + 1;
 
   // ─── 学期列表 ───
 
