@@ -102,6 +102,10 @@ flutter build windows --release
 
 ### Android 签名配置
 
+发布产物统一命名为 `FZU-assistant-v<版本号>-<平台>-<架构>[-<备注>].ext`，版本号取 `pubspec.yaml` 的版本部分（不包含 `+build`）。Windows 架构使用 `x86_64`，区分 `installer.exe` 和 `portable.zip`；Android 架构使用 `armeabi-v7a`、`arm64-v8a`、`x86_64`，通用包使用 `universal.apk`。
+
+APK 原始文件名由 `android/app/build.gradle.kts` 定义，位于 `build/app/outputs/apk/release/`；Flutter 另保留 `outputs/flutter-apk/` 下的标准命名副本。安装包文件名由 Inno Setup 的 `OutputBaseFilename` 定义。Actions 产物名使用对应发布文件名去掉扩展名，Android 按架构分别上传。Release 直接复用 portable 的 Actions ZIP，installer 和 APK 从 Actions 产物解包后原样上传。
+
 Release 构建需要在仓库 **Settings → Secrets and variables → Actions** 中配置以下 Secrets：
 
 | Secret | 说明 |

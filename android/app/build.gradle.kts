@@ -1,4 +1,5 @@
 import java.util.Properties
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 plugins {
     id("com.android.application")
@@ -52,6 +53,19 @@ android {
                 applicationIdSuffix = ".dev"
             }
         }
+    }
+}
+
+// The project uses AGP's legacy DSL (android.newDsl=false), as does Flutter.
+// Name the original APK; Flutter keeps its own conventional discovery copy.
+android.applicationVariants.all {
+    val releaseVersion = versionName.substringBefore('+')
+    val mode = buildType.name
+    outputs.all {
+        val apkOutput = this as BaseVariantOutputImpl
+        val arch = apkOutput.getFilter("ABI") ?: "universal"
+        val suffix = if (mode == "release") "" else "-$mode"
+        apkOutput.outputFileName = "FZU-assistant-v$releaseVersion-android-$arch$suffix.apk"
     }
 }
 

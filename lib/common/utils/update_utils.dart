@@ -63,7 +63,7 @@ class UpdateUtils {
   }
 
   /// Picks the Inno Setup package produced by `.github/workflows/build.yaml`
-  /// (`FZU-Assistant-<version>-windows-x64-setup.exe`).
+  /// (`FZU-assistant-v<version>-windows-x86_64-installer.exe`).
   ///
   /// Only an `.exe` whose name carries a setup token qualifies: the portable zip
   /// shares the asset name up to the extension, and a bare `.exe` match would

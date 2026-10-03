@@ -2,6 +2,7 @@ name: Build and Release
 
 permissions:
   contents: write
+  actions: read
 
 on:
   push:
@@ -49,11 +50,6 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
           echo "BUILD=$BUILD" >> "$GITHUB_OUTPUT"
           echo "::notice::pubspec version $RAW -> installer version $VERSION (build $BUILD)"
-
-      - name: Package portable Windows zip
-        shell: pwsh
-        run: |
-          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath "fzu_assistant-windows-${{ steps.version.outputs.VERSION }}+${{ steps.version.outputs.BUILD }}.zip"
 
       # The vendored ChineseSimplified.isl only lives in the repo, and Inno Setup
       # ships no Chinese translation in its Languages\ payload. We drop it into the
@@ -112,20 +108,27 @@ jobs:
           path: installer/windows/setup.iss
           options: >-
             /DMyAppVersion=${{ steps.version.outputs.VERSION }}
-            /DMyAppArch=x64
+            /DMyAppArch=x86_64
             /DMySourceDir=${{ github.workspace }}\build\windows\x64\runner\Release
 
       - name: List installer output
         shell: pwsh
         run: Get-ChildItem build\installer
 
-      - name: Upload Windows artifacts
+      - name: Upload Windows portable bundle
         uses: actions/upload-artifact@v4
         with:
-          name: windows-build-${{ steps.version.outputs.VERSION }}
-          path: |
-            fzu_assistant-windows-*.zip
-            build/installer/*-setup.exe
+          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-windows-x86_64-portable
+          path: build/windows/x64/runner/Release/
+          compression-level: 9
+          if-no-files-found: error
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-windows-x86_64-installer
+          path: build/installer/FZU-assistant-v*-windows-x86_64-installer.exe
+          compression-level: 0
           if-no-files-found: error
 
   build-android:
@@ -165,21 +168,51 @@ jobs:
           echo "storeFile=ghaction-keystore.jks" >> android/app/key.properties
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/ghaction-keystore.jks
 
+      - name: Read version from pubspec
+        id: version
+        shell: bash
+        run: |
+          RAW=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | tr -d '[:space:]')
+          echo "VERSION=${RAW%%+*}" >> "$GITHUB_OUTPUT"
+
       - name: Build split APKs
         run: flutter build apk --split-per-abi --release
+
+      # Upload before the universal build replaces AGP's release output directory.
+      - name: Upload Android armeabi-v7a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-armeabi-v7a
+          path: build/app/outputs/apk/release/FZU-assistant-v*-android-armeabi-v7a.apk
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload Android arm64-v8a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-arm64-v8a
+          path: build/app/outputs/apk/release/FZU-assistant-v*-android-arm64-v8a.apk
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload Android x86_64 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-x86_64
+          path: build/app/outputs/apk/release/FZU-assistant-v*-android-x86_64.apk
+          compression-level: 0
+          if-no-files-found: error
 
       - name: Build universal APK
         run: flutter build apk --release
 
-      - name: Upload Android artifacts
+      - name: Upload Android universal APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-build
-          path: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-release.apk
+          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-universal
+          path: build/app/outputs/apk/release/FZU-assistant-v*-android-universal.apk
+          compression-level: 0
+          if-no-files-found: error
 
   release:
     needs: [build-windows, build-android]
@@ -191,10 +224,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download all artifacts
+      - name: Download installer
         uses: actions/download-artifact@v4
         with:
+          pattern: FZU-assistant-*-windows-*-installer
           path: artifacts
+          merge-multiple: true
+
+      - name: Download Android packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: FZU-assistant-*-android-*
+          path: artifacts
+          merge-multiple: true
+
+      # Reuse upload-artifact's ZIP directly, without repackaging the bundle.
+      - name: Download portable artifact archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          gh api --paginate "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+            --jq '.artifacts[] | select(.name | endswith("-windows-x86_64-portable")) | [.id, .name] | @tsv' > portable-artifacts.tsv
+          test "$(wc -l < portable-artifacts.tsv)" -eq 1
+          while IFS=$'\t' read -r ID NAME; do
+            gh api "repos/${{ github.repository }}/actions/artifacts/$ID/zip" > "release-assets/$NAME.zip"
+          done < portable-artifacts.tsv
 
       - name: Generate changelog
         uses: orhun/git-cliff-action@v4
@@ -212,6 +268,6 @@ jobs:
           body: ${{ steps.cliff.outputs.content }}
           fail_on_unmatched_files: true
           files: |
-            artifacts/windows-build*/*.zip
-            artifacts/windows-build*/build/installer/*-setup.exe
-            artifacts/android-build/*.apk
+            release-assets/FZU-assistant-v*-windows-x86_64-portable.zip
+            artifacts/FZU-assistant-v*-windows-x86_64-installer.exe
+            artifacts/FZU-assistant-v*-android-*.apk

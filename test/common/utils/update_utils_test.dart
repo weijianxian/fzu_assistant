@@ -20,6 +20,25 @@ void main() {
   });
 
   group('UpdateUtils.pickAndroidAsset', () {
+    test('selects named release packages by abi and universal fallback', () {
+      final assets = [
+        _asset('FZU-assistant-v1.3.2-android-x86_64.apk'),
+        _asset('FZU-assistant-v1.3.2-android-arm64-v8a.apk'),
+        _asset('FZU-assistant-v1.3.2-android-armeabi-v7a.apk'),
+        _asset('FZU-assistant-v1.3.2-android-universal.apk'),
+      ];
+      for (final abi in ['x86_64', 'arm64-v8a', 'armeabi-v7a']) {
+        expect(
+          UpdateUtils.pickAndroidAsset(assets, [abi])?.name,
+          'FZU-assistant-v1.3.2-android-$abi.apk',
+        );
+      }
+      expect(
+        UpdateUtils.pickAndroidAsset(assets, ['x86'])?.name,
+        'FZU-assistant-v1.3.2-android-universal.apk',
+      );
+    });
+
     test('picks the first matching supported abi asset', () {
       final assets = [
         _asset('fzu_assistant-x86_64.apk'),
@@ -90,6 +109,16 @@ void main() {
   });
 
   group('UpdateUtils.pickWindowsInstaller', () {
+    test('selects named installer and ignores portable package', () {
+      expect(
+        UpdateUtils.pickWindowsInstaller([
+          _asset('FZU-assistant-v1.3.2-windows-x86_64-portable.zip'),
+          _asset('FZU-assistant-v1.3.2-windows-x86_64-installer.exe'),
+        ])?.name,
+        'FZU-assistant-v1.3.2-windows-x86_64-installer.exe',
+      );
+    });
+
     test('picks setup.exe and skips the portable zip', () {
       final assets = [
         _asset('fzu_assistant-windows-1.3.1+85.zip'),

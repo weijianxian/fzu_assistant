@@ -30,9 +30,9 @@
   #define MyAppVersion "1.0.0"
 #endif
 
-; Architecture is passed from CI via /DMyAppArch=x64 (installer artifact naming only).
+; Architecture is passed from CI via /DMyAppArch=x86_64 (installer artifact naming only).
 #ifndef MyAppArch
-  #define MyAppArch "x64"
+  #define MyAppArch "x86_64"
 #endif
 
 ; Flutter Windows release bundle, passed from CI via /DMySourceDir=<abs path>.
@@ -56,7 +56,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 DisableProgramGroupPage=yes
 OutputDir=..\..\build\installer
-OutputBaseFilename=FZU-Assistant-{#MyAppVersion}-windows-{#MyAppArch}-setup
+OutputBaseFilename=FZU-assistant-v{#MyAppVersion}-windows-{#MyAppArch}-installer
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
