@@ -136,7 +136,24 @@ lib/
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化
-- 每次做完一个功能，就commit一次，commit message 为单行，遵循历史commit message风格。
+- 每次做完一个功能，就 commit 一次，提交信息遵循下方规范。
+
+## Commit message 规范
+
+- 使用单行格式：`<emoji> <type>: <中文描述>`，冒号使用英文冒号，冒号后留一个空格。
+- 描述说明本次提交的具体改动，简洁明确；技术名词保留原文，不使用「更新代码」「修复问题」等笼统描述。
+- 一个提交聚焦一个功能或一类相关改动，不混入无关修改。
+- 常用类型与 emoji：
+  - `✨ feat`：新增功能或增强现有功能。
+  - `🐛 fix`：修复缺陷。
+  - `♻️ refactor`：重构代码，不改变功能行为。
+  - `🎨 style`：代码格式调整，不改变逻辑。
+  - `📝 docs`：文档或开发规范更新。
+  - `✅ test`：新增或调整测试。
+  - `⚡️ perf`：性能优化。
+  - `🔧 chore`：构建、CI、工具配置等维护工作；依赖或 SDK 升级使用 `⬆️ chore`。
+- 示例：`🐛 fix: 修复动态主题 ColorScheme 类型不兼容`、`📝 docs: 明确提交信息规范`。
+- 正常执行仓库 pre-commit hook，由 hook 自动更新 build 号并检查 Dart 格式，不手动绕过。
 
 ## 国际化
 
