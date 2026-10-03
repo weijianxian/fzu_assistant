@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
+import 'package:html/parser.dart' as html_parser;
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/common/utils/html_utils.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
@@ -788,7 +789,10 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final doc = await _fetch('$_evalTeacherListUrl?bj=$type');
+    final doc = await HtmlHelper.fetchHtml(
+      _evalTeacherListUrl,
+      queryParameters: {..._idParam, 'bj': type},
+    );
 
     final anchors = doc.querySelectorAll('a[href^="TeaEvaluation.aspx"]');
     final teachers = <EvaluationTeacher>[];
@@ -829,9 +833,11 @@ class AcademicService {
     String captcha,
   ) async {
     // Step 1: GET 获取 ASP.NET 表单令牌
-    final getUrl = Uri.parse(_evalTeacherUrl)
-        .replace(queryParameters: teacherParams);
-    final getDoc = await HtmlHelper.fetchHtml(getUrl.toString());
+    final params = {...teacherParams, ..._idParam};
+    final getDoc = await HtmlHelper.fetchHtml(
+      _evalTeacherUrl,
+      queryParameters: params,
+    );
 
     final viewState =
         getDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
@@ -840,11 +846,15 @@ class AcademicService {
         '';
     final eventValidation =
         getDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
+    if (viewState.isEmpty || eventValidation.isEmpty) {
+      final message = _extractEvaluationError(getDoc);
+      throw Exception(message ?? '未获取到评议表单，请刷新待评议课程后重试');
+    }
 
     // Step 2: POST 提交评议
-    final postUrl = getUrl.toString();
     final resp = await ApiClient.instance.dio.post<List<int>>(
-      postUrl,
+      _evalTeacherUrl,
+      queryParameters: {...teacherParams, ..._idParam},
       data: {
         '__VIEWSTATE': viewState,
         '__VIEWSTATEGENERATOR': viewStateGenerator,
@@ -857,7 +867,24 @@ class AcademicService {
       options: Options(responseType: ResponseType.bytes),
     );
 
-    final body = utf8.decode(resp.data!, allowMalformed: true);
-    return !body.contains('验证码校验错误');
+    if (resp.statusCode != 200 && resp.statusCode != 302) {
+      throw Exception('评议提交失败（HTTP ${resp.statusCode}）');
+    }
+    final body = utf8.decode(resp.data ?? [], allowMalformed: true);
+    final message = _extractEvaluationError(html_parser.parse(body));
+    if (message == null) return true;
+    if (message.contains('验证码校验错误')) return false;
+    throw Exception(message);
+  }
+
+  static String? _extractEvaluationError(Document doc) {
+    final pattern = RegExp(
+      r'''(?:window\.)?alert\s*\(\s*['"]([^'"]*)['"]\s*\)''',
+    );
+    for (final script in doc.querySelectorAll('script')) {
+      final message = pattern.firstMatch(script.text)?.group(1)?.trim();
+      if (message != null && message.isNotEmpty) return message;
+    }
+    return null;
   }
 }

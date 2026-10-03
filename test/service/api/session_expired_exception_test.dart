@@ -48,5 +48,32 @@ void main() {
       expect(SessionExpiryDetector.isPayload('<html>GPA</html>'), isFalse);
       expect(SessionExpiryDetector.isPayload(<int>[1, 2, 3]), isFalse);
     });
+
+    test('评议页面的重登链接和未登录处理脚本不代表会话失效', () {
+      expect(
+        SessionExpiryDetector.isHtml('''
+          <html><body><a href="/login.aspx">重新登录</a>
+          <script>function check(info) {
+            if (info === 'nologin') { alert('请重新登录'); }
+          }</script><a href="TeaEvaluation.aspx">评议</a></body></html>
+        '''),
+        isFalse,
+      );
+      expect(
+        SessionExpiryDetector.isHtml('''
+          <html><body><a href="/login.aspx">重新登录</a>
+          <script>const expired = 'nologin';</script>
+          <a href="TeaEvaluation.aspx">评议</a></body></html>
+        '''),
+        isFalse,
+      );
+    });
+
+    test('仍识别会话失效弹窗', () {
+      expect(
+        SessionExpiryDetector.isHtml("<script>alert('请重新登录');</script>"),
+        isTrue,
+      );
+    });
   });
 }

@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 模拟教务处"会话已失效"的响应：410 + nologin 页面。
@@ -106,6 +107,41 @@ class _RedirectOnlyAdapter implements HttpClientAdapter {
 const _secureStorageChannel = MethodChannel(
   'plugins.it_nomads.com/flutter_secure_storage',
 );
+
+class _EvaluationAdapter extends _RedirectOnlyAdapter {
+  final requests = <RequestOptions>[];
+  String submitResponse = '';
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    requests.add(options);
+    if (options.uri.path.endsWith('/TeaList.aspx')) {
+      return ResponseBody.fromString('''
+        <html><body><a href="/login.aspx">重新登录</a>
+        <script>function check(info) {
+          if (info === 'nologin') { alert('请重新登录'); }
+        }</script>
+        <a href="TeaEvaluation.aspx?id=OLD&amp;kcmc=数学&amp;jsxm=张老师">评议</a>
+        </body></html>
+      ''', 200);
+    }
+    if (options.uri.path.endsWith('/TeaEvaluation.aspx')) {
+      if (options.method == 'POST') {
+        return ResponseBody.fromString(submitResponse, 200);
+      }
+      return ResponseBody.fromString('''
+        <input id="__VIEWSTATE" value="state">
+        <input id="__VIEWSTATEGENERATOR" value="generator">
+        <input id="__EVENTVALIDATION" value="validation">
+      ''', 200);
+    }
+    return super.fetch(options, requestStream, cancelFuture);
+  }
+}
 
 void _mockStoredCredentials() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -213,6 +249,52 @@ void main() {
       await ApiClient.instance.login('20210001', 'secret', '12');
 
       expect(ApiClient.instance.userId, 'IDENTIFIER');
+    });
+
+    test('两类评议列表携带 id 和 bj，正常页面不触发重登', () async {
+      final evaluationAdapter = _EvaluationAdapter();
+      ApiClient.instance.dio.httpClientAdapter = evaluationAdapter;
+      await ApiClient.instance.login('20210001', 'secret', '12');
+      evaluationAdapter.requests.clear();
+
+      for (final type in ['xqxk', 'score']) {
+        final teachers = await AcademicService().getEvaluationTeachers(type);
+        expect(teachers.single.courseName, '数学');
+        expect(teachers.single.teacherName, '张老师');
+        expect(evaluationAdapter.requests.last.uri.queryParameters, {
+          'id': 'IDENTIFIER',
+          'bj': type,
+        });
+      }
+      expect(evaluationAdapter.requests, hasLength(2));
+    });
+
+    test('评议 GET/POST 使用当前 id 和表单令牌，透出服务器拒绝原因', () async {
+      final evaluationAdapter = _EvaluationAdapter();
+      ApiClient.instance.dio.httpClientAdapter = evaluationAdapter;
+      await ApiClient.instance.login('20210001', 'secret', '12');
+      evaluationAdapter.requests.clear();
+      final service = AcademicService();
+      const params = {'id': 'OLD', 'kcmc': '数学', 'jsxm': '张老师'};
+
+      expect(await service.submitEvaluation(params, '90', '评语', '12'), isTrue);
+      for (final request in evaluationAdapter.requests) {
+        expect(request.uri.queryParameters['id'], 'IDENTIFIER');
+        expect(request.uri.queryParameters['kcmc'], '数学');
+      }
+      expect(evaluationAdapter.requests.last.data['__VIEWSTATE'], 'state');
+      expect(
+        evaluationAdapter.requests.last.data['__EVENTVALIDATION'],
+        'validation',
+      );
+
+      evaluationAdapter.submitResponse = "<script>alert('验证码校验错误');</script>";
+      expect(await service.submitEvaluation(params, '90', '评语', '12'), isFalse);
+      evaluationAdapter.submitResponse = "<script>alert('评语不能少于20字');</script>";
+      await expectLater(
+        service.submitEvaluation(params, '90', '评语', '12'),
+        throwsA(predicate((error) => error.toString().contains('评语不能少于20字'))),
+      );
     });
 
     test('页面上的学号与登录学号不一致时拒绝这次会话', () async {
