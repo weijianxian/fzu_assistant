@@ -12,6 +12,7 @@ import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/screen/toolbox/gpa/gpa_page.dart';
 import 'package:fzu_assistant/screen/toolbox/marks/marks_page.dart';
 import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
+import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,6 +35,30 @@ Widget _app(
 );
 
 void main() {
+  testWidgets('空教室横屏矮窗口查询条件可滚动且不溢出', (tester) async {
+    tester.view.physicalSize = const Size(640, 280);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('zh'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: EmptyRoomPage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+    await tester.pumpAndSettle();
+    expect(
+      find.widgetWithText(FilledButton, '查询').hitTestable(),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});

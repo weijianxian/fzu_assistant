@@ -1,8 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
+import 'package:html/parser.dart' as html_parser;
 
 void main() {
+  test('大纲和授课计划保留完整课程参数，移除旧会话 id', () {
+    final doc = html_parser.parse('''
+      <table><tr><td>
+        <a href="javascript:pop1('/student/kcdg.aspx?kcid=123&amp;xnxq=202601&amp;id=OLD')">大纲</a>
+        <a href="javascript:pop1('/student/jh.aspx?kcid=123&amp;bh=456&amp;id=OLD')">计划</a>
+      </td></tr></table>
+    ''');
+    final links = CourseService.extractLinks(doc.querySelector('td')!);
+    expect(links, hasLength(2));
+    expect(Uri.parse(links[0]).queryParameters, {
+      'kcid': '123',
+      'xnxq': '202601',
+    });
+    expect(Uri.parse(links[1]).queryParameters, {'kcid': '123', 'bh': '456'});
+    expect(Uri.parse(links[0]).host, 'jwcjwxt2.fzu.edu.cn');
+  });
+
   group('CourseService.getFirstMondayFromTerm', () {
     test('returns the Monday containing the first term day', () {
       const term = CalTerm(

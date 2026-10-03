@@ -567,18 +567,8 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    // Step 1: GET 拿 __VIEWSTATE / __EVENTVALIDATION
     final getDoc = await _fetch(_emptyRoomUrl);
-
-    final viewState =
-        getDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
-    final eventValidation =
-        getDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
-
-    // Step 2: POST 查询教室类型
-    final typeDoc = await _post(_emptyRoomUrl, {
-      '__VIEWSTATE': viewState,
-      '__EVENTVALIDATION': eventValidation,
+    final baseFields = <String, String>{
       'ctl00\$TB_rq': date,
       'ctl00\$qsjdpl': startPeriod,
       'ctl00\$zzjdpl': endPeriod,
@@ -588,49 +578,52 @@ class AcademicService {
       'ctl00\$xz2': '>=',
       'ctl00\$ksrldpl': '0',
       'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
-    });
+    };
+    Map<String, String> state(Document doc) => {
+      '__VIEWSTATE':
+          doc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '',
+      '__EVENTVALIDATION':
+          doc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '',
+    };
 
-    // 获取教室类型列表
-    final roomTypeOptions = typeDoc.querySelectorAll('#jslxdpl option');
-    final roomTypes = roomTypeOptions
-        .map((e) => e.text.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-
-    // 获取更新后的 state
-    final vs2 =
-        typeDoc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
-    final ev2 =
-        typeDoc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
-
-    // Step 3: 按教室类型逐个查询
-    final allRooms = <EmptyRoom>[];
-    for (final roomType in roomTypes) {
-      final roomDoc = await _post(_emptyRoomUrl, {
-        '__VIEWSTATE': vs2,
-        '__EVENTVALIDATION': ev2,
-        'ctl00\$TB_rq': date,
-        'ctl00\$qsjdpl': startPeriod,
-        'ctl00\$zzjdpl': endPeriod,
-        'ctl00\$jslxdpl': roomType,
-        'ctl00\$xqdpl': campus,
-        'ctl00\$xz1': '>=',
-        'ctl00\$jsrldpl': '0',
-        'ctl00\$xz2': '>=',
-        'ctl00\$ksrldpl': '0',
-        'ctl00\$ContentPlaceHolder1\$BT_search': '查询',
-      });
-
-      final roomOptions = roomDoc.querySelectorAll('#jsdpl option');
-      for (final opt in roomOptions) {
-        final name = opt.text.trim();
-        if (name.isNotEmpty) {
-          allRooms.add(EmptyRoom(name: name));
+    // 旗山按教学楼查询，避免不指定楼栋时遗漏教室（与 jwch 一致）。
+    final buildings = campus.contains('旗山')
+        ? <String>[
+            '公共教学楼东1',
+            '公共教学楼东2',
+            '公共教学楼东3',
+            '公共教学楼文科楼',
+            '公共教学楼西1',
+            '公共教学楼西2',
+            '公共教学楼西3',
+            '公共教学楼中楼',
+          ]
+        : <String>[''];
+    final names = <String>{};
+    for (final building in buildings) {
+      final fields = {
+        ...baseFields,
+        if (building.isNotEmpty) 'ctl00\$jxldpl': building,
+      };
+      final typeDoc = await _post(_emptyRoomUrl, {...state(getDoc), ...fields});
+      final roomTypes = typeDoc
+          .querySelectorAll('#jslxdpl option')
+          .map((e) => e.text.trim())
+          .where((e) => e.isNotEmpty)
+          .toSet();
+      for (final roomType in roomTypes) {
+        final roomDoc = await _post(_emptyRoomUrl, {
+          ...state(typeDoc),
+          ...fields,
+          'ctl00\$jslxdpl': roomType,
+        });
+        for (final opt in roomDoc.querySelectorAll('#jsdpl option')) {
+          final name = opt.text.trim();
+          if (name.isNotEmpty) names.add(name);
         }
       }
     }
-
-    return allRooms;
+    return names.map((name) => EmptyRoom(name: name)).toList();
   }
 
   // ─── 教务通知 ───

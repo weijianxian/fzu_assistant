@@ -37,10 +37,13 @@ class _WebViewPageState extends State<WebViewPage> {
 
   String _ensureUserId(String url) {
     if (!_idDomains.hasMatch(url)) return url;
-    if (url.contains('id=')) return url;
+    final uri = Uri.parse(url);
+    if (uri.queryParameters.containsKey('id')) return url;
     final id = ApiClient.instance.userId;
     if (id == null) return url;
-    return url.contains('?') ? '$url&id=$id' : '$url?id=$id';
+    return uri
+        .replace(queryParameters: {...uri.queryParameters, 'id': id})
+        .toString();
   }
 
   @override

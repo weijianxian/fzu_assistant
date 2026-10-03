@@ -174,7 +174,7 @@ class CourseService {
   Course _parseCourse(List<Element> cells) {
     final scheduleRules = _parseScheduleRules(cells[8]);
     final adjustRules = _parseAdjustRules(cells[11]);
-    final links = _extractLinks(cells[2]);
+    final links = extractLinks(cells[2]);
 
     return Course(
       type: _innerText(cells[0]),
@@ -192,16 +192,19 @@ class CourseService {
     );
   }
 
-  List<String> _extractLinks(Element cell) {
+  /// 保留课程参数，去掉会话 id，打开页面时注入当前登录标识。
+  static List<String> extractLinks(Element cell) {
     final links = <String>[];
     final anchors = cell.querySelectorAll('a');
-    final regex = RegExp(r"javascript:pop1\('(.*?)&");
+    final regex = RegExp(r"javascript:pop1\('([^']*)'");
 
     for (final a in anchors) {
       final href = a.attributes['href'] ?? '';
       final match = regex.firstMatch(href);
       if (match != null) {
-        final url = 'https://jwcjwxt2.fzu.edu.cn:81${match.group(1)}';
+        final uri = Uri.parse(_courseUrl).resolve(match.group(1)!);
+        final parameters = {...uri.queryParameters}..remove('id');
+        final url = uri.replace(queryParameters: parameters).toString();
         links.add(url);
       }
     }
