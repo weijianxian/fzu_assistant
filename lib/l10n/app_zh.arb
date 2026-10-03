@@ -636,7 +636,7 @@
   "@autoAdjustCourse": {
     "description": "autoAdjustCourse"
   },
-  "autoAdjustCourseDescription": "自动应用临时调课、停课等课程变动",
+  "autoAdjustCourseDescription": "根据教务系统的调课记录调整课表。",
   "@autoAdjustCourseDescription": {
     "description": "autoAdjustCourseDescription"
   },

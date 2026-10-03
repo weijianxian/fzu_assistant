@@ -477,7 +477,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoAdjustCourse => '自动调课';
 
   @override
-  String get autoAdjustCourseDescription => '自动应用临时调课、停课等课程变动';
+  String get autoAdjustCourseDescription => '根据教务系统的调课记录调整课表。';
 
   @override
   String get evaluation => '一键评议';

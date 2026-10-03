@@ -983,7 +983,7 @@ abstract class AppLocalizations {
   /// autoAdjustCourseDescription
   ///
   /// In zh, this message translates to:
-  /// **'自动应用临时调课、停课等课程变动'**
+  /// **'根据教务系统的调课记录调整课表。'**
   String get autoAdjustCourseDescription;
 
   /// evaluation

@@ -488,7 +488,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoAdjustCourseDescription =>
-      'Apply temporary course changes and cancellations automatically';
+      'Adjust the timetable using course change records from Fuzhou University\'s academic system. Enable west2 to include university-wide holiday adjustments and cancellations.';
 
   @override
   String get evaluation => 'One-Key Evaluation';
