@@ -13,6 +13,7 @@
 - flutter_staggered_grid_view 瀑布流网格布局
 - re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
+- window_manager（Windows 自绘标题栏、窗口操作与状态监听）
 
 ## 项目结构
 
@@ -44,6 +45,7 @@ lib/
       course_sessions.dart # 周/天视图共用的课程筛选与节次时间
     widget/              # 通用组件
       navigation/home_view_toggle.dart # 首页周视图/天视图切换
+      layout/desktop_window_frame.dart # Windows 全局窗口壳（自绘标题栏、提示 Overlay、内容裁剪与顶部缩放）
       tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
       masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
       section.dart       # 区域组件
@@ -100,6 +102,7 @@ lib/
     update_service.dart  # 更新检查服务
     app_themes.dart      # 主题色列表 + buildTheme()
     webview_environment.dart # Windows WebView2 环境初始化
+    desktop_window.dart # Windows 窗口初始化、状态监听与统一关闭行为
     api/                 # API 相关服务
       api_client.dart    # Dio 单例，登录/重登/拦截器
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
@@ -112,7 +115,7 @@ lib/
 
 ## 编码规范
 
-- **每次项目结构或技术栈变更后，必须同步更新本 CLAUDE.md 文件**
+- **每次项目结构或技术栈变更后，必须同步更新本 AGENTS.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
 - 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
@@ -142,6 +145,7 @@ lib/
 
 - `flutter_inappwebview` 在 Windows 上需要 WebView2 Runtime
 - `windows/runner/flutter_window.cpp` 中有 `closeWindow` 方法频道的 workaround（修复关窗 bug）
+- Windows 标题栏由 `window_manager` 隐藏，`MaterialApp.builder` 加入全局 `DesktopWindowFrame`；首帧完成后由 Dart 显示窗口。窗口壳拥有独立 Overlay，Navigator 内容使用 ClipRect，防止页面过渡覆盖标题栏。关闭按钮、Alt+F4 和系统菜单关闭共用现有 `closeWindow` 修复。
 - `service/webview_environment.dart` 中初始化 `WebViewEnvironment`，`userDataFolder` 设在 app support 目录
 
 ## 构建

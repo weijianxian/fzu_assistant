@@ -786,5 +786,9 @@
       }
     }
   },
-  "nextMonth": "未来一个月"
+  "nextMonth": "未来一个月",
+  "windowMinimize": "最小化",
+  "windowMaximize": "最大化",
+  "windowRestore": "还原窗口",
+  "windowClose": "关闭窗口"
 }

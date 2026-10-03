@@ -1,15 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/widget/layout/desktop_window_frame.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_router.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/desktop_window.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DesktopWindow.instance.initialize();
   await initWebViewEnvironment();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
@@ -19,6 +24,11 @@ void main() async {
     ),
   );
   runApp(const MyApp());
+  if (DesktopWindow.isWindows) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(DesktopWindow.instance.show());
+    });
+  }
 }
 
 class MyApp extends HookWidget {
@@ -56,6 +66,7 @@ class MyApp extends HookWidget {
           locale: settings.currentLocale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => DesktopWindowFrame(child: child!),
           onGenerateRoute: AppRouter.onGenerateRoute,
           home: const SplashScreen(),
         ),

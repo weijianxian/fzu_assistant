@@ -614,4 +614,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get nextMonth => '未来一个月';
+
+  @override
+  String get windowMinimize => '最小化';
+
+  @override
+  String get windowMaximize => '最大化';
+
+  @override
+  String get windowRestore => '还原窗口';
+
+  @override
+  String get windowClose => '关闭窗口';
 }

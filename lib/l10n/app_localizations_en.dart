@@ -626,4 +626,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nextMonth => 'Next month';
+
+  @override
+  String get windowMinimize => 'Minimize';
+
+  @override
+  String get windowMaximize => 'Maximize';
+
+  @override
+  String get windowRestore => 'Restore window';
+
+  @override
+  String get windowClose => 'Close window';
 }

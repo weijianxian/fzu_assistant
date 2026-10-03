@@ -786,5 +786,9 @@
       }
     }
   },
-  "nextMonth": "Next month"
+  "nextMonth": "Next month",
+  "windowMinimize": "Minimize",
+  "windowMaximize": "Maximize",
+  "windowRestore": "Restore window",
+  "windowClose": "Close window"
 }
