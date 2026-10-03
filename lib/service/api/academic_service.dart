@@ -533,6 +533,30 @@ class AcademicService {
 
   // ─── 空教室查询 ───
 
+  /// `#xqdpl` 里可能带一个"请选择…"占位项，它不是有效校区。
+  static final _campusPlaceholderPattern = RegExp(r'请选择|^-+$|^全部$');
+
+  /// 空教室页面提供的校区下拉项。
+  ///
+  /// 校区列表是随教务系统变化的（例如泉港校区、厦门工艺美院），
+  /// 硬编码会漏掉或给出无效值，这里直接以页面为准。
+  Future<List<String>> getEmptyRoomCampuses() async {
+    final id = ApiClient.instance.userId;
+    if (id == null) throw Exception('未登录');
+
+    return parseEmptyRoomCampuses(await _fetch(_emptyRoomUrl));
+  }
+
+  /// 解析 `#xqdpl` 的校区选项。
+  static List<String> parseEmptyRoomCampuses(Document doc) {
+    return doc
+        .querySelectorAll('#xqdpl option')
+        .map((option) => option.text.trim())
+        .where((name) => name.isNotEmpty)
+        .where((name) => !_campusPlaceholderPattern.hasMatch(name))
+        .toList();
+  }
+
   Future<List<EmptyRoom>> getEmptyRooms(
     String date,
     String startPeriod,
