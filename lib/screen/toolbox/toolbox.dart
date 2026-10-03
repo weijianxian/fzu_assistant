@@ -77,6 +77,12 @@ class ToolboxPage extends HookWidget {
             l10n.evaluationSubtitle,
             AppRoutes.evaluation,
           ),
+          (
+            Icons.open_in_browser_outlined,
+            l10n.academicShortcuts,
+            l10n.academicShortcutsSubtitle,
+            AppRoutes.academicShortcuts,
+          ),
         ],
       ),
     ];

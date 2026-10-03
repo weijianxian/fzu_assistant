@@ -1327,6 +1327,102 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'[非本周]'**
   String get nonCurrentWeekMark;
+
+  /// No description provided for @academicShortcuts.
+  ///
+  /// In zh, this message translates to:
+  /// **'教务快捷入口'**
+  String get academicShortcuts;
+
+  /// No description provided for @academicShortcutsSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选课、教务申请与嘉锡讲坛'**
+  String get academicShortcutsSubtitle;
+
+  /// No description provided for @courseSelection.
+  ///
+  /// In zh, this message translates to:
+  /// **'选课'**
+  String get courseSelection;
+
+  /// No description provided for @campusElectiveSelection.
+  ///
+  /// In zh, this message translates to:
+  /// **'校选课'**
+  String get campusElectiveSelection;
+
+  /// No description provided for @retakeSelection.
+  ///
+  /// In zh, this message translates to:
+  /// **'重修选课'**
+  String get retakeSelection;
+
+  /// No description provided for @minorSelection.
+  ///
+  /// In zh, this message translates to:
+  /// **'辅修选课'**
+  String get minorSelection;
+
+  /// No description provided for @academicApplications.
+  ///
+  /// In zh, this message translates to:
+  /// **'教务申请'**
+  String get academicApplications;
+
+  /// No description provided for @majorTransferApplication.
+  ///
+  /// In zh, this message translates to:
+  /// **'转专业申请'**
+  String get majorTransferApplication;
+
+  /// No description provided for @examDeferralApplication.
+  ///
+  /// In zh, this message translates to:
+  /// **'缓考申请'**
+  String get examDeferralApplication;
+
+  /// No description provided for @courseExemptionApplication.
+  ///
+  /// In zh, this message translates to:
+  /// **'免修申请'**
+  String get courseExemptionApplication;
+
+  /// No description provided for @minorApplication.
+  ///
+  /// In zh, this message translates to:
+  /// **'辅修申请'**
+  String get minorApplication;
+
+  /// No description provided for @classroomApplication.
+  ///
+  /// In zh, this message translates to:
+  /// **'教室申请'**
+  String get classroomApplication;
+
+  /// No description provided for @creditRecognition.
+  ///
+  /// In zh, this message translates to:
+  /// **'学分认定'**
+  String get creditRecognition;
+
+  /// No description provided for @majorAllocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'大类分专业'**
+  String get majorAllocation;
+
+  /// No description provided for @electiveCreditConversion.
+  ///
+  /// In zh, this message translates to:
+  /// **'选修转创拓'**
+  String get electiveCreditConversion;
+
+  /// No description provided for @jiaxiLectures.
+  ///
+  /// In zh, this message translates to:
+  /// **'嘉锡讲坛'**
+  String get jiaxiLectures;
 }
 
 class _AppLocalizationsDelegate

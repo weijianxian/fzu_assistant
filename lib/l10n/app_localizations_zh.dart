@@ -664,4 +664,52 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get nonCurrentWeekMark => '[非本周]';
+
+  @override
+  String get academicShortcuts => '教务快捷入口';
+
+  @override
+  String get academicShortcutsSubtitle => '选课、教务申请与嘉锡讲坛';
+
+  @override
+  String get courseSelection => '选课';
+
+  @override
+  String get campusElectiveSelection => '校选课';
+
+  @override
+  String get retakeSelection => '重修选课';
+
+  @override
+  String get minorSelection => '辅修选课';
+
+  @override
+  String get academicApplications => '教务申请';
+
+  @override
+  String get majorTransferApplication => '转专业申请';
+
+  @override
+  String get examDeferralApplication => '缓考申请';
+
+  @override
+  String get courseExemptionApplication => '免修申请';
+
+  @override
+  String get minorApplication => '辅修申请';
+
+  @override
+  String get classroomApplication => '教室申请';
+
+  @override
+  String get creditRecognition => '学分认定';
+
+  @override
+  String get majorAllocation => '大类分专业';
+
+  @override
+  String get electiveCreditConversion => '选修转创拓';
+
+  @override
+  String get jiaxiLectures => '嘉锡讲坛';
 }

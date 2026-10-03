@@ -16,6 +16,7 @@ import 'package:fzu_assistant/screen/settings/home_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
 import 'package:fzu_assistant/screen/toolbox/credit/credit_page.dart';
+import 'package:fzu_assistant/screen/toolbox/academic/academic_shortcuts_page.dart';
 import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
 import 'package:fzu_assistant/screen/toolbox/evaluation/evaluation_page.dart';
 import 'package:fzu_assistant/screen/toolbox/exam_room/exam_room_page.dart';
@@ -36,6 +37,7 @@ abstract final class AppRouter {
     AppRoutes.emptyRoom: (_) => const EmptyRoomPage(),
     AppRoutes.notice: (_) => const NoticePage(),
     AppRoutes.evaluation: (_) => const EvaluationPage(),
+    AppRoutes.academicShortcuts: (_) => const AcademicShortcutsPage(),
     AppRoutes.calendar: (_) => const CalendarPage(),
     AppRoutes.profile: (_) => const ProfilePage(),
     AppRoutes.settings: (_) => const SettingsPage(),

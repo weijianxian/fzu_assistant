@@ -676,4 +676,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nonCurrentWeekMark => '[Other week]';
+
+  @override
+  String get academicShortcuts => 'Academic shortcuts';
+
+  @override
+  String get academicShortcutsSubtitle =>
+      'Course selection, applications and Jiaxi lectures';
+
+  @override
+  String get courseSelection => 'Course selection';
+
+  @override
+  String get campusElectiveSelection => 'University electives';
+
+  @override
+  String get retakeSelection => 'Retake courses';
+
+  @override
+  String get minorSelection => 'Minor courses';
+
+  @override
+  String get academicApplications => 'Academic applications';
+
+  @override
+  String get majorTransferApplication => 'Change major';
+
+  @override
+  String get examDeferralApplication => 'Defer an exam';
+
+  @override
+  String get courseExemptionApplication => 'Course exemption';
+
+  @override
+  String get minorApplication => 'Apply for a minor';
+
+  @override
+  String get classroomApplication => 'Request a classroom';
+
+  @override
+  String get creditRecognition => 'Credit recognition';
+
+  @override
+  String get majorAllocation => 'Major allocation';
+
+  @override
+  String get electiveCreditConversion => 'Convert elective credits';
+
+  @override
+  String get jiaxiLectures => 'Jiaxi lectures';
 }

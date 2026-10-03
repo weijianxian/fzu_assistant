@@ -11,6 +11,7 @@ abstract final class AppRoutes {
   static const emptyRoom = '/empty-room';
   static const notice = '/notice';
   static const evaluation = '/evaluation';
+  static const academicShortcuts = '/academic-shortcuts';
   static const calendar = '/calendar';
   static const profile = '/profile';
   static const settings = '/settings';

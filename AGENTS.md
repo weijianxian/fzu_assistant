@@ -85,6 +85,7 @@ lib/
       credit/            # 学分统计
       empty_room/        # 空教室查询（日期/节次/校区选择 + 结果列表）
       notice/            # 教务通知（分页列表，WebView 打开详情）
+      academic/          # 教务快捷入口（选课、教务申请、嘉锡讲坛，复用带 Cookie 的 WebView）
     my/                  # 我的（首页 tab）
       my.dart            # 我的页面主页
       profile_page.dart  # 个人资料（竖屏嵌入我的页面，横屏显示在右栏）

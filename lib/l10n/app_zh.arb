@@ -802,5 +802,21 @@
   "scheduleNextWeek": "下一周",
   "showNonCurrentWeekCourses": "显示非本周课程",
   "showNonCurrentWeekCoursesDescription": "在周课表的空闲时段淡化显示非本周课程，不影响今日时间线。",
-  "nonCurrentWeekMark": "[非本周]"
+  "nonCurrentWeekMark": "[非本周]",
+  "academicShortcuts": "教务快捷入口",
+  "academicShortcutsSubtitle": "选课、教务申请与嘉锡讲坛",
+  "courseSelection": "选课",
+  "campusElectiveSelection": "校选课",
+  "retakeSelection": "重修选课",
+  "minorSelection": "辅修选课",
+  "academicApplications": "教务申请",
+  "majorTransferApplication": "转专业申请",
+  "examDeferralApplication": "缓考申请",
+  "courseExemptionApplication": "免修申请",
+  "minorApplication": "辅修申请",
+  "classroomApplication": "教室申请",
+  "creditRecognition": "学分认定",
+  "majorAllocation": "大类分专业",
+  "electiveCreditConversion": "选修转创拓",
+  "jiaxiLectures": "嘉锡讲坛"
 }

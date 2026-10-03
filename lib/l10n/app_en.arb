@@ -802,5 +802,21 @@
   "scheduleNextWeek": "Next week",
   "showNonCurrentWeekCourses": "Show courses from other weeks",
   "showNonCurrentWeekCoursesDescription": "Show faded courses from other weeks in free timetable slots. The daily timeline is unaffected.",
-  "nonCurrentWeekMark": "[Other week]"
+  "nonCurrentWeekMark": "[Other week]",
+  "academicShortcuts": "Academic shortcuts",
+  "academicShortcutsSubtitle": "Course selection, applications and Jiaxi lectures",
+  "courseSelection": "Course selection",
+  "campusElectiveSelection": "University electives",
+  "retakeSelection": "Retake courses",
+  "minorSelection": "Minor courses",
+  "academicApplications": "Academic applications",
+  "majorTransferApplication": "Change major",
+  "examDeferralApplication": "Defer an exam",
+  "courseExemptionApplication": "Course exemption",
+  "minorApplication": "Apply for a minor",
+  "classroomApplication": "Request a classroom",
+  "creditRecognition": "Credit recognition",
+  "majorAllocation": "Major allocation",
+  "electiveCreditConversion": "Convert elective credits",
+  "jiaxiLectures": "Jiaxi lectures"
 }
