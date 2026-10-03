@@ -89,6 +89,7 @@ class TimelineHomePage extends HookWidget {
               loadedCourses = await courseService.getCourses(
                 targetTerm,
                 useCache: useCache,
+                west2AdjustmentsEnabled: settings.west2AdjustmentsEnabled.value,
               );
             } catch (_) {}
           }(),
@@ -115,8 +116,11 @@ class TimelineHomePage extends HookWidget {
       void onSemesterChanged() => load();
 
       settings.selectedSemesterKey.addListener(onSemesterChanged);
-      return () =>
-          settings.selectedSemesterKey.removeListener(onSemesterChanged);
+      settings.west2AdjustmentsEnabled.addListener(onSemesterChanged);
+      return () {
+        settings.selectedSemesterKey.removeListener(onSemesterChanged);
+        settings.west2AdjustmentsEnabled.removeListener(onSemesterChanged);
+      };
     }, []);
 
     final trigger = refreshTrigger;

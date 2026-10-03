@@ -112,7 +112,7 @@ lib/
       api_client.dart    # Dio 单例，登录/重登/拦截器
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
       user_service.dart  # 用户信息
-      course_service.dart # 课程表
+      course_service.dart # 课程表 + 可选 west2 调休数据（公开接口、按学期缓存）
       html_helper.dart   # HTML 解析辅助
     settings/
       app_settings.dart  # 统一设置管理（主题 + 语言 + 学期 + 网页注入，InheritedWidget + SP 持久化）

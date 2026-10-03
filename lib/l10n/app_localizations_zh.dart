@@ -467,6 +467,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showExamOnScheduleDescription => '把考试安排显示在对应日期的课程表里';
 
   @override
+  String get west2AdjustmentsEnabled => '从 west2 获取调课数据';
+
+  @override
+  String get west2AdjustmentsDescription =>
+      '用于自动调课。部分调课数据由 AI 解析教务处通知生成，请以教务处通知为准。';
+
+  @override
   String get autoAdjustCourse => '自动调课';
 
   @override

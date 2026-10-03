@@ -166,6 +166,11 @@ class HomeSettingsPage extends HookWidget {
                   title: Text(l10n.autoAdjustCourse),
                   subtitle: Text(l10n.autoAdjustCourseDescription),
                 ),
+                SettingSwitchTile(
+                  notifier: settings.west2AdjustmentsEnabled,
+                  title: Text(l10n.west2AdjustmentsEnabled),
+                  subtitle: Text(l10n.west2AdjustmentsDescription),
+                ),
               ],
             ),
           ),

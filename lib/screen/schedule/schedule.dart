@@ -43,7 +43,11 @@ class SchedulePage extends HookWidget {
       loading.value = true;
       var week = 1;
       try {
-        final list = await service.getCourses(term, useCache: useCache);
+        final list = await service.getCourses(
+          term,
+          useCache: useCache,
+          west2AdjustmentsEnabled: settings.west2AdjustmentsEnabled.value,
+        );
         if (!isLatest()) return null;
         courses.value = list;
         currentLoadedTerm.value = term;
@@ -132,6 +136,19 @@ class SchedulePage extends HookWidget {
       settings.selectedSemesterKey.addListener(onSemesterChanged);
       return () =>
           settings.selectedSemesterKey.removeListener(onSemesterChanged);
+    }, []);
+
+    // 监听调课数据来源切换
+    useEffect(() {
+      void onSourceChanged() {
+        final selected = settings.selectedSemesterKey.value;
+        final target = selected.isNotEmpty ? selected : currentTerm.value;
+        if (target.isNotEmpty) refresh(target);
+      }
+
+      settings.west2AdjustmentsEnabled.addListener(onSourceChanged);
+      return () =>
+          settings.west2AdjustmentsEnabled.removeListener(onSourceChanged);
     }, []);
 
     // 监听底部 tab 再次点击 → 跳转本周

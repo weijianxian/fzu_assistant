@@ -962,6 +962,18 @@ abstract class AppLocalizations {
   /// **'把考试安排显示在对应日期的课程表里'**
   String get showExamOnScheduleDescription;
 
+  /// No description provided for @west2AdjustmentsEnabled.
+  ///
+  /// In zh, this message translates to:
+  /// **'从 west2 获取调课数据'**
+  String get west2AdjustmentsEnabled;
+
+  /// No description provided for @west2AdjustmentsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'用于自动调课。部分调课数据由 AI 解析教务处通知生成，请以教务处通知为准。'**
+  String get west2AdjustmentsDescription;
+
   /// autoAdjustCourse
   ///
   /// In zh, this message translates to:

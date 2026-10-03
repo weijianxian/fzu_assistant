@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/common/utils/html_utils.dart';
@@ -9,6 +10,116 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/html_helper.dart';
 
 class CourseService {
+  final Dio _holidayClient;
+
+  CourseService({Dio? holidayClient})
+    : _holidayClient =
+          holidayClient ??
+          Dio(
+            BaseOptions(
+              connectTimeout: const Duration(seconds: 5),
+              receiveTimeout: const Duration(seconds: 5),
+            ),
+          );
+
+  Future<List<Course>> _withHolidayAdjustments(
+    String term,
+    List<Course> courses,
+    bool useCache,
+  ) async {
+    final cached = await CacheHelper.loadForKey<List<dynamic>>(
+      SpKeys.cacheHolidayAdjustmentsMap,
+      term,
+      (json) => json as List,
+    );
+    var holidays = cached ?? <dynamic>[];
+    if (!useCache || cached == null) {
+      try {
+        // 公开服务使用独立客户端，不携带教务处登录信息。
+        final response = await _holidayClient.get<Map<String, dynamic>>(
+          'https://fzuhelper.west2.online/api/v1/course/adjust/list',
+          queryParameters: {'term': term},
+        );
+        final body = response.data!;
+        if (body['code'].toString() != '10000') {
+          throw Exception('获取调休数据失败');
+        }
+        holidays = body['data'] as List;
+        await CacheHelper.saveForKey(
+          SpKeys.cacheHolidayAdjustmentsMap,
+          term,
+          holidays,
+        );
+      } catch (_) {
+        // 公共服务不可用时使用缓存，不阻断个人课表。
+      }
+    }
+    return applyHolidayAdjustments(courses, holidays);
+  }
+
+  static List<Course> applyHolidayAdjustments(
+    List<Course> courses,
+    List<dynamic> holidays,
+  ) => courses.map((course) {
+    final adjustments = [...course.adjustRules];
+    for (final holiday in holidays) {
+      if (holiday is! Map || holiday['enabled'] != true) continue;
+      final week = holiday['from_week'];
+      final day = holiday['from_weekday'];
+      if (week is! int || week < 1 || day is! int || day < 1 || day > 7) {
+        continue;
+      }
+      final canceled = holiday['to_date'] == null || holiday['to_date'] == '';
+      final newWeek = holiday['to_week'];
+      final newDay = holiday['to_weekday'];
+      if (!canceled &&
+          (newWeek is! int ||
+              newWeek < 1 ||
+              newDay is! int ||
+              newDay < 1 ||
+              newDay > 7)) {
+        continue;
+      }
+      for (final rule in course.scheduleRules) {
+        if (rule.weekday != day ||
+            week < rule.startWeek ||
+            week > rule.endWeek) {
+          continue;
+        }
+        if (rule.single && !rule.double && week.isEven) continue;
+        if (rule.double && !rule.single && week.isOdd) continue;
+        // 个人调课优先，防止同一节课被重复移动。
+        if (adjustments.any(
+          (a) =>
+              a.oldWeek == week &&
+              a.oldWeekday == day &&
+              a.oldStartClass == rule.startClass &&
+              a.oldEndClass == rule.endClass,
+        )) {
+          continue;
+        }
+        adjustments.add(
+          CourseAdjustRule(
+            oldWeek: week,
+            oldWeekday: day,
+            oldStartClass: rule.startClass,
+            oldEndClass: rule.endClass,
+            canceled: canceled,
+            newWeek: canceled ? 0 : newWeek as int,
+            newWeekday: canceled ? 0 : newDay as int,
+            newStartClass: rule.startClass,
+            newEndClass: rule.endClass,
+            newLocation: rule.location,
+          ),
+        );
+      }
+    }
+    return Course.fromJson(
+      course.toJson()
+        ..['adjustRules'] = adjustments.map((a) => a.toJson()).toList(),
+    );
+  }).toList();
+
   static const totalScheduleWeeks = 19;
 
   static const _courseUrl =
@@ -122,14 +233,21 @@ class CourseService {
 
   /// 获取指定学期的课程列表。
   /// [useCache] 为 true 时优先返回缓存数据。
-  Future<List<Course>> getCourses(String term, {bool useCache = true}) async {
+  Future<List<Course>> getCourses(
+    String term, {
+    bool useCache = true,
+    bool west2AdjustmentsEnabled = false,
+  }) async {
     // 先尝试缓存
     if (useCache) {
       final cached = await _loadCourseCache(term);
       if (cached != null) {
-        return (cached['courses'] as List)
+        final courses = (cached['courses'] as List)
             .map((c) => Course.fromJson(c))
             .toList();
+        return west2AdjustmentsEnabled
+            ? _withHolidayAdjustments(term, courses, useCache)
+            : courses;
       }
     }
 
@@ -167,8 +285,10 @@ class CourseService {
     }
 
     // 写入缓存
-    _saveCourseCache(term, courses);
-    return courses;
+    await _saveCourseCache(term, courses);
+    return west2AdjustmentsEnabled
+        ? _withHolidayAdjustments(term, courses, false)
+        : courses;
   }
 
   Course _parseCourse(List<Element> cells) {

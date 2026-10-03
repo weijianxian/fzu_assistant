@@ -630,6 +630,8 @@
   "@showExamOnScheduleDescription": {
     "description": "showExamOnScheduleDescription"
   },
+  "west2AdjustmentsEnabled": "从 west2 获取调课数据",
+  "west2AdjustmentsDescription": "用于自动调课。部分调课数据由 AI 解析教务处通知生成，请以教务处通知为准。",
   "autoAdjustCourse": "自动调课",
   "@autoAdjustCourse": {
     "description": "autoAdjustCourse"

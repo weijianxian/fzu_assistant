@@ -39,6 +39,7 @@ class AppSettings {
 
   // 自动调课
   final autoAdjustCourse = ValueNotifier<bool>(true);
+  final west2AdjustmentsEnabled = ValueNotifier<bool>(false);
 
   // GitHub 代理
   final githubProxyEnabled = ValueNotifier<bool>(true);
@@ -98,6 +99,8 @@ class AppSettings {
 
     // 自动调课
     autoAdjustCourse.value = sp.getBool(SpKeys.autoAdjustCourse) ?? true;
+    west2AdjustmentsEnabled.value =
+        sp.getBool(SpKeys.west2AdjustmentsEnabled) ?? false;
 
     // GitHub 代理
     githubProxyEnabled.value = sp.getBool(SpKeys.githubProxyEnabled) ?? true;
@@ -162,6 +165,14 @@ class AppSettings {
     autoAdjustCourse.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setBool(SpKeys.autoAdjustCourse, autoAdjustCourse.value),
+      );
+    });
+    west2AdjustmentsEnabled.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setBool(
+          SpKeys.west2AdjustmentsEnabled,
+          west2AdjustmentsEnabled.value,
+        ),
       );
     });
     githubProxyEnabled.addListener(() {
@@ -247,6 +258,7 @@ class AppSettings {
     siteInjectionEnabled.dispose();
     showExamOnSchedule.dispose();
     autoAdjustCourse.dispose();
+    west2AdjustmentsEnabled.dispose();
     githubProxyEnabled.dispose();
     githubProxyBaseUrl.dispose();
   }
