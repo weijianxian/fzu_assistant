@@ -39,4 +39,12 @@ abstract final class CacheHelper {
     map[termKey] = value;
     await saveMap(spKey, map);
   }
+
+  /// 整份删除 [spKeys] 指定的缓存（含其中所有学期分片）。
+  static Future<void> removeAll(Iterable<String> spKeys) async {
+    final sp = await SharedPreferences.getInstance();
+    for (final key in spKeys) {
+      await sp.remove(key);
+    }
+  }
 }

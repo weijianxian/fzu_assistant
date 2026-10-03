@@ -5,6 +5,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/user_service.dart';
 
 class MyPage extends HookWidget {
@@ -39,7 +40,14 @@ class MyPage extends HookWidget {
     }, []);
 
     Future<void> handleLogout() async {
-      await auth.clearCredentials();
+      try {
+        await auth.clearCredentials();
+        // Cookie 与按学期分片的业务缓存不含账号维度，必须一并清除，
+        // 否则换账号后会读到上一个账号的课表与考场。
+        await ApiClient.instance.clearSession();
+      } catch (_) {
+        // 清理失败也要离开当前页面，不能停留在已登出的会话上。
+      }
       if (context.mounted) {
         context.pushReplacementNamed(AppRoutes.login);
       }

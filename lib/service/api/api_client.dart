@@ -7,6 +7,8 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:fzu_assistant/common/utils/cache_helper.dart';
+import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/captcha_solver.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
@@ -68,23 +70,39 @@ class ApiClient {
 
   String _strip(String s) => s.replaceAll(RegExp(r'\s+'), '');
 
+  /// 登录取证链路专用选项。
+  ///
+  /// 这些请求的职责本身就是重建会话，因此必须跳过
+  /// "会话过期 → 重登 → 重试"：重登期间 [_reloginCompleter] 尚未完成，
+  /// 若它们再触发 [refreshSession]，就会 await 自己所属的那次重登而永久挂起。
+  static Options _loginFlowOptions({
+    ResponseType responseType = ResponseType.json,
+  }) => Options(
+    responseType: responseType,
+    extra: const {_AuthInterceptor.skipExpiryKey: true},
+  );
+
   // ─── 登录 ───
 
   Future<(Uint8List, int?)> getCaptchaWithSolution() async {
     final response = await _dio.get<List<int>>(
       _urls['verifyCode']!,
-      options: Options(responseType: ResponseType.bytes),
+      options: _loginFlowOptions(responseType: ResponseType.bytes),
     );
     final image = Uint8List.fromList(response.data!);
     return (image, CaptchaSolver.solve(image));
   }
 
   Future<void> login(String user, String pass, String captcha) async {
+    // 登录成功前不持有 identifier：残留的旧值会被 _refreshIdentifier
+    // 当成有效 id 发出去，导致"未登录"守卫失效。
+    _userId = null;
+
     // Step 1: loginCheck
     final checkResp = await _dio.post<List<int>>(
       _urls['loginCheck']!,
       data: {'muser': user, 'passwd': _md5_16(pass), 'Verifycode': captcha},
-      options: Options(responseType: ResponseType.bytes),
+      options: _loginFlowOptions(responseType: ResponseType.bytes),
     );
     final checkBody = _strip(
       utf8.decode(checkResp.data!, allowMalformed: true),
@@ -98,7 +116,11 @@ class ApiClient {
     if (token == null) throw Exception('教务处未返回有效 Token');
 
     // Step 2: SSOLogin
-    final ssoResp = await _dio.post(_urls['ssoLogin']!, data: {'token': token});
+    final ssoResp = await _dio.post(
+      _urls['ssoLogin']!,
+      data: {'token': token},
+      options: _loginFlowOptions(),
+    );
     final ssoJson = ssoResp.data is String
         ? jsonDecode(_strip(ssoResp.data as String))
         : ssoResp.data;
@@ -118,7 +140,7 @@ class ApiClient {
 
     final finishResp = await _dio.get<List<int>>(
       finishUrl,
-      options: Options(responseType: ResponseType.bytes),
+      options: _loginFlowOptions(responseType: ResponseType.bytes),
     );
     final finishBody = utf8.decode(finishResp.data!, allowMalformed: true);
     final userId = RegExp(r'id=([^&]+)').firstMatch(finishBody)?.group(1);
@@ -132,17 +154,28 @@ class ApiClient {
     final creds = await auth.loadCredentials();
     if (creds == null) return false;
 
+    // identifier 只有登录成功后才存在。登录过程中保持 null，
+    // 避免登录失败后把学号当成教务处 identifier 继续发请求。
+    _userId = null;
     try {
-      _userId = creds.username;
-
       final (_, solution) = await getCaptchaWithSolution();
       if (solution == null) return false;
 
       await login(creds.username, creds.password, solution.toString());
       return true;
     } catch (_) {
+      _userId = null;
       return false;
     }
+  }
+
+  /// 退出登录：清除 identifier、Cookie 与账号相关的本地缓存。
+  ///
+  /// 课程/考场缓存只按学期分片、不含账号维度，不清会读到上一个账号的数据。
+  Future<void> clearSession() async {
+    _userId = null;
+    await _cookieJar.deleteAll();
+    await CacheHelper.removeAll(SpKeys.userScopedCacheKeys);
   }
 
   // ─── 供拦截器调用 ───
@@ -189,6 +222,9 @@ class ApiClient {
 class _AuthInterceptor extends Interceptor {
   static const sessionRetriedKey = '_sessionRetried';
 
+  /// 标记"正在重建会话"的请求（登录取证链路），使其跳过过期重登处理。
+  static const skipExpiryKey = '_skipExpiryHandling';
+
   final ApiClient _api;
   _AuthInterceptor(this._api);
 
@@ -201,29 +237,35 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (_isNologin(response)) {
-      if (response.requestOptions.extra[sessionRetriedKey] == true) {
-        handler.reject(_expiredError(response.requestOptions));
-        return;
-      }
-      _handleExpired(response.requestOptions, handler);
+    if (!_needsSessionRetry(response.requestOptions) || !_isNologin(response)) {
+      handler.next(response);
       return;
     }
-    handler.next(response);
+    if (response.requestOptions.extra[sessionRetriedKey] == true) {
+      handler.reject(_expiredError(response.requestOptions));
+      return;
+    }
+    _handleExpired(response.requestOptions, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.error is SessionExpiredException) {
-      if (err.requestOptions.extra[sessionRetriedKey] == true) {
-        handler.next(err);
-        return;
-      }
-      _handleExpiredError(err.requestOptions, handler);
+    if (err.error is! SessionExpiredException ||
+        !_needsSessionRetry(err.requestOptions)) {
+      handler.next(err);
       return;
     }
-    handler.next(err);
+    if (err.requestOptions.extra[sessionRetriedKey] == true) {
+      handler.next(err);
+      return;
+    }
+    _handleExpiredError(err.requestOptions, handler);
   }
+
+  /// 登录链路的请求自带跳过标记：它们正在重建会话，
+  /// 不能再回头 await 自己所属的那次重登。
+  static bool _needsSessionRetry(RequestOptions options) =>
+      options.extra[skipExpiryKey] != true;
 
   bool _isNologin(Response response) {
     try {

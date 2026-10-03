@@ -16,4 +16,10 @@ abstract final class SpKeys {
   static const autoAdjustCourse = 'auto_adjust_course';
   static const githubProxyEnabled = 'github_proxy_enabled';
   static const githubProxyBaseUrl = 'github_proxy_base_url';
+
+  /// 与登录账号绑定的缓存，登出/换号时必须清除。
+  ///
+  /// 这些缓存只按学期分片、不含账号维度，不清理会让新账号读到旧账号的数据。
+  /// 校历（[cacheSchoolCalendar]、[cacheTermEventsMap]）是全校通用的，不在此列。
+  static const userScopedCacheKeys = [cacheCoursesMap, cacheExamRoomsMap];
 }
