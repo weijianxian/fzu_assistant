@@ -319,4 +319,4 @@ version: 1.1.5+46
 - [fzuhelper-app](https://github.com/west2-online/fzuhelper-app)（`.reference/fzuhelper-app/`）：React Native 前端，参考 UI 交互和功能列表。
 - [fzuhelper-server](https://github.com/west2-online/fzuhelper-server)（`.reference/fzu-helper-server/`）：福大助手 Go 服务端，参考业务设计。
 - [FluxDown](https://github.com/zerx-lab/FluxDown)（`.reference/FluxDown/`）：Flutter 下载管理器，参考 Windows 安装包与自动更新流程。
-- [PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus)（`.reference/.PiliPlus/`）：Flutter 哔哩哔哩客户端，参考 Flutter UI 与交互实现。
+- [PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus)（`.reference/PiliPlus/`）：Flutter 哔哩哔哩客户端，参考 Flutter UI 与交互实现。
