@@ -45,6 +45,7 @@ jobs:
           node-version: '22'
 
       - name: Package unsigned DMG
+        id: package
         shell: bash
         run: |
           VERSION=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | cut -d+ -f1 | tr -d '[:space:]')
@@ -52,12 +53,12 @@ jobs:
           npm install --global create-dmg@8.1.0
           create-dmg 'build/macos/Build/Products/Release/FZU Assistant.app' build/apple --no-code-sign --no-version-in-filename
           mv 'build/apple/FZU Assistant.dmg' "build/apple/FZU-assistant-v${VERSION}-macos-universal-unsigned.dmg"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
-          name: FZU-assistant-v${{ env.VERSION }}-macos-universal-unsigned
+          name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-macos-universal-unsigned
           path: build/apple/FZU-assistant-v*-macos-universal-unsigned.dmg
           compression-level: 0
           if-no-files-found: error
@@ -86,6 +87,7 @@ jobs:
 
       # --no-codesign produces an .app; wrap it in the IPA's required Payload/.
       - name: Package unsigned IPA
+        id: package
         shell: bash
         run: |
           VERSION=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | cut -d+ -f1 | tr -d '[:space:]')
@@ -94,12 +96,12 @@ jobs:
           ditto "$APP" build/apple/Payload/Runner.app
           cd build/apple
           zip -qry "FZU-assistant-v${VERSION}-ios-arm64-unsigned.ipa" Payload
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Upload unsigned iOS IPA
         uses: actions/upload-artifact@v4
         with:
-          name: FZU-assistant-v${{ env.VERSION }}-ios-arm64-unsigned
+          name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-ios-arm64-unsigned
           path: build/apple/FZU-assistant-v*-ios-arm64-unsigned.ipa
           compression-level: 0
           if-no-files-found: error
