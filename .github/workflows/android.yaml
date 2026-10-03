@@ -39,14 +39,6 @@ jobs:
           flutter-version: "3.47.6"
           cache: true
 
-      - name: Cache build
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ runner.os }}-build-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
-
       - name: Get dependencies
         run: flutter pub get
 
