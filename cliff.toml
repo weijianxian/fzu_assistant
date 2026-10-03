@@ -6,6 +6,21 @@ header = """
 # Changelog\n
 """
 body = """
+{% if version %}
+{% set repo = get_env(name="GITHUB_REPO", default="weijianxian/fzu_assistant") %}
+{% set download = "https://github.com/" ~ repo ~ "/releases/download/" ~ version ~ "/FZU-assistant-" ~ version %}
+## 下载
+
+| 架构 | Windows | Linux | macOS | Android | iOS |
+| --- | --- | --- | --- | --- | --- |
+| x86-64 (64-bit) | ⭐[安装包 EXE]({{ download }}-windows-x86_64-installer.exe) · [便携版 ZIP]({{ download }}-windows-x86_64-portable.zip) | [TAR.GZ]({{ download }}-linux-x86_64.tar.gz) | [通用版 DMG]({{ download }}-macos-universal-unsigned.dmg) | [APK]({{ download }}-android-x86_64.apk) | — |
+| AArch64 (ARM64) | — | — | [通用版 DMG]({{ download }}-macos-universal-unsigned.dmg) | ⭐[APK]({{ download }}-android-arm64-v8a.apk) | [未签名 IPA]({{ download }}-ios-arm64-unsigned.ipa) |
+| ARMv7 (32-bit) | — | — | — | [APK]({{ download }}-android-armeabi-v7a.apk) | — |
+| 通用版 | — | — | — | [通用版 APK]({{ download }}-android-universal.apk) | — |
+
+macOS DMG 未经 Developer ID 签名及公证；iOS IPA 需要自行签名后安装。
+
+{% endif %}
 {% for group, commits in commits | group_by(attribute="group") %}
 ## {{ group | upper_first }}
 {% for commit in commits %}
@@ -28,9 +43,5 @@ commit_parsers = [
   { message = "feat", group = "Features" },
   { message = "fix", group = "Bug Fixes" },
   { message = "ui", group = "UI" },
-  { message = "docs", group = "Documentation" },
-  { message = "tool", group = "Tools" },
-  { message = "chore", group = "Chores" },
   { message = "refactor", group = "Refactoring" },
-  { message = "init", group = "Initialization" },
 ]
