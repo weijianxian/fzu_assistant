@@ -128,6 +128,7 @@ lib/
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化
+- 每次做完一个功能，就commit一次，commit message 为单行，遵循历史commit message风格。
 
 ## 国际化
 
@@ -236,13 +237,6 @@ version: 1.1.5+46
 4. 设置 →「应用和功能」卸载：目录、注册表 Run 值、开始菜单项全部清干净。
 
 失败时 Inno 会在 `%TEMP%\Setup Log*.txt` 留日志；静默参数与 `setup.iss` 的配对关系见上一节。
-
-### 本次改动（v1.3.2）
-
-- 新增 `installer/windows/setup.iss` + `ChineseSimplified.isl`：Inno Setup 每用户安装包
-- CI 在 `flutter build windows` 后调用 `iscc`，artifact 与 Release 一并上传 `*-setup.exe`
-- 应用内 Windows 自动更新：下载 setup.exe → `/SILENT` 安装 → 退出 → 自动重启
-- 便携版不做自我更新，回退到打开下载页
 
 ## 参考
 

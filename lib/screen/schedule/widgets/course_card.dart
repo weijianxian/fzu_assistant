@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/model/course.dart';
 
@@ -65,9 +66,34 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     final colors = isDark ? _darkColors : _lightColors;
     final bg = colors[course.name.hashCode.abs() % colors.length];
+    final title = Text(
+      displayName ?? course.name,
+      style: TextStyle(
+        fontSize: isWindows ? 13 : 11,
+        fontWeight: FontWeight.w600,
+        height: isWindows ? 1.3 : null,
+        color: isDark ? Colors.white : Colors.black87,
+      ),
+      textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
+    final locationText = Text(
+      location,
+      style: TextStyle(
+        fontSize: isWindows ? 11 : 9,
+        height: isWindows ? 1.3 : null,
+        color: isDark ? Colors.white70 : Colors.black54,
+      ),
+      textAlign: TextAlign.center,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+    );
 
     return GestureDetector(
       onTap: onTap,
@@ -82,29 +108,14 @@ class CourseCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              displayName ?? course.name,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black87,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
+            // 单节课程高度有限，桌面放大字号后按可用高度截断。
+            if (isWindows) Flexible(flex: 3, child: title) else title,
             if (location.isNotEmpty) ...[
               const SizedBox(height: 2),
-              Text(
-                location,
-                style: TextStyle(
-                  fontSize: 9,
-                  color: isDark ? Colors.white70 : Colors.black54,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
+              if (isWindows)
+                Flexible(flex: 2, child: locationText)
+              else
+                locationText,
             ],
           ],
         ),

@@ -212,12 +212,7 @@ class AppSettings {
 
   ThemeData get lightTheme {
     if (themeKey.value == 'dynamic' && _systemLightScheme != null) {
-      return ThemeData(
-        useMaterial3: true,
-        colorScheme: _systemLightScheme,
-        splashFactory: NoSplash.splashFactory,
-        appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
-      );
+      return buildThemeFromScheme(_systemLightScheme!);
     }
     final match = appThemes.where((t) => t.key == themeKey.value);
     final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
@@ -226,13 +221,7 @@ class AppSettings {
 
   ThemeData get darkTheme {
     if (themeKey.value == 'dynamic' && _systemDarkScheme != null) {
-      return ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: _systemDarkScheme,
-        splashFactory: NoSplash.splashFactory,
-        appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
-      );
+      return buildThemeFromScheme(_systemDarkScheme!);
     }
     final match = appThemes.where((t) => t.key == themeKey.value);
     final color = match.isNotEmpty ? match.first.color : appThemes.first.color;

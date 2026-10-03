@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/common/utils/date_text.dart';
@@ -42,15 +45,23 @@ class ScheduleGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final minGridHeight = maxCoursePeriod * _minCellHeight;
+    final isWindows =
+        !kIsWeb && Theme.of(context).platform == TargetPlatform.windows;
+    final textScale = isWindows
+        ? math.max(1.0, MediaQuery.textScalerOf(context).scale(14) / 14)
+        : 1.0;
+    final headerHeight = _headerHeight * textScale;
+    final labelWidth = (isWindows ? 56.0 : _labelWidth) * textScale;
+    final minCellHeight = _minCellHeight * textScale;
+    final minGridHeight = maxCoursePeriod * minCellHeight;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final available = constraints.maxHeight - _headerHeight;
+        final available = constraints.maxHeight - headerHeight;
         final canFill = available >= minGridHeight;
         final cellHeight = canFill
             ? available / maxCoursePeriod
-            : _minCellHeight;
+            : minCellHeight;
         final gridHeight = maxCoursePeriod * cellHeight;
 
         final weekDates = <DateTime>[];
@@ -71,10 +82,10 @@ class ScheduleGrid extends StatelessWidget {
           children: [
             // 顶部星期行
             SizedBox(
-              height: _headerHeight,
+              height: headerHeight,
               child: Row(
                 children: [
-                  const SizedBox(width: _labelWidth),
+                  SizedBox(width: labelWidth),
                   for (var i = 0; i < 7; i++)
                     Expanded(
                       child: Center(
@@ -105,19 +116,25 @@ class ScheduleGrid extends StatelessWidget {
                   // 左侧节次索引
                   Positioned(
                     left: 0,
-                    width: _labelWidth,
+                    width: labelWidth,
                     top: 0,
                     bottom: 0,
                     child: Column(
                       children: [
                         for (var p = 0; p < maxCoursePeriod; p++)
-                          _buildPeriodLabel(context, p, cellHeight, nowMinutes),
+                          _buildPeriodLabel(
+                            context,
+                            p,
+                            cellHeight,
+                            labelWidth,
+                            nowMinutes,
+                          ),
                       ],
                     ),
                   ),
                   // 课程卡片
                   Positioned(
-                    left: _labelWidth,
+                    left: labelWidth,
                     right: 0,
                     top: 0,
                     bottom: 0,
@@ -154,7 +171,7 @@ class ScheduleGrid extends StatelessWidget {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: SizedBox(
-              height: canFill ? gridHeight + _headerHeight : null,
+              height: canFill ? gridHeight + headerHeight : null,
               child: content,
             ),
           ),
@@ -169,7 +186,9 @@ class ScheduleGrid extends StatelessWidget {
     DateTime date,
     bool isToday,
   ) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -185,15 +204,15 @@ class ScheduleGrid extends StatelessWidget {
           Text(
             weekday,
             style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+              fontSize: isWindows ? 13 : 12,
+              fontWeight: isWindows ? FontWeight.w600 : FontWeight.bold,
               color: isToday ? scheme.onPrimaryContainer : null,
             ),
           ),
           Text(
             '${date.month}/${date.day}',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: isWindows ? 11 : 10,
               color: isToday ? scheme.onPrimaryContainer : Colors.grey,
             ),
           ),
@@ -206,9 +225,12 @@ class ScheduleGrid extends StatelessWidget {
     BuildContext context,
     int index,
     double cellHeight,
+    double labelWidth,
     int nowMinutes,
   ) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     final slot = coursePeriodTimes[index];
     final startParts = slot.$1.split(':');
     final endParts = slot.$2.split(':');
@@ -217,7 +239,7 @@ class ScheduleGrid extends StatelessWidget {
     final isCurrent = nowMinutes >= startMin && nowMinutes <= endMin;
 
     return SizedBox(
-      width: _labelWidth,
+      width: labelWidth,
       height: cellHeight,
       child: Container(
         decoration: isCurrent
@@ -232,7 +254,7 @@ class ScheduleGrid extends StatelessWidget {
             Text(
               '${index + 1}',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: isWindows ? 12 : 11,
                 fontWeight: FontWeight.w600,
                 color: isCurrent ? scheme.onPrimaryContainer : null,
               ),
@@ -241,7 +263,7 @@ class ScheduleGrid extends StatelessWidget {
               '${slot.$1}\n${slot.$2}',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 7.5,
+                fontSize: isWindows ? 10 : 7.5,
                 height: 1.2,
                 color: isCurrent ? scheme.onPrimaryContainer : scheme.outline,
               ),
