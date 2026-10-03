@@ -4,7 +4,7 @@
 
 ## 技术栈
 
-- Flutter 3.x + Dart 3.x
+- Flutter 3.47.6 + Dart 3.x
 - flutter_hooks（HookWidget / useState / useEffect / useMemoized）
 - Dio + CookieJar 做 HTTP 请求，html 包解析 DOM
 - charset 包处理 GBK 编码（校历页面）
