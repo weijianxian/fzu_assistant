@@ -45,6 +45,23 @@ class AcademicService {
 
   Map<String, dynamic> get _idParam => {'id': ApiClient.instance.userId};
 
+  /// 教务处偶尔用 `window.alert('…')` 代替页面内容（例如欠费不能查成绩），
+  /// 命中时必须把提示原文透出，否则用户只会看到"未找到成绩表格"。
+  static final _alertPattern = RegExp(
+    r"""window\.alert\s*\(\s*['"]([^'"]*)['"]\s*\)""",
+  );
+
+  /// 从页面里取出 `window.alert` 的提示原文，没有则返回 null。
+  static String? extractAlertMessage(Document doc) {
+    for (final script in doc.querySelectorAll('script')) {
+      final match = _alertPattern.firstMatch(script.text);
+      if (match == null) continue;
+      final message = match.group(1)!.trim();
+      if (message.isNotEmpty) return message;
+    }
+    return null;
+  }
+
   Future<Document> _fetch(String url) {
     return HtmlHelper.fetchHtml(url, queryParameters: _idParam);
   }
@@ -102,6 +119,9 @@ class AcademicService {
     if (id == null) throw Exception('未登录');
 
     final doc = await _fetch(_marksUrl);
+
+    final alertMessage = extractAlertMessage(doc);
+    if (alertMessage != null) throw Exception(alertMessage);
 
     final table = doc.getElementById('ContentPlaceHolder1_DataList_xxk');
     if (table == null) throw Exception('未找到成绩表格');
