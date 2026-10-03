@@ -28,8 +28,8 @@ class HomeScreen extends HookWidget {
             TimelineHomePage(refreshTrigger: refreshTimelineTrigger)
           else
             SchedulePage(jumpToWeekTrigger: jumpToWeekTrigger),
-          const ToolboxPage(),
-          const MyPage(),
+          ToolboxPage(isActive: currentPage.value == 1),
+          MyPage(isActive: currentPage.value == 2),
         ];
 
         void onTabTapped(int index) {

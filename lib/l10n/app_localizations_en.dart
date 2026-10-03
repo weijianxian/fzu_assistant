@@ -638,4 +638,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get windowClose => 'Close window';
+
+  @override
+  String get profileInfo => 'Profile';
 }

@@ -46,6 +46,7 @@ lib/
     widget/              # 通用组件
       navigation/home_view_toggle.dart # 首页周视图/天视图切换
       layout/desktop_window_frame.dart # Windows 全局窗口壳（自绘标题栏、提示 Overlay、内容裁剪与顶部缩放）
+      layout/split_navigation_page.dart # 横屏两栏导航（左 1/3 功能按钮、右 2/3 独立详情导航）
       tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
       masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
       section.dart       # 区域组件
@@ -83,6 +84,7 @@ lib/
       notice/            # 教务通知（分页列表，WebView 打开详情）
     my/                  # 我的（首页 tab）
       my.dart            # 我的页面主页
+      profile_page.dart  # 个人资料（竖屏嵌入我的页面，横屏显示在右栏）
       about/             # 关于页
       calendar/          # 校历
     settings/            # 设置页（首页/一般/主题/高级设置入口）

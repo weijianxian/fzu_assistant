@@ -626,4 +626,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get windowClose => '关闭窗口';
+
+  @override
+  String get profileInfo => '个人资料';
 }

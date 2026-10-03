@@ -790,5 +790,6 @@
   "windowMinimize": "最小化",
   "windowMaximize": "最大化",
   "windowRestore": "还原窗口",
-  "windowClose": "关闭窗口"
+  "windowClose": "关闭窗口",
+  "profileInfo": "个人资料"
 }

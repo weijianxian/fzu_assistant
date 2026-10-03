@@ -9,6 +9,7 @@ import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/screen/home/home_screen.dart';
 import 'package:fzu_assistant/screen/my/about/about_page.dart';
 import 'package:fzu_assistant/screen/my/calendar/calendar_page.dart';
+import 'package:fzu_assistant/screen/my/profile_page.dart';
 import 'package:fzu_assistant/screen/settings/advanced_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/home_settings_page.dart';
@@ -36,6 +37,7 @@ abstract final class AppRouter {
     AppRoutes.notice: (_) => const NoticePage(),
     AppRoutes.evaluation: (_) => const EvaluationPage(),
     AppRoutes.calendar: (_) => const CalendarPage(),
+    AppRoutes.profile: (_) => const ProfilePage(),
     AppRoutes.settings: (_) => const SettingsPage(),
     AppRoutes.homeSettings: (_) => const HomeSettingsPage(),
     AppRoutes.generalSettings: (_) => const GeneralSettingsPage(),

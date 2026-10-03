@@ -18,6 +18,7 @@ const _argumentFreeRoutes = [
   AppRoutes.notice,
   AppRoutes.evaluation,
   AppRoutes.calendar,
+  AppRoutes.profile,
   AppRoutes.settings,
   AppRoutes.homeSettings,
   AppRoutes.generalSettings,

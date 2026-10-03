@@ -1255,6 +1255,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'关闭窗口'**
   String get windowClose;
+
+  /// No description provided for @profileInfo.
+  ///
+  /// In zh, this message translates to:
+  /// **'个人资料'**
+  String get profileInfo;
 }
 
 class _AppLocalizationsDelegate

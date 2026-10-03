@@ -790,5 +790,6 @@
   "windowMinimize": "Minimize",
   "windowMaximize": "Maximize",
   "windowRestore": "Restore window",
-  "windowClose": "Close window"
+  "windowClose": "Close window",
+  "profileInfo": "Profile"
 }
