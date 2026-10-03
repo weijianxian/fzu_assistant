@@ -47,9 +47,27 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
   bool _isDownloading = false;
   bool _openingInstaller = false;
   double? _downloadProgress;
+  bool _windowsInstallAvailable = false;
+
+  bool get _isWindows => Platform.isWindows;
+
+  /// Android and an installed Windows copy can update in place; everything else
+  /// (portable Windows zip, Linux, macOS) is a "go download it" button.
+  bool get _canInstallInApp =>
+      Platform.isAndroid || (_isWindows && _windowsInstallAvailable);
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isWindows) {
+      _updateService.isInstalledOnWindows().then((installed) {
+        if (mounted) setState(() => _windowsInstallAvailable = installed);
+      });
+    }
+  }
 
   Future<void> _handleDownload() async {
-    if (!Platform.isAndroid) {
+    if (!_canInstallInApp) {
       await _openReleasePage();
       return;
     }
@@ -58,17 +76,21 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
     final messenger = ScaffoldMessenger.of(context);
 
     try {
-      final canInstall = await _updateService.canInstallPackages();
-      if (!mounted) return;
-      if (!canInstall) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(l10n.updateInstallPermissionRequired)),
-        );
-        await _updateService.openInstallSettings();
-        return;
+      if (Platform.isAndroid) {
+        final canInstall = await _updateService.canInstallPackages();
+        if (!mounted) return;
+        if (!canInstall) {
+          messenger.showSnackBar(
+            SnackBar(content: Text(l10n.updateInstallPermissionRequired)),
+          );
+          await _updateService.openInstallSettings();
+          return;
+        }
       }
 
-      final asset = await _updateService.findAndroidAsset(widget.release);
+      final asset = Platform.isAndroid
+          ? await _updateService.findAndroidAsset(widget.release)
+          : _updateService.findWindowsInstaller(widget.release);
       if (!mounted) return;
       if (asset == null) {
         messenger.showSnackBar(
@@ -84,7 +106,7 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
         _downloadProgress = null;
       });
 
-      final apkPath = await _updateService.downloadReleaseAsset(
+      final installerPath = await _updateService.downloadReleaseAsset(
         asset,
         onReceiveProgress: (received, total) {
           if (!mounted || total <= 0) return;
@@ -100,23 +122,52 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
         _downloadProgress = 1;
       });
 
-      final installResult = await _updateService.installApk(apkPath);
-      if (!mounted) return;
+      if (Platform.isAndroid) {
+        final installResult = await _updateService.installApk(installerPath);
+        if (!mounted) return;
 
-      switch (installResult) {
-        case InstallApkResult.started:
-          Navigator.of(context).pop();
-          return;
-        case InstallApkResult.permissionRequired:
-          messenger.showSnackBar(
-            SnackBar(content: Text(l10n.updateInstallPermissionRequired)),
-          );
-          break;
-        case InstallApkResult.failed:
-          messenger.showSnackBar(
-            SnackBar(content: Text(l10n.updateInstallFailed)),
-          );
-          break;
+        switch (installResult) {
+          case InstallApkResult.started:
+            Navigator.of(context).pop();
+            return;
+          case InstallApkResult.permissionRequired:
+            messenger.showSnackBar(
+              SnackBar(content: Text(l10n.updateInstallPermissionRequired)),
+            );
+            break;
+          case InstallApkResult.failed:
+            messenger.showSnackBar(
+              SnackBar(content: Text(l10n.updateInstallFailed)),
+            );
+            break;
+        }
+      } else {
+        // Returns only on failure: on success the setup process is running and
+        // this one is about to be terminated.
+        final installResult = await _updateService.installWindowsUpdate(
+          installerPath,
+        );
+        if (!mounted) return;
+
+        switch (installResult) {
+          case InstallWindowsResult.started:
+            Navigator.of(context).pop();
+            return;
+          case InstallWindowsResult.notInstalled:
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(l10n.updatePortableNotSupported),
+                duration: const Duration(seconds: 5),
+              ),
+            );
+            await _openReleasePage();
+            return;
+          case InstallWindowsResult.failed:
+            messenger.showSnackBar(
+              SnackBar(content: Text(l10n.updateInstallFailed)),
+            );
+            break;
+        }
       }
     } catch (_) {
       if (!mounted) return;
@@ -248,7 +299,7 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
                   openingInstaller: _openingInstaller,
                 )
               : Text(
-                  Platform.isAndroid ? l10n.installUpdate : l10n.downloadUpdate,
+                  _canInstallInApp ? l10n.installUpdate : l10n.downloadUpdate,
                 ),
         ),
         const SizedBox(height: 8),

@@ -459,6 +459,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateOpeningInstaller => 'Opening installer';
 
   @override
+  String get updatePortableNotSupported =>
+      'This is a portable build and cannot self-update. Opening the download page.';
+
+  @override
   String get alreadyLatest => 'You are on the latest version';
 
   @override

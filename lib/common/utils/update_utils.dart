@@ -10,6 +10,9 @@ class UpdateUtils {
 
   static const _universalAliases = ['universal', 'all', 'noarch', 'multi'];
 
+  /// Tokens identifying the Inno Setup package among release `.exe` assets.
+  static const _setupAliases = ['setup', 'installer'];
+
   UpdateUtils._();
 
   /// Returns negative if [a] < [b], 0 if equal, positive if [a] > [b].
@@ -57,6 +60,33 @@ class UpdateUtils {
 
   static String safeFileName(String fileName) {
     return fileName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+  }
+
+  /// Picks the Inno Setup package produced by `.github/workflows/build.yaml`
+  /// (`FZU-Assistant-<version>-windows-x64-setup.exe`).
+  ///
+  /// Only an `.exe` whose name carries a setup token qualifies: the portable zip
+  /// shares the asset name up to the extension, and a bare `.exe` match would
+  /// also accept unrelated attachments, so neither is accepted as a fallback.
+  static GitHubReleaseAsset? pickWindowsInstaller(
+    List<GitHubReleaseAsset> assets,
+  ) {
+    final exeAssets = assets
+        .where(
+          (asset) =>
+              asset.downloadUrl.isNotEmpty &&
+              asset.name.toLowerCase().endsWith('.exe'),
+        )
+        .toList(growable: false);
+    if (exeAssets.isEmpty) return null;
+
+    for (final asset in exeAssets) {
+      if (_containsAnyToken(asset.name, _setupAliases)) {
+        return asset;
+      }
+    }
+
+    return null;
   }
 
   static List<int> _versionParts(String version) {

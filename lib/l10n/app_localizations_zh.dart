@@ -451,6 +451,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateOpeningInstaller => '打开安装器';
 
   @override
+  String get updatePortableNotSupported => '当前为便携版，无法自动更新，已打开下载页面';
+
+  @override
   String get alreadyLatest => '已是最新版本';
 
   @override

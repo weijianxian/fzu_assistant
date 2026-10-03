@@ -932,6 +932,12 @@ abstract class AppLocalizations {
   /// **'打开安装器'**
   String get updateOpeningInstaller;
 
+  /// Shown when a Windows portable build cannot self-update via the installer
+  ///
+  /// In zh, this message translates to:
+  /// **'当前为便携版，无法自动更新，已打开下载页面'**
+  String get updatePortableNotSupported;
+
   /// alreadyLatest
   ///
   /// In zh, this message translates to:

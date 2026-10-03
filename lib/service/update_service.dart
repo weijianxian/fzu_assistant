@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -14,6 +15,19 @@ import 'package:fzu_assistant/model/github_release.dart';
 enum VersionCompareResult { outdated, upToDate, skipped, permanentlySkipped }
 
 enum InstallApkResult { started, permissionRequired, failed }
+
+/// Outcome of handing a downloaded Windows installer over to the setup process.
+enum InstallWindowsResult {
+  /// The Inno Setup process was launched; the caller must let the app exit.
+  started,
+
+  /// This build is not an installed copy (portable zip / run from build
+  /// output): setup.iss resolves `{app}` to the install directory, so running
+  /// it would silently install a second copy instead of updating this one.
+  notInstalled,
+
+  failed,
+}
 
 class UpdateCheckResult {
   final VersionCompareResult status;
@@ -106,6 +120,65 @@ class UpdateService {
   Future<GitHubReleaseAsset?> findAndroidAsset(GitHubRelease release) async {
     final abis = await getSupportedAbis();
     return UpdateUtils.pickAndroidAsset(release.assets, abis);
+  }
+
+  /// The Inno Setup package published alongside this release.
+  GitHubReleaseAsset? findWindowsInstaller(GitHubRelease release) {
+    return UpdateUtils.pickWindowsInstaller(release.assets);
+  }
+
+  /// Whether this process runs from an installed copy. `unins000.exe` is
+  /// written into `{app}` by setup.iss, so its presence next to the executable
+  /// is what distinguishes an install from a portable/`flutter build` run.
+  Future<bool> isInstalledOnWindows() async {
+    if (!Platform.isWindows) return false;
+    try {
+      final dir = File(Platform.resolvedExecutable).parent.path;
+      return await File('$dir${Platform.pathSeparator}unins000.exe').exists();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Runs the downloaded installer silently and exits so it can replace the
+  /// running executable.
+  ///
+  /// `closeWindow` in `windows/runner/flutter_window.cpp` makes a plain window
+  /// close asynchronous, so the process is terminated explicitly instead.
+  /// Inno's `[Run]` section with `runasoriginaluser` brings the app back.
+  Future<InstallWindowsResult> installWindowsUpdate(
+    String installerPath,
+  ) async {
+    if (!Platform.isWindows) return InstallWindowsResult.failed;
+
+    if (!await isInstalledOnWindows()) {
+      return InstallWindowsResult.notInstalled;
+    }
+
+    try {
+      await Process.start(
+        installerPath,
+        const [
+          '/SILENT',
+          '/SUPPRESSMSGBOXES',
+          '/CLOSEAPPLICATIONS',
+          '/RESTARTAPPLICATIONS',
+          '/NORESTART',
+        ],
+        mode: ProcessStartMode.detached,
+        runInShell: false,
+      );
+    } catch (_) {
+      return InstallWindowsResult.failed;
+    }
+
+    // Give setup time to take its own locks, then terminate so it can overwrite
+    // fzu_assistant.exe and the plugin DLLs. Not awaited: the caller stays
+    // responsive until the process actually goes away.
+    unawaited(
+      Future<void>.delayed(const Duration(milliseconds: 800), () => exit(0)),
+    );
+    return InstallWindowsResult.started;
   }
 
   Future<bool> canInstallPackages() async {

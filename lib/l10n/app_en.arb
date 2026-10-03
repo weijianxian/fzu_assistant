@@ -610,6 +610,10 @@
   "@updateOpeningInstaller": {
     "description": "Shown while opening the Android package installer"
   },
+  "updatePortableNotSupported": "This is a portable build and cannot self-update. Opening the download page.",
+  "@updatePortableNotSupported": {
+    "description": "Shown when a Windows portable build cannot self-update via the installer"
+  },
   "alreadyLatest": "You are on the latest version",
   "@alreadyLatest": {
     "description": "alreadyLatest"

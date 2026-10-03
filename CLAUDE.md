@@ -148,9 +148,59 @@ lib/
 ```bash
 flutter run                    # 开发运行
 flutter build apk              # Android 打包
+flutter build windows --release # Windows 打包（输出 build/windows/x64/runner/Release）
 flutter analyze                # 静态分析
 flutter gen-l10n               # 重新生成国际化代码
 ```
+
+### Windows 安装包（Inno Setup）
+
+安装脚本 `installer/windows/setup.iss`（抄自 zerx-lab/FluxDown），CI 在 `flutter build windows` 之后调用：
+
+```powershell
+iscc /DMyAppVersion=1.3.1 /DMyAppArch=x64 `
+     "/DMySourceDir=$PWD\build\windows\x64\runner\Release" `
+     installer\windows\setup.iss
+```
+
+产物：`build/installer/FZU-Assistant-<version>-windows-x64-setup.exe`（另有便携 zip）。
+
+关键设计（与 FluxDown 一致，改动前先想清楚）：
+
+- **始终每用户安装**：`PrivilegesRequired=lowest` + `DefaultDirName={autopf}\FZU Assistant`
+  （`{autopf}` 在非管理员下解析为 `%LOCALAPPDATA%\Programs`），全程不弹 UAC。
+  **不要**开放「为所有用户安装」覆盖项——一旦存在管理员模式安装，
+  Inno 的 `UsePreviousPrivileges` 会让之后每次静默自动更新都要求提权。
+- **`AppId` GUID 恒定**：`{9F2C4B7E-4A31-4C6D-8E52-7B1A0C3D5E84}`，改了就变成并存安装。
+- **`CloseApplications=force`** + `[Code] PrepareToInstall` 里 `taskkill /f /im fzu_assistant.exe`
+  兜底：应用常驻会锁住 exe/DLL，否则升级报 access denied；顺带清掉旧 `unins000.exe` 的只读属性。
+- **`[InstallDelete]` 先清 `*.dll` 与 `data\`**：覆盖升级时避免残留插件 DLL/资源被新版本加载。
+- `VersionInfoVersion` 用去掉 `+build` 的 `x.y.z`（`1.3.1+85` 不是合法 Inno 版本号，CI 已切分）。
+- 中文语言文件已 vendor 进仓库 `installer/windows/ChineseSimplified.isl`（上游 issrc 移除了 Unofficial 目录），CI 会拷进 Inno 的 `Languages\`。
+
+### 应用内自动更新（Windows）
+
+`UpdateService.installWindowsUpdate()` 下载 release 里的 `*-setup.exe` 后静默执行：
+
+```dart
+Process.start(installerPath, ['/SILENT', '/SUPPRESSMSGBOXES',
+  '/CLOSEAPPLICATIONS', '/RESTARTAPPLICATIONS', '/NORESTART'],
+  mode: ProcessStartMode.detached, runInShell: false);
+// 800ms 后 exit(0)
+```
+
+与 `setup.iss` 的**成对契约**，改一边必须看另一边：
+
+- `/SILENT` ↔ `[Run]` 两条：第一条 `skipifsilent`（安装向导勾选才启动），
+  第二条 `skipifnotsilent runasoriginaluser`（静默更新后自动把应用拉回来）。
+- 显式 `exit(0)` 而不等窗口关闭：`flutter_window.cpp` 的 `closeWindow` 走 `TerminateProcess`，
+  普通关窗不可靠；且进程必须尽快释放 `fzu_assistant.exe` / 插件 DLL 的锁，
+  Inno 的 `CloseApplications` 才能改写它们。
+- 「已安装」判据 = exe 同目录存在 `unins000.exe`（Inno 自动写入 `{app}`）。
+  **便携版不自我更新**：`{app}` 指向安装目录，跑安装器会悄悄多装一份而不是更新当前这份，
+  因此便携版回退到「打开下载页」并提示。
+- 资产筛选 `UpdateUtils.pickWindowsInstaller()` 只认带 `setup`/`installer` token 的 `.exe`：
+  便携 zip 与安装器资产名只差扩展名，裸 `.exe` 兜底会误伤其他附件。
 
 ## Release 发布流程
 1. 在需要发布release时，先切换到 `main` 分支，抬升语义化版本号（`x.y.z`），提交 commit，触发 pre-commit hook 自动递增 build 号
@@ -169,6 +219,30 @@ version: 1.1.6+48
 version: 1.1.6+47  # tag: v1.1.6
 version: 1.1.5+46
 ``` 
+
+### Windows 安装包首次发布后的验证
+
+安装包与自动更新链路无法在本地端到端验证（需要真实 release 资产），
+因此**打了第一个带 `-setup.exe` 的 tag 之后**，务必在干净环境上人工走一遍：
+
+1. 从 Release 下载 `FZU-Assistant-<version>-windows-x64-setup.exe`，双击安装：
+   确认**没有 UAC 弹窗**、装在 `%LOCALAPPDATA%\Programs\FZU Assistant`、
+   开始菜单与桌面快捷方式正常。
+2. 打开应用 →「我的 → 关于 → 检查更新」：应显示新版本，点「下载并安装」后
+   应用**自动退出 → 静默安装 → 自动重启**，版本号已更新。
+3. 便携版（`fzu_assistant-windows-*.zip`）解压运行 → 检查更新：
+   按钮应为「前往下载」，点后提示「当前为便携版，无法自动更新」并打开下载页，
+   **不得**在 `%LOCALAPPDATA%\Programs` 里多出一份安装。
+4. 设置 →「应用和功能」卸载：目录、注册表 Run 值、开始菜单项全部清干净。
+
+失败时 Inno 会在 `%TEMP%\Setup Log*.txt` 留日志；静默参数与 `setup.iss` 的配对关系见上一节。
+
+### 本次改动（v1.3.2）
+
+- 新增 `installer/windows/setup.iss` + `ChineseSimplified.isl`：Inno Setup 每用户安装包
+- CI 在 `flutter build windows` 后调用 `iscc`，artifact 与 Release 一并上传 `*-setup.exe`
+- 应用内 Windows 自动更新：下载 setup.exe → `/SILENT` 安装 → 退出 → 自动重启
+- 便携版不做自我更新，回退到打开下载页
 
 ## 参考
 

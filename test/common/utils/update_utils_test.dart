@@ -89,6 +89,49 @@ void main() {
     });
   });
 
+  group('UpdateUtils.pickWindowsInstaller', () {
+    test('picks setup.exe and skips the portable zip', () {
+      final assets = [
+        _asset('fzu_assistant-windows-1.3.1+85.zip'),
+        _asset('FZU-Assistant-1.3.1-windows-x64-setup.exe'),
+      ];
+
+      expect(
+        UpdateUtils.pickWindowsInstaller(assets)?.name,
+        'FZU-Assistant-1.3.1-windows-x64-setup.exe',
+      );
+    });
+
+    test('ignores plain executables and non exe assets', () {
+      expect(
+        UpdateUtils.pickWindowsInstaller([
+          _asset('fzu_assistant-windows.zip'),
+          _asset('fzu_assistant.exe'),
+          _asset('app-release.apk'),
+        ]),
+        isNull,
+      );
+    });
+
+    test('ignores assets without a download url', () {
+      expect(
+        UpdateUtils.pickWindowsInstaller([
+          _asset('FZU-Assistant-1.3.1-windows-x64-setup.exe', downloadUrl: ''),
+        ]),
+        isNull,
+      );
+    });
+
+    test('accepts an installer token in any position', () {
+      expect(
+        UpdateUtils.pickWindowsInstaller([
+          _asset('fzu_assistant-1.3.1-windows-x64-installer.exe'),
+        ])?.name,
+        'fzu_assistant-1.3.1-windows-x64-installer.exe',
+      );
+    });
+  });
+
   group('UpdateUtils.safeFileName', () {
     test('replaces filename characters invalid on Windows', () {
       expect(

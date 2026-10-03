@@ -610,6 +610,10 @@
   "@updateOpeningInstaller": {
     "description": "Shown while opening the Android package installer"
   },
+  "updatePortableNotSupported": "当前为便携版，无法自动更新，已打开下载页面",
+  "@updatePortableNotSupported": {
+    "description": "Shown when a Windows portable build cannot self-update via the installer"
+  },
   "alreadyLatest": "已是最新版本",
   "@alreadyLatest": {
     "description": "alreadyLatest"
