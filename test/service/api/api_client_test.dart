@@ -33,6 +33,52 @@ class _ExpiredSessionAdapter implements HttpClientAdapter {
 /// [_AuthInterceptor.skipExpiryKey] 的值（库内私有，这里按契约硬编码）。
 const _skipExpiryKey = '_skipExpiryHandling';
 
+/// 只在 302 的 `Location` 头里带参数、响应体为空的适配器。
+/// 用于确认登录参数不依赖 body 里的 "Object moved" 链接。
+class _RedirectOnlyAdapter implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final url = options.uri.toString();
+
+    ResponseBody redirect(String location) => ResponseBody.fromString(
+      '',
+      302,
+      headers: {
+        'location': [location],
+      },
+    );
+
+    if (url.contains('logincheck.asp')) {
+      return redirect(
+        'https://jwcjwxt2.fzu.edu.cn:81/loginchk_xs.aspx'
+        '?token=t0ken&id=123&num=9',
+      );
+    }
+    if (url.contains('SSOLogin')) {
+      return ResponseBody.fromString(
+        '{"code":200}',
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['application/json'],
+        },
+      );
+    }
+    if (url.contains('loginchk_xs.aspx')) {
+      return redirect(
+        'https://jwcjwxt2.fzu.edu.cn:81/index.aspx?id=IDENTIFIER&foo=1',
+      );
+    }
+    return ResponseBody.fromString('', 404);
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 const _secureStorageChannel = MethodChannel(
   'plugins.it_nomads.com/flutter_secure_storage',
 );
@@ -76,7 +122,8 @@ void main() {
       ApiClient.instance.dio.httpClientAdapter = adapter;
     });
 
-    tearDown(() {
+    tearDown(() async {
+      await ApiClient.instance.clearSession();
       ApiClient.instance.dio.httpClientAdapter = originalAdapter;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(_secureStorageChannel, null);
@@ -132,6 +179,16 @@ void main() {
 
       expect(await api.cookieJar.loadForRequest(uri), isEmpty);
       expect(api.userId, isNull);
+    });
+
+    test('登录参数优先从 302 的 Location 头解析', () async {
+      // 这个适配器的响应体是空的，body 兜底不可能命中，
+      // 因此能取到 identifier 就说明走的是 Location 头。
+      ApiClient.instance.dio.httpClientAdapter = _RedirectOnlyAdapter();
+
+      await ApiClient.instance.login('20210001', 'secret', '12');
+
+      expect(ApiClient.instance.userId, 'IDENTIFIER');
     });
   });
 }

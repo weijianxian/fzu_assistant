@@ -104,15 +104,12 @@ class ApiClient {
       data: {'muser': user, 'passwd': _md5_16(pass), 'Verifycode': captcha},
       options: _loginFlowOptions(responseType: ResponseType.bytes),
     );
-    final checkBody = _strip(
-      utf8.decode(checkResp.data!, allowMalformed: true),
-    );
 
     if (checkResp.statusCode != 302) {
       throw Exception('登录失败');
     }
 
-    final token = RegExp(r'token=([^&]+)').firstMatch(checkBody)?.group(1);
+    final token = _redirectParam(checkResp, 'token');
     if (token == null) throw Exception('教务处未返回有效 Token');
 
     // Step 2: SSOLogin
@@ -129,8 +126,8 @@ class ApiClient {
     }
 
     // Step 3: finishLogin
-    final id = RegExp(r'id=([^&]+)').firstMatch(checkBody)?.group(1);
-    final num = RegExp(r'num=([^&]+)').firstMatch(checkBody)?.group(1);
+    final id = _redirectParam(checkResp, 'id');
+    final num = _redirectParam(checkResp, 'num');
     if (id == null || num == null) throw Exception('登录参数缺失');
 
     final finishUrl =
@@ -142,10 +139,29 @@ class ApiClient {
       finishUrl,
       options: _loginFlowOptions(responseType: ResponseType.bytes),
     );
-    final finishBody = utf8.decode(finishResp.data!, allowMalformed: true);
-    final userId = RegExp(r'id=([^&]+)').firstMatch(finishBody)?.group(1);
+    final userId = _redirectParam(finishResp, 'id');
     if (userId == null) throw Exception('用户 ID 获取失败');
     _userId = userId;
+  }
+
+  /// 取 302 跳转目标里的查询参数。
+  ///
+  /// 教务处禁用了跟随重定向后，跳转目标既出现在 `Location` 头，也出现在
+  /// ASP.NET 的 "Object moved" 页面链接里。Location 才是权威来源，
+  /// body 只作兜底（jwch 也是从重定向串里取 token/id/num 的）。
+  String? _redirectParam(Response<List<int>> response, String name) {
+    final pattern = RegExp('$name=([^&]+)');
+
+    final location = response.headers.value('Location');
+    if (location != null) {
+      final fromHeader = pattern.firstMatch(location);
+      if (fromHeader != null) return fromHeader.group(1);
+    }
+
+    final body = _strip(
+      utf8.decode(response.data ?? const [], allowMalformed: true),
+    );
+    return pattern.firstMatch(body)?.group(1);
   }
 
   /// 读取凭据 + 自动识别验证码 + 登录
