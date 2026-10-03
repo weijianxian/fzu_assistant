@@ -12,210 +12,30 @@ on:
       - "v*"
   workflow_dispatch:
 
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
   build-windows:
-    # Pin to Visual Studio 2022; windows-latest/windows-2025 now use VS 2026.
-    runs-on: windows-2022
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "zulu"
-          java-version: "17"
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.47.6"
-          cache: true
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Build Windows
-        run: flutter build windows --release
-
-      # `version: 1.3.1+85` -> VERSION=1.3.1 (Inno AppVersion), BUILD=85.
-      # The +build suffix is a pubspec-only counter and is not a valid Inno version.
-      - name: Read version from pubspec
-        id: version
-        shell: bash
-        run: |
-          RAW=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | tr -d '[:space:]')
-          VERSION="${RAW%%+*}"
-          BUILD="${RAW##*+}"
-          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "BUILD=$BUILD" >> "$GITHUB_OUTPUT"
-          echo "::notice::pubspec version $RAW -> installer version $VERSION (build $BUILD)"
-
-      # The vendored ChineseSimplified.isl only lives in the repo, and Inno Setup
-      # ships no Chinese translation in its Languages\ payload. We drop it into the
-      # real install dir so it is found no matter whether setup.iss asks for
-      # "ChineseSimplified.isl" (script-relative, resolved by Inno itself) or
-      # "compiler:Languages\ChineseSimplified.isl". Must run before the compile step.
-      #
-      # Deliberately NOT using `Get-Command iscc`: on windows runners that resolves to
-      # the Chocolatey shim (C:\ProgramData\Chocolatey\bin\iscc.exe), whose directory
-      # is not the Inno Setup install dir. Same resolution order as
-      # Minionguyjpro/Inno-Setup-Action so both steps agree on where Inno lives.
-      - name: Locate Inno Setup
-        id: inno
-        shell: pwsh
-        run: |
-          $iscc = $null
-          $candidates = @(
-            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
-            "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe",
-            "${env:ProgramFiles(x86)}\Inno Setup\ISCC.exe",
-            "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
-            "$env:ProgramFiles\Inno Setup 7\ISCC.exe",
-            "$env:ProgramFiles\Inno Setup\ISCC.exe"
-          )
-          foreach ($c in $candidates) { if (Test-Path -LiteralPath $c) { $iscc = $c; break } }
-          # Last resort: find a real compiler anywhere, never a Chocolatey shim.
-          if (-not $iscc) {
-            $iscc = Get-ChildItem -Path "$env:LOCALAPPDATA\Programs", "$env:ProgramFiles", "${env:ProgramFiles(x86)}", "C:\ProgramData\Chocolatey\lib" `
-                      -Filter ISCC.exe -Recurse -Depth 4 -ErrorAction SilentlyContinue |
-                    Where-Object { $_.DirectoryName -notmatch '\\bin$' } |
-                    Select-Object -First 1 -ExpandProperty FullName
-          }
-          if (-not $iscc) { throw "ISCC.exe not found; Inno Setup is missing on this runner" }
-          $dir = Split-Path -Parent $iscc
-          if (-not $dir) { throw "ISCC.exe not found; Inno Setup is missing on this runner" }
-          Write-Output "Inno Setup: $iscc"
-          Write-Output "Inno dir:   $dir"
-          Write-Output "Languages:  $(Test-Path -LiteralPath "$dir\Languages")"
-          "INNO_DIR=$dir" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "INNO_ISCC=$iscc" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Install inno Chinese language file
-        shell: pwsh
-        run: |
-          $dest = Join-Path $env:INNO_DIR "Languages"
-          if (Test-Path -LiteralPath $dest) {
-            Copy-Item "installer\windows\ChineseSimplified.isl" -Destination (Join-Path $dest "ChineseSimplified.isl") -Force
-            Write-Output "Copied ChineseSimplified.isl -> $dest"
-          } else {
-            Write-Output "No Languages dir at $dest; setup.iss resolves it script-relative instead."
-          }
-
-      - name: Build Windows installer (Inno Setup)
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
-        with:
-          path: installer/windows/setup.iss
-          options: >-
-            /DMyAppVersion=${{ steps.version.outputs.VERSION }}
-            /DMyAppArch=x86_64
-            /DMySourceDir=${{ github.workspace }}\build\windows\x64\runner\Release
-
-      - name: List installer output
-        shell: pwsh
-        run: Get-ChildItem build\installer
-
-      - name: Upload Windows portable bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-windows-x86_64-portable
-          path: build/windows/x64/runner/Release/
-          compression-level: 9
-          if-no-files-found: error
-
-      - name: Upload Windows installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-windows-x86_64-installer
-          path: build/installer/FZU-assistant-v*-windows-x86_64-installer.exe
-          compression-level: 0
-          if-no-files-found: error
+    uses: ./.github/workflows/windows.yaml
 
   build-android:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/android.yaml
+    secrets:
+      KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
-    steps:
-      - uses: actions/checkout@v4
+  build-apple:
+    uses: ./.github/workflows/apple.yaml
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "zulu"
-          java-version: "17"
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.47.6"
-          cache: true
-
-      - name: Cache build
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ runner.os }}-build-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Create key.properties
-        run: |
-          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/app/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/app/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/app/key.properties
-          echo "storeFile=ghaction-keystore.jks" >> android/app/key.properties
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/ghaction-keystore.jks
-
-      - name: Read version from pubspec
-        id: version
-        shell: bash
-        run: |
-          RAW=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | tr -d '[:space:]')
-          echo "VERSION=${RAW%%+*}" >> "$GITHUB_OUTPUT"
-
-      - name: Build split APKs
-        run: flutter build apk --split-per-abi --release
-
-      # Upload before the universal build replaces AGP's release output directory.
-      - name: Upload Android armeabi-v7a APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-armeabi-v7a
-          path: build/app/outputs/apk/release/FZU-assistant-v*-android-armeabi-v7a.apk
-          compression-level: 0
-          if-no-files-found: error
-
-      - name: Upload Android arm64-v8a APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-arm64-v8a
-          path: build/app/outputs/apk/release/FZU-assistant-v*-android-arm64-v8a.apk
-          compression-level: 0
-          if-no-files-found: error
-
-      - name: Upload Android x86_64 APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-x86_64
-          path: build/app/outputs/apk/release/FZU-assistant-v*-android-x86_64.apk
-          compression-level: 0
-          if-no-files-found: error
-
-      - name: Build universal APK
-        run: flutter build apk --release
-
-      - name: Upload Android universal APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-android-universal
-          path: build/app/outputs/apk/release/FZU-assistant-v*-android-universal.apk
-          compression-level: 0
-          if-no-files-found: error
+  build-linux:
+    uses: ./.github/workflows/linux.yaml
 
   release:
-    needs: [build-windows, build-android]
+    needs: [build-windows, build-android, build-apple, build-linux]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
@@ -235,6 +55,27 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: FZU-assistant-*-android-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Download macOS packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: FZU-assistant-*-macos-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Download iOS packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: FZU-assistant-*-ios-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Download Linux packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: FZU-assistant-*-linux-*
           path: artifacts
           merge-multiple: true
 
@@ -271,3 +112,6 @@ jobs:
             release-assets/FZU-assistant-v*-windows-x86_64-portable.zip
             artifacts/FZU-assistant-v*-windows-x86_64-installer.exe
             artifacts/FZU-assistant-v*-android-*.apk
+            artifacts/FZU-assistant-v*-macos-*.dmg
+            artifacts/FZU-assistant-v*-ios-*.ipa
+            artifacts/FZU-assistant-v*-linux-*.tar.gz

@@ -1,7 +1,11 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthStorage {
-  final _storage = const FlutterSecureStorage();
+  // The legacy macOS Keychain works without a provisioning profile or
+  // Keychain Sharing; credentials are not shared with other apps.
+  final _storage = const FlutterSecureStorage(
+    mOptions: MacOsOptions(usesDataProtectionKeychain: false),
+  );
 
   static const _keyUsername = 'fzu_username';
   static const _keyPassword = 'fzu_password';

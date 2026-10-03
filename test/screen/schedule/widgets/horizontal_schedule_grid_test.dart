@@ -152,9 +152,10 @@ void main() {
       final monday = tester.getTopLeft(find.text('周一'));
       final header = tester.getTopLeft(find.text('第 5 节'));
       final project = tester.getTopLeft(_card('工程项目管理与决策'));
-      await tester.drag(
+      await tester.timedDrag(
         find.byKey(const ValueKey('schedule-time-scroll')),
         const Offset(-260, 0),
+        const Duration(milliseconds: 300),
       );
       await tester.pumpAndSettle();
       expect(tester.getTopLeft(find.text('周一')), monday);
@@ -202,7 +203,13 @@ void main() {
       await gesture.moveTo(start);
       await tester.pumpAndSettle();
       await gesture.down(start);
-      await gesture.moveBy(const Offset(700, 0));
+      for (var step = 1; step <= 14; step++) {
+        await gesture.moveBy(
+          const Offset(50, 0),
+          timeStamp: Duration(milliseconds: step * 20),
+        );
+        await tester.pump(const Duration(milliseconds: 20));
+      }
       await gesture.up();
       await tester.pumpAndSettle();
       expect(times.offset, closeTo(times.position.maxScrollExtent, 0.01));
@@ -275,15 +282,17 @@ void main() {
             find.byKey(const ValueKey('schedule-day-scroll')),
           )
           .controller!;
-      await tester.dragFrom(
+      await tester.timedDragFrom(
         tester.getCenter(find.byKey(const ValueKey('schedule-day-scroll'))),
         const Offset(-200, 0),
+        const Duration(milliseconds: 300),
       );
       await tester.pumpAndSettle();
       expect(times.offset, greaterThan(0));
-      await tester.drag(
+      await tester.timedDrag(
         find.byKey(const ValueKey('schedule-date-scroll')),
         const Offset(0, -120),
+        const Duration(milliseconds: 300),
       );
       await tester.pumpAndSettle();
       expect(days.offset, greaterThan(0));

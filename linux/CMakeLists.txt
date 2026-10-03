@@ -74,6 +74,16 @@ set_target_properties(${BINARY_NAME}
 # them to the application.
 include(flutter/generated_plugins.cmake)
 
+# flutter_inappwebview_linux 0.1.0-beta.1 still uses the preview WPE setting
+# name. WPE 2.54 renamed it without changing its reduced-motion semantics.
+if(TARGET flutter_inappwebview_linux_plugin)
+  pkg_check_modules(WPE_WEBKIT_COMPAT QUIET wpe-webkit-2.0)
+  if(WPE_WEBKIT_COMPAT_VERSION VERSION_GREATER_EQUAL "2.54")
+    target_compile_definitions(flutter_inappwebview_linux_plugin PRIVATE
+      WPE_SETTING_DISABLE_ANIMATIONS=WPE_SETTING_REDUCED_MOTION)
+  endif()
+endif()
+
 
 # === Installation ===
 # By default, "installing" just makes a relocatable bundle in the build

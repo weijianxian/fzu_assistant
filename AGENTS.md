@@ -14,6 +14,7 @@
 - re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
 - window_manager（Windows 自绘标题栏、窗口操作与状态监听）
+- integration_test（macOS / iOS 原生插件冒烟测试，配合 GitHub Actions macOS runner）
 
 ## 项目结构
 
@@ -183,6 +184,50 @@ flutter build apk              # Android 打包
 flutter build windows --release # Windows 打包（输出 build/windows/x64/runner/Release）
 flutter analyze                # 静态分析
 flutter gen-l10n               # 重新生成国际化代码
+```
+
+### CI 工作流
+
+- `.github/workflows/build.yaml` 负责 main/tag/手动触发、调用各平台构建及汇总 Release。
+- 平台构建分别位于 `windows.yaml`、`android.yaml`、`apple.yaml` 和 `linux.yaml`，均支持 `workflow_call` 与手动执行。
+- 主工作流显式向 Android 子工作流传递 `KEY_STORE_PASSWORD`、`KEY_PASSWORD`、`KEY_ALIAS` 和 `KEYSTORE_BASE64` 四项签名 secrets；手动执行 Android 工作流时使用仓库 secrets。
+- 主工作流和各平台工作流均按平台前缀、workflow 和 ref 设置 concurrency；同一分支的新运行取消旧运行，tag 构建不主动取消。
+
+### Linux
+
+- 原生工程位于 `linux/`，可执行文件名为 `fzu_assistant`。
+- `.github/workflows/linux.yaml` 在 Ubuntu 24.04 runner 的 Debian forky 容器内构建 x86_64 release；当前 WebView 插件需要 WPE WebKit >= 2.50（trixie 仅提供 2.48，Ubuntu 24.04 缺少 WPE 包）。支持统一开发分支 `feat/platform-builds` 推送、PR、手动执行及主构建流程调用，tag Release 包含 Linux 产物。
+- CI 安装 Flutter 的 GTK/Clang/CMake/Ninja 构建依赖，以及 WebView 插件的 WPE WebKit、WPEBackend-FDO、libwpe、epoxy、Wayland 和凭据存储的 libsecret 开发包。
+- `linux/CMakeLists.txt` 针对 WPE >= 2.54 为 WebView beta 插件提供动画设置更名的兼容定义；升级插件后需检查是否可以移除。
+- 发布包为 `FZU-assistant-v<version>-linux-x86_64.tar.gz`，包含完整 bundle，保留可执行权限与符号链接；解压后运行 `./fzu_assistant`。目标系统需提供与 Debian forky 构建兼容的 glibc、GTK、WPE WebKit 等运行库，凭据存储需要可用的 Secret Service。
+- Windows 无法执行 Linux 原生构建，需在 Linux 或 GitHub Actions Ubuntu runner 上验证。
+
+```bash
+flutter config --enable-linux-desktop
+flutter pub get
+flutter build linux --release
+```
+
+### macOS / iOS（暂不配置开发者签名）
+
+- 原生工程：`macos/`、`ios/`；均使用 CocoaPods，最低系统版本为 macOS 12、iOS 15。Flutter 配置使用 `--no-enable-swift-package-manager`，与仓库内 Podfile 保持一致。
+- macOS 沿用原生标题栏，Bundle ID 为 `com.weijx.fzuAssistant`，应用名为 `FZU Assistant`；Debug/Profile 和 Release 均需保留 `com.apple.security.network.client`，否则教务请求无法联网。
+- macOS 使用本地 ad-hoc 签名（`CODE_SIGN_IDENTITY = -`），不配置 Apple Developer 证书、开发团队、Provisioning Profile 或公证；DMG 本身不签名。不要把 ad-hoc 签名误认为 Developer ID 发布签名。
+- macOS 凭据使用 `MacOsOptions(usesDataProtectionKeychain: false)` 的传统 Keychain，不启用 Keychain Sharing，避免未配置开发者签名时需要 Provisioning Profile。
+- iOS 保留 Keychain entitlements，使用 `flutter build ios --release --no-codesign`；把 `build/ios/iphoneos/Runner.app` 放进 `Payload/Runner.app` 后压成 IPA。未签名 IPA 需要用户另行签名才能安装到真机，不用于 App Store 发布。
+- Apple 图标由 `assets/icon/icon.png`（iOS，移除 alpha）及 `assets/icon/icon_windows.png`（macOS）生成；配置在 `pubspec.yaml` 的 `flutter_launcher_icons`，生成后提交原生 Assets 目录。
+- `.github/workflows/apple.yaml` 是可复用构建流程：在 PR 或手动执行时独立运行，主构建流程 `build.yaml` 调用它并把 DMG/IPA 加入 tag Release。Apple/Linux 改动统一在 `feat/platform-builds` 分支开发。
+- macOS 发布包为 universal（arm64 + x86_64）；产物命名为 `FZU-assistant-v<version>-macos-universal-unsigned.dmg` 和 `FZU-assistant-v<version>-ios-arm64-unsigned.ipa`。Apple CI 仅构建、打包和上传产物，不再执行静态分析、测试或产物校验；独立 Check 工作流已移除。
+- 原生冒烟测试放在 `integration_test/apple_smoke_test.dart`，覆盖 Keychain 凭据读写/删除、设置页和原生 WebView 的 HTML/JavaScript；需要时手动在 macOS 和 iPhone 模拟器运行，无需教务账号。普通单元/组件测试使用 `flutter test`。
+- Windows 无法执行 Apple 原生构建；构建和原生冒烟测试必须在有 Xcode 的 macOS 上或 GitHub Actions 的 macOS runner 上验证。
+
+```bash
+flutter config --enable-ios --enable-macos-desktop --no-enable-swift-package-manager
+flutter pub get
+flutter test integration_test/apple_smoke_test.dart -d macos
+flutter test integration_test/apple_smoke_test.dart -d <iPhone模拟器ID>
+flutter build macos --release
+flutter build ios --release --no-codesign
 ```
 
 ### Windows 安装包（Inno Setup）

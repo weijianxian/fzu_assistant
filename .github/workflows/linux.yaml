@@ -1,0 +1,84 @@
+name: Linux Build
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/platform-builds
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+    # The WebView plugin needs WPE >= 2.50; trixie only ships 2.48.
+    container: debian:forky
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Install Linux build dependencies
+        run: |
+          apt-get update
+          apt-get install -y git curl jq unzip xz-utils zip ca-certificates \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev libstdc++-14-dev liblzma-dev libsecret-1-dev \
+            libepoxy-dev libwayland-dev libwpe-1.0-dev \
+            libwpewebkit-2.0-dev libwpebackend-fdo-1.0-dev
+          pkg-config --atleast-version=2.50 wpe-webkit-2.0
+
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          cache: true
+
+      - name: Configure Linux desktop
+        run: |
+          git config --global --add safe.directory "$FLUTTER_ROOT"
+          flutter config --enable-linux-desktop
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Linux
+        run: flutter build linux --release --no-pub
+
+      # Archive the whole bundle to preserve executable permissions and symlinks.
+      - name: Verify and package Linux bundle
+        id: package
+        shell: bash
+        run: |
+          VERSION=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | cut -d+ -f1 | tr -d '[:space:]')
+          BUNDLE=build/linux/x64/release/bundle
+          test -x "$BUNDLE/fzu_assistant"
+          test -d "$BUNDLE/data/flutter_assets"
+          test -f "$BUNDLE/lib/libflutter_linux_gtk.so"
+          ldd "$BUNDLE/fzu_assistant" | tee build/linux-dependencies.txt
+          if grep -q 'not found' build/linux-dependencies.txt; then
+            exit 1
+          fi
+          mkdir -p build/linux-packages
+          ARCHIVE="build/linux-packages/FZU-assistant-v${VERSION}-linux-x86_64.tar.gz"
+          tar -czf "$ARCHIVE" -C "$BUNDLE" .
+          tar -tzf "$ARCHIVE" > build/linux-archive-contents.txt
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Linux bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-linux-x86_64
+          path: build/linux-packages/FZU-assistant-v*-linux-x86_64.tar.gz
+          compression-level: 0
+          if-no-files-found: error

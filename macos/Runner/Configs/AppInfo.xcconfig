@@ -5,10 +5,14 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = fzu_assistant
+PRODUCT_NAME = FZU Assistant
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.fzuAssistant
+PRODUCT_BUNDLE_IDENTIFIER = com.weijx.fzuAssistant
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 weijx. All rights reserved.
+
+// Local ad-hoc signing only; no Developer ID or provisioning profile.
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =

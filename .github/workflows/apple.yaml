@@ -1,0 +1,105 @@
+name: Apple Build
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  build-macos:
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      FLUTTER_MACOS_ARM64_ONLY: 'false'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          cache: true
+
+      # Keep CocoaPods integration consistent with the checked-in projects.
+      - name: Configure Apple platforms
+        run: flutter config --enable-macos-desktop --no-enable-swift-package-manager
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build universal macOS app
+        run: flutter build macos --release --no-pub
+
+      # Match PiliPlus's create-dmg packaging, with signing explicitly disabled.
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Package unsigned DMG
+        shell: bash
+        run: |
+          VERSION=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | cut -d+ -f1 | tr -d '[:space:]')
+          mkdir -p build/apple
+          npm install --global create-dmg@8.1.0
+          create-dmg 'build/macos/Build/Products/Release/FZU Assistant.app' build/apple --no-code-sign --no-version-in-filename
+          mv 'build/apple/FZU Assistant.dmg' "build/apple/FZU-assistant-v${VERSION}-macos-universal-unsigned.dmg"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Upload macOS DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ env.VERSION }}-macos-universal-unsigned
+          path: build/apple/FZU-assistant-v*-macos-universal-unsigned.dmg
+          compression-level: 0
+          if-no-files-found: error
+
+  build-ios:
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          cache: true
+
+      - name: Configure Apple platforms
+        run: flutter config --enable-ios --no-enable-swift-package-manager
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build unsigned iOS app
+        run: flutter build ios --release --no-codesign --no-pub
+
+      # --no-codesign produces an .app; wrap it in the IPA's required Payload/.
+      - name: Package unsigned IPA
+        shell: bash
+        run: |
+          VERSION=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | cut -d+ -f1 | tr -d '[:space:]')
+          APP=build/ios/iphoneos/Runner.app
+          mkdir -p build/apple/Payload
+          ditto "$APP" build/apple/Payload/Runner.app
+          cd build/apple
+          zip -qry "FZU-assistant-v${VERSION}-ios-arm64-unsigned.ipa" Payload
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Upload unsigned iOS IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ env.VERSION }}-ios-arm64-unsigned
+          path: build/apple/FZU-assistant-v*-ios-arm64-unsigned.ipa
+          compression-level: 0
+          if-no-files-found: error
