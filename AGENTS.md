@@ -191,6 +191,7 @@ flutter gen-l10n               # 重新生成国际化代码
 - 平台构建分别位于 `windows.yaml`、`android.yaml`、`apple.yaml` 和 `linux.yaml`，均支持 `workflow_call` 与手动执行。
 - 主工作流显式向 Android 子工作流传递 `KEY_STORE_PASSWORD`、`KEY_PASSWORD`、`KEY_ALIAS` 和 `KEYSTORE_BASE64` 四项签名 secrets；手动执行 Android 工作流时使用仓库 secrets。
 - 主工作流和各平台工作流均按平台前缀、workflow 和 ref 设置 concurrency；同一分支的新运行取消旧运行，tag 构建不主动取消。
+- 自动 push/PR 构建通过 `paths-ignore: ['**/*.md']` 跳过仅 Markdown 变更（含子目录）；混合代码变更仍构建，tag 发布和手动构建不受影响。若 pre-commit 同时修改 `pubspec.yaml` 的 build 号，该提交仍会触发构建。
 
 ### Linux
 

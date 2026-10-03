@@ -4,6 +4,8 @@ on:
   workflow_call:
   workflow_dispatch:
   pull_request:
+    paths-ignore:
+      - '**/*.md'
 
 permissions:
   contents: read
