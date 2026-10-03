@@ -14,7 +14,6 @@
 - re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
 - window_manager（Windows 自绘标题栏、窗口操作与状态监听）
-- integration_test（macOS / iOS 原生插件冒烟测试，配合 GitHub Actions macOS runner）
 
 ## 项目结构
 
@@ -218,14 +217,12 @@ flutter build linux --release
 - Apple 图标由 `assets/icon/icon.png`（iOS，移除 alpha）及 `assets/icon/icon_windows.png`（macOS）生成；配置在 `pubspec.yaml` 的 `flutter_launcher_icons`，生成后提交原生 Assets 目录。
 - `.github/workflows/apple.yaml` 是可复用构建流程：在 PR 或手动执行时独立运行，主构建流程 `build.yaml` 调用它并把 DMG/IPA 加入 tag Release。Apple/Linux 改动统一在 `feat/platform-builds` 分支开发。
 - macOS 发布包为 universal（arm64 + x86_64）；产物命名为 `FZU-assistant-v<version>-macos-universal-unsigned.dmg` 和 `FZU-assistant-v<version>-ios-arm64-unsigned.ipa`。Apple CI 仅构建、打包和上传产物，不再执行静态分析、测试或产物校验；独立 Check 工作流已移除。
-- 原生冒烟测试放在 `integration_test/apple_smoke_test.dart`，覆盖 Keychain 凭据读写/删除、设置页和原生 WebView 的 HTML/JavaScript；需要时手动在 macOS 和 iPhone 模拟器运行，无需教务账号。普通单元/组件测试使用 `flutter test`。
-- Windows 无法执行 Apple 原生构建；构建和原生冒烟测试必须在有 Xcode 的 macOS 上或 GitHub Actions 的 macOS runner 上验证。
+- 普通单元/组件测试使用 `flutter test`。
+- Windows 无法执行 Apple 原生构建；构建必须在有 Xcode 的 macOS 上或 GitHub Actions 的 macOS runner 上验证。
 
 ```bash
 flutter config --enable-ios --enable-macos-desktop --no-enable-swift-package-manager
 flutter pub get
-flutter test integration_test/apple_smoke_test.dart -d macos
-flutter test integration_test/apple_smoke_test.dart -d <iPhone模拟器ID>
 flutter build macos --release
 flutter build ios --release --no-codesign
 ```
