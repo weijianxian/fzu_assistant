@@ -36,6 +36,11 @@ const _skipExpiryKey = '_skipExpiryHandling';
 /// 只在 302 的 `Location` 头里带参数、响应体为空的适配器。
 /// 用于确认登录参数不依赖 body 里的 "Object moved" 链接。
 class _RedirectOnlyAdapter implements HttpClientAdapter {
+  _RedirectOnlyAdapter({this.studentIdOnPage = '20210001'});
+
+  /// 学生信息页上 `#ContentPlaceHolder1_LB_xh` 显示的内容。
+  final String studentIdOnPage;
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -70,6 +75,16 @@ class _RedirectOnlyAdapter implements HttpClientAdapter {
     if (url.contains('loginchk_xs.aspx')) {
       return redirect(
         'https://jwcjwxt2.fzu.edu.cn:81/index.aspx?id=IDENTIFIER&foo=1',
+      );
+    }
+    if (url.contains('StudentInformation.aspx')) {
+      return ResponseBody.fromString(
+        '<html><body><span id="ContentPlaceHolder1_LB_xh">'
+        '$studentIdOnPage</span></body></html>',
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['text/html; charset=utf-8'],
+        },
       );
     }
     return ResponseBody.fromString('', 404);
@@ -185,6 +200,29 @@ void main() {
       // 这个适配器的响应体是空的，body 兜底不可能命中，
       // 因此能取到 identifier 就说明走的是 Location 头。
       ApiClient.instance.dio.httpClientAdapter = _RedirectOnlyAdapter();
+
+      await ApiClient.instance.login('20210001', 'secret', '12');
+
+      expect(ApiClient.instance.userId, 'IDENTIFIER');
+    });
+
+    test('页面上的学号与登录学号不一致时拒绝这次会话', () async {
+      ApiClient.instance.dio.httpClientAdapter = _RedirectOnlyAdapter(
+        studentIdOnPage: '20200000',
+      );
+
+      await expectLater(
+        ApiClient.instance.login('20210001', 'secret', '12'),
+        throwsA(isA<Exception>()),
+      );
+
+      expect(ApiClient.instance.userId, isNull);
+    });
+
+    test('页面取不到学号时不阻断登录', () async {
+      ApiClient.instance.dio.httpClientAdapter = _RedirectOnlyAdapter(
+        studentIdOnPage: '',
+      );
 
       await ApiClient.instance.login('20210001', 'secret', '12');
 

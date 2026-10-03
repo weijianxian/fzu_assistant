@@ -12,6 +12,7 @@ import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/captcha_solver.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
+import 'package:html/parser.dart' as html_parser;
 
 class ApiClient {
   ApiClient._() {
@@ -61,6 +62,8 @@ class ApiClient {
     'verifyCode': 'https://jwcjwxt2.fzu.edu.cn:82/plus/verifycode.asp',
     'ssoLogin': 'https://jwcjwxt2.fzu.edu.cn/Sfrz/SSOLogin',
     'loginCheckXs': 'https://jwcjwxt2.fzu.edu.cn:81/loginchk_xs.aspx',
+    'studentInfo':
+        'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx',
   };
 
   // ─── 工具 ───
@@ -142,6 +145,29 @@ class ApiClient {
     final userId = _redirectParam(finishResp, 'id');
     if (userId == null) throw Exception('用户 ID 获取失败');
     _userId = userId;
+
+    await _verifySessionOwner(user);
+  }
+
+  /// 校验这次会话确实属于 [studentId]（防串号）。
+  ///
+  /// identifier 与 Cookie 绑定，两者不匹配时后续请求会读到别人的数据。
+  /// jwch 的 CheckSession 同样拿 StudentInformation.aspx 上的学号做比对。
+  /// 页面结构变化导致取不到学号时不阻断登录，只做"能确认才拦"。
+  Future<void> _verifySessionOwner(String studentId) async {
+    final resp = await _dio.get<List<int>>(
+      _urls['studentInfo']!,
+      queryParameters: {'id': _userId},
+      options: _loginFlowOptions(responseType: ResponseType.bytes),
+    );
+    final doc = html_parser.parse(
+      utf8.decode(resp.data ?? const [], allowMalformed: true),
+    );
+    final actual = doc.getElementById('ContentPlaceHolder1_LB_xh')?.text.trim();
+    if (actual == null || actual.isEmpty || actual == studentId) return;
+
+    _userId = null;
+    throw Exception('登录会话与学号不一致，请重新登录');
   }
 
   /// 取 302 跳转目标里的查询参数。
