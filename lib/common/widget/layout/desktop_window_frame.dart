@@ -97,7 +97,7 @@ class _TitleBar extends StatelessWidget {
                         children: [
                           ExcludeSemantics(
                             child: Image.asset(
-                              'assets/icon/icon.png',
+                              'assets/icon/icon_windows.png',
                               width: 22,
                               height: 22,
                             ),

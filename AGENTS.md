@@ -145,6 +145,11 @@ lib/
 
 ## Windows 注意事项
 
+- Windows 专用图标为 `assets/icon/icon_windows.svg/png`（浅色圆角底），`windows/runner/resources/app_icon.ico` 包含 16–256px 多尺寸。程序、任务栏、安装器及桌面/开始菜单快捷方式使用同一 ICO，自绘标题栏使用对应 PNG。修改原生图标后需重新构建，Hot Reload 不更新 exe 图标。修改 SVG 后，在项目根目录使用 ImageMagick 重新生成：
+  ```powershell
+  magick -background none -density 384 assets/icon/icon_windows.svg -resize 1024x1024 PNG32:assets/icon/icon_windows.png
+  magick assets/icon/icon_windows.png -define icon:auto-resize=256,128,96,64,48,40,32,24,20,16 windows/runner/resources/app_icon.ico
+  ```
 - `flutter_inappwebview` 在 Windows 上需要 WebView2 Runtime
 - `windows/runner/flutter_window.cpp` 中有 `closeWindow` 方法频道的 workaround（修复关窗 bug）
 - Windows 标题栏由 `window_manager` 隐藏，`MaterialApp.builder` 加入全局 `DesktopWindowFrame`；首帧完成后由 Dart 显示窗口。窗口壳拥有独立 Overlay，Navigator 内容使用 ClipRect，防止页面过渡覆盖标题栏。关闭按钮、Alt+F4 和系统菜单关闭共用现有 `closeWindow` 修复。
@@ -162,7 +167,7 @@ flutter gen-l10n               # 重新生成国际化代码
 
 ### Windows 安装包（Inno Setup）
 
-安装脚本 `installer/windows/setup.iss`（抄自 zerx-lab/FluxDown），CI 在 `flutter build windows` 之后调用：
+安装脚本 `installer/windows/setup.iss`（参考 [zerx-lab/FluxDown](https://github.com/zerx-lab/FluxDown)，本地目录 `.reference/FluxDown/`），CI 在 `flutter build windows` 之后调用：
 
 ```powershell
 iscc /DMyAppVersion=1.3.1 /DMyAppArch=x64 `
@@ -229,9 +234,6 @@ version: 1.1.5+46
 
 ### Windows 安装包首次发布后的验证
 
-安装包与自动更新链路无法在本地端到端验证（需要真实 release 资产），
-因此**打了第一个带 `-setup.exe` 的 tag 之后**，务必在干净环境上人工走一遍：
-
 1. 从 Release 下载 `FZU-Assistant-<version>-windows-x64-setup.exe`，双击安装：
    确认**没有 UAC 弹窗**、装在 `%LOCALAPPDATA%\Programs\FZU Assistant`、
    开始菜单与桌面快捷方式正常。
@@ -246,5 +248,10 @@ version: 1.1.5+46
 
 ## 参考
 
-- jwch Go 库（`tmp/jwch/`）：教务处抓包逻辑参考（HTML 解析、表单字段、URL 格式）
-- fzuhelper-app（`tmp/fzuhelper-app/`）：React Native 前端参考（UI 交互、功能列表）
+参考项目统一存放在 `.reference/`，该目录不纳入版本控制。以下 URL 来自各本地仓库的 Git remote：
+
+- [jwch](https://github.com/west2-online/jwch)（`.reference/jwch/`）：Go 教务处接口库，参考 HTML 解析、表单字段和 URL 格式。
+- [fzuhelper-app](https://github.com/west2-online/fzuhelper-app)（`.reference/fzuhelper-app/`）：React Native 前端，参考 UI 交互和功能列表。
+- [fzuhelper-server](https://github.com/west2-online/fzuhelper-server)（`.reference/fzu-helper-server/`）：福大助手 Go 服务端，参考业务设计。
+- [FluxDown](https://github.com/zerx-lab/FluxDown)（`.reference/FluxDown/`）：Flutter 下载管理器，参考 Windows 安装包与自动更新流程。
+- [PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus)（`.reference/.PiliPlus/`）：Flutter 哔哩哔哩客户端，参考 Flutter UI 与交互实现。

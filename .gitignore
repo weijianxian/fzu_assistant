@@ -1,6 +1,6 @@
 .idea
 .claude
-tmp/
+.reference
 
 # Miscellaneous
 *.class
