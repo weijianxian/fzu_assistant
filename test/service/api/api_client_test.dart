@@ -36,10 +36,16 @@ const _skipExpiryKey = '_skipExpiryHandling';
 /// 只在 302 的 `Location` 头里带参数、响应体为空的适配器。
 /// 用于确认登录参数不依赖 body 里的 "Object moved" 链接。
 class _RedirectOnlyAdapter implements HttpClientAdapter {
-  _RedirectOnlyAdapter({this.studentIdOnPage = '20210001'});
+  _RedirectOnlyAdapter({
+    this.studentIdOnPage = '20210001',
+    this.failStudentInfo = false,
+  });
 
   /// 学生信息页上 `#ContentPlaceHolder1_LB_xh` 显示的内容。
   final String studentIdOnPage;
+
+  /// 模拟学生信息页请求抛错，验证登录不因此被阻断。
+  final bool failStudentInfo;
 
   @override
   Future<ResponseBody> fetch(
@@ -78,6 +84,9 @@ class _RedirectOnlyAdapter implements HttpClientAdapter {
       );
     }
     if (url.contains('StudentInformation.aspx')) {
+      if (failStudentInfo) {
+        throw const SocketException('connection reset');
+      }
       return ResponseBody.fromString(
         '<html><body><span id="ContentPlaceHolder1_LB_xh">'
         '$studentIdOnPage</span></body></html>',
@@ -222,6 +231,16 @@ void main() {
     test('页面取不到学号时不阻断登录', () async {
       ApiClient.instance.dio.httpClientAdapter = _RedirectOnlyAdapter(
         studentIdOnPage: '',
+      );
+
+      await ApiClient.instance.login('20210001', 'secret', '12');
+
+      expect(ApiClient.instance.userId, 'IDENTIFIER');
+    });
+
+    test('学生信息页请求失败时不阻断登录', () async {
+      ApiClient.instance.dio.httpClientAdapter = _RedirectOnlyAdapter(
+        failStudentInfo: true,
       );
 
       await ApiClient.instance.login('20210001', 'secret', '12');

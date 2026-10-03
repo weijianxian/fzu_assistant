@@ -167,6 +167,16 @@ class EmptyRoomPage extends HookWidget {
                         onPressed: loadCampuses,
                       ),
                     )
+                  else if (campuses.value.isEmpty)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.error_outline),
+                      title: Text(l10n.noData),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: loadCampuses,
+                      ),
+                    )
                   else
                     DropdownButtonFormField<String>(
                       initialValue:

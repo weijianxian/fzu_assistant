@@ -153,17 +153,24 @@ class ApiClient {
   ///
   /// identifier 与 Cookie 绑定，两者不匹配时后续请求会读到别人的数据。
   /// jwch 的 CheckSession 同样拿 StudentInformation.aspx 上的学号做比对。
-  /// 页面结构变化导致取不到学号时不阻断登录，只做"能确认才拦"。
+  /// 请求失败或页面结构变化导致取不到学号时不阻断登录，只做"能确认才拦"。
   Future<void> _verifySessionOwner(String studentId) async {
-    final resp = await _dio.get<List<int>>(
-      _urls['studentInfo']!,
-      queryParameters: {'id': _userId},
-      options: _loginFlowOptions(responseType: ResponseType.bytes),
-    );
-    final doc = html_parser.parse(
-      utf8.decode(resp.data ?? const [], allowMalformed: true),
-    );
-    final actual = doc.getElementById('ContentPlaceHolder1_LB_xh')?.text.trim();
+    final String? actual;
+    try {
+      final resp = await _dio.get<List<int>>(
+        _urls['studentInfo']!,
+        queryParameters: {'id': _userId},
+        options: _loginFlowOptions(responseType: ResponseType.bytes),
+      );
+      final doc = html_parser.parse(
+        utf8.decode(resp.data ?? const [], allowMalformed: true),
+      );
+      actual = doc.getElementById('ContentPlaceHolder1_LB_xh')?.text.trim();
+    } catch (_) {
+      // 校验本身不是登录的硬门槛：拿不到学号就跳过，不把登录搞挂。
+      return;
+    }
+
     if (actual == null || actual.isEmpty || actual == studentId) return;
 
     _userId = null;
@@ -181,13 +188,24 @@ class ApiClient {
     final location = response.headers.value('Location');
     if (location != null) {
       final fromHeader = pattern.firstMatch(location);
-      if (fromHeader != null) return fromHeader.group(1);
+      if (fromHeader != null) return _decodeParam(fromHeader.group(1));
     }
 
     final body = _strip(
       utf8.decode(response.data ?? const [], allowMalformed: true),
     );
-    return pattern.firstMatch(body)?.group(1);
+    return _decodeParam(pattern.firstMatch(body)?.group(1));
+  }
+
+  /// 对跳转参数做一次 URL 解码；教务处生成的 token/id/num 都是安全字符，
+  /// 即便遇到不规范的百分号编码也原样返回，不因此中断登录。
+  static String? _decodeParam(String? value) {
+    if (value == null) return null;
+    try {
+      return Uri.decodeComponent(value);
+    } on FormatException {
+      return value;
+    }
   }
 
   /// 读取凭据 + 自动识别验证码 + 登录

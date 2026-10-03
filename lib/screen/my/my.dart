@@ -41,10 +41,12 @@ class MyPage extends HookWidget {
 
     Future<void> handleLogout() async {
       try {
-        await auth.clearCredentials();
-        // Cookie 与按学期分片的业务缓存不含账号维度，必须一并清除，
-        // 否则换账号后会读到上一个账号的课表与考场。
-        await ApiClient.instance.clearSession();
+        // 凭据与 Cookie/缓存清理彼此独立、均为尽力而为：
+        // 任一失败都不影响另一个，也不阻断跳转登录页。
+        await Future.wait([
+          auth.clearCredentials(),
+          ApiClient.instance.clearSession(),
+        ]);
       } catch (_) {
         // 清理失败也要离开当前页面，不能停留在已登出的会话上。
       }
