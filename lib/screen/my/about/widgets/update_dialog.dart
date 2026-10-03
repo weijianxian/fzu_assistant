@@ -67,6 +67,7 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
   }
 
   Future<void> _handleDownload() async {
+    if (_isDownloading) return;
     if (!_canInstallInApp) {
       await _openReleasePage();
       return;
@@ -74,6 +75,13 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
 
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
+
+    // 在权限检查和包选择前锁定，避免等待期间重复进入下载流程。
+    setState(() {
+      _isDownloading = true;
+      _openingInstaller = false;
+      _downloadProgress = null;
+    });
 
     try {
       if (Platform.isAndroid) {
@@ -99,12 +107,6 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
         await _openReleasePage();
         return;
       }
-
-      setState(() {
-        _isDownloading = true;
-        _openingInstaller = false;
-        _downloadProgress = null;
-      });
 
       final installerPath = await _updateService.downloadReleaseAsset(
         asset,

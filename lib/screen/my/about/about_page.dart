@@ -66,7 +66,7 @@ class _AboutPageState extends State<AboutPage> {
 
     try {
       final result = await _updateService.checkForUpdate(
-        respectPermanentlySkipped: silent,
+        respectSkippedUpdates: silent,
       );
       if (!mounted) return;
 

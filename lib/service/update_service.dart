@@ -61,9 +61,9 @@ class UpdateService {
   }
 
   Future<UpdateCheckResult> checkForUpdate({
-    bool respectPermanentlySkipped = true,
+    bool respectSkippedUpdates = true,
   }) async {
-    if (respectPermanentlySkipped && await isPermanentlySkipped()) {
+    if (respectSkippedUpdates && await isPermanentlySkipped()) {
       return const UpdateCheckResult(VersionCompareResult.permanentlySkipped);
     }
 
@@ -81,7 +81,7 @@ class UpdateService {
 
       final prefs = await SharedPreferences.getInstance();
       final skipped = prefs.getString(SpKeys.skipUpdateVersion);
-      if (skipped == release.version) {
+      if (respectSkippedUpdates && skipped == release.version) {
         return UpdateCheckResult(VersionCompareResult.skipped, release);
       }
 
