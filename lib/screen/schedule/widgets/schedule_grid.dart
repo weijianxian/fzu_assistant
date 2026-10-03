@@ -355,9 +355,8 @@ class ScheduleGrid extends StatelessWidget {
 
   /// 将考试时间（如 "12:30-17:30"）映射到课表节次
   static (int, int) _mapExamTimeToPeriods(String timeStr) {
-    final match = RegExp(
-      r'(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})',
-    ).firstMatch(timeStr);
+    final match = RegExp(r'(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})')
+        .firstMatch(timeStr);
     if (match == null) return (0, 0);
     final startMin =
         int.parse(match.group(1)!) * 60 + int.parse(match.group(2)!);

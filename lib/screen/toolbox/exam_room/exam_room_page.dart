@@ -33,9 +33,9 @@ class ExamRoomPage extends HookWidget {
         );
         if (!context.mounted) return;
         data.sort(
-          (a, b) => DateText.parseChineseDateOrEpoch(
-            b.date,
-          ).compareTo(DateText.parseChineseDateOrEpoch(a.date)),
+          (a, b) =>
+              DateText.parseChineseDateOrEpoch(b.date)
+                  .compareTo(DateText.parseChineseDateOrEpoch(a.date)),
         );
         rooms.value = data;
         effectiveTerm.value = targetTerm;
@@ -175,9 +175,8 @@ class ExamRoomPage extends HookWidget {
                         if (r.credit.isNotEmpty)
                           _infoTag(
                             Icons.school_outlined,
-                            AppLocalizations.of(
-                              context,
-                            )!.creditSuffix(r.credit),
+                            AppLocalizations.of(context)!
+                                .creditSuffix(r.credit),
                           ),
                       ],
                     ),

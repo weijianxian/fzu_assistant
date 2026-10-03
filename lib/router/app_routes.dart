@@ -52,7 +52,7 @@ extension NavigationX on BuildContext {
   Future<T?> pushReplacementNamed<T, TO>(
     String routeName, {
     Object? arguments,
-  }) => Navigator.of(
-    this,
-  ).pushReplacementNamed<T, TO>(routeName, arguments: arguments);
+  }) =>
+      Navigator.of(this)
+          .pushReplacementNamed<T, TO>(routeName, arguments: arguments);
 }

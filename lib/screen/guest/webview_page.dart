@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' hide Cookie;
@@ -132,9 +133,8 @@ class _WebViewPageState extends State<WebViewPage> {
                 case 'copy':
                   await Clipboard.setData(ClipboardData(text: _currentUrl));
                   if (context.mounted) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(l10n.copied)));
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(l10n.copied)));
                   }
                   break;
                 case 'open':

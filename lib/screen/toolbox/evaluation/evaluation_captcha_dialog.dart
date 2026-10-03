@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widgets.dart';
@@ -114,9 +115,8 @@ class _CaptchaDialogContent extends HookWidget {
         if (!context.mounted) return;
         Navigator.of(context).pop();
         if (!context.mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.evalSuccess)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.evalSuccess)));
         onSuccess();
       } catch (e) {
         if (!context.mounted) return;

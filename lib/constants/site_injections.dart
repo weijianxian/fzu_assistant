@@ -14,8 +14,7 @@ const kSiteInjections = <SiteInjection>[
   ),
   // 教学大纲页面移动端优化
   SiteInjection(
-    pattern:
-        r'https://jwcjwxt2\.fzu\.edu\.cn:\d+/pyfa/jxdg/TeachingProgram_view\.aspx',
+    pattern: r'https://jwcjwxt2\.fzu\.edu\.cn:\d+/pyfa/jxdg/TeachingProgram_view\.aspx',
     css: '''
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

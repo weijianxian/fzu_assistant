@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:charset/charset.dart';
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart';

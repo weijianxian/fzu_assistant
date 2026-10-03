@@ -647,9 +647,8 @@ class _MilestoneCard extends StatelessWidget {
               const SizedBox(height: 7),
               Text(
                 milestone.timeText,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: scheme.onPrimaryContainer,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(color: scheme.onPrimaryContainer),
               ),
             ],
           ],
@@ -765,9 +764,8 @@ class _SemesterHeader extends StatelessWidget {
                       startYear == null ? term.schoolYear : '${startYear + 1}',
                       termNumber,
                     ),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
                 _Chip(text: status, color: statusColor),
@@ -815,9 +813,8 @@ class _OtherEventsCard extends StatelessWidget {
             children: [
               Text(
                 l10n.otherEvents,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               for (final event in events)

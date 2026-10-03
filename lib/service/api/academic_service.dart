@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
@@ -835,9 +836,8 @@ class AcademicService {
     String captcha,
   ) async {
     // Step 1: GET 获取 ASP.NET 表单令牌
-    final getUrl = Uri.parse(
-      _evalTeacherUrl,
-    ).replace(queryParameters: teacherParams);
+    final getUrl = Uri.parse(_evalTeacherUrl)
+        .replace(queryParameters: teacherParams);
     final getDoc = await HtmlHelper.fetchHtml(getUrl.toString());
 
     final viewState =

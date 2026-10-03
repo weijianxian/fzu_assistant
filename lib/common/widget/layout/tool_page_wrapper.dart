@@ -93,9 +93,8 @@ class ToolPageWrapper extends HookWidget {
       child: Center(
         child: Text(
           refreshTime != null
-              ? AppLocalizations.of(
-                  context,
-                )!.dataUpdatedAt(_formatTime(refreshTime!))
+              ? AppLocalizations.of(context)!
+                    .dataUpdatedAt(_formatTime(refreshTime!))
               : '',
           style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),

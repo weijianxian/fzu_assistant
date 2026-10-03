@@ -224,9 +224,8 @@ class _AboutPageState extends State<AboutPage> {
                             ),
                             title: Text(c.name),
                             subtitle: Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.commitCount(c.contributions),
+                              AppLocalizations.of(context)!
+                                  .commitCount(c.contributions),
                             ),
                             onTap: () => launchUrl(
                               Uri.parse('https://github.com/${c.name}'),

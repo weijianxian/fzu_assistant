@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// SharedPreferences 按 key 存取 JSON Map 的泛型工具。

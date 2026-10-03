@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:re_editor/re_editor.dart';
 import 'package:re_highlight/languages/json.dart';
@@ -30,9 +31,8 @@ class EditorPage extends StatelessWidget {
             onPressed: () {
               try {
                 final obj = jsonDecode(controller.text);
-                controller.text = const JsonEncoder.withIndent(
-                  '  ',
-                ).convert(obj);
+                controller.text = const JsonEncoder.withIndent('  ')
+                    .convert(obj);
               } catch (_) {}
             },
           ),

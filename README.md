@@ -94,6 +94,8 @@ flutter build windows --release
 
 项目使用 GitHub Actions 自动化构建：
 
+独立的 `Check` 工作流在每次 push、PR 和手动触发时运行格式检查、静态分析及测试。格式检查使用 `dart format --output=none --set-exit-if-changed lib test`，需要修复时在本地执行 `dart format lib test`。
+
 | 触发条件 | 行为 |
 |----------|------|
 | 推送至 `main` | 构建 Windows & Android 安装包 |
