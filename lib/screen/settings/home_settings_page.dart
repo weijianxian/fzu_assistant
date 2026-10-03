@@ -13,6 +13,7 @@ class HomeSettingsPage extends HookWidget {
   Widget build(BuildContext context) {
     final settings = AppSettingsProvider.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final autoAdjustCourse = useValueListenable(settings.autoAdjustCourse);
 
     final termsLoading = useState(false);
     final termsError = useState<String?>(null);
@@ -166,11 +167,12 @@ class HomeSettingsPage extends HookWidget {
                   title: Text(l10n.autoAdjustCourse),
                   subtitle: Text(l10n.autoAdjustCourseDescription),
                 ),
-                SettingSwitchTile(
-                  notifier: settings.west2AdjustmentsEnabled,
-                  title: Text(l10n.west2AdjustmentsEnabled),
-                  subtitle: Text(l10n.west2AdjustmentsDescription),
-                ),
+                if (autoAdjustCourse)
+                  SettingSwitchTile(
+                    notifier: settings.west2AdjustmentsEnabled,
+                    title: Text(l10n.west2AdjustmentsEnabled),
+                    subtitle: Text(l10n.west2AdjustmentsDescription),
+                  ),
               ],
             ),
           ),
