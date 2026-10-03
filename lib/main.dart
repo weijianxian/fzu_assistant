@@ -66,7 +66,25 @@ class MyApp extends HookWidget {
           locale: settings.currentLocale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          builder: (context, child) => DesktopWindowFrame(child: child!),
+          builder: (context, child) {
+            final scheme = Theme.of(context).colorScheme;
+            final overlayStyle = scheme.brightness == Brightness.dark
+                ? SystemUiOverlayStyle.light
+                : SystemUiOverlayStyle.dark;
+            return DesktopWindowFrame(
+              child: AnnotatedRegion<SystemUiOverlayStyle>(
+                value: overlayStyle.copyWith(
+                  statusBarColor: Colors.transparent,
+                  systemNavigationBarColor: Colors.transparent,
+                  systemNavigationBarContrastEnforced: false,
+                ),
+                child: ColoredBox(
+                  color: scheme.surface,
+                  child: SafeArea(top: false, bottom: false, child: child!),
+                ),
+              ),
+            );
+          },
           onGenerateRoute: AppRouter.onGenerateRoute,
           home: const SplashScreen(),
         ),

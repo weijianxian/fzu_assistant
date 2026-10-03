@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/common/utils/date_text.dart';
 import 'package:fzu_assistant/common/widgets.dart';
@@ -10,6 +13,7 @@ import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/course_card.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/horizontal_schedule_grid.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 
@@ -27,7 +31,7 @@ List<String> _weekdays(AppLocalizations l10n) => [
   l10n.sunday,
 ];
 
-class ScheduleGrid extends StatelessWidget {
+class ScheduleGrid extends HookWidget {
   final List<Course> courses;
   final List<ExamRoomInfo> examRooms;
   final int week;
@@ -45,6 +49,42 @@ class ScheduleGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = context.isLandscape;
+    final minuteTick = useState(0);
+    useEffect(() {
+      if (!isLandscape) return null;
+      final timer = Timer.periodic(const Duration(minutes: 1), (_) {
+        minuteTick.value += 1;
+      });
+      return timer.cancel;
+    }, [isLandscape]);
+
+    final weekDates = <DateTime>[];
+    if (firstMonday != null) {
+      final monday = firstMonday!.add(Duration(days: (week - 1) * 7));
+      for (var i = 0; i < 7; i++) {
+        weekDates.add(monday.add(Duration(days: i)));
+      }
+    }
+    final weekdays = _weekdays(AppLocalizations.of(context)!);
+    if (isLandscape) {
+      return HorizontalScheduleGrid(
+        week: week,
+        weekdays: weekdays,
+        weekDates: weekDates,
+        now: DateTime.now(),
+        onRefresh: onRefresh,
+        cardBuilder: (weekday, metrics) => _buildCards(
+          context,
+          courses,
+          weekday,
+          week,
+          0,
+          horizontalMetrics: metrics,
+        ),
+      );
+    }
+
     final isWindows =
         !kIsWeb && Theme.of(context).platform == TargetPlatform.windows;
     final textScale = isWindows
@@ -64,19 +104,9 @@ class ScheduleGrid extends StatelessWidget {
             : minCellHeight;
         final gridHeight = maxCoursePeriod * cellHeight;
 
-        final weekDates = <DateTime>[];
-        if (firstMonday != null) {
-          final monday = firstMonday!.add(Duration(days: (week - 1) * 7));
-          for (var i = 0; i < 7; i++) {
-            weekDates.add(monday.add(Duration(days: i)));
-          }
-        }
-
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
         final nowMinutes = now.hour * 60 + now.minute;
-
-        final weekdays = _weekdays(AppLocalizations.of(context)!);
 
         final content = Column(
           children: [
@@ -279,8 +309,9 @@ class ScheduleGrid extends StatelessWidget {
     List<Course> courses,
     int wd,
     int week,
-    double cellHeight,
-  ) {
+    double cellHeight, {
+    HorizontalScheduleMetrics? horizontalMetrics,
+  }) {
     final cards = <Widget>[];
     final autoAdjust = AppSettingsProvider.of(context).autoAdjustCourse.value;
 
@@ -291,20 +322,40 @@ class ScheduleGrid extends StatelessWidget {
       autoAdjust: autoAdjust,
     );
     final l10n = AppLocalizations.of(context)!;
+
+    Widget positionCard(int start, int end, Widget child) {
+      if (horizontalMetrics != null) {
+        return Positioned(
+          left: horizontalMetrics.start(start - 1) + 4,
+          width:
+              horizontalMetrics.end(end - 1) -
+              horizontalMetrics.start(start - 1) -
+              8,
+          top: 6,
+          bottom: 6,
+          child: child,
+        );
+      }
+      return Positioned(
+        top: (start - 1) * cellHeight + 1,
+        left: 2,
+        right: 2,
+        height: (end - start + 1) * cellHeight - 2,
+        child: child,
+      );
+    }
+
     for (final session in sessions) {
-      final top = (session.startClass - 1) * cellHeight;
-      final height = (session.endClass - session.startClass + 1) * cellHeight;
       final displayName = session.adjusted
           ? '${l10n.adjustedMark}${session.course.name}'
           : session.course.name;
 
       cards.add(
-        Positioned(
-          top: top + 1,
-          left: 2,
-          right: 2,
-          height: height - 2,
-          child: CourseCard(
+        positionCard(
+          session.startClass,
+          session.endClass,
+          CourseCard(
+            isHorizontal: horizontalMetrics != null,
             course: session.course,
             location: session.location,
             displayName: displayName,
@@ -338,12 +389,9 @@ class ScheduleGrid extends StatelessWidget {
         if (startClass < 1 || startClass > maxCoursePeriod) continue;
 
         final end = endClass > maxCoursePeriod ? maxCoursePeriod : endClass;
-        final top = (startClass - 1) * cellHeight;
-        final height = (end - startClass + 1) * cellHeight;
-
         final examCourse = Course(
           type: '',
-          name: '[考试]${exam.courseName}',
+          name: '${l10n.scheduleExamMark}${exam.courseName}',
           credits: exam.credit,
           electiveType: '',
           examType: '',
@@ -356,12 +404,11 @@ class ScheduleGrid extends StatelessWidget {
           lessonplan: '',
         );
         cards.add(
-          Positioned(
-            top: top + 1,
-            left: 2,
-            right: 2,
-            height: height - 2,
-            child: CourseCard(
+          positionCard(
+            startClass,
+            end,
+            CourseCard(
+              isHorizontal: horizontalMetrics != null,
               course: examCourse,
               location: exam.location,
               onTap: () =>

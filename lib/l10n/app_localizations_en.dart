@@ -641,4 +641,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileInfo => 'Profile';
+
+  @override
+  String get scheduleMorning => 'Morning';
+
+  @override
+  String get scheduleAfternoon => 'Afternoon';
+
+  @override
+  String get scheduleEvening => 'Evening';
+
+  @override
+  String get scheduleExamMark => '[Exam] ';
+
+  @override
+  String get schedulePreviousWeek => 'Previous week';
+
+  @override
+  String get scheduleNextWeek => 'Next week';
 }

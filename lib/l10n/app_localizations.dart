@@ -1261,6 +1261,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'个人资料'**
   String get profileInfo;
+
+  /// No description provided for @scheduleMorning.
+  ///
+  /// In zh, this message translates to:
+  /// **'上午'**
+  String get scheduleMorning;
+
+  /// No description provided for @scheduleAfternoon.
+  ///
+  /// In zh, this message translates to:
+  /// **'下午'**
+  String get scheduleAfternoon;
+
+  /// No description provided for @scheduleEvening.
+  ///
+  /// In zh, this message translates to:
+  /// **'晚上'**
+  String get scheduleEvening;
+
+  /// No description provided for @scheduleExamMark.
+  ///
+  /// In zh, this message translates to:
+  /// **'[考试]'**
+  String get scheduleExamMark;
+
+  /// No description provided for @schedulePreviousWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'上一周'**
+  String get schedulePreviousWeek;
+
+  /// No description provided for @scheduleNextWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一周'**
+  String get scheduleNextWeek;
 }
 
 class _AppLocalizationsDelegate

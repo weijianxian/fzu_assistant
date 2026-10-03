@@ -791,5 +791,11 @@
   "windowMaximize": "最大化",
   "windowRestore": "还原窗口",
   "windowClose": "关闭窗口",
-  "profileInfo": "个人资料"
+  "profileInfo": "个人资料",
+  "scheduleMorning": "上午",
+  "scheduleAfternoon": "下午",
+  "scheduleEvening": "晚上",
+  "scheduleExamMark": "[考试]",
+  "schedulePreviousWeek": "上一周",
+  "scheduleNextWeek": "下一周"
 }

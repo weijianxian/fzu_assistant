@@ -7,6 +7,7 @@ class CourseCard extends StatelessWidget {
   final String location;
   final String? displayName;
   final VoidCallback? onTap;
+  final bool isHorizontal;
 
   // Tailwind CSS 300 级浅色
   static const _lightColors = [
@@ -62,6 +63,7 @@ class CourseCard extends StatelessWidget {
     required this.location,
     this.displayName,
     this.onTap,
+    this.isHorizontal = false,
   });
 
   @override
@@ -69,6 +71,7 @@ class CourseCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
+    if (isHorizontal) return _buildHorizontal(context);
     final colors = isDark ? _darkColors : _lightColors;
     final bg = colors[course.name.hashCode.abs() % colors.length];
     final title = Text(
@@ -117,6 +120,78 @@ class CourseCard extends StatelessWidget {
               else
                 locationText,
             ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontal(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final index = course.name.hashCode.abs() % _lightColors.length;
+    final accent = isDark ? _lightColors[index] : _darkColors[index];
+    final background = Color.alphaBlend(
+      accent.withValues(alpha: isDark ? 0.12 : 0.08),
+      scheme.surfaceContainerLow,
+    );
+
+    return Material(
+      color: background,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: accent.withValues(alpha: 0.2)),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        hoverColor: accent.withValues(alpha: 0.08),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: 4, child: ColoredBox(color: accent)),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      flex: 3,
+                      child: Text(
+                        displayName ?? course.name,
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: scheme.onSurface,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (location.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Flexible(
+                        flex: 2,
+                        child: Text(
+                          location,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

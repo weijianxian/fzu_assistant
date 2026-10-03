@@ -791,5 +791,11 @@
   "windowMaximize": "Maximize",
   "windowRestore": "Restore window",
   "windowClose": "Close window",
-  "profileInfo": "Profile"
+  "profileInfo": "Profile",
+  "scheduleMorning": "Morning",
+  "scheduleAfternoon": "Afternoon",
+  "scheduleEvening": "Evening",
+  "scheduleExamMark": "[Exam] ",
+  "schedulePreviousWeek": "Previous week",
+  "scheduleNextWeek": "Next week"
 }

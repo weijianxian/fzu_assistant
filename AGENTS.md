@@ -20,7 +20,7 @@
 如果你需要新建页面，请严格按照以下结构放置代码:
 ```
 lib/
-  main.dart              # 应用初始化、主题配置与启动页
+  main.dart              # 应用初始化、主题配置、全局横向 SafeArea（顶部/底部背景沉浸，由 AppBar 或页面内容避让系统栏）与启动页
   l10n/                  # 国际化
     app_localizations.dart    # 自动生成的本地化类
     app_localizations_zh.dart # 中文翻译
@@ -58,7 +58,7 @@ lib/
     app_router.dart      # 集中式路由表与页面构建
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
-    breakpoints.dart     # 响应式断点（kTileMinWidth）
+    breakpoints.dart     # 响应式尺寸（横向课表最小节次列宽、日期列宽与行高）
     site_injections.dart # WebView URI 正则 CSS/JS 注入规则
   screen/
     guest/               # 匿名页面 如编辑器，webview等
@@ -66,9 +66,12 @@ lib/
       editor_page.dart   # 通用代码编辑器（re_editor + JSON 高亮）
       webview_page.dart  # 内置浏览器（flutter_inappwebview，支持 Cookie 注入，自动拼接教务处 URL 的 id 参数，CSS/JS 注入受 siteInjectionEnabled 控制，Windows+Android）
     schedule/            # 课程表（首页 tab）
-      schedule.dart      # 课程表主页（状态管理 + _ScheduleBody 组件）
-      schedule_grid.dart # 课程表网格（RefreshIndicator + SingleChildScrollView 包裹，支持下拉刷新）
-      course_card.dart   # 课程卡片
+      schedule.dart      # 课程表主页（状态管理 + _ScheduleBody，横屏使用浮动操作按钮）
+      widgets/
+        schedule_grid.dart # 课表方向切换、课程/调课/考试映射与详情，支持下拉刷新
+        horizontal_schedule_grid.dart # 横屏周课表（固定日期列/周次与节次表头、横向时间轴、时段分组、今天高亮及默认聚焦今日/当前时间，手机隐藏滚动条）
+        course_card.dart   # 课程卡片（横屏浅色底与课程色条）
+        floating_schedule_controls.dart # 横屏视图切换、设置及翻周悬浮按钮，叠在时间轴上方、避开日期列和系统安全区域，窄窗自动换行
     home/                # 首页天视图
       home_screen.dart   # 首页壳，管理自适应导航与三个主 Tab
       home_timeline_page.dart # 时间线首页（课程 + 校历事件 + 学期概览）

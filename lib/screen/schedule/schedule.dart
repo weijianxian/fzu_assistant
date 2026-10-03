@@ -7,6 +7,7 @@ import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/schedule_grid.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/floating_schedule_controls.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
@@ -153,13 +154,34 @@ class SchedulePage extends HookWidget {
     }, [trigger]);
 
     final pc = pageController.value;
+    final isLandscape = context.isLandscape;
+
+    final body = _ScheduleBody(
+      loading: loading.value,
+      error: error.value,
+      courses: courses.value,
+      examRooms: examRooms.value,
+      pageController: pc,
+      displayWeek: displayWeek,
+      firstMonday: firstMonday.value,
+      onRetry: () {
+        final selected = settings.selectedSemesterKey.value;
+        final target = selected.isNotEmpty ? selected : currentTerm.value;
+        if (target.isNotEmpty) refresh(target);
+      },
+      onRefresh: () async {
+        final selected = settings.selectedSemesterKey.value;
+        final target = selected.isNotEmpty ? selected : currentTerm.value;
+        if (target.isNotEmpty) await refresh(target, useCache: false);
+      },
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: context.isLandscape
-            ? null
-            : Padding(
+      appBar: isLandscape
+          ? null
+          : AppBar(
+              automaticallyImplyLeading: false,
+              leading: Padding(
                 padding: const EdgeInsets.all(4),
                 child: Hero(
                   tag: 'app-icon',
@@ -170,56 +192,59 @@ class SchedulePage extends HookWidget {
                   ),
                 ),
               ),
-        title: Text(AppLocalizations.of(context)!.weekN(displayWeek.value)),
-        actions: [
-          const HomeViewToggle(),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.pushNamed(AppRoutes.homeSettings),
-          ),
-          if (context.isLandscape) ...[
-            IconButton(
-              icon: const Icon(Icons.chevron_left),
-              onPressed: pc != null && displayWeek.value > 1
-                  ? () => pc.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    )
-                  : null,
+              title: Text(
+                AppLocalizations.of(context)!.weekN(displayWeek.value),
+              ),
+              actions: [
+                const HomeViewToggle(),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: () => context.pushNamed(AppRoutes.homeSettings),
+                ),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.chevron_right),
-              onPressed:
-                  pc != null &&
-                      displayWeek.value < CourseService.totalScheduleWeeks
-                  ? () => pc.nextPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    )
-                  : null,
-            ),
-          ],
-        ],
-      ),
-      body: _ScheduleBody(
-        loading: loading.value,
-        error: error.value,
-        courses: courses.value,
-        examRooms: examRooms.value,
-        pageController: pc,
-        displayWeek: displayWeek,
-        firstMonday: firstMonday.value,
-        onRetry: () {
-          final selected = settings.selectedSemesterKey.value;
-          final target = selected.isNotEmpty ? selected : currentTerm.value;
-          if (target.isNotEmpty) refresh(target);
-        },
-        onRefresh: () async {
-          final selected = settings.selectedSemesterKey.value;
-          final target = selected.isNotEmpty ? selected : currentTerm.value;
-          if (target.isNotEmpty) await refresh(target, useCache: false);
-        },
-      ),
+      body: isLandscape
+          ? ColoredBox(
+              color: Theme.of(context).colorScheme.surface,
+              child: SafeArea(
+                left: false,
+                right: false,
+                bottom: false,
+                child: ClipRect(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      body,
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: FloatingScheduleControls(
+                          onSettings: () =>
+                              context.pushNamed(AppRoutes.homeSettings),
+                          onPrevious: pc != null && displayWeek.value > 1
+                              ? () => pc.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                )
+                              : null,
+                          onNext:
+                              pc != null &&
+                                  displayWeek.value <
+                                      CourseService.totalScheduleWeeks
+                              ? () => pc.nextPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                )
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : body,
     );
   }
 }

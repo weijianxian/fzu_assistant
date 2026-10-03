@@ -629,4 +629,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get profileInfo => '个人资料';
+
+  @override
+  String get scheduleMorning => '上午';
+
+  @override
+  String get scheduleAfternoon => '下午';
+
+  @override
+  String get scheduleEvening => '晚上';
+
+  @override
+  String get scheduleExamMark => '[考试]';
+
+  @override
+  String get schedulePreviousWeek => '上一周';
+
+  @override
+  String get scheduleNextWeek => '下一周';
 }
