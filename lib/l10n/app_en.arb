@@ -799,5 +799,8 @@
   "scheduleEvening": "Evening",
   "scheduleExamMark": "[Exam] ",
   "schedulePreviousWeek": "Previous week",
-  "scheduleNextWeek": "Next week"
+  "scheduleNextWeek": "Next week",
+  "showNonCurrentWeekCourses": "Show courses from other weeks",
+  "showNonCurrentWeekCoursesDescription": "Show faded courses from other weeks in free timetable slots. The daily timeline is unaffected.",
+  "nonCurrentWeekMark": "[Other week]"
 }

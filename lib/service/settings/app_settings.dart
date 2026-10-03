@@ -36,6 +36,7 @@ class AppSettings {
 
   // 课表显示考试
   final showExamOnSchedule = ValueNotifier<bool>(true);
+  final showNonCurrentWeekCourses = ValueNotifier<bool>(false);
 
   // 自动调课
   final autoAdjustCourse = ValueNotifier<bool>(true);
@@ -96,6 +97,8 @@ class AppSettings {
 
     // 课表显示考试
     showExamOnSchedule.value = sp.getBool(SpKeys.showExamOnSchedule) ?? true;
+    showNonCurrentWeekCourses.value =
+        sp.getBool(SpKeys.showNonCurrentWeekCourses) ?? false;
 
     // 自动调课
     autoAdjustCourse.value = sp.getBool(SpKeys.autoAdjustCourse) ?? true;
@@ -160,6 +163,14 @@ class AppSettings {
     showExamOnSchedule.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setBool(SpKeys.showExamOnSchedule, showExamOnSchedule.value),
+      );
+    });
+    showNonCurrentWeekCourses.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setBool(
+          SpKeys.showNonCurrentWeekCourses,
+          showNonCurrentWeekCourses.value,
+        ),
       );
     });
     autoAdjustCourse.addListener(() {
@@ -257,6 +268,7 @@ class AppSettings {
     termsKey.dispose();
     siteInjectionEnabled.dispose();
     showExamOnSchedule.dispose();
+    showNonCurrentWeekCourses.dispose();
     autoAdjustCourse.dispose();
     west2AdjustmentsEnabled.dispose();
     githubProxyEnabled.dispose();

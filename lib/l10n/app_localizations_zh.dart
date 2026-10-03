@@ -654,4 +654,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get scheduleNextWeek => '下一周';
+
+  @override
+  String get showNonCurrentWeekCourses => '显示非本周课程';
+
+  @override
+  String get showNonCurrentWeekCoursesDescription =>
+      '在周课表的空闲时段淡化显示非本周课程，不影响今日时间线。';
+
+  @override
+  String get nonCurrentWeekMark => '[非本周]';
 }

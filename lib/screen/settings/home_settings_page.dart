@@ -158,6 +158,11 @@ class HomeSettingsPage extends HookWidget {
             child: Column(
               children: [
                 SettingSwitchTile(
+                  notifier: settings.showNonCurrentWeekCourses,
+                  title: Text(l10n.showNonCurrentWeekCourses),
+                  subtitle: Text(l10n.showNonCurrentWeekCoursesDescription),
+                ),
+                SettingSwitchTile(
                   notifier: settings.showExamOnSchedule,
                   title: Text(l10n.showExamOnSchedule),
                   subtitle: Text(l10n.showExamOnScheduleDescription),

@@ -49,6 +49,9 @@ class ScheduleGrid extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    useValueListenable(
+      AppSettingsProvider.of(context).showNonCurrentWeekCourses,
+    );
     final isLandscape = context.isLandscape;
     final minuteTick = useState(0);
     useEffect(() {
@@ -320,6 +323,9 @@ class ScheduleGrid extends HookWidget {
       week: week,
       weekday: wd,
       autoAdjust: autoAdjust,
+      showNonCurrentWeekCourses: AppSettingsProvider.of(context)
+          .showNonCurrentWeekCourses
+          .value,
     );
     final l10n = AppLocalizations.of(context)!;
 
@@ -348,22 +354,27 @@ class ScheduleGrid extends HookWidget {
     for (final session in sessions) {
       final displayName = session.adjusted
           ? '${l10n.adjustedMark}${session.course.name}'
-          : session.course.name;
+          : session.isCurrentWeek
+          ? session.course.name
+          : '${l10n.nonCurrentWeekMark}${session.course.name}';
 
       cards.add(
         positionCard(
           session.startClass,
           session.endClass,
-          CourseCard(
-            isHorizontal: horizontalMetrics != null,
-            course: session.course,
-            location: session.location,
-            displayName: displayName,
-            onTap: () => _showCourseDetail(
-              context,
-              session.course,
-              session.location,
+          Opacity(
+            opacity: session.isCurrentWeek ? 1 : 0.4,
+            child: CourseCard(
+              isHorizontal: horizontalMetrics != null,
+              course: session.course,
+              location: session.location,
               displayName: displayName,
+              onTap: () => _showCourseDetail(
+                context,
+                session.course,
+                session.location,
+                displayName: displayName,
+              ),
             ),
           ),
         ),

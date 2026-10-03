@@ -22,6 +22,7 @@ class CourseSession {
   final int endClass;
   final String location;
   final bool adjusted;
+  final bool isCurrentWeek;
 
   const CourseSession({
     required this.course,
@@ -29,6 +30,7 @@ class CourseSession {
     required this.endClass,
     required this.location,
     required this.adjusted,
+    this.isCurrentWeek = true,
   });
 }
 
@@ -38,8 +40,10 @@ abstract final class CourseSessions {
     required int week,
     required int weekday,
     required bool autoAdjust,
+    bool showNonCurrentWeekCourses = false,
   }) {
     final sessions = <CourseSession>[];
+    final otherWeekSessions = <CourseSession>[];
 
     for (final course in courses) {
       final canceledSlots = <(int, int)>[];
@@ -63,9 +67,12 @@ abstract final class CourseSessions {
 
       for (final rule in course.scheduleRules) {
         if (rule.weekday != weekday) continue;
-        if (rule.startWeek > week || rule.endWeek < week) continue;
-        if (rule.single && !rule.double && week.isEven) continue;
-        if (rule.double && !rule.single && week.isOdd) continue;
+        final isCurrentWeek =
+            rule.startWeek <= week &&
+            rule.endWeek >= week &&
+            !(rule.single && !rule.double && week.isEven) &&
+            !(rule.double && !rule.single && week.isOdd);
+        if (!isCurrentWeek && !showNonCurrentWeekCourses) continue;
         if (rule.startClass < 1 || rule.startClass > maxCoursePeriod) continue;
 
         final isCanceled = canceledSlots.any(
@@ -73,13 +80,14 @@ abstract final class CourseSessions {
         );
         if (isCanceled) continue;
 
-        sessions.add(
+        (isCurrentWeek ? sessions : otherWeekSessions).add(
           CourseSession(
             course: course,
             startClass: rule.startClass,
             endClass: rule.endClass.clamp(1, maxCoursePeriod),
             location: rule.location,
             adjusted: false,
+            isCurrentWeek: isCurrentWeek,
           ),
         );
       }
@@ -99,6 +107,18 @@ abstract final class CourseSessions {
           ),
         );
       }
+    }
+
+    // 本周课程和调入课程优先；非本周课程仅填充空闲时段。
+    for (final session in otherWeekSessions) {
+      if (sessions.any(
+        (existing) =>
+            existing.startClass <= session.endClass &&
+            existing.endClass >= session.startClass,
+      )) {
+        continue;
+      }
+      sessions.add(session);
     }
 
     sessions.sort((a, b) {

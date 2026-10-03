@@ -799,5 +799,8 @@
   "scheduleEvening": "晚上",
   "scheduleExamMark": "[考试]",
   "schedulePreviousWeek": "上一周",
-  "scheduleNextWeek": "下一周"
+  "scheduleNextWeek": "下一周",
+  "showNonCurrentWeekCourses": "显示非本周课程",
+  "showNonCurrentWeekCoursesDescription": "在周课表的空闲时段淡化显示非本周课程，不影响今日时间线。",
+  "nonCurrentWeekMark": "[非本周]"
 }

@@ -13,6 +13,7 @@ abstract final class SpKeys {
   static const skipUpdatesPermanently = 'skip_updates_permanently';
   static const siteInjectionEnabled = 'site_injection_enabled';
   static const showExamOnSchedule = 'show_exam_on_schedule';
+  static const showNonCurrentWeekCourses = 'show_non_current_week_courses';
   static const autoAdjustCourse = 'auto_adjust_course';
   static const west2AdjustmentsEnabled = 'west2_adjustments_enabled';
   static const cacheHolidayAdjustmentsMap = 'cache_holiday_adjustments_map';

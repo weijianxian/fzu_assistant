@@ -1309,6 +1309,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'下一周'**
   String get scheduleNextWeek;
+
+  /// No description provided for @showNonCurrentWeekCourses.
+  ///
+  /// In zh, this message translates to:
+  /// **'显示非本周课程'**
+  String get showNonCurrentWeekCourses;
+
+  /// No description provided for @showNonCurrentWeekCoursesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'在周课表的空闲时段淡化显示非本周课程，不影响今日时间线。'**
+  String get showNonCurrentWeekCoursesDescription;
+
+  /// No description provided for @nonCurrentWeekMark.
+  ///
+  /// In zh, this message translates to:
+  /// **'[非本周]'**
+  String get nonCurrentWeekMark;
 }
 
 class _AppLocalizationsDelegate

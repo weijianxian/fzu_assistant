@@ -666,4 +666,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduleNextWeek => 'Next week';
+
+  @override
+  String get showNonCurrentWeekCourses => 'Show courses from other weeks';
+
+  @override
+  String get showNonCurrentWeekCoursesDescription =>
+      'Show faded courses from other weeks in free timetable slots. The daily timeline is unaffected.';
+
+  @override
+  String get nonCurrentWeekMark => '[Other week]';
 }
