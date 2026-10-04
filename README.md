@@ -90,6 +90,21 @@ flutter build apk --release
 flutter build windows --release
 ```
 
+### Linux 安装
+
+从 [Releases](https://github.com/weijianxian/fzu_assistant/releases) 下载 `FZU-assistant-v<版本号>-linux-x86_64.deb`，在下载目录执行（文件名替换为实际版本）：
+
+```bash
+sudo apt install ./FZU-assistant-v<版本号>-linux-x86_64.deb
+fzu-assistant
+```
+
+安装后也可从应用菜单打开「福大校园助手」。卸载使用 `sudo apt remove fzu-assistant`。
+
+Linux 版目前仅支持 x86_64，使用 Debian forky 构建，依赖兼容的 glibc、GTK 和 WPE WebKit（≥ 2.50）运行库；旧版 Ubuntu/Debian 可能无法满足依赖。登录凭据存储需要可用的 Secret Service，deb 推荐安装 GNOME Keyring。
+
+也可下载 `.tar.gz`，完整解压后运行 `./fzu_assistant`，保留同目录的 `lib/` 和 `data/`。
+
 ## CI/CD
 
 项目使用 GitHub Actions 自动化构建：

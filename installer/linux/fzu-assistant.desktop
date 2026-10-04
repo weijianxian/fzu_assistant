@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=FZU Assistant
+Name[zh_CN]=福大校园助手
+Comment=Fuzhou University campus assistant
+Comment[zh_CN]=福州大学课表、成绩、考试与校历查询
+Exec=fzu-assistant
+Icon=fzu-assistant
+Terminal=false
+Categories=Education;

@@ -13,7 +13,7 @@ body = """
 
 | 架构 | Windows | Linux | macOS | Android | iOS |
 | --- | --- | --- | --- | --- | --- |
-| x86-64 (64-bit) | ⭐[安装包 EXE]({{ download }}-windows-x86_64-installer.exe) · [便携版 ZIP]({{ download }}-windows-x86_64-portable.zip) | [TAR.GZ]({{ download }}-linux-x86_64.tar.gz) | [通用版 DMG]({{ download }}-macos-universal-unsigned.dmg) | [APK]({{ download }}-android-x86_64.apk) | — |
+| x86-64 (64-bit) | ⭐[安装包 EXE]({{ download }}-windows-x86_64-installer.exe) · [便携版 ZIP]({{ download }}-windows-x86_64-portable.zip) | ⭐[DEB]({{ download }}-linux-x86_64.deb) · [TAR.GZ]({{ download }}-linux-x86_64.tar.gz) | [通用版 DMG]({{ download }}-macos-universal-unsigned.dmg) | [APK]({{ download }}-android-x86_64.apk) | — |
 | AArch64 (ARM64) | — | — | [通用版 DMG]({{ download }}-macos-universal-unsigned.dmg) | ⭐[APK]({{ download }}-android-arm64-v8a.apk) | [未签名 IPA]({{ download }}-ios-arm64-unsigned.ipa) |
 | ARMv7 (32-bit) | — | — | — | [APK]({{ download }}-android-armeabi-v7a.apk) | — |
 | 通用版 | — | — | — | [通用版 APK]({{ download }}-android-universal.apk) | — |

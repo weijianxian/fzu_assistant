@@ -117,3 +117,4 @@ jobs:
             artifacts/FZU-assistant-v*-macos-*.dmg
             artifacts/FZU-assistant-v*-ios-*.ipa
             artifacts/FZU-assistant-v*-linux-*.tar.gz
+            artifacts/FZU-assistant-v*-linux-*.deb

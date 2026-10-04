@@ -26,13 +26,16 @@ jobs:
         run: |
           apt-get update
           apt-get install -y git curl jq unzip xz-utils zip ca-certificates \
-            clang cmake ninja-build pkg-config \
+            clang cmake ninja-build pkg-config dpkg-dev desktop-file-utils shellcheck \
             libgtk-3-dev libstdc++-14-dev liblzma-dev libsecret-1-dev \
             libepoxy-dev libwayland-dev libwpe-1.0-dev \
             libwpewebkit-2.0-dev libwpebackend-fdo-1.0-dev
           pkg-config --atleast-version=2.50 wpe-webkit-2.0
 
       - uses: actions/checkout@v4
+
+      - name: Check Debian packaging script
+        run: shellcheck installer/linux/package-deb.sh
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -71,10 +74,32 @@ jobs:
           tar -tzf "$ARCHIVE" > build/linux-archive-contents.txt
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Upload Linux bundle
+      - name: Package Linux Debian installer
+        run: bash installer/linux/package-deb.sh
+
+      - name: Verify Debian package installation
+        run: |
+          apt-get install -y --no-install-recommends ./build/linux-packages/FZU-assistant-v${{ steps.package.outputs.VERSION }}-linux-x86_64.deb
+          test -x /usr/bin/fzu-assistant
+          test -x /usr/lib/fzu-assistant/fzu_assistant
+          test -d /usr/lib/fzu-assistant/data/flutter_assets
+          test -f /usr/share/icons/hicolor/scalable/apps/fzu-assistant.svg
+          bash -n /usr/bin/fzu-assistant
+          desktop-file-validate /usr/share/applications/fzu-assistant.desktop
+          dpkg-query -W -f='${Status}\n${Depends}\n' fzu-assistant
+
+      - name: Upload Linux portable archive
         uses: actions/upload-artifact@v4
         with:
-          name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-linux-x86_64
+          name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-linux-x86_64-portable
           path: build/linux-packages/FZU-assistant-v*-linux-x86_64.tar.gz
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Upload Linux Debian installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-linux-x86_64-deb
+          path: build/linux-packages/FZU-assistant-v*-linux-x86_64.deb
           compression-level: 0
           if-no-files-found: error
