@@ -5,6 +5,8 @@ abstract final class SpKeys {
   static const localeKey = 'locale_key';
   static const homeStyle = 'home_style';
   static const timelineDays = 'timeline_days';
+  static const selectedSemester = 'selected_semester';
+  static const termsList = 'terms_list';
   static const cacheCoursesMap = 'cache_courses_map';
   static const cacheSchoolCalendar = 'cache_school_calendar';
   static const cacheTermEventsMap = 'cache_term_events_map';

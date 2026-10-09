@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/mark.dart';
@@ -10,48 +11,33 @@ class MarksPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final marks = useState<List<Mark>>([]);
-    final loading = useState(true);
-    final error = useState<String?>(null);
-    final refreshTime = useState<DateTime?>(null);
     final expandedKeys = useState<Set<String>>({});
     final service = useMemoized(() => AcademicService());
 
     final unknownSemester = AppLocalizations.of(context)!.unknownSemester;
 
-    Future<void> load() async {
-      try {
-        final data = await service.getMarks();
-        if (!context.mounted) return;
-        marks.value = data;
-        refreshTime.value = DateTime.now();
-        error.value = null;
-        if (marks.value.isNotEmpty) {
-          final first = marks.value.first.semester;
+    final result = useAsyncData(
+      service.getMarks,
+      initialData: const <Mark>[],
+      onLoaded: (marks) {
+        if (marks.isNotEmpty) {
+          final first = marks.first.semester;
           expandedKeys.value = {first.isEmpty ? unknownSemester : first};
         }
-      } catch (e) {
-        if (!context.mounted) return;
-        error.value = e.toString();
-      }
-      if (context.mounted) loading.value = false;
-    }
-
-    useEffect(() {
-      load();
-      return null;
-    }, []);
+      },
+    );
+    final marks = result.data!;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.marksQuery)),
       body: ToolPageWrapper(
-        onRefresh: load,
-        loading: loading.value,
-        error: error.value,
-        refreshTime: refreshTime.value,
-        hasData: marks.value.isNotEmpty,
+        onRefresh: result.refresh,
+        loading: result.loading,
+        error: result.error,
+        refreshTime: result.updatedAt,
+        hasData: marks.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noMarksData,
-        slivers: _buildSlivers(context, marks.value, expandedKeys),
+        slivers: _buildSlivers(context, marks, expandedKeys),
       ),
     );
   }

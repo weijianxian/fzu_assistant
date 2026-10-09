@@ -39,6 +39,8 @@ lib/
     notice.dart          # 教务通知（列表 + 部门）
     github_release.dart  # GitHub Release 信息
   common/                # 通用组件
+    hooks/
+      use_async_data.dart # 通用查询 Hook：加载/错误/更新时间/刷新，卸载保护及最新请求优先
     utils/               # 工具函数
       cache_helper.dart  # 缓存辅助工具
       html_utils.dart    # HTML 解析工具
@@ -137,7 +139,7 @@ lib/
 - 工具页数据列表优先使用 Table 布局（对齐整齐），不用手搓 Row+Card
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
-- 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化
+- 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化；普通查询页复用 common/hooks/use_async_data.dart，保留刷新期间的旧数据，特殊分页/条件查询独立管理状态
 - 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情扩展菜单提供“我不想上”，CourseSessions 统一过滤周课表及天视图，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
 - 每次做完一个功能，就 commit 一次，提交信息遵循下方规范。
 

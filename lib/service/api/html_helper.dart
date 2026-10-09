@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/api/evaluation_required_exception.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 
@@ -14,6 +15,22 @@ abstract final class HtmlHelper {
   static Dio get _dio => ApiClient.instance.dio;
 
   static const _prefix = 'https://jwcjwxt2.fzu.edu.cn:81';
+
+  /// 课表与考场页面共用的学期选择框及 WebForms 提交令牌。
+  static TermInfo parseTermInfo(Document doc) {
+    final terms = doc
+        .querySelectorAll('#ContentPlaceHolder1_DDL_xnxq option')
+        .map((option) => option.attributes['value'] ?? '')
+        .where((value) => value.isNotEmpty)
+        .toList();
+    if (terms.isEmpty) throw Exception('无可用学期');
+    return TermInfo(
+      terms: terms,
+      viewState: doc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '',
+      eventValidation:
+          doc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '',
+    );
+  }
 
   static Future<Document> fetchHtml(
     String url, {

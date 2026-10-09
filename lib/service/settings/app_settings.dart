@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dynamic_color/dynamic_color.dart';
@@ -91,7 +92,7 @@ class AppSettings {
         : 1;
 
     // 学期相关
-    selectedSemesterKey.value = sp.getString('selected_semester') ?? '';
+    selectedSemesterKey.value = sp.getString(SpKeys.selectedSemester) ?? '';
 
     // 网页注入
     siteInjectionEnabled.value =
@@ -113,14 +114,13 @@ class AppSettings {
       sp.getString(SpKeys.githubProxyBaseUrl) ?? GitHubProxy.defaultBaseUrl,
     );
 
-    final termsRaw = sp.getString('terms_list');
+    final termsRaw = sp.getString(SpKeys.termsList);
     if (termsRaw != null) {
       try {
         termsKey.value = List<String>.from(jsonDecode(termsRaw));
       } catch (_) {}
     }
 
-    // 持久化 listeners
     final hiddenRaw = sp.getString(SpKeys.hiddenCourseSessions);
     if (hiddenRaw != null) {
       try {
@@ -140,96 +140,52 @@ class AppSettings {
         hiddenCourseSessions.value = loaded;
       } catch (_) {}
     }
-    hiddenCourseSessions.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString(
-          SpKeys.hiddenCourseSessions,
-          jsonEncode(
-            hiddenCourseSessions.value.map((s) => s.toJson()).toList(),
-          ),
-        ),
-      );
-    });
-    themeKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString(SpKeys.themeKey, themeKey.value),
-      );
-    });
-    themeModeKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString(SpKeys.themeMode, themeModeKey.value),
-      );
-    });
-    localeKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString(SpKeys.localeKey, localeKey.value),
-      );
-    });
-    homeStyleKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString(SpKeys.homeStyle, homeStyleKey.value),
-      );
-    });
-    timelineDaysKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setInt(SpKeys.timelineDays, timelineDaysKey.value),
-      );
-    });
-    selectedSemesterKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString('selected_semester', selectedSemesterKey.value),
-      );
-    });
-    termsKey.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString('terms_list', jsonEncode(termsKey.value)),
-      );
-    });
-    siteInjectionEnabled.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) =>
-            sp.setBool(SpKeys.siteInjectionEnabled, siteInjectionEnabled.value),
-      );
-    });
-    showExamOnSchedule.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setBool(SpKeys.showExamOnSchedule, showExamOnSchedule.value),
-      );
-    });
-    showNonCurrentWeekCourses.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setBool(
-          SpKeys.showNonCurrentWeekCourses,
-          showNonCurrentWeekCourses.value,
-        ),
-      );
-    });
-    autoAdjustCourse.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setBool(SpKeys.autoAdjustCourse, autoAdjustCourse.value),
-      );
-    });
-    west2AdjustmentsEnabled.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setBool(
-          SpKeys.west2AdjustmentsEnabled,
-          west2AdjustmentsEnabled.value,
-        ),
-      );
-    });
-    githubProxyEnabled.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setBool(SpKeys.githubProxyEnabled, githubProxyEnabled.value),
-      );
-    });
-    githubProxyBaseUrl.addListener(() {
-      SharedPreferences.getInstance().then(
-        (sp) => sp.setString(
-          SpKeys.githubProxyBaseUrl,
-          GitHubProxy.normalizeBaseUrl(githubProxyBaseUrl.value),
-        ),
-      );
-    });
+    // 使用已经加载的 SP 实例，统一绑定持久化。
+    for (final entry in {
+      SpKeys.themeKey: themeKey,
+      SpKeys.themeMode: themeModeKey,
+      SpKeys.localeKey: localeKey,
+      SpKeys.homeStyle: homeStyleKey,
+      SpKeys.selectedSemester: selectedSemesterKey,
+    }.entries) {
+      _persist(entry.value, (value) => sp.setString(entry.key, value));
+    }
+    for (final entry in {
+      SpKeys.siteInjectionEnabled: siteInjectionEnabled,
+      SpKeys.showExamOnSchedule: showExamOnSchedule,
+      SpKeys.showNonCurrentWeekCourses: showNonCurrentWeekCourses,
+      SpKeys.autoAdjustCourse: autoAdjustCourse,
+      SpKeys.west2AdjustmentsEnabled: west2AdjustmentsEnabled,
+      SpKeys.githubProxyEnabled: githubProxyEnabled,
+    }.entries) {
+      _persist(entry.value, (value) => sp.setBool(entry.key, value));
+    }
+    _persist(timelineDaysKey, (value) => sp.setInt(SpKeys.timelineDays, value));
+    _persist(
+      termsKey,
+      (value) => sp.setString(SpKeys.termsList, jsonEncode(value)),
+    );
+    _persist(
+      githubProxyBaseUrl,
+      (value) => sp.setString(
+        SpKeys.githubProxyBaseUrl,
+        GitHubProxy.normalizeBaseUrl(value),
+      ),
+    );
+    _persist(
+      hiddenCourseSessions,
+      (value) => sp.setString(
+        SpKeys.hiddenCourseSessions,
+        jsonEncode(value.map((s) => s.toJson()).toList()),
+      ),
+    );
+  }
+
+  static void _persist<T>(
+    ValueNotifier<T> notifier,
+    Future<bool> Function(T) write,
+  ) {
+    notifier.addListener(() => unawaited(write(notifier.value)));
   }
 
   Future<void> initDynamicColor() async {
@@ -280,22 +236,17 @@ class AppSettings {
         .toList();
   }
 
-  ThemeData get lightTheme {
-    if (themeKey.value == 'dynamic' && _systemLightScheme != null) {
-      return buildThemeFromScheme(_systemLightScheme!);
-    }
-    final match = appThemes.where((t) => t.key == themeKey.value);
-    final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
-    return buildTheme(color, brightness: Brightness.light);
-  }
+  ThemeData get lightTheme => _buildTheme(Brightness.light);
+  ThemeData get darkTheme => _buildTheme(Brightness.dark);
 
-  ThemeData get darkTheme {
-    if (themeKey.value == 'dynamic' && _systemDarkScheme != null) {
-      return buildThemeFromScheme(_systemDarkScheme!);
+  ThemeData _buildTheme(Brightness brightness) {
+    final scheme = systemColorScheme(brightness);
+    if (themeKey.value == 'dynamic' && scheme != null) {
+      return buildThemeFromScheme(scheme);
     }
     final match = appThemes.where((t) => t.key == themeKey.value);
     final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
-    return buildTheme(color, brightness: Brightness.dark);
+    return buildTheme(color, brightness: brightness);
   }
 
   ThemeMode get currentThemeMode =>

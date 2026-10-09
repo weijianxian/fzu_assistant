@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
@@ -10,43 +11,23 @@ class UnifiedExamPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cet = useState<List<UnifiedExam>>([]);
-    final js = useState<List<UnifiedExam>>([]);
-    final loading = useState(true);
-    final error = useState<String?>(null);
-    final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
-
-    Future<void> load() async {
-      try {
-        final results = await Future.wait([service.getCET(), service.getJS()]);
-        if (!context.mounted) return;
-        cet.value = results[0];
-        js.value = results[1];
-        refreshTime.value = DateTime.now();
-        error.value = null;
-      } catch (e) {
-        if (!context.mounted) return;
-        error.value = e.toString();
-      }
-      if (context.mounted) loading.value = false;
-    }
-
-    useEffect(() {
-      load();
-      return null;
-    }, []);
+    final result = useAsyncData(
+      () => Future.wait([service.getCET(), service.getJS()]),
+      initialData: const [<UnifiedExam>[], <UnifiedExam>[]],
+    );
+    final [cet, js] = result.data!;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.unifiedExam)),
       body: ToolPageWrapper(
-        onRefresh: load,
-        loading: loading.value,
-        error: error.value,
-        refreshTime: refreshTime.value,
-        hasData: cet.value.isNotEmpty || js.value.isNotEmpty,
+        onRefresh: result.refresh,
+        loading: result.loading,
+        error: result.error,
+        refreshTime: result.updatedAt,
+        hasData: cet.isNotEmpty || js.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noUnifiedExamData,
-        child: _buildContent(context, cet.value, js.value),
+        child: _buildContent(context, cet, js),
       ),
     );
   }
@@ -56,12 +37,6 @@ class UnifiedExamPage extends HookWidget {
     List<UnifiedExam> cet,
     List<UnifiedExam> js,
   ) {
-    if (cet.isEmpty && js.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context)!.noUnifiedExamData),
-      );
-    }
-
     return ListView(
       children: [
         if (cet.isNotEmpty)

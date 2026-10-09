@@ -191,10 +191,10 @@ class AcademicService {
 
   // ─── 考场 ───
 
-  TermInfo? _cachedExamTermInfo;
+  List<String> _cachedExamTerms = [];
 
   /// 最近一次 getExamRooms 内部获取的学期列表。
-  List<String> get cachedExamTerms => _cachedExamTermInfo?.terms ?? [];
+  List<String> get cachedExamTerms => _cachedExamTerms;
 
   Future<bool> hasCachedExamRooms(String term) async {
     final map = await CacheHelper.loadMap(SpKeys.cacheExamRoomsMap);
@@ -236,27 +236,8 @@ class AcademicService {
 
     final doc = await _fetch(_examRoomUrl);
 
-    final viewState =
-        doc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
-    final eventValidation =
-        doc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
-
-    final options = doc.querySelectorAll(
-      '#ContentPlaceHolder1_DDL_xnxq option',
-    );
-    final terms = options
-        .map((o) => o.attributes['value'] ?? '')
-        .where((v) => v.isNotEmpty)
-        .toList();
-
-    if (terms.isEmpty) throw Exception('无可用学期');
-
-    final termInfo = TermInfo(
-      terms: terms,
-      viewState: viewState,
-      eventValidation: eventValidation,
-    );
-    _cachedExamTermInfo = termInfo;
+    final termInfo = HtmlHelper.parseTermInfo(doc);
+    _cachedExamTerms = termInfo.terms;
     return termInfo;
   }
 

@@ -313,7 +313,7 @@ class _AuthInterceptor extends Interceptor {
       handler.reject(_expiredError(response.requestOptions));
       return;
     }
-    _handleExpired(response.requestOptions, handler);
+    _handleExpired(response.requestOptions, handler.resolve, handler.reject);
   }
 
   @override
@@ -327,7 +327,7 @@ class _AuthInterceptor extends Interceptor {
       handler.next(err);
       return;
     }
-    _handleExpiredError(err.requestOptions, handler);
+    _handleExpired(err.requestOptions, handler.resolve, handler.reject);
   }
 
   /// 登录链路的请求自带跳过标记：它们正在重建会话，
@@ -350,17 +350,18 @@ class _AuthInterceptor extends Interceptor {
 
   Future<void> _handleExpired(
     RequestOptions options,
-    ResponseInterceptorHandler handler,
+    void Function(Response) resolve,
+    void Function(DioException) reject,
   ) async {
     try {
       final ok = await _api.refreshSession();
       if (ok) {
-        handler.resolve(await _api.retry(options));
+        resolve(await _api.retry(options));
       } else {
-        handler.reject(_expiredError(options));
+        reject(_expiredError(options));
       }
     } catch (_) {
-      handler.reject(_expiredError(options));
+      reject(_expiredError(options));
     }
   }
 
@@ -369,20 +370,4 @@ class _AuthInterceptor extends Interceptor {
     type: DioExceptionType.unknown,
     error: 'Session expired and re-login failed',
   );
-
-  Future<void> _handleExpiredError(
-    RequestOptions options,
-    ErrorInterceptorHandler handler,
-  ) async {
-    try {
-      final ok = await _api.refreshSession();
-      if (ok) {
-        handler.resolve(await _api.retry(options));
-      } else {
-        handler.reject(_expiredError(options));
-      }
-    } catch (_) {
-      handler.reject(_expiredError(options));
-    }
-  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/credit.dart';
@@ -10,41 +11,23 @@ class CreditPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final credits = useState<List<CreditStatistics>>([]);
-    final loading = useState(true);
-    final error = useState<String?>(null);
-    final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
-
-    Future<void> load() async {
-      try {
-        final data = await service.getCredit();
-        if (!context.mounted) return;
-        credits.value = data;
-        refreshTime.value = DateTime.now();
-        error.value = null;
-      } catch (e) {
-        if (!context.mounted) return;
-        error.value = e.toString();
-      }
-      if (context.mounted) loading.value = false;
-    }
-
-    useEffect(() {
-      load();
-      return null;
-    }, []);
+    final result = useAsyncData(
+      service.getCredit,
+      initialData: const <CreditStatistics>[],
+    );
+    final credits = result.data!;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.creditStats)),
       body: ToolPageWrapper(
-        onRefresh: load,
-        loading: loading.value,
-        error: error.value,
-        refreshTime: refreshTime.value,
-        hasData: credits.value.isNotEmpty,
+        onRefresh: result.refresh,
+        loading: result.loading,
+        error: result.error,
+        refreshTime: result.updatedAt,
+        hasData: credits.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noCreditData,
-        child: _buildList(credits.value),
+        child: _buildList(credits),
       ),
     );
   }

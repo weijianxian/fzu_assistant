@@ -45,23 +45,6 @@ class HiddenCourseSession {
     endClass,
   ]);
 
-  bool matches({
-    required String account,
-    required String term,
-    required Course course,
-    required int week,
-    required int weekday,
-    required int startClass,
-    required int endClass,
-  }) =>
-      this.account == account &&
-      this.term == term &&
-      courseKey == keyForCourse(course) &&
-      this.week == week &&
-      this.weekday == weekday &&
-      this.startClass == startClass &&
-      this.endClass == endClass;
-
   Map<String, dynamic> toJson() => {
     'account': account,
     'term': term,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar.dart';
@@ -10,47 +11,27 @@ class CalendarPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final calendar = useState<SchoolCalendar?>(null);
-    final loading = useState(true);
-    final error = useState<String?>(null);
-    final refreshTime = useState<DateTime?>(null);
     final expandedIds = useState<Set<String>>({});
     final eventsMap = useState<Map<String, CalTermEvents>>({});
     final eventsLoadingMap = useState<Map<String, bool>>({});
     final eventsErrorMap = useState<Map<String, String>>({});
     final service = useMemoized(() => AcademicService());
 
-    Future<void> load() async {
-      try {
-        final data = await service.getSchoolCalendar();
-        if (!context.mounted) return;
-        calendar.value = data;
-        refreshTime.value = DateTime.now();
-        error.value = null;
-      } catch (e) {
-        if (!context.mounted) return;
-        error.value = e.toString();
-      }
-      if (context.mounted) loading.value = false;
-    }
-
-    useEffect(() {
-      load();
-      return null;
-    }, []);
+    final result = useAsyncData(service.getSchoolCalendar);
+    final calendar = result.data;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.calendar)),
       body: ToolPageWrapper(
-        onRefresh: load,
-        loading: loading.value,
-        error: error.value,
-        refreshTime: refreshTime.value,
-        hasData: calendar.value != null && calendar.value!.terms.isNotEmpty,
+        onRefresh: result.refresh,
+        loading: result.loading,
+        error: result.error,
+        refreshTime: result.updatedAt,
+        hasData: calendar != null && calendar.terms.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noCalendarData,
-        child: calendar.value != null
+        child: calendar != null
             ? _buildContent(
-                calendar.value!,
+                calendar,
                 service,
                 expandedIds,
                 eventsMap,

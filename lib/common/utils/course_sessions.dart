@@ -48,6 +48,14 @@ abstract final class CourseSessions {
   }) {
     final sessions = <CourseSession>[];
     final otherWeekSessions = <CourseSession>[];
+    final hiddenSlots = {
+      for (final hidden in hiddenSessions)
+        if (hidden.account == account &&
+            hidden.term == term &&
+            hidden.week == week &&
+            hidden.weekday == weekday)
+          (hidden.courseKey, hidden.startClass, hidden.endClass),
+    };
 
     for (final course in courses) {
       final canceledSlots = <(int, int)>[];
@@ -113,19 +121,15 @@ abstract final class CourseSessions {
       }
     }
 
-    bool isHidden(CourseSession session) => hiddenSessions.any(
-      (hidden) => hidden.matches(
-        account: account,
-        term: term,
-        course: session.course,
-        week: week,
-        weekday: weekday,
-        startClass: session.startClass,
-        endClass: session.endClass,
-      ),
-    );
-    sessions.removeWhere(isHidden);
-    otherWeekSessions.removeWhere(isHidden);
+    if (hiddenSlots.isNotEmpty) {
+      bool isHidden(CourseSession session) => hiddenSlots.contains((
+        HiddenCourseSession.keyForCourse(session.course),
+        session.startClass,
+        session.endClass,
+      ));
+      sessions.removeWhere(isHidden);
+      otherWeekSessions.removeWhere(isHidden);
+    }
 
     // 本周课程和调入课程优先；非本周课程仅填充空闲时段。
     for (final session in otherWeekSessions) {

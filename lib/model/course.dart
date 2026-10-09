@@ -19,8 +19,6 @@ class CourseScheduleRule {
   final int weekday;
   final bool single;
   final bool double;
-  final bool adjust;
-  final bool fromFullWeek;
 
   const CourseScheduleRule({
     required this.location,
@@ -31,8 +29,6 @@ class CourseScheduleRule {
     required this.weekday,
     required this.single,
     required this.double,
-    this.adjust = false,
-    this.fromFullWeek = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -44,8 +40,6 @@ class CourseScheduleRule {
     'weekday': weekday,
     'single': single,
     'double': double,
-    'adjust': adjust,
-    'fromFullWeek': fromFullWeek,
   };
 
   factory CourseScheduleRule.fromJson(Map<String, dynamic> json) =>
@@ -58,8 +52,6 @@ class CourseScheduleRule {
         weekday: json['weekday'] ?? 0,
         single: json['single'] ?? true,
         double: json['double'] ?? true,
-        adjust: json['adjust'] ?? false,
-        fromFullWeek: json['fromFullWeek'] ?? false,
       );
 }
 

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 
-class ToolPageWrapper extends HookWidget {
+class ToolPageWrapper extends StatelessWidget {
   final Future<void> Function() onRefresh;
   final DateTime? refreshTime;
   final bool loading;

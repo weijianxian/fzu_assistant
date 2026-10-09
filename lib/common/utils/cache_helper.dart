@@ -31,7 +31,7 @@ abstract final class CacheHelper {
   }
 
   /// 将 [value] 序列化后存入 [spKey] Map 的 [termKey] 条目。
-  static Future<void> saveForKey<T>(
+  static Future<void> saveForKey(
     String spKey,
     String termKey,
     dynamic value,

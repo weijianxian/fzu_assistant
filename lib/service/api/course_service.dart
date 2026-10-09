@@ -125,10 +125,10 @@ class CourseService {
   static const _courseUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xkjg/wdxk/xkjg_list.aspx';
 
-  TermInfo? _cachedTermInfo;
+  List<String> _cachedTerms = [];
 
-  /// 最近一次 getCourses 内部获取的学期列表（含表单状态）。
-  List<String> get cachedTerms => _cachedTermInfo?.terms ?? [];
+  /// 最近一次 getCourses 内部获取的学期列表。
+  List<String> get cachedTerms => _cachedTerms;
 
   // ─── 按学期缓存课程 ───
 
@@ -207,26 +207,7 @@ class CourseService {
       queryParameters: {'id': ApiClient.instance.userId},
     );
 
-    final viewState =
-        doc.getElementById('__VIEWSTATE')?.attributes['value'] ?? '';
-    final eventValidation =
-        doc.getElementById('__EVENTVALIDATION')?.attributes['value'] ?? '';
-
-    final options = doc.querySelectorAll(
-      '#ContentPlaceHolder1_DDL_xnxq option',
-    );
-    final terms = options
-        .map((o) => o.attributes['value'] ?? '')
-        .where((v) => v.isNotEmpty)
-        .toList();
-
-    if (terms.isEmpty) throw Exception('无可用学期');
-
-    return TermInfo(
-      terms: terms,
-      viewState: viewState,
-      eventValidation: eventValidation,
-    );
+    return HtmlHelper.parseTermInfo(doc);
   }
 
   // ─── 课程列表 ───
@@ -253,7 +234,7 @@ class CourseService {
 
     // 获取表单状态（并缓存供页面使用）
     final termInfo = await getTerms();
-    _cachedTermInfo = termInfo;
+    _cachedTerms = termInfo.terms;
 
     // 网络请求
     final doc = await HtmlHelper.postHtml(
@@ -364,7 +345,6 @@ class CourseService {
               weekday: wd,
               single: true,
               double: true,
-              fromFullWeek: true,
             ),
           );
         }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/gpa.dart';
@@ -10,77 +11,39 @@ class GpaPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gpa = useState<GPABean?>(null);
-    final loading = useState(true);
-    final error = useState<String?>(null);
-    final refreshTime = useState<DateTime?>(null);
     final service = useMemoized(() => AcademicService());
-
-    Future<void> load() async {
-      try {
-        final data = await service.getGPA();
-        if (!context.mounted) return;
-        gpa.value = data;
-        refreshTime.value = DateTime.now();
-        error.value = null;
-      } catch (e) {
-        if (!context.mounted) return;
-        error.value = e.toString();
-      }
-      if (context.mounted) loading.value = false;
-    }
-
-    useEffect(() {
-      load();
-      return null;
-    }, []);
+    final result = useAsyncData(service.getGPA);
+    final gpa = result.data;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.gpaInfo)),
       body: ToolPageWrapper(
-        onRefresh: load,
-        loading: loading.value,
-        error: error.value,
-        refreshTime: refreshTime.value,
-        hasData: gpa.value != null && gpa.value!.data.isNotEmpty,
+        onRefresh: result.refresh,
+        loading: result.loading,
+        error: result.error,
+        refreshTime: result.updatedAt,
+        hasData: gpa != null && gpa.data.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noGpaData,
-        child: gpa.value != null
-            ? _buildContent(context, gpa.value!)
+        child: gpa != null && gpa.data.isNotEmpty
+            ? _buildContent(gpa)
             : const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, GPABean gpa) {
-    if (gpa.data.isEmpty) {
-      return Center(child: Text(AppLocalizations.of(context)!.noGpaData));
-    }
-
+  Widget _buildContent(GPABean gpa) {
     // 找出所有不同的 type（列头）
-    final headers = <String>[];
-    for (final d in gpa.data) {
-      if (!headers.contains(d.type)) headers.add(d.type);
-    }
+    final headers = gpa.data.map((d) => d.type).toSet().toList();
     final width = headers.length;
-    if (width == 0) {
-      return Center(child: Text(AppLocalizations.of(context)!.dataParseError));
-    }
-
-    // 按行分组
-    final rows = <List<GPAData>>[];
-    for (var i = 0; i < gpa.data.length; i += width) {
-      rows.add(gpa.data.sublist(i, (i + width).clamp(0, gpa.data.length)));
-    }
 
     // 转置：每列（type）变成一行
-    final List<List<String>> transposed = [];
-    for (var c = 0; c < width; c++) {
-      final row = <String>[headers[c]];
-      for (final r in rows) {
-        if (c < r.length) row.add(r[c].value);
-      }
-      transposed.add(row);
-    }
+    final transposed = [
+      for (var c = 0; c < width; c++)
+        [
+          headers[c],
+          for (var i = c; i < gpa.data.length; i += width) gpa.data[i].value,
+        ],
+    ];
 
     return ListView(
       children: [
