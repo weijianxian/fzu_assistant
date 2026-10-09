@@ -47,10 +47,14 @@ class ApiClient {
   late final CookieJar _cookieJar;
   Completer<bool>? _reloginCompleter;
   String? _userId;
+  String? _studentId;
 
   Dio get dio => _dio;
   CookieJar get cookieJar => _cookieJar;
   String? get userId => _userId;
+
+  /// 稳定的登录学号，用于隔离账号的本地设置（identifier 会在重登后变化）。
+  String? get studentId => _studentId;
 
   /// 仅供开发者工具模拟 Cookie 过期。
   ///
@@ -98,6 +102,7 @@ class ApiClient {
   }
 
   Future<void> login(String user, String pass, String captcha) async {
+    _studentId = null;
     // 登录成功前不持有 identifier：残留的旧值会被 _refreshIdentifier
     // 当成有效 id 发出去，导致"未登录"守卫失效。
     _userId = null;
@@ -148,6 +153,7 @@ class ApiClient {
     _userId = userId;
 
     await _verifySessionOwner(user);
+    _studentId = user;
   }
 
   /// 校验这次会话确实属于 [studentId]（防串号）。
@@ -234,6 +240,7 @@ class ApiClient {
   ///
   /// 课程/考场缓存只按学期分片、不含账号维度，不清会读到上一个账号的数据。
   Future<void> clearSession() async {
+    _studentId = null;
     _userId = null;
     await _cookieJar.deleteAll();
     await CacheHelper.removeAll(SpKeys.userScopedCacheKeys);

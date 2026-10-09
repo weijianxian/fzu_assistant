@@ -27,6 +27,7 @@ lib/
     app_localizations_en.dart # 英文翻译
   model/                 # 数据模型（纯 Dart class）
     course.dart          # 课程、课表规则、调课规则、当前周次、学期信息
+    hidden_course_session.dart # 按账号、学期、周次和节次持久化的单次隐藏课程
     gpa.dart             # 绩点数据
     mark.dart            # 成绩记录
     unified_exam.dart    # 统考成绩（CET/省计算机）
@@ -93,7 +94,7 @@ lib/
       calendar/          # 校历
     settings/            # 设置页（首页/一般/主题/高级设置入口）
       settings_page.dart # 设置页面主页
-      home_settings_page.dart # 首页设置（视图、时间线范围、学期及课表选项）
+      home_settings_page.dart # 首页设置（视图、时间线范围、学期、课表选项及隐藏课程总览/恢复）
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
@@ -110,7 +111,7 @@ lib/
     webview_environment.dart # Windows WebView2 环境初始化
     desktop_window.dart # Windows 窗口初始化、状态监听与统一关闭行为
     api/                 # API 相关服务
-      api_client.dart    # Dio 单例，登录/重登/拦截器
+      api_client.dart    # Dio 单例，登录/重登/拦截器；studentId 为稳定学号，userId 为会话 identifier
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
       user_service.dart  # 用户信息
       course_service.dart # 课程表 + 可选 west2 调休数据（公开接口、按学期缓存）
@@ -137,6 +138,7 @@ lib/
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化
+- 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情扩展菜单提供“我不想上”，CourseSessions 统一过滤周课表及天视图，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
 - 每次做完一个功能，就 commit 一次，提交信息遵循下方规范。
 
 ## Commit message 规范

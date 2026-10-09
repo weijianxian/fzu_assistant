@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
+import 'package:fzu_assistant/model/hidden_course_session.dart';
 
 class AppSettings {
   static const scheduleHomeStyle = 'schedule';
@@ -37,6 +38,7 @@ class AppSettings {
   // 课表显示考试
   final showExamOnSchedule = ValueNotifier<bool>(true);
   final showNonCurrentWeekCourses = ValueNotifier<bool>(false);
+  final hiddenCourseSessions = ValueNotifier<List<HiddenCourseSession>>([]);
 
   // 自动调课
   final autoAdjustCourse = ValueNotifier<bool>(true);
@@ -119,6 +121,35 @@ class AppSettings {
     }
 
     // 持久化 listeners
+    final hiddenRaw = sp.getString(SpKeys.hiddenCourseSessions);
+    if (hiddenRaw != null) {
+      try {
+        final records = jsonDecode(hiddenRaw) as List;
+        final loaded = <HiddenCourseSession>[];
+        for (final record in records) {
+          try {
+            loaded.add(
+              HiddenCourseSession.fromJson(
+                Map<String, dynamic>.from(record as Map),
+              ),
+            );
+          } catch (_) {
+            // 单条损坏不影响其他隐藏记录。
+          }
+        }
+        hiddenCourseSessions.value = loaded;
+      } catch (_) {}
+    }
+    hiddenCourseSessions.addListener(() {
+      SharedPreferences.getInstance().then(
+        (sp) => sp.setString(
+          SpKeys.hiddenCourseSessions,
+          jsonEncode(
+            hiddenCourseSessions.value.map((s) => s.toJson()).toList(),
+          ),
+        ),
+      );
+    });
     themeKey.addListener(() {
       SharedPreferences.getInstance().then(
         (sp) => sp.setString(SpKeys.themeKey, themeKey.value),
@@ -232,6 +263,23 @@ class AppSettings {
     if (themeKey.value == 'dynamic') themeKey.value = 'deep_purple';
   }
 
+  void hideCourseSession(HiddenCourseSession session) {
+    if (hiddenCourseSessions.value.any((s) => s.key == session.key)) return;
+    hiddenCourseSessions.value = [...hiddenCourseSessions.value, session];
+  }
+
+  void restoreCourseSession(HiddenCourseSession session) {
+    hiddenCourseSessions.value = hiddenCourseSessions.value
+        .where((s) => s.key != session.key)
+        .toList();
+  }
+
+  void restoreAllCourseSessions(String account) {
+    hiddenCourseSessions.value = hiddenCourseSessions.value
+        .where((s) => s.account != account)
+        .toList();
+  }
+
   ThemeData get lightTheme {
     if (themeKey.value == 'dynamic' && _systemLightScheme != null) {
       return buildThemeFromScheme(_systemLightScheme!);
@@ -269,6 +317,7 @@ class AppSettings {
     siteInjectionEnabled.dispose();
     showExamOnSchedule.dispose();
     showNonCurrentWeekCourses.dispose();
+    hiddenCourseSessions.dispose();
     autoAdjustCourse.dispose();
     west2AdjustmentsEnabled.dispose();
     githubProxyEnabled.dispose();

@@ -1423,6 +1423,48 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'嘉锡讲坛'**
   String get jiaxiLectures;
+
+  /// No description provided for @skipCourseSession.
+  ///
+  /// In zh, this message translates to:
+  /// **'我不想上'**
+  String get skipCourseSession;
+
+  /// No description provided for @skipCourseSessionDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'仅隐藏本周这一次课，可在首页设置中恢复。'**
+  String get skipCourseSessionDescription;
+
+  /// No description provided for @hiddenCourseSessions.
+  ///
+  /// In zh, this message translates to:
+  /// **'不展示的课'**
+  String get hiddenCourseSessions;
+
+  /// No description provided for @hiddenCourseSessionsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'管理已隐藏的单次课程，恢复后重新显示在课表和天视图中。'**
+  String get hiddenCourseSessionsDescription;
+
+  /// No description provided for @noHiddenCourseSessions.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无不展示的课'**
+  String get noHiddenCourseSessions;
+
+  /// No description provided for @restoreCourseSession.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复展示'**
+  String get restoreCourseSession;
+
+  /// No description provided for @restoreAllCourseSessions.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部恢复'**
+  String get restoreAllCourseSessions;
 }
 
 class _AppLocalizationsDelegate

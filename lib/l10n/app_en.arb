@@ -818,5 +818,12 @@
   "creditRecognition": "Credit recognition",
   "majorAllocation": "Major allocation",
   "electiveCreditConversion": "Convert elective credits",
-  "jiaxiLectures": "Jiaxi lectures"
+  "jiaxiLectures": "Jiaxi lectures",
+  "skipCourseSession": "I don't want to attend",
+  "skipCourseSessionDescription": "Hide only this week's session. Restore it in Home settings.",
+  "hiddenCourseSessions": "Hidden classes",
+  "hiddenCourseSessionsDescription": "Manage hidden sessions. Restore them to show them in the schedule and day view.",
+  "noHiddenCourseSessions": "No hidden classes",
+  "restoreCourseSession": "Show class again",
+  "restoreAllCourseSessions": "Restore all"
 }

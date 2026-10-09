@@ -725,4 +725,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get jiaxiLectures => 'Jiaxi lectures';
+
+  @override
+  String get skipCourseSession => 'I don\'t want to attend';
+
+  @override
+  String get skipCourseSessionDescription =>
+      'Hide only this week\'s session. Restore it in Home settings.';
+
+  @override
+  String get hiddenCourseSessions => 'Hidden classes';
+
+  @override
+  String get hiddenCourseSessionsDescription =>
+      'Manage hidden sessions. Restore them to show them in the schedule and day view.';
+
+  @override
+  String get noHiddenCourseSessions => 'No hidden classes';
+
+  @override
+  String get restoreCourseSession => 'Show class again';
+
+  @override
+  String get restoreAllCourseSessions => 'Restore all';
 }

@@ -1,4 +1,5 @@
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/hidden_course_session.dart';
 
 const coursePeriodTimes = [
   ('8:20', '9:05'),
@@ -41,6 +42,9 @@ abstract final class CourseSessions {
     required int weekday,
     required bool autoAdjust,
     bool showNonCurrentWeekCourses = false,
+    String account = '',
+    String term = '',
+    List<HiddenCourseSession> hiddenSessions = const [],
   }) {
     final sessions = <CourseSession>[];
     final otherWeekSessions = <CourseSession>[];
@@ -108,6 +112,20 @@ abstract final class CourseSessions {
         );
       }
     }
+
+    bool isHidden(CourseSession session) => hiddenSessions.any(
+      (hidden) => hidden.matches(
+        account: account,
+        term: term,
+        course: session.course,
+        week: week,
+        weekday: weekday,
+        startClass: session.startClass,
+        endClass: session.endClass,
+      ),
+    );
+    sessions.removeWhere(isHidden);
+    otherWeekSessions.removeWhere(isHidden);
 
     // 本周课程和调入课程优先；非本周课程仅填充空闲时段。
     for (final session in otherWeekSessions) {

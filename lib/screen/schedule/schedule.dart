@@ -174,6 +174,7 @@ class SchedulePage extends HookWidget {
     final isLandscape = context.isLandscape;
 
     final body = _ScheduleBody(
+      term: currentLoadedTerm.value ?? '',
       loading: loading.value,
       error: error.value,
       courses: courses.value,
@@ -267,6 +268,7 @@ class SchedulePage extends HookWidget {
 }
 
 class _ScheduleBody extends StatelessWidget {
+  final String term;
   final bool loading;
   final String? error;
   final List<Course> courses;
@@ -278,6 +280,7 @@ class _ScheduleBody extends StatelessWidget {
   final Future<void> Function() onRefresh;
 
   const _ScheduleBody({
+    required this.term,
     required this.loading,
     required this.error,
     required this.courses,
@@ -325,6 +328,7 @@ class _ScheduleBody extends StatelessWidget {
       itemCount: CourseService.totalScheduleWeeks,
       onPageChanged: (i) => displayWeek.value = i + 1,
       itemBuilder: (context, i) => ScheduleGrid(
+        term: term,
         courses: courses,
         examRooms: examRooms,
         week: i + 1,

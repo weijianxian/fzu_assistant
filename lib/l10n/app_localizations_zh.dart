@@ -712,4 +712,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get jiaxiLectures => '嘉锡讲坛';
+
+  @override
+  String get skipCourseSession => '我不想上';
+
+  @override
+  String get skipCourseSessionDescription => '仅隐藏本周这一次课，可在首页设置中恢复。';
+
+  @override
+  String get hiddenCourseSessions => '不展示的课';
+
+  @override
+  String get hiddenCourseSessionsDescription => '管理已隐藏的单次课程，恢复后重新显示在课表和天视图中。';
+
+  @override
+  String get noHiddenCourseSessions => '暂无不展示的课';
+
+  @override
+  String get restoreCourseSession => '恢复展示';
+
+  @override
+  String get restoreAllCourseSessions => '全部恢复';
 }

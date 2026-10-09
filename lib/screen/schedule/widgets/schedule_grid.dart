@@ -10,11 +10,13 @@ import 'package:fzu_assistant/common/utils/date_text.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/hidden_course_session.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/course_card.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/horizontal_schedule_grid.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 
 const _headerHeight = 48.0;
@@ -32,6 +34,7 @@ List<String> _weekdays(AppLocalizations l10n) => [
 ];
 
 class ScheduleGrid extends HookWidget {
+  final String term;
   final List<Course> courses;
   final List<ExamRoomInfo> examRooms;
   final int week;
@@ -40,6 +43,7 @@ class ScheduleGrid extends HookWidget {
 
   const ScheduleGrid({
     super.key,
+    this.term = '',
     required this.courses,
     required this.examRooms,
     required this.week,
@@ -49,6 +53,7 @@ class ScheduleGrid extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    useValueListenable(AppSettingsProvider.of(context).hiddenCourseSessions);
     useValueListenable(
       AppSettingsProvider.of(context).showNonCurrentWeekCourses,
     );
@@ -323,6 +328,11 @@ class ScheduleGrid extends HookWidget {
       week: week,
       weekday: wd,
       autoAdjust: autoAdjust,
+      account: ApiClient.instance.studentId ?? '',
+      term: term,
+      hiddenSessions: AppSettingsProvider.of(context)
+          .hiddenCourseSessions
+          .value,
       showNonCurrentWeekCourses: AppSettingsProvider.of(context)
           .showNonCurrentWeekCourses
           .value,
@@ -374,6 +384,8 @@ class ScheduleGrid extends HookWidget {
                 session.course,
                 session.location,
                 displayName: displayName,
+                session: session,
+                weekday: wd,
               ),
             ),
           ),
@@ -465,86 +477,137 @@ class ScheduleGrid extends HookWidget {
     return (startPeriod ?? 0, endPeriod ?? 0);
   }
 
-  void _showCourseDetail(
+  Future<void> _showCourseDetail(
     BuildContext context,
     Course course,
     String location, {
     String? displayName,
-  }) {
-    showHalfScreenSheet(
+    CourseSession? session,
+    int? weekday,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final settings = AppSettingsProvider.of(context);
+    final account = ApiClient.instance.studentId;
+    final canHide =
+        session != null &&
+        session.isCurrentWeek &&
+        weekday != null &&
+        term.isNotEmpty &&
+        account != null;
+    final hide = await showHalfScreenSheet<bool>(
       context,
-      builder: (controller) => ListView(
-        controller: controller,
-        children: [
-          ListTile(
-            title: Text(
-              displayName ?? course.name,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-          ),
-          if (course.teacher.isNotEmpty)
+      builder: (controller) => Builder(
+        builder: (sheetContext) => ListView(
+          controller: controller,
+          children: [
             ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('教师'),
-              subtitle: Text(course.teacher),
-            ),
-          if (location.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.location_on),
-              title: const Text('地点'),
-              subtitle: Text(location),
-            ),
-          if (course.credits.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.star),
-              title: const Text('学分'),
-              subtitle: Text(course.credits),
-            ),
-          if (course.rawExamTime.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.schedule),
-              title: const Text('考试时间'),
-              subtitle: Text(course.rawExamTime),
-            ),
-          if (course.remark.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text('备注'),
-              subtitle: Text(course.remark),
-            ),
-          if (course.electiveType.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.category),
-              title: const Text('类型'),
-              subtitle: Text(course.electiveType),
-            ),
-          if (course.examType.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.quiz),
-              title: const Text('考试'),
-              subtitle: Text(course.examType),
-            ),
-          if (course.syllabus.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.description),
-              title: const Text('教学大纲'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.pushNamed(
-                AppRoutes.webview,
-                arguments: WebViewArgs(url: course.syllabus),
+              title: Text(
+                displayName ?? course.name,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
+              trailing: canHide
+                  ? PopupMenuButton<bool>(
+                      onSelected: (_) => Navigator.of(sheetContext).pop(true),
+                      itemBuilder: (_) => [
+                        PopupMenuItem(
+                          value: true,
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.visibility_off_outlined),
+                            title: Text(l10n.skipCourseSession),
+                          ),
+                        ),
+                      ],
+                    )
+                  : null,
             ),
-          if (course.lessonplan.isNotEmpty)
-            ListTile(
-              leading: const Icon(Icons.menu_book),
-              title: const Text('授课计划'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.pushNamed(
-                AppRoutes.webview,
-                arguments: WebViewArgs(url: course.lessonplan),
+            if (canHide)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  l10n.skipCourseSessionDescription,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ),
-            ),
-        ],
+            if (course.teacher.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('教师'),
+                subtitle: Text(course.teacher),
+              ),
+            if (location.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.location_on),
+                title: const Text('地点'),
+                subtitle: Text(location),
+              ),
+            if (course.credits.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.star),
+                title: const Text('学分'),
+                subtitle: Text(course.credits),
+              ),
+            if (course.rawExamTime.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.schedule),
+                title: const Text('考试时间'),
+                subtitle: Text(course.rawExamTime),
+              ),
+            if (course.remark.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: const Text('备注'),
+                subtitle: Text(course.remark),
+              ),
+            if (course.electiveType.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.category),
+                title: const Text('类型'),
+                subtitle: Text(course.electiveType),
+              ),
+            if (course.examType.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.quiz),
+                title: const Text('考试'),
+                subtitle: Text(course.examType),
+              ),
+            if (course.syllabus.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.description),
+                title: const Text('教学大纲'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.pushNamed(
+                  AppRoutes.webview,
+                  arguments: WebViewArgs(url: course.syllabus),
+                ),
+              ),
+            if (course.lessonplan.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.menu_book),
+                title: const Text('授课计划'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.pushNamed(
+                  AppRoutes.webview,
+                  arguments: WebViewArgs(url: course.lessonplan),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (hide != true || !canHide) return;
+    settings.hideCourseSession(
+      HiddenCourseSession(
+        account: account,
+        term: term,
+        courseKey: HiddenCourseSession.keyForCourse(course),
+        name: course.name,
+        teacher: course.teacher,
+        location: location,
+        week: week,
+        weekday: weekday,
+        startClass: session.startClass,
+        endClass: session.endClass,
       ),
     );
   }

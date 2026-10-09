@@ -9,6 +9,7 @@ import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/home/timeline_events.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 
@@ -162,6 +163,7 @@ class TimelineHomePage extends HookWidget {
         listenable: Listenable.merge([
           settings.timelineDaysKey,
           settings.autoAdjustCourse,
+          settings.hiddenCourseSessions,
         ]),
         builder: (_, _) => _TimelineBody(
           calendar: calendar.value,
@@ -320,6 +322,11 @@ List<_Milestone> _buildMilestones(
         week: week,
         weekday: date.weekday,
         autoAdjust: autoAdjustCourse,
+        account: ApiClient.instance.studentId ?? '',
+        term: term.term,
+        hiddenSessions: AppSettingsProvider.of(context)
+            .hiddenCourseSessions
+            .value,
       );
       if (sessions.isEmpty) continue;
 
