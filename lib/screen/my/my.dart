@@ -54,11 +54,6 @@ class MyPage extends HookWidget {
         title: l10n.about,
         route: AppRoutes.about,
       ),
-      NavigationPaneDestination(
-        icon: Icons.developer_board_outlined,
-        title: l10n.devTools,
-        route: AppRoutes.dev,
-      ),
     ];
     final logout = ListTile(
       leading: const Icon(Icons.logout, color: Colors.red),
@@ -78,22 +73,13 @@ class MyPage extends HookWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.navMy),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.developer_board),
-            tooltip: l10n.devTools,
-            onPressed: () => context.pushNamed(AppRoutes.dev),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text(l10n.navMy)),
       body: ProfilePage(
         showAppBar: false,
         footer: Column(
           children: [
             const Divider(),
-            for (final destination in destinations.skip(1).take(3))
+            for (final destination in destinations.skip(1))
               ChevronListTile(
                 leading: Icon(destination.icon),
                 title: Text(destination.title),

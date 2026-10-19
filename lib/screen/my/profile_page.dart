@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/user_service.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 
@@ -19,6 +20,15 @@ class ProfilePage extends HookWidget {
     final error = useState<String?>(null);
     final auth = useMemoized(() => AuthStorage());
     final userService = useMemoized(() => UserService());
+    final avatarTapCount = useRef(0);
+
+    void handleAvatarTap() {
+      avatarTapCount.value++;
+      if (avatarTapCount.value == 7) {
+        avatarTapCount.value = 0;
+        context.pushNamed(AppRoutes.dev);
+      }
+    }
 
     useEffect(() {
       auth.loadCredentials().then((creds) {
@@ -47,7 +57,7 @@ class ProfilePage extends HookWidget {
               AppLocalizations.of(context)!.loadingFailed(error.value ?? ''),
             ),
           )
-        : _buildContent(context, info.value!, username.value);
+        : _buildContent(context, info.value!, username.value, handleAvatarTap);
 
     if (!showAppBar) return body;
     return Scaffold(
@@ -60,17 +70,21 @@ class ProfilePage extends HookWidget {
     BuildContext context,
     StudentInfo info,
     String? username,
+    VoidCallback onAvatarTap,
   ) {
     final l10n = AppLocalizations.of(context)!;
     return ListView(
       children: [
         const SizedBox(height: 32),
         Center(
-          child: CircleAvatar(
-            radius: 48,
-            child: Text(
-              info.name.isNotEmpty ? info.name[0] : '?',
-              style: const TextStyle(fontSize: 36),
+          child: GestureDetector(
+            onTap: onAvatarTap,
+            child: CircleAvatar(
+              radius: 48,
+              child: Text(
+                info.name.isNotEmpty ? info.name[0] : '?',
+                style: const TextStyle(fontSize: 36),
+              ),
             ),
           ),
         ),
