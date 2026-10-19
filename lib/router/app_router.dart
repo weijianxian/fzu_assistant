@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
+import 'package:fzu_assistant/screen/dev/learning_center_debug_page.dart';
+import 'package:fzu_assistant/screen/guest/sso_login_page.dart';
+import 'package:fzu_assistant/screen/toolbox/learning_center/learning_center_page.dart';
+import 'package:fzu_assistant/screen/toolbox/learning_center/learning_seats_page.dart';
+import 'package:fzu_assistant/screen/toolbox/learning_center/learning_available_seats_page.dart';
+import 'package:fzu_assistant/screen/toolbox/learning_center/learning_seat_times_page.dart';
+import 'package:fzu_assistant/screen/toolbox/learning_center/learning_appointments_page.dart';
+import 'package:fzu_assistant/screen/toolbox/learning_center/learning_scanner_page.dart';
 import 'package:fzu_assistant/screen/dev/secure_storage_page.dart';
 import 'package:fzu_assistant/screen/dev/shared_prefs_page.dart';
 import 'package:fzu_assistant/screen/guest/editor_page.dart';
@@ -38,6 +46,11 @@ abstract final class AppRouter {
     AppRoutes.notice: (_) => const NoticePage(),
     AppRoutes.evaluation: (_) => const EvaluationPage(),
     AppRoutes.academicShortcuts: (_) => const AcademicShortcutsPage(),
+    AppRoutes.learningCenter: (_) => const LearningCenterPage(),
+    AppRoutes.learningSeats: (_) => const LearningSeatsPage(),
+    AppRoutes.learningAppointments: (_) => const LearningAppointmentsPage(),
+    AppRoutes.ssoLogin: (_) => const SsoLoginPage(),
+    AppRoutes.devLearningCenter: (_) => const LearningCenterDebugPage(),
     AppRoutes.calendar: (_) => const CalendarPage(),
     AppRoutes.profile: (_) => const ProfilePage(),
     AppRoutes.settings: (_) => const SettingsPage(),
@@ -58,6 +71,40 @@ abstract final class AppRouter {
     }
 
     return switch (settings.name) {
+      AppRoutes.learningSeatTimes => MaterialPageRoute(
+        settings: settings,
+        builder: (_) {
+          final args = settings.arguments as LearningSeatTimesArgs;
+          return LearningSeatTimesPage(
+            spaceId: args.spaceId,
+            date: args.date,
+            floor: args.floor,
+            seatName: args.seatName,
+          );
+        },
+      ),
+      AppRoutes.learningAvailableSeats => MaterialPageRoute(
+        settings: settings,
+        builder: (_) {
+          final args = settings.arguments as LearningAvailableSeatsArgs;
+          return LearningAvailableSeatsPage(
+            date: args.date,
+            begin: args.begin,
+            end: args.end,
+            floor: args.floor,
+          );
+        },
+      ),
+      AppRoutes.learningScanner => MaterialPageRoute(
+        settings: settings,
+        builder: (_) {
+          final args = settings.arguments as LearningScannerArgs;
+          return LearningScannerPage(
+            appointmentId: args.appointmentId,
+            token: args.token,
+          );
+        },
+      ),
       AppRoutes.webview => _webViewRoute(settings),
       AppRoutes.editor => _editorRoute(settings),
       _ => null,

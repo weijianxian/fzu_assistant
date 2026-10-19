@@ -14,6 +14,7 @@
 - re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
 - window_manager（Windows 自绘标题栏、窗口操作与状态监听）
+- pointycastle（统一身份认证 AES-ECB / PKCS#7 加密）、mobile_scanner（Android / iOS / macOS 学习中心现场扫码签到）
 
 ## 项目结构
 
@@ -35,6 +36,7 @@ lib/
     credit.dart          # 学分统计
     calendar.dart        # 校历（学期 + 事件）
     student_info.dart    # 学生个人信息
+    learning_center.dart # 学习中心座位、预约状态、可用时段及预约/现场二维码校验
     empty_room.dart      # 空教室
     notice.dart          # 教务通知（列表 + 部门）
     github_release.dart  # GitHub Release 信息
@@ -66,6 +68,7 @@ lib/
   screen/
     guest/               # 匿名页面 如编辑器，webview等
       login.dart         # 登录页
+      sso_login_page.dart # 统一身份认证登录，支持短信二次验证；密码不落盘
       editor_page.dart   # 通用代码编辑器（re_editor + JSON 高亮）
       webview_page.dart  # 内置浏览器（flutter_inappwebview，支持 Cookie 注入，自动拼接教务处 URL 的 id 参数，CSS/JS 注入受 siteInjectionEnabled 控制，Windows+Android）
     schedule/            # 课程表（首页 tab）
@@ -89,6 +92,14 @@ lib/
       empty_room/        # 空教室查询（日期/节次/校区选择 + 结果列表）
       notice/            # 教务通知（分页列表，WebView 打开详情）
       academic/          # 教务快捷入口（选课、教务申请、嘉锡讲坛，复用带 Cookie 的 WebView）
+      learning_center/   # 学习中心：独立 SSO 登录、4/5 层座位查询/预约、时段查询、分页预约记录、取消/签到/签退
+        learning_center_page.dart # 入口与 SSO 会话管理
+        learning_seats_page.dart # 北京时间未来七天日期卡片、四列半小时时间格和区间高亮；查询后 push 独立座位列表页，返回保留选择
+        learning_available_seats_page.dart # 按路由日期/时段/楼层加载座位列表，支持刷新、失败重试；占用座位 push 时段卡片页，可用座位使用服务端 spaceId 预约，预约成功返回选择页
+        learning_seat_times_page.dart # 独立座位当日时段页，使用四列卡片区分可预约/已占用，支持刷新与错误重试，不用弹窗展示查询结果
+        learning_appointments_page.dart # 分页预约记录（合并后按预约开始时间倒序），标题为楼层/三位座位号/#预约 ID，副标题为日期和时间段，支持状态更新和预约操作
+        learning_scanner_page.dart # 现场二维码扫码签到；Windows/Linux 显示平台不支持提示
+        learning_center_widgets.dart # 登录提示、操作确认及会话失效处理
     my/                  # 我的（首页 tab）
       my.dart            # 我的页面主页
       profile_page.dart  # 个人资料（竖屏嵌入我的页面，横屏显示在右栏）
@@ -102,6 +113,7 @@ lib/
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
     dev/                 # 开发者工具
       dev_tool.dart      # 开发者工具主页（导航入口）
+      learning_center_debug_page.dart # 学习中心 API 调试：分组操作按钮、token 显隐、原始参数/spaceId 直传、HTTP 状态和原始响应；无业务校验和确认弹窗
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
       secure_storage_page.dart # SecureStorage 查看/编辑
       kv_tile.dart       # 通用键值对列表项组件（支持 onTap 编辑）
@@ -116,6 +128,8 @@ lib/
       api_client.dart    # Dio 单例，登录/重登/拦截器；studentId 为稳定学号，userId 为会话 identifier
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
       user_service.dart  # 用户信息
+      sso_service.dart   # 独立 Dio/CookieJar，SSO 加密、短信验证及学习中心 OAuth token 换取；按教务账号隔离安全存储
+      learning_center_service.dart # 学习中心 JSON API：座位/时段/预约记录和预约/取消/签到/签退
       course_service.dart # 课程表 + 可选 west2 调休数据（公开接口、按学期缓存）
       html_helper.dart   # HTML 解析辅助
     settings/
@@ -137,10 +151,14 @@ lib/
 - 请求教务处接口需要带 `queryParameters: {'id': userId}`
 - ASP.NET WebForms 页面需要先 GET 获取 __VIEWSTATE/__EVENTVALIDATION，再 POST 提交
 - 工具页数据列表优先使用 Table 布局（对齐整齐），不用手搓 Row+Card
-- UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串
+- UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串；开发者工具（`lib/screen/dev/`）文案直接定义，不使用国际化。
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化；普通查询页复用 common/hooks/use_async_data.dart，保留刷新期间的旧数据，特殊分页/条件查询独立管理状态
 - 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情扩展菜单提供“我不想上”，CourseSessions 统一过滤周课表及天视图，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
+- 学习中心协议参考 `.reference/fzuhelper-app/lib/sso-login.ts` 和 `utils/learning-center/api-service.ts`。SSO Cookie 与学习中心 token 存在 SecureStorage，按教务账号隔离，教务登出时清理；SSO 密码不保存。SSO Cookie 仅发送给其所属域名，学习中心变更请求不自动重试。正常签到须校验现场一分钟有效二维码，直接签到仅在开发者调试页提供。
+- 学习中心日期和无时区的服务端时间统一按北京时间（Asia/Shanghai，UTC+8）解释，不受设备时区影响；日期卡片、22 点后默认次日、过去时段禁用、未来七天范围、预约状态及现场二维码校验使用同一时间约定。时间选择参考 fzuhelper-app 的日期卡片与四列时间格，端点深色、区间浅色，最长 4 小时。
+- 学习中心开发者调试页直接通过 Dio 调用接口，允许空 token、空 ID 和任意日期时段，预约直接传入 spaceId，不先查座位，不弹操作确认框；展示 HTTP 状态和原始响应，不因业务错误自动清 token 或跳转。正常学习中心页面继续使用业务 Service 的校验和确认流程。
+- 开发者工具通过「我的」头像累计点击七次进入，无点击间隔限制，跳转后计数清零；横竖屏不显示独立开发者入口。
 - 每次做完一个功能，就 commit 一次，提交信息遵循下方规范。
 
 ## Commit message 规范
@@ -320,6 +338,12 @@ version: 1.1.5+46
 4. 设置 →「应用和功能」卸载：目录、注册表 Run 值、开始菜单项全部清干净。
 
 失败时 Inno 会在 `%TEMP%\Setup Log*.txt` 留日志；静默参数与 `setup.iss` 的配对关系见上一节。
+
+## 开发辅助脚本
+
+- `scripts/learning_center_signin_qrcode.py` 为 uv script，使用 PEP 723 内联依赖 `qrcode[pil]`，无需手动安装 Python 包。
+- `uv run scripts/learning_center_signin_qrcode.py` 生成北京时间当前起一分钟有效的签到码，默认 PNG 为 `build/learning-center-signin.png`，同时显示终端二维码及原始内容。
+- 加 `--watch` 每 30 秒刷新同一 PNG；`--interval 1–59` 设置刷新间隔，`--output <path>` 指定输出文件，`--no-ascii` 关闭终端图形，Ctrl+C 停止刷新。
 
 ## 参考
 

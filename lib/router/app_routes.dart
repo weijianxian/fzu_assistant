@@ -12,6 +12,14 @@ abstract final class AppRoutes {
   static const notice = '/notice';
   static const evaluation = '/evaluation';
   static const academicShortcuts = '/academic-shortcuts';
+  static const learningCenter = '/learning-center';
+  static const learningSeats = '/learning-center/seats';
+  static const learningAvailableSeats = '/learning-center/available-seats';
+  static const learningSeatTimes = '/learning-center/seat-times';
+  static const learningAppointments = '/learning-center/appointments';
+  static const learningScanner = '/learning-center/scanner';
+  static const ssoLogin = '/sso-login';
+  static const devLearningCenter = '/dev/learning-center';
   static const calendar = '/calendar';
   static const profile = '/profile';
   static const settings = '/settings';
@@ -25,6 +33,32 @@ abstract final class AppRoutes {
   static const devSecureStorage = '/dev/secure-storage';
   static const webview = '/webview';
   static const editor = '/editor';
+}
+
+class LearningAvailableSeatsArgs {
+  const LearningAvailableSeatsArgs({
+    required this.date,
+    required this.begin,
+    required this.end,
+    required this.floor,
+  });
+  final String date, begin, end, floor;
+}
+
+class LearningSeatTimesArgs {
+  const LearningSeatTimesArgs({
+    required this.spaceId,
+    required this.date,
+    required this.floor,
+    required this.seatName,
+  });
+  final String spaceId, date, floor, seatName;
+}
+
+class LearningScannerArgs {
+  const LearningScannerArgs({required this.appointmentId, this.token});
+  final String appointmentId;
+  final String? token;
 }
 
 class WebViewArgs {

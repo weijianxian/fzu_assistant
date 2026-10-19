@@ -310,15 +310,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeBrown => 'Brown';
 
   @override
-  String get devTools => 'Dev Tools';
-
-  @override
-  String get collapse => 'Collapse';
-
-  @override
-  String get expandAll => 'Expand all';
-
-  @override
   String get noCalendarData => 'No calendar data';
 
   @override
@@ -748,4 +739,168 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreAllCourseSessions => 'Restore all';
+
+  @override
+  String get learningCenter => 'Learning center';
+
+  @override
+  String get ssoLogin => 'SSO login';
+
+  @override
+  String get ssoLoginDescription =>
+      'Use your FZU SSO account. Its password may differ from your academic password. Your password is not saved.';
+
+  @override
+  String get ssoSmsVerification => 'SMS verification';
+
+  @override
+  String get ssoSendSms => 'Send code';
+
+  @override
+  String get ssoSmsSent => 'Code sent';
+
+  @override
+  String get ssoLogout => 'Sign out of SSO';
+
+  @override
+  String get ssoLogoutDescription =>
+      'Sign out of SSO and the learning center. Keep your academic session.';
+
+  @override
+  String get ssoSessionExpired =>
+      'Session expired. Sign in and retry the operation.';
+
+  @override
+  String get learningReserve => 'Reserve a seat';
+
+  @override
+  String get learningReserveSubtitle =>
+      'Find available seats and reserve study time';
+
+  @override
+  String get learningAppointments => 'My reservations';
+
+  @override
+  String get learningInstructions =>
+      'The learning center is on floors 4–5 of Jinjiang Building, Qishan Campus. Choose half-hour slots within the next seven days, up to four hours. Scan the on-site QR code to check in, and check out before leaving. Retry later if the server is slow.';
+
+  @override
+  String get learningCancel => 'Cancel';
+
+  @override
+  String get learningConfirm => 'Confirm';
+
+  @override
+  String get learningSelectPeriod =>
+      'Choose date, time and floor (08:00–22:30, up to 4 hours)';
+
+  @override
+  String get learningBegin => 'Start time';
+
+  @override
+  String get learningEnd => 'End time';
+
+  @override
+  String learningFloor(String floor) {
+    return 'Floor $floor';
+  }
+
+  @override
+  String learningSeatLabel(String floor, String seat) {
+    return 'Floor $floor · Seat $seat';
+  }
+
+  @override
+  String get learningAvailable => 'Available';
+
+  @override
+  String get learningOccupied => 'Occupied';
+
+  @override
+  String get learningSeatTimes => 'Daily seat availability';
+
+  @override
+  String get learningReserved =>
+      'Reserved. View it in My reservations and check in on time.';
+
+  @override
+  String get learningSeatList => 'Seats';
+
+  @override
+  String get learningNoSeats => 'No seats found. Change time or retry later.';
+
+  @override
+  String get learningSeatLegend =>
+      'Highlighted seats are available. Tap an occupied seat for daily availability.';
+
+  @override
+  String get learningSignOut => 'Check out';
+
+  @override
+  String get learningCancelAppointment => 'Cancel reservation';
+
+  @override
+  String get learningActionSucceeded => 'Operation succeeded';
+
+  @override
+  String get learningUpcoming => 'Upcoming';
+
+  @override
+  String get learningPending => 'Awaiting check-in';
+
+  @override
+  String get learningSignedIn => 'Checked in';
+
+  @override
+  String get learningMissed => 'Missed check-in';
+
+  @override
+  String get learningCancelled => 'Cancelled';
+
+  @override
+  String get learningCompleted => 'Completed';
+
+  @override
+  String get learningUnknown => 'Unknown';
+
+  @override
+  String get learningDateLabel => 'Date';
+
+  @override
+  String get learningPeriod => 'Time';
+
+  @override
+  String get learningStatus => 'Status';
+
+  @override
+  String get learningAppointmentId => 'Reservation ID';
+
+  @override
+  String learningAppointmentTitle(String floor, String seat) {
+    return 'Floor $floor · $seat';
+  }
+
+  @override
+  String get learningNoAppointments => 'No reservations';
+
+  @override
+  String get learningLoadMore => 'Load more';
+
+  @override
+  String get learningScanSignIn => 'Scan to check in';
+
+  @override
+  String get learningScannerUnsupported =>
+      'Camera scanning is unavailable here. Use an Android, iOS or macOS device to scan the on-site code.';
+
+  @override
+  String get learningCameraError =>
+      'Cannot access the camera. Check permissions and reopen the scanner.';
+
+  @override
+  String get learningInvalidQr =>
+      'Invalid or expired QR code. Scan the current on-site code.';
+
+  @override
+  String get learningScanHint => 'Scan the on-site check-in code';
 }

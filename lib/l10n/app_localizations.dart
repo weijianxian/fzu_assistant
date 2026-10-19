@@ -194,7 +194,7 @@ abstract class AppLocalizations {
   /// **'第 {week} 周'**
   String weekN(int week);
 
-  /// thisWeek
+  /// No description provided for @thisWeek.
   ///
   /// In zh, this message translates to:
   /// **'本周'**
@@ -655,24 +655,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'棕色'**
   String get themeBrown;
-
-  /// devTools
-  ///
-  /// In zh, this message translates to:
-  /// **'Dev Tools'**
-  String get devTools;
-
-  /// collapse
-  ///
-  /// In zh, this message translates to:
-  /// **'收起'**
-  String get collapse;
-
-  /// expandAll
-  ///
-  /// In zh, this message translates to:
-  /// **'展开全部'**
-  String get expandAll;
 
   /// noCalendarData
   ///
@@ -1465,6 +1447,300 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'全部恢复'**
   String get restoreAllCourseSessions;
+
+  /// No description provided for @learningCenter.
+  ///
+  /// In zh, this message translates to:
+  /// **'学习中心'**
+  String get learningCenter;
+
+  /// No description provided for @ssoLogin.
+  ///
+  /// In zh, this message translates to:
+  /// **'统一身份认证登录'**
+  String get ssoLogin;
+
+  /// No description provided for @ssoLoginDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用福州大学统一身份认证账号登录学习中心，密码可能与教务处不同。密码不会保存在本机。'**
+  String get ssoLoginDescription;
+
+  /// No description provided for @ssoSmsVerification.
+  ///
+  /// In zh, this message translates to:
+  /// **'手机验证'**
+  String get ssoSmsVerification;
+
+  /// No description provided for @ssoSendSms.
+  ///
+  /// In zh, this message translates to:
+  /// **'发送验证码'**
+  String get ssoSendSms;
+
+  /// No description provided for @ssoSmsSent.
+  ///
+  /// In zh, this message translates to:
+  /// **'验证码已发送'**
+  String get ssoSmsSent;
+
+  /// No description provided for @ssoLogout.
+  ///
+  /// In zh, this message translates to:
+  /// **'退出统一认证'**
+  String get ssoLogout;
+
+  /// No description provided for @ssoLogoutDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'退出学习中心和统一认证，保留教务处登录。'**
+  String get ssoLogoutDescription;
+
+  /// No description provided for @ssoSessionExpired.
+  ///
+  /// In zh, this message translates to:
+  /// **'学习中心登录已过期，请重新登录后重试操作。'**
+  String get ssoSessionExpired;
+
+  /// No description provided for @learningReserve.
+  ///
+  /// In zh, this message translates to:
+  /// **'预约座位'**
+  String get learningReserve;
+
+  /// No description provided for @learningReserveSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询空闲座位，预约学习时段'**
+  String get learningReserveSubtitle;
+
+  /// No description provided for @learningAppointments.
+  ///
+  /// In zh, this message translates to:
+  /// **'我的预约'**
+  String get learningAppointments;
+
+  /// No description provided for @learningInstructions.
+  ///
+  /// In zh, this message translates to:
+  /// **'学习中心位于旗山校区研究生科研楼（晋江楼）4–5 层。请选择未来七天内的整点或半点时段，每次不超过 4 小时。预约后到现场扫码签到，离开时签退。服务器响应较慢时请稍后重试。'**
+  String get learningInstructions;
+
+  /// No description provided for @learningCancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get learningCancel;
+
+  /// No description provided for @learningConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'确定'**
+  String get learningConfirm;
+
+  /// No description provided for @learningSelectPeriod.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择日期、时段和楼层（08:00–22:30，最多 4 小时）'**
+  String get learningSelectPeriod;
+
+  /// No description provided for @learningBegin.
+  ///
+  /// In zh, this message translates to:
+  /// **'开始时间'**
+  String get learningBegin;
+
+  /// No description provided for @learningEnd.
+  ///
+  /// In zh, this message translates to:
+  /// **'结束时间'**
+  String get learningEnd;
+
+  /// No description provided for @learningFloor.
+  ///
+  /// In zh, this message translates to:
+  /// **'{floor} 层'**
+  String learningFloor(String floor);
+
+  /// No description provided for @learningSeatLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'{floor} 层 · 座位 {seat}'**
+  String learningSeatLabel(String floor, String seat);
+
+  /// No description provided for @learningAvailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'空闲'**
+  String get learningAvailable;
+
+  /// No description provided for @learningOccupied.
+  ///
+  /// In zh, this message translates to:
+  /// **'已占用'**
+  String get learningOccupied;
+
+  /// No description provided for @learningSeatTimes.
+  ///
+  /// In zh, this message translates to:
+  /// **'座位当日可用时段'**
+  String get learningSeatTimes;
+
+  /// No description provided for @learningReserved.
+  ///
+  /// In zh, this message translates to:
+  /// **'预约成功，请在「我的预约」查看并按时签到。'**
+  String get learningReserved;
+
+  /// No description provided for @learningSeatList.
+  ///
+  /// In zh, this message translates to:
+  /// **'座位列表'**
+  String get learningSeatList;
+
+  /// No description provided for @learningNoSeats.
+  ///
+  /// In zh, this message translates to:
+  /// **'未查询到座位，请更换时段或稍后重试。'**
+  String get learningNoSeats;
+
+  /// No description provided for @learningSeatLegend.
+  ///
+  /// In zh, this message translates to:
+  /// **'浅色座位可预约；点击占用座位查看当日可用时段。'**
+  String get learningSeatLegend;
+
+  /// No description provided for @learningSignOut.
+  ///
+  /// In zh, this message translates to:
+  /// **'签退'**
+  String get learningSignOut;
+
+  /// No description provided for @learningCancelAppointment.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消预约'**
+  String get learningCancelAppointment;
+
+  /// No description provided for @learningActionSucceeded.
+  ///
+  /// In zh, this message translates to:
+  /// **'操作成功'**
+  String get learningActionSucceeded;
+
+  /// No description provided for @learningUpcoming.
+  ///
+  /// In zh, this message translates to:
+  /// **'未开始'**
+  String get learningUpcoming;
+
+  /// No description provided for @learningPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待签到'**
+  String get learningPending;
+
+  /// No description provided for @learningSignedIn.
+  ///
+  /// In zh, this message translates to:
+  /// **'已签到'**
+  String get learningSignedIn;
+
+  /// No description provided for @learningMissed.
+  ///
+  /// In zh, this message translates to:
+  /// **'未签到'**
+  String get learningMissed;
+
+  /// No description provided for @learningCancelled.
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消'**
+  String get learningCancelled;
+
+  /// No description provided for @learningCompleted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已完成'**
+  String get learningCompleted;
+
+  /// No description provided for @learningUnknown.
+  ///
+  /// In zh, this message translates to:
+  /// **'未知状态'**
+  String get learningUnknown;
+
+  /// No description provided for @learningDateLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'日期'**
+  String get learningDateLabel;
+
+  /// No description provided for @learningPeriod.
+  ///
+  /// In zh, this message translates to:
+  /// **'时段'**
+  String get learningPeriod;
+
+  /// No description provided for @learningStatus.
+  ///
+  /// In zh, this message translates to:
+  /// **'状态'**
+  String get learningStatus;
+
+  /// No description provided for @learningAppointmentId.
+  ///
+  /// In zh, this message translates to:
+  /// **'预约 ID'**
+  String get learningAppointmentId;
+
+  /// No description provided for @learningAppointmentTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'{floor} 层 {seat}'**
+  String learningAppointmentTitle(String floor, String seat);
+
+  /// No description provided for @learningNoAppointments.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无预约记录'**
+  String get learningNoAppointments;
+
+  /// No description provided for @learningLoadMore.
+  ///
+  /// In zh, this message translates to:
+  /// **'加载更多'**
+  String get learningLoadMore;
+
+  /// No description provided for @learningScanSignIn.
+  ///
+  /// In zh, this message translates to:
+  /// **'扫码签到'**
+  String get learningScanSignIn;
+
+  /// No description provided for @learningScannerUnsupported.
+  ///
+  /// In zh, this message translates to:
+  /// **'此平台暂不支持相机扫码，请使用 Android、iOS 或 macOS 设备扫描现场二维码签到。'**
+  String get learningScannerUnsupported;
+
+  /// No description provided for @learningCameraError.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法使用相机，请检查系统相机权限后重新打开扫码页面。'**
+  String get learningCameraError;
+
+  /// No description provided for @learningInvalidQr.
+  ///
+  /// In zh, this message translates to:
+  /// **'二维码无效或已过期，请扫描现场最新二维码。'**
+  String get learningInvalidQr;
+
+  /// No description provided for @learningScanHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'请扫描学习中心现场签到二维码'**
+  String get learningScanHint;
 }
 
 class _AppLocalizationsDelegate

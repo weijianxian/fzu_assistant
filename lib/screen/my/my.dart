@@ -8,6 +8,7 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/my/profile_page.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/api/sso_service.dart';
 
 class MyPage extends HookWidget {
   const MyPage({super.key, this.isActive = true});
@@ -20,6 +21,9 @@ class MyPage extends HookWidget {
     final auth = useMemoized(() => AuthStorage());
 
     Future<void> handleLogout() async {
+      try {
+        await SsoService.instance.logout();
+      } catch (_) {}
       try {
         // 清理任务彼此独立，失败也不阻断回到登录页。
         await Future.wait([

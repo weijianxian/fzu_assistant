@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widgets.dart';
-import 'package:fzu_assistant/l10n/app_localizations.dart';
+
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
@@ -16,12 +16,15 @@ class DevToolPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.devTools)),
+      appBar: AppBar(title: Text('Dev Tools')),
       body: ListView(
         children: [
+          ChevronListTile(
+            leading: const Icon(Icons.science_outlined),
+            title: Text('学习中心 API 调试'),
+            onTap: () => context.pushNamed(AppRoutes.devLearningCenter),
+          ),
           ..._tools.map(
             (tool) => ChevronListTile(
               leading: Icon(tool.$1),

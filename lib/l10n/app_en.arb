@@ -404,18 +404,6 @@
   "@themeBrown": {
     "description": "themeBrown"
   },
-  "devTools": "Dev Tools",
-  "@devTools": {
-    "description": "devTools"
-  },
-  "collapse": "Collapse",
-  "@collapse": {
-    "description": "collapse"
-  },
-  "expandAll": "Expand all",
-  "@expandAll": {
-    "description": "expandAll"
-  },
   "noCalendarData": "No calendar data",
   "@noCalendarData": {
     "description": "noCalendarData"
@@ -825,5 +813,57 @@
   "hiddenCourseSessionsDescription": "Manage hidden sessions. Restore them to show them in the schedule and day view.",
   "noHiddenCourseSessions": "No hidden classes",
   "restoreCourseSession": "Show class again",
-  "restoreAllCourseSessions": "Restore all"
+  "restoreAllCourseSessions": "Restore all",
+  "learningCenter": "Learning center",
+  "ssoLogin": "SSO login",
+  "ssoLoginDescription": "Use your FZU SSO account. Its password may differ from your academic password. Your password is not saved.",
+  "ssoSmsVerification": "SMS verification",
+  "ssoSendSms": "Send code",
+  "ssoSmsSent": "Code sent",
+  "ssoLogout": "Sign out of SSO",
+  "ssoLogoutDescription": "Sign out of SSO and the learning center. Keep your academic session.",
+  "ssoSessionExpired": "Session expired. Sign in and retry the operation.",
+  "learningReserve": "Reserve a seat",
+  "learningReserveSubtitle": "Find available seats and reserve study time",
+  "learningAppointments": "My reservations",
+  "learningInstructions": "The learning center is on floors 4–5 of Jinjiang Building, Qishan Campus. Choose half-hour slots within the next seven days, up to four hours. Scan the on-site QR code to check in, and check out before leaving. Retry later if the server is slow.",
+  "learningCancel": "Cancel",
+  "learningConfirm": "Confirm",
+  "learningSelectPeriod": "Choose date, time and floor (08:00–22:30, up to 4 hours)",
+  "learningBegin": "Start time",
+  "learningEnd": "End time",
+  "learningFloor": "Floor {floor}",
+  "learningSeatLabel": "Floor {floor} · Seat {seat}",
+  "learningAvailable": "Available",
+  "learningOccupied": "Occupied",
+  "learningSeatTimes": "Daily seat availability",
+  "learningReserved": "Reserved. View it in My reservations and check in on time.",
+  "learningSeatList": "Seats",
+  "learningNoSeats": "No seats found. Change time or retry later.",
+  "learningSeatLegend": "Highlighted seats are available. Tap an occupied seat for daily availability.",
+  "learningSignOut": "Check out",
+  "learningCancelAppointment": "Cancel reservation",
+  "learningActionSucceeded": "Operation succeeded",
+  "learningUpcoming": "Upcoming",
+  "learningPending": "Awaiting check-in",
+  "learningSignedIn": "Checked in",
+  "learningMissed": "Missed check-in",
+  "learningCancelled": "Cancelled",
+  "learningCompleted": "Completed",
+  "learningUnknown": "Unknown",
+  "learningDateLabel": "Date",
+  "learningPeriod": "Time",
+  "learningStatus": "Status",
+  "learningAppointmentId": "Reservation ID",
+  "learningAppointmentTitle": "Floor {floor} · {seat}",
+  "@learningAppointmentTitle": {"placeholders": {"floor": {"type": "String"}, "seat": {"type": "String"}}},
+  "learningNoAppointments": "No reservations",
+  "learningLoadMore": "Load more",
+  "learningScanSignIn": "Scan to check in",
+  "learningScannerUnsupported": "Camera scanning is unavailable here. Use an Android, iOS or macOS device to scan the on-site code.",
+  "learningCameraError": "Cannot access the camera. Check permissions and reopen the scanner.",
+  "learningInvalidQr": "Invalid or expired QR code. Scan the current on-site code.",
+  "learningScanHint": "Scan the on-site check-in code",
+  "@learningFloor": {"placeholders": {"floor": {"type": "String"}}},
+  "@learningSeatLabel": {"placeholders": {"floor": {"type": "String"}, "seat": {"type": "String"}}}
 }

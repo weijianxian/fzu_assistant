@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/l10n/app_localizations.dart';
 
 const _maxChars = 200;
 
@@ -61,9 +60,7 @@ class KVTile extends HookWidget {
               child: Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  expanded.value
-                      ? AppLocalizations.of(context)!.collapse
-                      : AppLocalizations.of(context)!.expandAll,
+                  expanded.value ? '收起' : '展开全部',
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.primary,

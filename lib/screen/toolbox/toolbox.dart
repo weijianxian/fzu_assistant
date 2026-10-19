@@ -66,6 +66,12 @@ class ToolboxPage extends HookWidget {
         l10n.campusInfo,
         [
           (
+            Icons.local_library_outlined,
+            l10n.learningCenter,
+            l10n.learningReserveSubtitle,
+            AppRoutes.learningCenter,
+          ),
+          (
             Icons.notifications_outlined,
             l10n.officeNotice,
             l10n.officeNoticeSubtitle,

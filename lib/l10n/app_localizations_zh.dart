@@ -306,15 +306,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themeBrown => '棕色';
 
   @override
-  String get devTools => 'Dev Tools';
-
-  @override
-  String get collapse => '收起';
-
-  @override
-  String get expandAll => '展开全部';
-
-  @override
   String get noCalendarData => '暂无校历数据';
 
   @override
@@ -733,4 +724,160 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreAllCourseSessions => '全部恢复';
+
+  @override
+  String get learningCenter => '学习中心';
+
+  @override
+  String get ssoLogin => '统一身份认证登录';
+
+  @override
+  String get ssoLoginDescription =>
+      '使用福州大学统一身份认证账号登录学习中心，密码可能与教务处不同。密码不会保存在本机。';
+
+  @override
+  String get ssoSmsVerification => '手机验证';
+
+  @override
+  String get ssoSendSms => '发送验证码';
+
+  @override
+  String get ssoSmsSent => '验证码已发送';
+
+  @override
+  String get ssoLogout => '退出统一认证';
+
+  @override
+  String get ssoLogoutDescription => '退出学习中心和统一认证，保留教务处登录。';
+
+  @override
+  String get ssoSessionExpired => '学习中心登录已过期，请重新登录后重试操作。';
+
+  @override
+  String get learningReserve => '预约座位';
+
+  @override
+  String get learningReserveSubtitle => '查询空闲座位，预约学习时段';
+
+  @override
+  String get learningAppointments => '我的预约';
+
+  @override
+  String get learningInstructions =>
+      '学习中心位于旗山校区研究生科研楼（晋江楼）4–5 层。请选择未来七天内的整点或半点时段，每次不超过 4 小时。预约后到现场扫码签到，离开时签退。服务器响应较慢时请稍后重试。';
+
+  @override
+  String get learningCancel => '取消';
+
+  @override
+  String get learningConfirm => '确定';
+
+  @override
+  String get learningSelectPeriod => '选择日期、时段和楼层（08:00–22:30，最多 4 小时）';
+
+  @override
+  String get learningBegin => '开始时间';
+
+  @override
+  String get learningEnd => '结束时间';
+
+  @override
+  String learningFloor(String floor) {
+    return '$floor 层';
+  }
+
+  @override
+  String learningSeatLabel(String floor, String seat) {
+    return '$floor 层 · 座位 $seat';
+  }
+
+  @override
+  String get learningAvailable => '空闲';
+
+  @override
+  String get learningOccupied => '已占用';
+
+  @override
+  String get learningSeatTimes => '座位当日可用时段';
+
+  @override
+  String get learningReserved => '预约成功，请在「我的预约」查看并按时签到。';
+
+  @override
+  String get learningSeatList => '座位列表';
+
+  @override
+  String get learningNoSeats => '未查询到座位，请更换时段或稍后重试。';
+
+  @override
+  String get learningSeatLegend => '浅色座位可预约；点击占用座位查看当日可用时段。';
+
+  @override
+  String get learningSignOut => '签退';
+
+  @override
+  String get learningCancelAppointment => '取消预约';
+
+  @override
+  String get learningActionSucceeded => '操作成功';
+
+  @override
+  String get learningUpcoming => '未开始';
+
+  @override
+  String get learningPending => '待签到';
+
+  @override
+  String get learningSignedIn => '已签到';
+
+  @override
+  String get learningMissed => '未签到';
+
+  @override
+  String get learningCancelled => '已取消';
+
+  @override
+  String get learningCompleted => '已完成';
+
+  @override
+  String get learningUnknown => '未知状态';
+
+  @override
+  String get learningDateLabel => '日期';
+
+  @override
+  String get learningPeriod => '时段';
+
+  @override
+  String get learningStatus => '状态';
+
+  @override
+  String get learningAppointmentId => '预约 ID';
+
+  @override
+  String learningAppointmentTitle(String floor, String seat) {
+    return '$floor 层 $seat';
+  }
+
+  @override
+  String get learningNoAppointments => '暂无预约记录';
+
+  @override
+  String get learningLoadMore => '加载更多';
+
+  @override
+  String get learningScanSignIn => '扫码签到';
+
+  @override
+  String get learningScannerUnsupported =>
+      '此平台暂不支持相机扫码，请使用 Android、iOS 或 macOS 设备扫描现场二维码签到。';
+
+  @override
+  String get learningCameraError => '无法使用相机，请检查系统相机权限后重新打开扫码页面。';
+
+  @override
+  String get learningInvalidQr => '二维码无效或已过期，请扫描现场最新二维码。';
+
+  @override
+  String get learningScanHint => '请扫描学习中心现场签到二维码';
 }
