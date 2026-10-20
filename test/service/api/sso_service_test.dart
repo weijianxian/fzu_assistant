@@ -46,6 +46,14 @@ class _SsoAdapter implements HttpClientAdapter {
       },
     );
     if (path == '/login' && options.method == 'GET') {
+      if (options.uri.queryParameters.containsKey('service')) {
+        if (expire) return response('<form>Login required</form>');
+        return response(
+          '',
+          status: 302,
+          location: foreignRedirect ? 'https://example.com/steal' : 'https://xcx.fzu.edu.cn/berserker-auth/cas/login/ruiJie?ticket=ST-test',
+        );
+      }
       return response(
         '<p id="login-croypto">MDEyMzQ1Njc4OWFiY2RlZg==</p><p id="login-page-flowkey">flow1</p>',
         cookie: 'SESSION=session1; Path=/; Secure; HttpOnly',
@@ -95,6 +103,13 @@ class _SsoAdapter implements HttpClientAdapter {
         location: '/ibs/#/?token=fake-study-token&userId=123',
       );
     }
+    if (path == '/berserker-auth/cas/login/ruiJie') {
+      return response(
+        '',
+        status: 302,
+        location: '/plat/pay?synjones-auth=fake-campus-token',
+      );
+    }
     return response('', status: 404);
   }
 
@@ -125,6 +140,54 @@ void main() {
       SsoService.encrypt('password', 'MDEyMzQ1Njc4OWFiY2RlZg=='),
       'R4lDIBO/32oRLZSjtsPrGQ==',
     );
+  });
+  test('campus login skips learning center and isolates CAS cookies and account tokens', () async {
+    await service.login(
+      'sso-user',
+      'password',
+      loadStudyToken: false,
+      onSmsRequired: (_, _, _) async => null,
+    );
+    expect(await service.loadStudyToken(), isNull);
+    expect(
+      adapter.requests.any((r) => r.uri.host == 'aiot.fzu.edu.cn'),
+      isFalse,
+    );
+    expect(await service.getCampusToken(), 'fake-campus-token');
+    expect(await service.loadCampusToken(), 'fake-campus-token');
+    final cas = adapter.requests.firstWhere(
+      (r) => r.uri.host == 'xcx.fzu.edu.cn',
+    );
+    expect(cas.headers['cookie'] ?? '', isNot(contains('SOURCEID_TGC')));
+    final request = adapter.requests.firstWhere(
+      (r) => r.uri.queryParameters.containsKey('service'),
+    );
+    final callback = Uri.parse(request.uri.queryParameters['service']!);
+    expect(callback.path, '/berserker-auth/cas/login/ruiJie');
+    expect(Uri.parse(callback.queryParameters['targetUrl']!).queryParameters, {
+      'appId': '16',
+      'nodeId': '15',
+      'type': 'app',
+    });
+    await AuthStorage().saveCredentials('academic-b', 'other-password');
+    expect(await service.loadCampusToken(), isNull);
+    await expectLater(
+      service.getCampusToken(),
+      throwsA(isA<SsoLoginRequired>()),
+    );
+    await AuthStorage().saveCredentials('academic-a', 'academic-password');
+    await service.logout();
+    expect(await service.loadCampusToken(), isNull);
+    await expectLater(
+      service.getCampusToken(),
+      throwsA(isA<SsoLoginRequired>()),
+    );
+  });
+  test('campus CAS rejects foreign redirects before requesting them', () async {
+    await login();
+    adapter.foreignRedirect = true;
+    await expectLater(service.getCampusToken(), throwsException);
+    expect(adapter.requests.any((r) => r.uri.host == 'example.com'), isFalse);
   });
   test('CSRF header follows the reference concatenation and MD5 algorithm', () {
     final headers = SsoService.csrfHeaders();

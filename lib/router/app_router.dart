@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
+import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
 import 'package:fzu_assistant/screen/dev/learning_center_debug_page.dart';
 import 'package:fzu_assistant/screen/guest/sso_login_page.dart';
@@ -47,6 +48,8 @@ abstract final class AppRouter {
     AppRoutes.evaluation: (_) => const EvaluationPage(),
     AppRoutes.academicShortcuts: (_) => const AcademicShortcutsPage(),
     AppRoutes.learningCenter: (_) => const LearningCenterPage(),
+    AppRoutes.campusCode: (_) => const CampusCodePage(),
+    AppRoutes.campusCodeLogin: (_) => const SsoLoginPage(loadStudyToken: false),
     AppRoutes.learningSeats: (_) => const LearningSeatsPage(),
     AppRoutes.learningAppointments: (_) => const LearningAppointmentsPage(),
     AppRoutes.ssoLogin: (_) => const SsoLoginPage(),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/widget/input/password_field.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 
 class SsoLoginPage extends HookWidget {
-  const SsoLoginPage({super.key});
+  const SsoLoginPage({super.key, this.loadStudyToken = true});
+  final bool loadStudyToken;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class SsoLoginPage extends HookWidget {
         await SsoService.instance.login(
           account.text,
           password.text,
+          loadStudyToken: loadStudyToken,
           onSmsRequired: (phone, tip, sendSms) async {
             if (!context.mounted) return null;
             return showDialog<String>(
@@ -66,15 +69,18 @@ class SsoLoginPage extends HookWidget {
                   controller: account,
                   enabled: !busy.value,
                   autofillHints: const [AutofillHints.username],
-                  decoration: InputDecoration(labelText: l10n.studentId),
+                  decoration: InputDecoration(
+                    labelText: l10n.studentId,
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
-                TextField(
+                PasswordField(
                   controller: password,
                   enabled: !busy.value,
-                  obscureText: true,
-                  autofillHints: const [AutofillHints.password],
-                  decoration: InputDecoration(labelText: l10n.password),
                   onSubmitted: (_) => login(),
                 ),
                 if (error.value != null)

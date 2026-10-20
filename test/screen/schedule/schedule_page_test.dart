@@ -9,6 +9,7 @@ import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/home/home_screen.dart';
+import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/screen/schedule/schedule.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/floating_schedule_controls.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/horizontal_schedule_grid.dart';
@@ -120,6 +121,39 @@ void main() {
     ApiClient.instance.dio.interceptors.add(offline);
     addTearDown(() => ApiClient.instance.dio.interceptors.remove(offline));
   });
+
+  for (final size in [const Size(400, 800), const Size(1200, 800)]) {
+    testWidgets('campus code is a main navigation tab at $size', (
+      tester,
+    ) async {
+      _viewport(tester, size);
+      final settings = AppSettings();
+      settings.homeStyleKey.value = AppSettings.timelineHomeStyle;
+      addTearDown(settings.dispose);
+      await tester.runAsync(_cacheSchedule);
+      await tester.pumpWidget(_app(settings, child: const HomeScreen()));
+      await tester.pumpAndSettle();
+      final navigation = size.width > size.height
+          ? find.byType(NavigationRail)
+          : find.byType(NavigationBar);
+      await tester.tap(
+        find.descendant(of: navigation, matching: find.text('一码通')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(CampusCodePage), findsOneWidget);
+      expect(find.text('消费码'), findsOneWidget);
+      expect(
+        tester.widget<PageView>(find.byType(PageView)).scrollDirection,
+        Axis.vertical,
+      );
+      await tester.tap(
+        find.descendant(of: navigation, matching: find.text('我的')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(CampusCodePage), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('floating controls overlay the full grid inside system insets', (
     tester,

@@ -56,7 +56,14 @@ class SsoService {
   Future<void> clearStudyToken() async =>
       _storage.delete(key: await _key('study_token'));
 
+  Future<String?> loadCampusToken() async =>
+      _storage.read(key: await _key('campus_token'));
+
+  Future<void> clearCampusToken() async =>
+      _storage.delete(key: await _key('campus_token'));
+
   Future<void> logout() async {
+    await clearCampusToken();
     await _storage.delete(key: await _key('study_token'));
     await _storage.delete(key: await _key('cookie'));
     await _cookies.deleteAll();
@@ -103,6 +110,7 @@ class SsoService {
     String username,
     String password, {
     required SmsVerification onSmsRequired,
+    bool loadStudyToken = true,
   }) async {
     if (username.trim().isEmpty || password.isEmpty) {
       throw Exception('账号密码不能为空');
@@ -202,7 +210,61 @@ class SsoService {
     }
     await _storage.write(key: await _key('cookie'), value: ticket.value);
     await clearStudyToken();
-    await getStudyToken();
+    await clearCampusToken();
+    if (loadStudyToken) await getStudyToken();
+  }
+
+  Future<String> getCampusToken() async {
+    // Capture the account before the redirect chain so a late response cannot
+    // write the old account's token into a newly selected account.
+    final tokenKey = await _key('campus_token');
+    final cookieKey = await _key('cookie');
+    final cookie = await _storage.read(key: cookieKey);
+    if (cookie == null || cookie.isEmpty) throw const SsoLoginRequired();
+    await _cookies.deleteAll();
+    await _cookies.saveFromResponse(Uri.parse(loginUrl), [
+      Cookie('SOURCEID_TGC', cookie),
+    ]);
+    final target = Uri.https('xcx.fzu.edu.cn', '/berserker-base/redirect', {
+      'appId': '16',
+      'nodeId': '15',
+      'type': 'app',
+    });
+    final service = Uri.https(
+      'xcx.fzu.edu.cn',
+      '/berserker-auth/cas/login/ruiJie',
+      {'targetUrl': target.toString()},
+    );
+    var url = Uri.parse(loginUrl)
+        .replace(queryParameters: {'service': service.toString()});
+    for (var hop = 0; hop < 12; hop++) {
+      if (url.scheme != 'https' ||
+          !{'sso.fzu.edu.cn', 'xcx.fzu.edu.cn'}.contains(url.host)) {
+        throw Exception('统一认证返回了不支持的跳转地址');
+      }
+      final token =
+          url.queryParameters['synjones-auth'] ??
+          Uri.tryParse(url.fragment)?.queryParameters['synjones-auth'];
+      if (url.host == 'xcx.fzu.edu.cn' && token != null && token.isNotEmpty) {
+        if (tokenKey != await _key('campus_token') ||
+            cookie != await _storage.read(key: cookieKey)) {
+          throw const SsoLoginRequired();
+        }
+        await _storage.write(key: tokenKey, value: token);
+        return token;
+      }
+      final response = await dio.getUri<String>(
+        url,
+        options: Options(headers: {'User-Agent': userAgent}),
+      );
+      final location = response.headers.value('location');
+      if (location == null || location.isEmpty) {
+        if (url.host == 'sso.fzu.edu.cn') throw const SsoLoginRequired();
+        throw Exception('一卡通未返回登录 token');
+      }
+      url = url.resolve(location);
+    }
+    throw Exception('一卡通登录跳转次数过多');
   }
 
   Future<String> getStudyToken() async {

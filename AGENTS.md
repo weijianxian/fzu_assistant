@@ -15,6 +15,7 @@
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
 - window_manager（Windows 自绘标题栏、窗口操作与状态监听）
 - pointycastle（统一身份认证 AES-ECB / PKCS#7 加密）、mobile_scanner（Android / iOS / macOS 学习中心现场扫码签到）
+- barcode_widget（支持原始字节的消费二维码及入馆 Code128 条形码）、asn1lib（解析一卡通 RSA 私钥）、screen_brightness（手机展示码时临时提高应用亮度）
 
 ## 项目结构
 
@@ -37,6 +38,7 @@ lib/
     calendar.dart        # 校历（学期 + 事件）
     student_info.dart    # 学生个人信息
     learning_center.dart # 学习中心座位、预约状态、可用时段及预约/现场二维码校验
+    campus_code.dart     # 一卡通用户信息与消费码原始字节
     empty_room.dart      # 空教室
     notice.dart          # 教务通知（列表 + 部门）
     github_release.dart  # GitHub Release 信息
@@ -49,6 +51,7 @@ lib/
       context_ext.dart   # BuildContext 扩展（isLandscape 方向判断）
       course_sessions.dart # 周/天视图共用的课程筛选与节次时间
     widget/              # 通用组件
+      input/password_field.dart # 教务和 SSO 登录共用密码框、显隐按钮及自动填充
       navigation/home_view_toggle.dart # 首页周视图/天视图切换
       layout/desktop_window_frame.dart # Windows 全局窗口壳（自绘标题栏、提示 Overlay、内容裁剪与顶部缩放）
       layout/split_navigation_page.dart # 横屏两栏导航（左 1/3 功能按钮、右 2/3 独立详情导航）
@@ -66,6 +69,8 @@ lib/
     breakpoints.dart     # 响应式尺寸（横向课表最小节次列宽、日期列宽与行高）
     site_injections.dart # WebView URI 正则 CSS/JS 注入规则
   screen/
+    campus_code/         # 一码通独立底部 Tab（横屏侧栏）
+      campus_code_page.dart # 消费码/入馆码竖向 PageView、消费码下方滑动提示、北京时间与临时亮度；刷新保留旧码原位替换，右下角悬浮刷新按钮，复用 SSO 登录
     guest/               # 匿名页面 如编辑器，webview等
       login.dart         # 登录页
       sso_login_page.dart # 统一身份认证登录，支持短信二次验证；密码不落盘
@@ -79,7 +84,7 @@ lib/
         course_card.dart   # 课程卡片（横屏浅色底与课程色条）
         floating_schedule_controls.dart # 横屏视图切换、设置及翻周悬浮按钮，叠在时间轴上方、避开日期列和系统安全区域，窄窗自动换行
     home/                # 首页天视图
-      home_screen.dart   # 首页壳，管理自适应导航与三个主 Tab
+      home_screen.dart   # 首页壳，管理自适应导航与首页、工具箱、一码通、我的四个主 Tab
       home_timeline_page.dart # 时间线首页（课程 + 校历事件 + 学期概览）
       timeline_events.dart # 校历事件日期解析与单日/跨日拆分
     toolbox/             # 工具箱（首页 tab）
@@ -130,6 +135,7 @@ lib/
       user_service.dart  # 用户信息
       sso_service.dart   # 独立 Dio/CookieJar，SSO 加密、短信验证及学习中心 OAuth token 换取；按教务账号隔离安全存储
       learning_center_service.dart # 学习中心 JSON API：座位/时段/预约记录和预约/取消/签到/签退
+      campus_code_service.dart # 一卡通 JSON API、RSA 解密用户密钥及 SO/SP 消费码字节协议
       course_service.dart # 课程表 + 可选 west2 调休数据（公开接口、按学期缓存）
       html_helper.dart   # HTML 解析辅助
     settings/
@@ -156,6 +162,7 @@ lib/
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化；普通查询页复用 common/hooks/use_async_data.dart，保留刷新期间的旧数据，特殊分页/条件查询独立管理状态
 - 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情列表底部提供“我不想上”，说明文字作为按钮的 subtitle，CourseSessions 统一过滤周课表及天视图，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
 - 学习中心协议参考 `.reference/fzuhelper-app/lib/sso-login.ts` 和 `utils/learning-center/api-service.ts`。SSO Cookie 与学习中心 token 存在 SecureStorage，按教务账号隔离，教务登出时清理；SSO 密码不保存。SSO Cookie 仅发送给其所属域名，学习中心变更请求不自动重试。正常签到须校验现场一分钟有效二维码，直接签到仅在开发者调试页提供。
+- 一码通协议参考 `.reference/fzuhelper-app/lib/ykt-login.ts`：消费码 SO 正文为原始字节、SP 正文为 Base64，二维码必须按字节编码；摘要对大写十六进制文本计算 SHA1，时间戳使用 Unix 秒。入馆二维码和 Code128 使用服务端用户 account。一码通 token 存在按教务账号隔离的 SecureStorage，SSO/教务登出时清理；支付码、RSA 配置和用户密钥只保留内存。消费码在页面前台每 50 秒刷新，后台/隐藏路由停止刷新并恢复亮度，重新进入时刷新；未开通离线支付不影响入馆码。一码通 SSO 登录不依赖学习中心授权。
 - 学习中心日期和无时区的服务端时间统一按北京时间（Asia/Shanghai，UTC+8）解释，不受设备时区影响；日期卡片、22 点后默认次日、过去时段禁用、未来七天范围、预约状态及现场二维码校验使用同一时间约定。时间选择参考 fzuhelper-app 的日期卡片与四列时间格，端点深色、区间浅色，最长 4 小时。
 - 学习中心开发者调试页直接通过 Dio 调用接口，允许空 token、空 ID 和任意日期时段，预约直接传入 spaceId，不先查座位，不弹操作确认框；展示 HTTP 状态和原始响应，不因业务错误自动清 token 或跳转。正常学习中心页面继续使用业务 Service 的校验和确认流程。
 - 开发者工具通过「我的」头像累计点击七次进入，无点击间隔限制，跳转后计数清零；横竖屏不显示独立开发者入口。

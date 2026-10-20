@@ -6,6 +6,7 @@ import 'package:fzu_assistant/screen/home/home_timeline_page.dart';
 import 'package:fzu_assistant/screen/my/my.dart';
 import 'package:fzu_assistant/screen/schedule/schedule.dart';
 import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
+import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 
 class HomeScreen extends HookWidget {
@@ -29,7 +30,8 @@ class HomeScreen extends HookWidget {
           else
             SchedulePage(jumpToWeekTrigger: jumpToWeekTrigger),
           ToolboxPage(isActive: currentPage.value == 1),
-          MyPage(isActive: currentPage.value == 2),
+          CampusCodePage(isActive: currentPage.value == 2),
+          MyPage(isActive: currentPage.value == 3),
         ];
 
         void onTabTapped(int index) {
@@ -50,6 +52,7 @@ class HomeScreen extends HookWidget {
             children: [
               if (context.isLandscape)
                 NavigationRail(
+                  scrollable: true,
                   groupAlignment: 0,
                   selectedIndex: currentPage.value,
                   onDestinationSelected: onTabTapped,
@@ -62,6 +65,10 @@ class HomeScreen extends HookWidget {
                     NavigationRailDestination(
                       icon: const Icon(Icons.build),
                       label: Text(l10n.navToolbox),
+                    ),
+                    NavigationRailDestination(
+                      icon: const Icon(Icons.qr_code),
+                      label: Text(l10n.campusCode),
                     ),
                     NavigationRailDestination(
                       icon: const Icon(Icons.person),
@@ -88,6 +95,11 @@ class HomeScreen extends HookWidget {
                       icon: const Icon(Icons.build_outlined),
                       selectedIcon: const Icon(Icons.build),
                       label: l10n.navToolbox,
+                    ),
+                    NavigationDestination(
+                      icon: const Icon(Icons.qr_code),
+                      selectedIcon: const Icon(Icons.qr_code_2),
+                      label: l10n.campusCode,
                     ),
                     NavigationDestination(
                       icon: const Icon(Icons.person_outline),

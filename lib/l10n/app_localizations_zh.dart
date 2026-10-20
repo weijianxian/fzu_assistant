@@ -10,6 +10,21 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get campusSwipeHint => '上下滑动切换消费码和入馆码';
+
+  @override
+  String get campusCode => '一码通';
+
+  @override
+  String get campusPayCode => '消费码';
+
+  @override
+  String get campusLibraryCode => '入馆码';
+
+  @override
+  String get campusLibraryCodeHint => '请将二维码或条形码对准图书馆闸机扫码处。';
+
+  @override
   String get appName => '福大助手';
 
   @override
@@ -733,7 +748,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ssoLoginDescription =>
-      '使用福州大学统一身份认证账号登录学习中心，密码可能与教务处不同。密码不会保存在本机。';
+      '使用福州大学统一身份认证账号登录一码通、学习中心，密码可能与教务处不同。密码不会保存在本机。';
 
   @override
   String get ssoSmsVerification => '手机验证';
@@ -748,7 +763,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ssoLogout => '退出统一认证';
 
   @override
-  String get ssoLogoutDescription => '退出学习中心和统一认证，保留教务处登录。';
+  String get ssoLogoutDescription => '退出一码通、学习中心和统一认证，保留教务处登录。';
 
   @override
   String get ssoSessionExpired => '学习中心登录已过期，请重新登录后重试操作。';

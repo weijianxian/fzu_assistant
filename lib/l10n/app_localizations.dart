@@ -98,6 +98,36 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @campusSwipeHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'上下滑动切换消费码和入馆码'**
+  String get campusSwipeHint;
+
+  /// No description provided for @campusCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'一码通'**
+  String get campusCode;
+
+  /// No description provided for @campusPayCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'消费码'**
+  String get campusPayCode;
+
+  /// No description provided for @campusLibraryCode.
+  ///
+  /// In zh, this message translates to:
+  /// **'入馆码'**
+  String get campusLibraryCode;
+
+  /// No description provided for @campusLibraryCodeHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'请将二维码或条形码对准图书馆闸机扫码处。'**
+  String get campusLibraryCodeHint;
+
   /// appName
   ///
   /// In zh, this message translates to:
@@ -1463,7 +1493,7 @@ abstract class AppLocalizations {
   /// No description provided for @ssoLoginDescription.
   ///
   /// In zh, this message translates to:
-  /// **'使用福州大学统一身份认证账号登录学习中心，密码可能与教务处不同。密码不会保存在本机。'**
+  /// **'使用福州大学统一身份认证账号登录一码通、学习中心，密码可能与教务处不同。密码不会保存在本机。'**
   String get ssoLoginDescription;
 
   /// No description provided for @ssoSmsVerification.
@@ -1493,7 +1523,7 @@ abstract class AppLocalizations {
   /// No description provided for @ssoLogoutDescription.
   ///
   /// In zh, this message translates to:
-  /// **'退出学习中心和统一认证，保留教务处登录。'**
+  /// **'退出一码通、学习中心和统一认证，保留教务处登录。'**
   String get ssoLogoutDescription;
 
   /// No description provided for @ssoSessionExpired.

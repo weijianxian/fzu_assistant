@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   dynamic_color
   flutter_inappwebview_windows
   flutter_secure_storage_windows
+  screen_brightness_windows
   screen_retriever_windows
   url_launcher_windows
   window_manager

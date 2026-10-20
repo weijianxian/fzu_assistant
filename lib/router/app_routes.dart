@@ -13,6 +13,8 @@ abstract final class AppRoutes {
   static const evaluation = '/evaluation';
   static const academicShortcuts = '/academic-shortcuts';
   static const learningCenter = '/learning-center';
+  static const campusCode = '/campus-code';
+  static const campusCodeLogin = '/campus-code/login';
   static const learningSeats = '/learning-center/seats';
   static const learningAvailableSeats = '/learning-center/available-seats';
   static const learningSeatTimes = '/learning-center/seat-times';

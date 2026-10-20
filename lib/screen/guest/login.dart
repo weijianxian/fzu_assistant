@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/widget/input/password_field.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
@@ -18,7 +19,6 @@ class LoginPage extends HookWidget {
     final isLoading = useState(false);
     final errorMessage = useState<String?>(null);
     final captchaImage = useState<Uint8List?>(null);
-    final obscurePassword = useState(true);
 
     Future<void> refreshCaptcha() async {
       try {
@@ -107,26 +107,7 @@ class LoginPage extends HookWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: obscurePassword.value,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.password,
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      obscurePassword.value
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
-                    onPressed: () =>
-                        obscurePassword.value = !obscurePassword.value,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+              PasswordField(controller: passwordController),
               const SizedBox(height: 16),
               Row(
                 children: [

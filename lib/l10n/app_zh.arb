@@ -1,4 +1,10 @@
 {
+  "campusSwipeHint": "上下滑动切换消费码和入馆码",
+  "campusCode": "一码通",
+  "campusPayCode": "消费码",
+  "campusLibraryCode": "入馆码",
+  "campusLibraryCodeHint": "请将二维码或条形码对准图书馆闸机扫码处。",
+
   "@@locale": "zh",
   "appName": "福大助手",
   "@appName": {
@@ -816,12 +822,12 @@
   "restoreAllCourseSessions": "全部恢复",
   "learningCenter": "学习中心",
   "ssoLogin": "统一身份认证登录",
-  "ssoLoginDescription": "使用福州大学统一身份认证账号登录学习中心，密码可能与教务处不同。密码不会保存在本机。",
+  "ssoLoginDescription": "使用福州大学统一身份认证账号登录一码通、学习中心，密码可能与教务处不同。密码不会保存在本机。",
   "ssoSmsVerification": "手机验证",
   "ssoSendSms": "发送验证码",
   "ssoSmsSent": "验证码已发送",
   "ssoLogout": "退出统一认证",
-  "ssoLogoutDescription": "退出学习中心和统一认证，保留教务处登录。",
+  "ssoLogoutDescription": "退出一码通、学习中心和统一认证，保留教务处登录。",
   "ssoSessionExpired": "学习中心登录已过期，请重新登录后重试操作。",
   "learningReserve": "预约座位",
   "learningReserveSubtitle": "查询空闲座位，预约学习时段",

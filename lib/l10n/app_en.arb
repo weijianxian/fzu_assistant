@@ -1,4 +1,10 @@
 {
+  "campusSwipeHint": "Swipe up or down to switch codes",
+  "campusCode": "Campus code",
+  "campusPayCode": "Payment",
+  "campusLibraryCode": "Library",
+  "campusLibraryCodeHint": "Scan the QR code or barcode at the library entrance.",
+
   "@@locale": "en",
   "appName": "FZU Assistant",
   "@appName": {
@@ -816,12 +822,12 @@
   "restoreAllCourseSessions": "Restore all",
   "learningCenter": "Learning center",
   "ssoLogin": "SSO login",
-  "ssoLoginDescription": "Use your FZU SSO account. Its password may differ from your academic password. Your password is not saved.",
+  "ssoLoginDescription": "Use your FZU SSO account for campus codes and the learning center. Its password may differ from your academic password. Your password is not saved.",
   "ssoSmsVerification": "SMS verification",
   "ssoSendSms": "Send code",
   "ssoSmsSent": "Code sent",
   "ssoLogout": "Sign out of SSO",
-  "ssoLogoutDescription": "Sign out of SSO and the learning center. Keep your academic session.",
+  "ssoLogoutDescription": "Sign out of campus codes, the learning center and SSO. Keep your academic session.",
   "ssoSessionExpired": "Session expired. Sign in and retry the operation.",
   "learningReserve": "Reserve a seat",
   "learningReserveSubtitle": "Find available seats and reserve study time",

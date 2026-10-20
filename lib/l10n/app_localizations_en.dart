@@ -10,6 +10,22 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get campusSwipeHint => 'Swipe up or down to switch codes';
+
+  @override
+  String get campusCode => 'Campus code';
+
+  @override
+  String get campusPayCode => 'Payment';
+
+  @override
+  String get campusLibraryCode => 'Library';
+
+  @override
+  String get campusLibraryCodeHint =>
+      'Scan the QR code or barcode at the library entrance.';
+
+  @override
   String get appName => 'FZU Assistant';
 
   @override
@@ -748,7 +764,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ssoLoginDescription =>
-      'Use your FZU SSO account. Its password may differ from your academic password. Your password is not saved.';
+      'Use your FZU SSO account for campus codes and the learning center. Its password may differ from your academic password. Your password is not saved.';
 
   @override
   String get ssoSmsVerification => 'SMS verification';
@@ -764,7 +780,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ssoLogoutDescription =>
-      'Sign out of SSO and the learning center. Keep your academic session.';
+      'Sign out of campus codes, the learning center and SSO. Keep your academic session.';
 
   @override
   String get ssoSessionExpired =>
