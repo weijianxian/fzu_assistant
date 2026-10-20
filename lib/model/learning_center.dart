@@ -35,6 +35,43 @@ class LearningSeat {
   );
 }
 
+enum LearningSeatType { single, shared, sofa, sharedAndSofa }
+
+/// 座位范围已核对官方导览图：
+/// https://aiot.fzu.edu.cn/ibs/assets/seatGuide-88e54b3b.jpg
+/// 图上未标字母与座位类型，这两项沿用 fzuhelper-app 的分区表。
+class LearningSeatArea {
+  const LearningSeatArea(this.start, this.end, this.code, this.type);
+  final int start, end;
+  final String code;
+  final LearningSeatType type;
+
+  static const all = [
+    LearningSeatArea(1, 204, 'J', LearningSeatType.shared),
+    LearningSeatArea(205, 268, 'A', LearningSeatType.single),
+    LearningSeatArea(269, 368, 'B', LearningSeatType.single),
+    LearningSeatArea(369, 416, 'D', LearningSeatType.single),
+    LearningSeatArea(417, 476, 'C', LearningSeatType.single),
+    LearningSeatArea(477, 616, 'I', LearningSeatType.shared),
+    LearningSeatArea(617, 640, 'F', LearningSeatType.sofa),
+    LearningSeatArea(641, 736, 'H', LearningSeatType.sharedAndSofa),
+    LearningSeatArea(737, 758, 'G', LearningSeatType.shared),
+    LearningSeatArea(759, 804, 'E', LearningSeatType.shared),
+    LearningSeatArea(805, 837, 'K', LearningSeatType.shared),
+    LearningSeatArea(838, 870, 'L', LearningSeatType.shared),
+    LearningSeatArea(871, 919, 'M', LearningSeatType.shared),
+  ];
+
+  static LearningSeatArea? forSeat(String name) {
+    final number = int.tryParse(learningSeatName(name).split('-').first);
+    if (number == null) return null;
+    for (final area in all) {
+      if (number >= area.start && number <= area.end) return area;
+    }
+    return null;
+  }
+}
+
 enum LearningAppointmentStatus {
   upcoming,
   pending,

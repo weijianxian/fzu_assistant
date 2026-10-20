@@ -3,6 +3,32 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
 
+Future<void> showLearningSeatGuide(BuildContext context) => showDialog<void>(
+  context: context,
+  builder: (context) => Dialog.fullscreen(
+    child: Scaffold(
+      appBar: AppBar(
+        leading: CloseButton(onPressed: () => Navigator.of(context).pop()),
+        title: Text(AppLocalizations.of(context)!.learningSeatGuide),
+      ),
+      body: SafeArea(
+        top: false,
+        child: InteractiveViewer(
+          minScale: 1,
+          maxScale: 8,
+          child: Image.asset(
+            'assets/learning_center/seat-guide.jpg',
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.contain,
+            semanticLabel: AppLocalizations.of(context)!.learningSeatGuide,
+          ),
+        ),
+      ),
+    ),
+  ),
+);
+
 Future<bool> confirmLearningAction(
   BuildContext context,
   String title,

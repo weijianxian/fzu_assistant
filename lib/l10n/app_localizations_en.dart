@@ -863,6 +863,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learningSeatList => 'Seats';
 
   @override
+  String learningSeatArea(String area) {
+    return 'Area $area';
+  }
+
+  @override
+  String get learningOtherArea => 'Other';
+
+  @override
+  String get learningSeatGuide => 'Seat guide';
+
+  @override
+  String get learningSingleSeat => 'Single seats';
+
+  @override
+  String get learningSharedSeat => 'Shared seats';
+
+  @override
+  String get learningSofaSeat => 'Sofa seats';
+
+  @override
+  String get learningSharedAndSofaSeat => 'Shared and sofa seats';
+
+  @override
+  String learningAreaSummary(int available, int occupied) {
+    return 'Available $available · Occupied $occupied';
+  }
+
+  @override
   String get learningNoSeats => 'No seats found. Change time or retry later.';
 
   @override

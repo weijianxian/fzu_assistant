@@ -102,11 +102,11 @@ lib/
       learning_center/   # 学习中心：独立 SSO 登录、4/5 层座位查询/预约、时段查询、分页预约记录、取消/签到/签退
         learning_center_page.dart # 入口与 SSO 会话管理
         learning_seats_page.dart # 北京时间未来七天日期卡片、四列半小时时间格和区间高亮；查询后 push 独立座位列表页，返回保留选择
-        learning_available_seats_page.dart # 按路由日期/时段/楼层加载座位列表，支持刷新、失败重试；占用座位 push 时段卡片页，可用座位使用服务端 spaceId 预约，预约成功返回选择页
+        learning_available_seats_page.dart # 按日期/时段/楼层查询座位，参考 fzuhelper-app 分区、座位类型与空闲/占用统计，右侧分区跳转；固定行高 SliverGrid 稳定滚动范围；占用座位 push 时段页，可用座位使用服务端 spaceId 预约
         learning_seat_times_page.dart # 独立座位当日时段页，使用四列卡片区分可预约/已占用，支持刷新与错误重试，不用弹窗展示查询结果
         learning_appointments_page.dart # 分页预约记录（合并后按预约开始时间倒序），标题为楼层/三位座位号/#预约 ID，副标题为日期和时间段，支持状态更新和预约操作
         learning_scanner_page.dart # 现场二维码扫码签到；Windows/Linux 显示平台不支持提示
-        learning_center_widgets.dart # 登录提示、操作确认及会话失效处理
+        learning_center_widgets.dart # 登录提示、操作确认、会话失效与官方座位导览图全屏缩放；导览图 assets/learning_center/seat-guide.jpg，座位列表和预约记录均通过右上角地图按钮打开
     my/                  # 我的（首页 tab）
       my.dart            # 我的页面主页
       account_management_page.dart # 设置与关于之间的账号管理：教务处退出和统一 SSO 退出（含一码通、学习中心）

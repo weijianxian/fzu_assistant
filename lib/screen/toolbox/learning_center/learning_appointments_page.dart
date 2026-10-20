@@ -114,6 +114,11 @@ class LearningAppointmentsPage extends HookWidget {
         title: Text(l10n.learningAppointments),
         actions: [
           IconButton(
+            tooltip: l10n.learningSeatGuide,
+            icon: const Icon(Icons.map_outlined),
+            onPressed: () => showLearningSeatGuide(context),
+          ),
+          IconButton(
             onPressed: loading.value || acting.value ? null : fetch,
             icon: const Icon(Icons.refresh),
             tooltip: l10n.refresh,

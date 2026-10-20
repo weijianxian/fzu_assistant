@@ -1664,6 +1664,54 @@ abstract class AppLocalizations {
   /// **'座位列表'**
   String get learningSeatList;
 
+  /// No description provided for @learningSeatArea.
+  ///
+  /// In zh, this message translates to:
+  /// **'{area}区'**
+  String learningSeatArea(String area);
+
+  /// No description provided for @learningOtherArea.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他'**
+  String get learningOtherArea;
+
+  /// No description provided for @learningSeatGuide.
+  ///
+  /// In zh, this message translates to:
+  /// **'座位导览图'**
+  String get learningSeatGuide;
+
+  /// No description provided for @learningSingleSeat.
+  ///
+  /// In zh, this message translates to:
+  /// **'单人座'**
+  String get learningSingleSeat;
+
+  /// No description provided for @learningSharedSeat.
+  ///
+  /// In zh, this message translates to:
+  /// **'多人座'**
+  String get learningSharedSeat;
+
+  /// No description provided for @learningSofaSeat.
+  ///
+  /// In zh, this message translates to:
+  /// **'沙发座'**
+  String get learningSofaSeat;
+
+  /// No description provided for @learningSharedAndSofaSeat.
+  ///
+  /// In zh, this message translates to:
+  /// **'多人座、沙发座'**
+  String get learningSharedAndSofaSeat;
+
+  /// No description provided for @learningAreaSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'空闲 {available} · 已占用 {occupied}'**
+  String learningAreaSummary(int available, int occupied);
+
   /// No description provided for @learningNoSeats.
   ///
   /// In zh, this message translates to:

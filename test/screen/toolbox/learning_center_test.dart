@@ -26,6 +26,7 @@ class _Adapter implements HttpClientAdapter {
   final requests = <RequestOptions>[];
   int statusCode = 200;
   int seatStatus = 0;
+  List<Map<String, dynamic>>? seatRows;
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -36,14 +37,16 @@ class _Adapter implements HttpClientAdapter {
     final path = options.uri.path;
     final result = <String, dynamic>{'code': '0', 'dataList': []};
     if (path.endsWith('/queryStationStatusByTime')) {
-      result['dataList'] = [
-        {
-          'id': 1247,
-          'spaceName': '796-1',
-          'floor': 5,
-          'spaceStatus': seatStatus,
-        },
-      ];
+      result['dataList'] =
+          seatRows ??
+          [
+            {
+              'id': 1247,
+              'spaceName': '796-1',
+              'floor': 5,
+              'spaceStatus': seatStatus,
+            },
+          ];
     }
     if (path.endsWith('/querySpaceAppointTime')) {
       result['data'] = {
@@ -105,6 +108,61 @@ void main() {
   tearDown(() {
     LearningCenterService.instance.dio.httpClientAdapter = original;
   });
+
+  testWidgets(
+    'seat areas keep scroll extent stable and support area navigation',
+    (tester) async {
+      tester.view.physicalSize = const Size(1000, 650);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      adapter.seatRows = [
+        for (var number = 1; number <= 919; number++)
+          {
+            'id': number,
+            'spaceName': '$number',
+            'floor': 5,
+            'spaceStatus': number % 2,
+          },
+      ];
+      await tester.pumpWidget(
+        _app(
+          LearningAvailableSeatsPage(
+            date: learningDate(
+              learningBeijingTime(DateTime.now()).add(const Duration(days: 1)),
+            ),
+            begin: '08:00',
+            end: '10:00',
+            floor: '5',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final scrollView = tester.widget<CustomScrollView>(
+        find.byType(CustomScrollView),
+      );
+      final position = scrollView.controller!.position;
+      final originalExtent = position.maxScrollExtent;
+      expect(originalExtent, greaterThan(1000));
+      for (final fraction in [0.1, 0.5, 0.9]) {
+        position.jumpTo(originalExtent * fraction);
+        await tester.pumpAndSettle();
+        expect(position.maxScrollExtent, closeTo(originalExtent, 0.1));
+      }
+      final lastArea = find.widgetWithText(TextButton, 'M');
+      await tester.ensureVisible(lastArea);
+      await tester.tap(lastArea);
+      await tester.pumpAndSettle();
+      expect(find.text('919').hitTestable(), findsOneWidget);
+      final firstArea = find.widgetWithText(TextButton, 'J');
+      await tester.ensureVisible(firstArea);
+      await tester.tap(firstArea);
+      await tester.pumpAndSettle();
+      expect(find.text('1').hitTestable(), findsOneWidget);
+      expect(position.maxScrollExtent, closeTo(originalExtent, 0.1));
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'unsupported scanner opens and closes without calling native camera',

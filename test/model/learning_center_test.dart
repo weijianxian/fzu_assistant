@@ -2,6 +2,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/model/learning_center.dart';
 
 void main() {
+  test('seat area boundaries cover every reference seat once', () {
+    for (var number = 1; number <= 919; number++) {
+      final matches = LearningSeatArea.all.where(
+        (area) => number >= area.start && number <= area.end,
+      );
+      expect(matches.length, 1, reason: 'seat $number');
+      expect(LearningSeatArea.forSeat('$number'), same(matches.single));
+    }
+    expect(LearningSeatArea.forSeat('617')!.code, 'F');
+    expect(LearningSeatArea.forSeat('641')!.code, 'H');
+    expect(LearningSeatArea.forSeat('796-1')!.code, 'E');
+    expect(LearningSeatArea.forSeat('unknown'), isNull);
+    expect(LearningSeatArea.forSeat('920'), isNull);
+  });
   test('appointment history sorts newest first, including merged pages', () {
     LearningAppointment item(String id, String date, String begin) =>
         LearningAppointment.fromJson({

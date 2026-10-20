@@ -10,6 +10,7 @@ class ToolPageWrapper extends StatelessWidget {
   final Widget? child;
   final List<Widget>? slivers;
   final String emptyText;
+  final ScrollController? scrollController;
 
   const ToolPageWrapper({
     super.key,
@@ -21,6 +22,7 @@ class ToolPageWrapper extends StatelessWidget {
     this.error,
     required this.emptyText,
     this.hasData = true,
+    this.scrollController,
   }) : assert(child != null || slivers != null, 'Provide child or slivers');
 
   @override
@@ -45,6 +47,7 @@ class ToolPageWrapper extends StatelessWidget {
     // slivers 模式：直接构建 CustomScrollView
     if (slivers != null) {
       return CustomScrollView(
+        controller: scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           ...slivers!,

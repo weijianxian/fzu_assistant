@@ -841,6 +841,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get learningSeatList => '座位列表';
 
   @override
+  String learningSeatArea(String area) {
+    return '$area区';
+  }
+
+  @override
+  String get learningOtherArea => '其他';
+
+  @override
+  String get learningSeatGuide => '座位导览图';
+
+  @override
+  String get learningSingleSeat => '单人座';
+
+  @override
+  String get learningSharedSeat => '多人座';
+
+  @override
+  String get learningSofaSeat => '沙发座';
+
+  @override
+  String get learningSharedAndSofaSeat => '多人座、沙发座';
+
+  @override
+  String learningAreaSummary(int available, int occupied) {
+    return '空闲 $available · 已占用 $occupied';
+  }
+
+  @override
   String get learningNoSeats => '未查询到座位，请更换时段或稍后重试。';
 
   @override
