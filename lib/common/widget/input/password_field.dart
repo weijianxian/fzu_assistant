@@ -8,16 +8,19 @@ class PasswordField extends HookWidget {
     required this.controller,
     this.enabled = true,
     this.onSubmitted,
+    this.focusNode,
   });
   final TextEditingController controller;
   final bool enabled;
   final ValueChanged<String>? onSubmitted;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
     final obscure = useState(true);
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       enabled: enabled,
       obscureText: obscure.value,
       autofillHints: const [AutofillHints.password],

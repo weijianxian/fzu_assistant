@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/common/widget/input/password_field.dart';
+import 'package:fzu_assistant/screen/guest/widgets/login_mascot.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
@@ -15,6 +17,8 @@ class LoginPage extends HookWidget {
   Widget build(BuildContext context) {
     final usernameController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final passwordFocus = useFocusNode();
+    useListenable(passwordFocus);
     final captchaController = useTextEditingController();
     final isLoading = useState(false);
     final errorMessage = useState<String?>(null);
@@ -75,8 +79,10 @@ class LoginPage extends HookWidget {
       }
     }
 
-    return Scaffold(
-      body: SafeArea(
+    final form = Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
@@ -107,7 +113,10 @@ class LoginPage extends HookWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              PasswordField(controller: passwordController),
+              PasswordField(
+                controller: passwordController,
+                focusNode: passwordFocus,
+              ),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -183,6 +192,34 @@ class LoginPage extends HookWidget {
             ],
           ),
         ),
+      ),
+    );
+
+    return Scaffold(
+      body: SafeArea(
+        child: context.isLandscape
+            ? Row(
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: LoginMascot(eyesClosed: passwordFocus.hasFocus),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 240,
+                    child: VerticalDivider(
+                      width: 1,
+                      thickness: 1,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
+                  Expanded(child: form),
+                ],
+              )
+            : form,
       ),
     );
   }

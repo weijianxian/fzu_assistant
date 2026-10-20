@@ -38,6 +38,7 @@ dependencies:
   barcode_widget: ^2.0.4
   screen_brightness: ^2.1.11
   asn1lib: ^1.6.5
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -65,3 +66,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/
+    - assets/illustrations/

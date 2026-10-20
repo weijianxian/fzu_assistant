@@ -6,6 +6,7 @@
 
 - Flutter 3.47.6 + Dart 3.x
 - flutter_hooks（HookWidget / useState / useEffect / useMemoized）
+- flutter_svg（登录页 SVG 角色插画）
 - Dio + CookieJar 做 HTTP 请求，html 包解析 DOM
 - charset 包处理 GBK 编码（校历页面）
 - flutter_secure_storage 存储登录凭据
@@ -73,6 +74,7 @@ lib/
       campus_code_page.dart # 消费码/入馆码竖向 PageView、消费码下方滑动提示、北京时间与临时亮度；刷新保留旧码原位替换，右下角悬浮刷新按钮，复用 SSO 登录
     guest/               # 匿名页面 如编辑器，webview等
       login.dart         # 登录页
+      widgets/login_mascot.dart # 横屏登录页左侧 SVG 角色，密码框聚焦时闭眼；插画位于 assets/illustrations/
       sso_login_page.dart # 统一身份认证登录，支持短信二次验证；密码不落盘
       editor_page.dart   # 通用代码编辑器（re_editor + JSON 高亮）
       webview_page.dart  # 内置浏览器（flutter_inappwebview，支持 Cookie 注入，自动拼接教务处 URL 的 id 参数，CSS/JS 注入受 siteInjectionEnabled 控制，Windows+Android）
