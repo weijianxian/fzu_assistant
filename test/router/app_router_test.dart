@@ -36,6 +36,39 @@ const _argumentFreeRoutes = [
 ];
 
 void main() {
+  testWidgets(
+    'page content consumes cutout padding once while barriers stay full screen',
+    (tester) async {
+      tester.view.physicalSize = const Size(1200, 600);
+      tester.view.devicePixelRatio = 1;
+      tester.view.padding = const FakeViewPadding(left: 48, top: 24);
+      tester.view.viewPadding = const FakeViewPadding(left: 48, top: 24);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPadding);
+      addTearDown(tester.view.resetViewPadding);
+      await tester.pumpWidget(
+        MaterialApp(
+          initialRoute: AppRoutes.dev,
+          onGenerateRoute: AppRouter.onGenerateRoute,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(find.byIcon(Icons.science_outlined)).dx, 64);
+      await tester.tap(find.text('Native BottomSheet'));
+      await tester.pumpAndSettle();
+      final barrier = find.byType(ModalBarrier).last;
+      expect(tester.getRect(barrier).left, 0);
+      expect(tester.getRect(barrier).width, 1200);
+      tester.view.physicalSize = const Size(600, 1200);
+      tester.view.padding = const FakeViewPadding(top: 48);
+      tester.view.viewPadding = const FakeViewPadding(top: 48);
+      await tester.pumpAndSettle();
+      expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   test('resolves every argument-free route', () {
     for (final name in _argumentFreeRoutes) {
       final route = AppRouter.onGenerateRoute(RouteSettings(name: name));

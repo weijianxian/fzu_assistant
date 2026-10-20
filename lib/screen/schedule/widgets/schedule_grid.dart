@@ -503,7 +503,7 @@ class ScheduleGrid extends HookWidget {
             ListTile(
               title: Text(
                 displayName ?? course.name,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(sheetContext).textTheme.headlineSmall,
               ),
             ),
             if (course.teacher.isNotEmpty)
@@ -553,7 +553,7 @@ class ScheduleGrid extends HookWidget {
                 leading: const Icon(Icons.description),
                 title: const Text('教学大纲'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.pushNamed(
+                onTap: () => sheetContext.pushNamed(
                   AppRoutes.webview,
                   arguments: WebViewArgs(url: course.syllabus),
                 ),
@@ -563,7 +563,7 @@ class ScheduleGrid extends HookWidget {
                 leading: const Icon(Icons.menu_book),
                 title: const Text('授课计划'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.pushNamed(
+                onTap: () => sheetContext.pushNamed(
                   AppRoutes.webview,
                   arguments: WebViewArgs(url: course.lessonplan),
                 ),

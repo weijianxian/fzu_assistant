@@ -21,7 +21,7 @@
 如果你需要新建页面，请严格按照以下结构放置代码:
 ```
 lib/
-  main.dart              # 应用初始化、主题配置、全局横向 SafeArea（顶部/底部背景沉浸，由 AppBar 或页面内容避让系统栏）与启动页
+  main.dart              # 应用初始化、主题配置、全屏沉浸式 Navigator 与启动页；横向 SafeArea 在路由内容层处理，弹层遮罩覆盖系统安全区域
   l10n/                  # 国际化
     app_localizations.dart    # 自动生成的本地化类
     app_localizations_zh.dart # 中文翻译
@@ -56,11 +56,11 @@ lib/
       masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
       section.dart       # 区域组件
       term_selector_button.dart # 学期选择按钮
-      half_screen_sheet.dart # 半屏弹窗
+      half_screen_sheet.dart # 随屏幕方向实时切换侧栏/底部拖拽面板，独立管理滚动控制器并避让系统栏
       update_dialog.dart # 更新对话框
   router/                # 路由
     app_routes.dart      # 路由名、参数对象与命名导航扩展
-    app_router.dart      # 集中式路由表与页面构建
+    app_router.dart      # 集中式路由表与页面构建；页面内容统一横向 SafeArea，Navigator/弹层遮罩保持全屏
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式尺寸（横向课表最小节次列宽、日期列宽与行高）

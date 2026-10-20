@@ -191,13 +191,16 @@ void main() {
                     ),
                   ],
                 ),
-                body: ScheduleGrid(
-                  term: '202601',
-                  courses: [_course],
-                  examRooms: const [],
-                  week: 3,
-                  firstMonday: null,
-                  onRefresh: () async {},
+                body: KeyedSubtree(
+                  key: ValueKey(MediaQuery.orientationOf(context)),
+                  child: ScheduleGrid(
+                    term: '202601',
+                    courses: [_course],
+                    examRooms: const [],
+                    week: 3,
+                    firstMonday: null,
+                    onRefresh: () async {},
+                  ),
                 ),
               ),
             ),
@@ -208,6 +211,18 @@ void main() {
       expect(find.text(_course.name), findsNWidgets(2));
       await tester.tap(find.text(_course.name).first);
       await tester.pumpAndSettle();
+      tester.view.physicalSize = size.width > size.height
+          ? const Size(420, 900)
+          : const Size(1200, 800);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(
+        find.byType(DraggableScrollableSheet),
+        size.width > size.height ? findsOneWidget : findsNothing,
+      );
+      tester.view.physicalSize = size;
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
       await tester.ensureVisible(find.text('我不想上'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('我不想上'));

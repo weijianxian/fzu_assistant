@@ -21,6 +21,8 @@ void main() async {
     const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.transparent,
       statusBarColor: Colors.transparent,
+      systemStatusBarContrastEnforced: false,
+      systemNavigationBarContrastEnforced: false,
     ),
   );
   runApp(const MyApp());
@@ -75,13 +77,11 @@ class MyApp extends HookWidget {
               child: AnnotatedRegion<SystemUiOverlayStyle>(
                 value: overlayStyle.copyWith(
                   statusBarColor: Colors.transparent,
+                  systemStatusBarContrastEnforced: false,
                   systemNavigationBarColor: Colors.transparent,
                   systemNavigationBarContrastEnforced: false,
                 ),
-                child: ColoredBox(
-                  color: scheme.surface,
-                  child: SafeArea(top: false, bottom: false, child: child!),
-                ),
+                child: ColoredBox(color: scheme.surface, child: child!),
               ),
             );
           },
