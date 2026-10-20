@@ -104,7 +104,7 @@ class LearningCenterDebugPage extends HookWidget {
         );
 
     return Scaffold(
-      appBar: AppBar(title: Text('学习中心 API 调试')),
+      appBar: AppBar(title: Text('Learning Center API Debug')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -114,7 +114,7 @@ class LearningCenterDebugPage extends HookWidget {
                 onPressed: busy.value
                     ? null
                     : () => context.pushNamed(AppRoutes.learningCenter),
-                child: Text('学习中心'),
+                child: Text('Learning center'),
               ),
               OutlinedButton(
                 onPressed: busy.value
@@ -123,16 +123,16 @@ class LearningCenterDebugPage extends HookWidget {
                         await context.pushNamed(AppRoutes.ssoLogin);
                         if (context.mounted) await loadToken();
                       },
-                child: Text('统一身份认证登录'),
+                child: Text('SSO login'),
               ),
             ],
           ),
           field(
             token,
-            '学习中心 token',
+            'Learning center token',
             secret: !showToken.value,
             suffixIcon: IconButton(
-              tooltip: showToken.value ? '隐藏 token' : '显示 token',
+              tooltip: showToken.value ? 'Hide token' : 'Show token',
               icon: Icon(
                 showToken.value ? Icons.visibility_off : Icons.visibility,
               ),
@@ -143,21 +143,21 @@ class LearningCenterDebugPage extends HookWidget {
           ),
           _DebugButtonGroup(
             children: [
-              button('保存 token', () async {
+              button('Save token', () async {
                 await SsoService.instance.saveStudyToken(token.text.trim());
                 return {'saved': true};
               }),
-              button('读取 token', () async {
+              button('Load token', () async {
                 await loadToken();
                 return {'loaded': token.text.isNotEmpty};
               }),
-              button('清除 token', () async {
+              button('Clear token', () async {
                 await SsoService.instance.clearStudyToken();
                 token.clear();
                 return {'cleared': true};
               }),
               button(
-                '我的预约',
+                'Appointments',
                 () => request('/spaceAppoint/app/queryMyAppoint', {
                   'currentPage': '1',
                   'pageSize': '30',
@@ -167,15 +167,15 @@ class LearningCenterDebugPage extends HookWidget {
             ],
           ),
           const Divider(),
-          field(floor, '楼层'),
-          field(date, '日期'),
-          field(begin, '开始时间'),
-          field(end, '结束时间'),
+          field(floor, 'Floor'),
+          field(date, 'Date'),
+          field(begin, 'Start time'),
+          field(end, 'End time'),
           field(seat, 'spaceId'),
           _DebugButtonGroup(
             children: [
               button(
-                '查询座位',
+                'Query seats',
                 () => request('/spaceAppoint/app/queryStationStatusByTime', {
                   'beginTime': '${date.text.trim()} ${begin.text.trim()}',
                   'endTime': '${date.text.trim()} ${end.text.trim()}',
@@ -185,7 +185,7 @@ class LearningCenterDebugPage extends HookWidget {
                 }),
               ),
               button(
-                '预约座位',
+                'Reserve seat',
                 () => request('/spaceAppoint/app/addSpaceAppoint', {
                   'spaceId': seat.text.trim(),
                   'date': date.text.trim(),
@@ -196,23 +196,23 @@ class LearningCenterDebugPage extends HookWidget {
             ],
           ),
           const Divider(),
-          field(appointmentId, '预约 ID'),
+          field(appointmentId, 'Appointment ID'),
           _DebugButtonGroup(
             children: [
               button(
-                '直接签到（调试）',
+                'Direct check-in (debug)',
                 () => request('/station/app/signIn', {
                   'id': appointmentId.text.trim(),
                 }),
               ),
               button(
-                '签退',
+                'Check out',
                 () => request('/station/app/signOut', {
                   'id': appointmentId.text.trim(),
                 }),
               ),
               button(
-                '取消预约',
+                'Cancel appointment',
                 () => request('/spaceAppoint/app/revocationAppointApp', {
                   'id': appointmentId.text.trim(),
                 }),
@@ -229,13 +229,13 @@ class LearningCenterDebugPage extends HookWidget {
                           ),
                         );
                       },
-                child: Text('扫码签到'),
+                child: Text('Scan to check in'),
               ),
             ],
           ),
           if (busy.value) const LinearProgressIndicator(),
           const SizedBox(height: 16),
-          Text('接口响应', style: Theme.of(context).textTheme.titleMedium),
+          Text('API response', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           SelectableText(
             result.value,

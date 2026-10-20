@@ -22,7 +22,7 @@ class DevToolPage extends StatelessWidget {
         children: [
           ChevronListTile(
             leading: const Icon(Icons.science_outlined),
-            title: Text('学习中心 API 调试'),
+            title: Text('Learning Center API Debug'),
             onTap: () => context.pushNamed(AppRoutes.devLearningCenter),
           ),
           ..._tools.map(

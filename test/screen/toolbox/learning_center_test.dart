@@ -397,20 +397,20 @@ void main() {
           .first;
       expect(tokenField.obscureText, isTrue);
       expect(find.byType(SwitchListTile), findsNothing);
-      expect(find.textContaining('调试操作调用真实学习中心接口'), findsNothing);
-      await tester.tap(find.byTooltip('显示 token'));
+      expect(find.textContaining('调试操作调用真实Learning center接口'), findsNothing);
+      await tester.tap(find.byTooltip('Show token'));
       await tester.pumpAndSettle();
       expect(
         tester.widgetList<TextField>(find.byType(TextField)).first.obscureText,
         isFalse,
       );
-      await tester.tap(find.byTooltip('隐藏 token'));
+      await tester.tap(find.byTooltip('Hide token'));
       await tester.pumpAndSettle();
       expect(
         tester.widgetList<TextField>(find.byType(TextField)).first.obscureText,
         isTrue,
       );
-      await tester.tap(find.text('我的预约'));
+      await tester.tap(find.text('Appointments'));
       await tester.pumpAndSettle();
       final scroll = tester
           .state<ScrollableState>(find.byType(Scrollable).first)
@@ -420,14 +420,15 @@ void main() {
       expect(find.textContaining('"id": 123'), findsOneWidget);
       final idField = find.byWidgetPredicate(
         (widget) =>
-            widget is TextField && widget.decoration?.labelText == '预约 ID',
+            widget is TextField &&
+            widget.decoration?.labelText == 'Appointment ID',
       );
       await tester.ensureVisible(idField);
       await tester.enterText(idField, '');
       adapter.statusCode = 401;
-      await tester.ensureVisible(find.text('直接签到（调试）'));
+      await tester.ensureVisible(find.text('Direct check-in (debug)'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('直接签到（调试）'));
+      await tester.tap(find.text('Direct check-in (debug)'));
       await tester.pumpAndSettle();
       expect(find.byType(AlertDialog), findsNothing);
       final signIn = adapter.requests.singleWhere(
@@ -442,13 +443,14 @@ void main() {
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).first, '');
       final dateField = find.byWidgetPredicate(
-        (widget) => widget is TextField && widget.decoration?.labelText == '日期',
+        (widget) =>
+            widget is TextField && widget.decoration?.labelText == 'Date',
       );
       await tester.ensureVisible(dateField);
       await tester.enterText(dateField, 'bad-date');
-      await tester.ensureVisible(find.text('预约座位'));
+      await tester.ensureVisible(find.text('Reserve seat'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('预约座位'));
+      await tester.tap(find.text('Reserve seat'));
       await tester.pumpAndSettle();
       final reserve = adapter.requests.singleWhere(
         (r) => r.uri.path.endsWith('/addSpaceAppoint'),
