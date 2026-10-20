@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -13,6 +14,8 @@ class _SsoAdapter implements HttpClientAdapter {
   bool reject = false;
   bool expire = false;
   bool foreignRedirect = false;
+  Completer<void>? pause;
+  final paused = Completer<void>();
   final requests = <RequestOptions>[];
   final bodies = <RequestOptions, String>{};
   @override
@@ -28,6 +31,12 @@ class _SsoAdapter implements HttpClientAdapter {
       );
     }
     final path = options.uri.path;
+    if (pause != null &&
+        (path == '/oauth2.0/authorize' ||
+            options.uri.queryParameters.containsKey('service'))) {
+      if (!paused.isCompleted) paused.complete();
+      await pause!.future;
+    }
     ResponseBody response(
       String body, {
       int status = 200,
@@ -134,6 +143,25 @@ void main() {
     'password',
     onSmsRequired: (_, _, _) async => null,
   );
+  for (final campus in [true, false]) {
+    test(
+      'logout rejects an in-flight ${campus ? 'campus' : 'study'} authorization response',
+      () async {
+        await login();
+        adapter.pause = Completer<void>();
+        final request = campus
+            ? service.getCampusToken()
+            : service.getStudyToken();
+        final rejected = expectLater(request, throwsA(isA<SsoLoginRequired>()));
+        await adapter.paused.future;
+        await service.logout();
+        adapter.pause!.complete();
+        await rejected;
+        expect(await service.loadCampusToken(), isNull);
+        expect(await service.loadStudyToken(), isNull);
+      },
+    );
+  }
 
   test('AES ECB PKCS7 matches independently computed .NET ciphertext', () {
     expect(

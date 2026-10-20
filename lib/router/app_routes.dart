@@ -25,6 +25,7 @@ abstract final class AppRoutes {
   static const calendar = '/calendar';
   static const profile = '/profile';
   static const settings = '/settings';
+  static const accountManagement = '/account-management';
   static const homeSettings = '/settings/home';
   static const generalSettings = '/settings/general';
   static const advancedSettings = '/settings/advanced';
@@ -84,6 +85,10 @@ class EditorArgs {
 }
 
 extension NavigationX on BuildContext {
+  Future<T?> replaceAllNamed<T>(String routeName) => Navigator.of(
+    this,
+    rootNavigator: true,
+  ).pushNamedAndRemoveUntil<T>(routeName, (_) => false);
   Future<T?> pushNamed<T>(String routeName, {Object? arguments}) =>
       Navigator.of(this).pushNamed<T>(routeName, arguments: arguments);
 

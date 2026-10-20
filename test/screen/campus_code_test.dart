@@ -71,6 +71,20 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     service.dio.close(force: true);
   });
+  testWidgets('SSO session changes remove a mounted QR immediately', (
+    tester,
+  ) async {
+    final service = _Service();
+    await tester.pumpWidget(app(CampusCodePage(service: service)));
+    await tester.pumpAndSettle();
+    expect(find.byType(BarcodeWidget), findsOneWidget);
+    service.sso.sessionRevision.value++;
+    await tester.pumpAndSettle();
+    expect(find.byType(BarcodeWidget), findsNothing);
+    expect(find.widgetWithText(FilledButton, '统一身份认证登录'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    service.dio.close(force: true);
+  });
   testWidgets(
     'floating refresh keeps the current QR in place until replacement arrives',
     (tester) async {

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:html/parser.dart' as html;
 import 'package:pointycastle/export.dart';
@@ -37,6 +37,8 @@ class SsoService {
       'Mozilla/5.0 (iPad; CPU OS 18_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 appId/cn.edu.fzu.fdxypa appScheme/kysk-fdxy-app hengfeng/fdxyappzs appType/2 ruijie-facecamera';
   final Dio dio;
   final _cookies = CookieJar();
+  final sessionRevision = ValueNotifier(0);
+  int _sessionGeneration = 0;
   final _storage = const FlutterSecureStorage(
     mOptions: MacOsOptions(usesDataProtectionKeychain: false),
   );
@@ -62,11 +64,27 @@ class SsoService {
   Future<void> clearCampusToken() async =>
       _storage.delete(key: await _key('campus_token'));
 
+  Future<bool> hasSession() async {
+    final prefix = await _key('');
+    final values = await Future.wait([
+      for (final kind in ['cookie', 'study_token', 'campus_token'])
+        _storage.read(key: '$prefix$kind'),
+    ]);
+    return values.any((value) => value != null && value.isNotEmpty);
+  }
+
   Future<void> logout() async {
-    await clearCampusToken();
-    await _storage.delete(key: await _key('study_token'));
-    await _storage.delete(key: await _key('cookie'));
-    await _cookies.deleteAll();
+    _sessionGeneration++;
+    final prefix = await _key('');
+    try {
+      await Future.wait([
+        for (final kind in ['cookie', 'study_token', 'campus_token'])
+          _storage.delete(key: '$prefix$kind'),
+        _cookies.deleteAll(),
+      ]);
+    } finally {
+      sessionRevision.value++;
+    }
   }
 
   static String encrypt(String text, String base64Key) {
@@ -115,6 +133,7 @@ class SsoService {
     if (username.trim().isEmpty || password.isEmpty) {
       throw Exception('账号密码不能为空');
     }
+    _sessionGeneration++;
     await _cookies.deleteAll();
     final page = await dio.get<String>(loginUrl);
     final document = html.parse(page.data);
@@ -212,9 +231,11 @@ class SsoService {
     await clearStudyToken();
     await clearCampusToken();
     if (loadStudyToken) await getStudyToken();
+    sessionRevision.value++;
   }
 
   Future<String> getCampusToken() async {
+    final generation = _sessionGeneration;
     // Capture the account before the redirect chain so a late response cannot
     // write the old account's token into a newly selected account.
     final tokenKey = await _key('campus_token');
@@ -246,7 +267,8 @@ class SsoService {
           url.queryParameters['synjones-auth'] ??
           Uri.tryParse(url.fragment)?.queryParameters['synjones-auth'];
       if (url.host == 'xcx.fzu.edu.cn' && token != null && token.isNotEmpty) {
-        if (tokenKey != await _key('campus_token') ||
+        if (generation != _sessionGeneration ||
+            tokenKey != await _key('campus_token') ||
             cookie != await _storage.read(key: cookieKey)) {
           throw const SsoLoginRequired();
         }
@@ -268,7 +290,10 @@ class SsoService {
   }
 
   Future<String> getStudyToken() async {
-    final cookie = await _storage.read(key: await _key('cookie'));
+    final generation = _sessionGeneration;
+    final tokenKey = await _key('study_token');
+    final cookieKey = await _key('cookie');
+    final cookie = await _storage.read(key: cookieKey);
     if (cookie == null || cookie.isEmpty) throw const SsoLoginRequired();
     await _cookies.deleteAll();
     await _cookies.saveFromResponse(Uri.parse(loginUrl), [
@@ -285,7 +310,12 @@ class SsoService {
           url.queryParameters['token'] ??
           Uri.tryParse(url.fragment)?.queryParameters['token'];
       if (url.host == 'aiot.fzu.edu.cn' && token != null && token.isNotEmpty) {
-        await saveStudyToken(token);
+        if (generation != _sessionGeneration ||
+            tokenKey != await _key('study_token') ||
+            cookie != await _storage.read(key: cookieKey)) {
+          throw const SsoLoginRequired();
+        }
+        await _storage.write(key: tokenKey, value: token);
         return token;
       }
       // The published OAuth callback uses HTTP; prefer TLS for the same endpoint.

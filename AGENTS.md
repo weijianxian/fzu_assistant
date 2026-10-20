@@ -107,7 +107,8 @@ lib/
         learning_center_widgets.dart # 登录提示、操作确认及会话失效处理
     my/                  # 我的（首页 tab）
       my.dart            # 我的页面主页
-      profile_page.dart  # 个人资料（竖屏嵌入我的页面，横屏显示在右栏）
+      account_management_page.dart # 设置与关于之间的账号管理：教务处退出和统一 SSO 退出（含一码通、学习中心）
+      profile_page.dart  # 个人资料（竖屏嵌入我的页面，横屏显示在右栏）；加载或失败时仍保留我的页面底部入口
       about/             # 关于页
       calendar/          # 校历
     settings/            # 设置页（首页/一般/主题/高级设置入口）
@@ -124,6 +125,7 @@ lib/
       kv_tile.dart       # 通用键值对列表项组件（支持 onTap 编辑）
   service/               # 业务逻辑
     auth_storage.dart    # 凭据存储
+    account_service.dart # 当前教务/SSO 会话状态与退出清理；教务退出先清 SSO 再清凭据和账号缓存
     captcha_solver.dart  # 验证码识别
     update_service.dart  # 更新检查服务
     app_themes.dart      # 主题色列表 + buildTheme()
@@ -147,7 +149,7 @@ lib/
 - **每次项目结构或技术栈变更后，必须同步更新本 AGENTS.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
-- 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
+- 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；教务退出使用 `context.replaceAllNamed(AppRoutes.login)` 清空根导航栈，防止横屏嵌套导航或返回键回到已退出页面。路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
 - 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
 - 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取
 - 横屏/宽屏自动切换侧栏导航（NavigationRail），窄屏使用底部导航栏（BottomNavigationBar），通过 `context.isLandscape`（`common/utils/context_ext.dart`）判断方向
@@ -167,6 +169,7 @@ lib/
 - 学习中心开发者调试页直接通过 Dio 调用接口，允许空 token、空 ID 和任意日期时段，预约直接传入 spaceId，不先查座位，不弹操作确认框；展示 HTTP 状态和原始响应，不因业务错误自动清 token 或跳转。正常学习中心页面继续使用业务 Service 的校验和确认流程。
 - 开发者工具通过「我的」头像累计点击七次进入，无点击间隔限制，跳转后计数清零；横竖屏不显示独立开发者入口。
 - 每次做完一个功能，就 commit 一次，提交信息遵循下方规范。
+- 账号管理在“我的”的设置与关于之间，集中提供教务处和 SSO 两项退出；学习中心、一码通页面不另设登出按钮。SSO 退出一起清理统一认证 Cookie、一码通和学习中心 token，保留教务登录；教务退出先清当前账号 SSO 会话，再清教务凭据、Cookie 和账号缓存。SSO 会话变更通知已挂载业务页面清除内存中的二维码/会话，退出前已发出的授权响应不得重新写入 token。
 
 ## Commit message 规范
 

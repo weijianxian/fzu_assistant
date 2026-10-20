@@ -7,6 +7,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_router.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/my/my.dart';
+import 'package:fzu_assistant/screen/my/account_management_page.dart';
 import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/screen/toolbox/gpa/gpa_page.dart';
@@ -14,6 +15,7 @@ import 'package:fzu_assistant/screen/toolbox/marks/marks_page.dart';
 import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
 import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -64,6 +66,33 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
     await ApiClient.instance.clearSession();
   });
+  testWidgets(
+    'portrait account management remains accessible when profile loading fails',
+    (tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final settings = AppSettings();
+      addTearDown(settings.dispose);
+      final root = GlobalKey<NavigatorState>();
+      await tester.pumpWidget(_app(settings, const MyPage(), root));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(find.text('设置')).dy,
+        lessThan(tester.getTopLeft(find.text('账号管理')).dy),
+      );
+      expect(
+        tester.getTopLeft(find.text('账号管理')).dy,
+        lessThan(tester.getTopLeft(find.text('关于')).dy),
+      );
+      await tester.tap(find.text('账号管理'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AccountManagementPage), findsOneWidget);
+      expect(find.text('教务处'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('landscape toolbox switches tools inside the right pane', (
     tester,
@@ -122,6 +151,7 @@ void main() {
     final settings = AppSettings();
     addTearDown(settings.dispose);
     final root = GlobalKey<NavigatorState>();
+    await AuthStorage().saveCredentials('academic-a', 'password');
     await tester.pumpWidget(
       _app(
         settings,
@@ -136,12 +166,30 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ListTile, '退出登录'));
+    expect(
+      tester.getTopLeft(find.text('设置')).dy,
+      lessThan(tester.getTopLeft(find.text('账号管理')).dy),
+    );
+    expect(
+      tester.getTopLeft(find.text('账号管理')).dy,
+      lessThan(tester.getTopLeft(find.text('关于')).dy),
+    );
+    await tester.tap(find.widgetWithText(ListTile, '账号管理'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.widgetWithText(ListTile, '教务处'),
+        matching: find.byType(TextButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('确定'));
     await tester.pumpAndSettle();
 
     expect(find.text('Signed out'), findsOneWidget);
     expect(find.byType(MyPage), findsNothing);
     expect(find.byType(SplitNavigationPage), findsNothing);
+    expect(root.currentState!.canPop(), isFalse);
     expect(tester.takeException(), isNull);
   });
 

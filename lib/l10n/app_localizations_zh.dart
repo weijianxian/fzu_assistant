@@ -10,6 +10,25 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get accountManagement => '账号管理';
+
+  @override
+  String get accountAcademic => '教务处';
+
+  @override
+  String get accountSso => '统一身份认证（SSO）';
+
+  @override
+  String get accountSignedOut => '未登录';
+
+  @override
+  String get accountSsoDescription => '管理统一认证、一码通和学习中心的登录状态';
+
+  @override
+  String get accountAcademicLogoutDescription =>
+      '退出教务处，并清除当前账号的统一认证、一码通和学习中心登录状态。';
+
+  @override
   String get campusSwipeHint => '上下滑动切换消费码和入馆码';
 
   @override

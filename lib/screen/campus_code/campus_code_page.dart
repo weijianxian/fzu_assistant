@@ -41,6 +41,20 @@ class CampusCodePage extends HookWidget {
         (ModalRoute.of(context)?.isCurrent ?? true) &&
         (lifecycle == null || lifecycle == AppLifecycleState.resumed);
     final activeRef = useRef(active)..value = active;
+    useEffect(() {
+      void invalidateSession() {
+        generation.value++;
+        busy.value = false;
+        payCode.value = null;
+        user.value = null;
+        needsLogin.value = true;
+        loading.value = false;
+        refreshing.value = false;
+      }
+
+      api.sso.sessionRevision.addListener(invalidateSession);
+      return () => api.sso.sessionRevision.removeListener(invalidateSession);
+    }, [api.sso]);
 
     Future<void> refresh() async {
       if (busy.value || !activeRef.value) return;
@@ -134,49 +148,7 @@ class CampusCodePage extends HookWidget {
     return TickerMode(
       enabled: active,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.campusCode),
-          actions: [
-            if (user.value != null)
-              IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: l10n.ssoLogout,
-                onPressed: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (dialogContext) => AlertDialog(
-                      title: Text(l10n.ssoLogout),
-                      content: Text(l10n.ssoLogoutDescription),
-                      actions: [
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.of(dialogContext).pop(false),
-                          child: Text(l10n.learningCancel),
-                        ),
-                        FilledButton(
-                          onPressed: () =>
-                              Navigator.of(dialogContext).pop(true),
-                          child: Text(l10n.learningConfirm),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (confirmed != true || !context.mounted) return;
-                  try {
-                    await api.sso.logout();
-                    if (!context.mounted) return;
-                    generation.value++;
-                    busy.value = false;
-                    user.value = null;
-                    payCode.value = null;
-                    await refresh();
-                  } catch (e) {
-                    if (context.mounted) error.value = e.toString();
-                  }
-                },
-              ),
-          ],
-        ),
+        appBar: AppBar(title: Text(l10n.campusCode)),
         floatingActionButton:
             needsLogin.value || (loading.value && user.value == null)
             ? null

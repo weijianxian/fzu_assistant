@@ -1,4 +1,11 @@
 {
+  "accountManagement": "Accounts",
+  "accountAcademic": "Academic affairs",
+  "accountSso": "Single sign-on (SSO)",
+  "accountSignedOut": "Signed out",
+  "accountSsoDescription": "Manage SSO, campus codes and learning center sessions",
+  "accountAcademicLogoutDescription": "Sign out of academic affairs and clear this account's SSO, campus code and learning center sessions.",
+
   "campusSwipeHint": "Swipe up or down to switch codes",
   "campusCode": "Campus code",
   "campusPayCode": "Payment",

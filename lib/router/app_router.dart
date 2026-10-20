@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
+import 'package:fzu_assistant/screen/my/account_management_page.dart';
 import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/screen/dev/dev_tool.dart';
 import 'package:fzu_assistant/screen/dev/learning_center_debug_page.dart';
@@ -57,6 +58,7 @@ abstract final class AppRouter {
     AppRoutes.calendar: (_) => const CalendarPage(),
     AppRoutes.profile: (_) => const ProfilePage(),
     AppRoutes.settings: (_) => const SettingsPage(),
+    AppRoutes.accountManagement: (_) => const AccountManagementPage(),
     AppRoutes.homeSettings: (_) => const HomeSettingsPage(),
     AppRoutes.generalSettings: (_) => const GeneralSettingsPage(),
     AppRoutes.advancedSettings: (_) => const AdvancedSettingsPage(),

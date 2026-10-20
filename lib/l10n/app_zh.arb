@@ -1,4 +1,11 @@
 {
+  "accountManagement": "账号管理",
+  "accountAcademic": "教务处",
+  "accountSso": "统一身份认证（SSO）",
+  "accountSignedOut": "未登录",
+  "accountSsoDescription": "管理统一认证、一码通和学习中心的登录状态",
+  "accountAcademicLogoutDescription": "退出教务处，并清除当前账号的统一认证、一码通和学习中心登录状态。",
+
   "campusSwipeHint": "上下滑动切换消费码和入馆码",
   "campusCode": "一码通",
   "campusPayCode": "消费码",

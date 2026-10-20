@@ -59,7 +59,17 @@ class ProfilePage extends HookWidget {
           )
         : _buildContent(context, info.value!, username.value, handleAvatarTap);
 
-    if (!showAppBar) return body;
+    if (!showAppBar) {
+      if (footer != null && (loading.value || error.value != null)) {
+        return ListView(
+          children: [
+            SizedBox(height: 200, child: body),
+            footer!,
+          ],
+        );
+      }
+      return body;
+    }
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.profileInfo)),
       body: body,

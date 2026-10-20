@@ -21,37 +21,19 @@ class LearningCenterPage extends HookWidget {
         return null;
       }
     });
+    final refreshSession = useRef(session.refresh)..value = session.refresh;
+    useEffect(() {
+      void refresh() => refreshSession.value();
+      SsoService.instance.sessionRevision.addListener(refresh);
+      return () => SsoService.instance.sessionRevision.removeListener(refresh);
+    }, const []);
     Future<void> login() async {
       await context.pushNamed(AppRoutes.ssoLogin);
       if (context.mounted) await session.refresh();
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.learningCenter),
-        actions: [
-          if (session.data != null)
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: l10n.ssoLogout,
-              onPressed: () async {
-                if (!await confirmLearningAction(
-                  context,
-                  l10n.ssoLogout,
-                  l10n.ssoLogoutDescription,
-                )) {
-                  return;
-                }
-                try {
-                  await SsoService.instance.logout();
-                  if (context.mounted) await session.refresh();
-                } catch (e) {
-                  if (context.mounted) await showLearningError(context, e);
-                }
-              },
-            ),
-        ],
-      ),
+      appBar: AppBar(title: Text(l10n.learningCenter)),
       body: ToolPageWrapper(
         loading: session.loading,
         error: session.error,

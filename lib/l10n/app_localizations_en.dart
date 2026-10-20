@@ -10,6 +10,26 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get accountManagement => 'Accounts';
+
+  @override
+  String get accountAcademic => 'Academic affairs';
+
+  @override
+  String get accountSso => 'Single sign-on (SSO)';
+
+  @override
+  String get accountSignedOut => 'Signed out';
+
+  @override
+  String get accountSsoDescription =>
+      'Manage SSO, campus codes and learning center sessions';
+
+  @override
+  String get accountAcademicLogoutDescription =>
+      'Sign out of academic affairs and clear this account\'s SSO, campus code and learning center sessions.';
+
+  @override
   String get campusSwipeHint => 'Swipe up or down to switch codes';
 
   @override

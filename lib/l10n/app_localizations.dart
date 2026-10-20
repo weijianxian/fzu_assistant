@@ -98,6 +98,42 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @accountManagement.
+  ///
+  /// In zh, this message translates to:
+  /// **'账号管理'**
+  String get accountManagement;
+
+  /// No description provided for @accountAcademic.
+  ///
+  /// In zh, this message translates to:
+  /// **'教务处'**
+  String get accountAcademic;
+
+  /// No description provided for @accountSso.
+  ///
+  /// In zh, this message translates to:
+  /// **'统一身份认证（SSO）'**
+  String get accountSso;
+
+  /// No description provided for @accountSignedOut.
+  ///
+  /// In zh, this message translates to:
+  /// **'未登录'**
+  String get accountSignedOut;
+
+  /// No description provided for @accountSsoDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'管理统一认证、一码通和学习中心的登录状态'**
+  String get accountSsoDescription;
+
+  /// No description provided for @accountAcademicLogoutDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'退出教务处，并清除当前账号的统一认证、一码通和学习中心登录状态。'**
+  String get accountAcademicLogoutDescription;
+
   /// No description provided for @campusSwipeHint.
   ///
   /// In zh, this message translates to:
