@@ -505,30 +505,7 @@ class ScheduleGrid extends HookWidget {
                 displayName ?? course.name,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              trailing: canHide
-                  ? PopupMenuButton<bool>(
-                      onSelected: (_) => Navigator.of(sheetContext).pop(true),
-                      itemBuilder: (_) => [
-                        PopupMenuItem(
-                          value: true,
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.visibility_off_outlined),
-                            title: Text(l10n.skipCourseSession),
-                          ),
-                        ),
-                      ],
-                    )
-                  : null,
             ),
-            if (canHide)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  l10n.skipCourseSessionDescription,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
             if (course.teacher.isNotEmpty)
               ListTile(
                 leading: const Icon(Icons.person),
@@ -591,6 +568,14 @@ class ScheduleGrid extends HookWidget {
                   arguments: WebViewArgs(url: course.lessonplan),
                 ),
               ),
+            if (canHide) ...[
+              ListTile(
+                leading: const Icon(Icons.visibility_off_outlined),
+                title: Text(l10n.skipCourseSession),
+                subtitle: Text(l10n.skipCourseSessionDescription),
+                onTap: () => Navigator.of(sheetContext).pop(true),
+              ),
+            ],
           ],
         ),
       ),

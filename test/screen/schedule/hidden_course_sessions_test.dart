@@ -156,7 +156,7 @@ void main() {
   });
 
   for (final size in [const Size(420, 900), const Size(1200, 800)]) {
-    testWidgets('课程菜单隐藏并从设置恢复 $size', (tester) async {
+    testWidgets('课程详情底部隐藏并从设置恢复 $size', (tester) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -208,7 +208,7 @@ void main() {
       expect(find.text(_course.name), findsNWidgets(2));
       await tester.tap(find.text(_course.name).first);
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(PopupMenuButton<bool>));
+      await tester.ensureVisible(find.text('我不想上'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('我不想上'));
       await tester.pumpAndSettle();

@@ -154,7 +154,7 @@ lib/
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串；开发者工具（`lib/screen/dev/`）文案直接定义，不使用国际化。
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化；普通查询页复用 common/hooks/use_async_data.dart，保留刷新期间的旧数据，特殊分页/条件查询独立管理状态
-- 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情扩展菜单提供“我不想上”，CourseSessions 统一过滤周课表及天视图，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
+- 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情列表底部提供“我不想上”，说明文字作为按钮的 subtitle，CourseSessions 统一过滤周课表及天视图，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
 - 学习中心协议参考 `.reference/fzuhelper-app/lib/sso-login.ts` 和 `utils/learning-center/api-service.ts`。SSO Cookie 与学习中心 token 存在 SecureStorage，按教务账号隔离，教务登出时清理；SSO 密码不保存。SSO Cookie 仅发送给其所属域名，学习中心变更请求不自动重试。正常签到须校验现场一分钟有效二维码，直接签到仅在开发者调试页提供。
 - 学习中心日期和无时区的服务端时间统一按北京时间（Asia/Shanghai，UTC+8）解释，不受设备时区影响；日期卡片、22 点后默认次日、过去时段禁用、未来七天范围、预约状态及现场二维码校验使用同一时间约定。时间选择参考 fzuhelper-app 的日期卡片与四列时间格，端点深色、区间浅色，最长 4 小时。
 - 学习中心开发者调试页直接通过 Dio 调用接口，允许空 token、空 ID 和任意日期时段，预约直接传入 spaceId，不先查座位，不弹操作确认框；展示 HTTP 状态和原始响应，不因业务错误自动清 token 或跳转。正常学习中心页面继续使用业务 Service 的校验和确认流程。
