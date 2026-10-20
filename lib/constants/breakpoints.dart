@@ -7,6 +7,9 @@ const kScheduleDateColumnWidth = 88.0;
 const kDevButtonGroupWideWidth = 600.0;
 const kDevButtonGroupMaxWidth = 640.0;
 
+/// 更新日志下载表：保留可读列宽，窄屏横向滚动。
+const kUpdateTableColumnWidth = 160.0;
+
 /// 学习中心分区座位网格。
 const kLearningSeatMaxWidth = 100.0;
 const kLearningSeatHeight = 40.0;

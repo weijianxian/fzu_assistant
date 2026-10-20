@@ -297,7 +297,7 @@ iscc /DMyAppVersion=1.3.1 /DMyAppArch=x64 `
 
 ### 应用内自动更新（Windows）
 
-`UpdateService.installWindowsUpdate()` 下载 release 里的 `*-setup.exe` 后静默执行：
+`UpdateService.installWindowsUpdate()` 在安装版中下载 release 的安装器后静默执行：
 
 ```dart
 Process.start(installerPath, ['/SILENT', '/SUPPRESSMSGBOXES',
@@ -314,8 +314,7 @@ Process.start(installerPath, ['/SILENT', '/SUPPRESSMSGBOXES',
   普通关窗不可靠；且进程必须尽快释放 `fzu_assistant.exe` / 插件 DLL 的锁，
   Inno 的 `CloseApplications` 才能改写它们。
 - 「已安装」判据 = exe 同目录存在 `unins000.exe`（Inno 自动写入 `{app}`）。
-  **便携版不自我更新**：`{app}` 指向安装目录，跑安装器会悄悄多装一份而不是更新当前这份，
-  因此便携版回退到「打开下载页」并提示。
+  便携版及调试版也在应用内下载安装器，但仅传 `/NORESTART` 打开交互安装向导；不强制退出当前应用，安装器在用户确认安装后按既有流程关闭旧进程。此操作安装到用户选择的目录，不覆盖便携目录。
 - 资产筛选 `UpdateUtils.pickWindowsInstaller()` 只认带 `setup`/`installer` token 的 `.exe`：
   便携 zip 与安装器资产名只差扩展名，裸 `.exe` 兜底会误伤其他附件。
 
@@ -345,8 +344,7 @@ version: 1.1.5+46
 2. 打开应用 →「我的 → 关于 → 检查更新」：应显示新版本，点「下载并安装」后
    应用**自动退出 → 静默安装 → 自动重启**，版本号已更新。
 3. 便携版（`fzu_assistant-windows-*.zip`）解压运行 → 检查更新：
-   按钮应为「前往下载」，点后提示「当前为便携版，无法自动更新」并打开下载页，
-   **不得**在 `%LOCALAPPDATA%\Programs` 里多出一份安装。
+   按钮应为「下载并安装」，在应用内显示下载进度，然后打开安装向导；取消向导时当前应用仍可使用，确认后由安装器关闭旧进程并安装到所选目录。
 4. 设置 →「应用和功能」卸载：目录、注册表 Run 值、开始菜单项全部清干净。
 
 失败时 Inno 会在 `%TEMP%\Setup Log*.txt` 留日志；静默参数与 `setup.iss` 的配对关系见上一节。

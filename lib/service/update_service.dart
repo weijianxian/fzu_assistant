@@ -18,13 +18,8 @@ enum InstallApkResult { started, permissionRequired, failed }
 
 /// Outcome of handing a downloaded Windows installer over to the setup process.
 enum InstallWindowsResult {
-  /// The Inno Setup process was launched; the caller must let the app exit.
+  /// The Inno Setup process was launched.
   started,
-
-  /// This build is not an installed copy (portable zip / run from build
-  /// output): setup.iss resolves `{app}` to the install directory, so running
-  /// it would silently install a second copy instead of updating this one.
-  notInstalled,
 
   failed,
 }
@@ -140,8 +135,9 @@ class UpdateService {
     }
   }
 
-  /// Runs the downloaded installer silently and exits so it can replace the
-  /// running executable.
+  /// Installed copies update silently and exit to release their file locks.
+  /// Portable/debug copies open the interactive installer instead. Setup closes
+  /// the running app only when the user proceeds with installation.
   ///
   /// `closeWindow` in `windows/runner/flutter_window.cpp` makes a plain window
   /// close asynchronous, so the process is terminated explicitly instead.
@@ -151,20 +147,20 @@ class UpdateService {
   ) async {
     if (!Platform.isWindows) return InstallWindowsResult.failed;
 
-    if (!await isInstalledOnWindows()) {
-      return InstallWindowsResult.notInstalled;
-    }
+    final installed = await isInstalledOnWindows();
 
     try {
       await Process.start(
         installerPath,
-        const [
-          '/SILENT',
-          '/SUPPRESSMSGBOXES',
-          '/CLOSEAPPLICATIONS',
-          '/RESTARTAPPLICATIONS',
-          '/NORESTART',
-        ],
+        installed
+            ? const [
+                '/SILENT',
+                '/SUPPRESSMSGBOXES',
+                '/CLOSEAPPLICATIONS',
+                '/RESTARTAPPLICATIONS',
+                '/NORESTART',
+              ]
+            : const ['/NORESTART'],
         mode: ProcessStartMode.detached,
         runInShell: false,
       );
@@ -175,9 +171,11 @@ class UpdateService {
     // Give setup time to take its own locks, then terminate so it can overwrite
     // fzu_assistant.exe and the plugin DLLs. Not awaited: the caller stays
     // responsive until the process actually goes away.
-    unawaited(
-      Future<void>.delayed(const Duration(milliseconds: 800), () => exit(0)),
-    );
+    if (installed) {
+      unawaited(
+        Future<void>.delayed(const Duration(milliseconds: 800), () => exit(0)),
+      );
+    }
     return InstallWindowsResult.started;
   }
 
