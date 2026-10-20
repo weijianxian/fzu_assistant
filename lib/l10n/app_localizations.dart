@@ -1736,30 +1736,6 @@ abstract class AppLocalizations {
   /// **'未知状态'**
   String get learningUnknown;
 
-  /// No description provided for @learningDateLabel.
-  ///
-  /// In zh, this message translates to:
-  /// **'日期'**
-  String get learningDateLabel;
-
-  /// No description provided for @learningPeriod.
-  ///
-  /// In zh, this message translates to:
-  /// **'时段'**
-  String get learningPeriod;
-
-  /// No description provided for @learningStatus.
-  ///
-  /// In zh, this message translates to:
-  /// **'状态'**
-  String get learningStatus;
-
-  /// No description provided for @learningAppointmentId.
-  ///
-  /// In zh, this message translates to:
-  /// **'预约 ID'**
-  String get learningAppointmentId;
-
   /// No description provided for @learningAppointmentTitle.
   ///
   /// In zh, this message translates to:

@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/student_info.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/user_service.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 
@@ -20,14 +21,18 @@ class ProfilePage extends HookWidget {
     final error = useState<String?>(null);
     final auth = useMemoized(() => AuthStorage());
     final userService = useMemoized(() => UserService());
-    final avatarTapCount = useRef(0);
-
     void handleAvatarTap() {
-      avatarTapCount.value++;
-      if (avatarTapCount.value == 7) {
-        avatarTapCount.value = 0;
-        context.pushNamed(AppRoutes.dev);
-      }
+      final id = ApiClient.instance.userId;
+      if (id == null) return;
+      context.pushNamed(
+        AppRoutes.webview,
+        arguments: WebViewArgs(
+          url:
+              'https://jwcjwxt2.fzu.edu.cn:81/jcxx/xsxx/StudentInformation.aspx?id=$id',
+          title: AppLocalizations.of(context)!.profileInfo,
+          injectCookies: true,
+        ),
+      );
     }
 
     useEffect(() {

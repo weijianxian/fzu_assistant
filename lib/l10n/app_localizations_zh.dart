@@ -877,18 +877,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get learningUnknown => '未知状态';
 
   @override
-  String get learningDateLabel => '日期';
-
-  @override
-  String get learningPeriod => '时段';
-
-  @override
-  String get learningStatus => '状态';
-
-  @override
-  String get learningAppointmentId => '预约 ID';
-
-  @override
   String learningAppointmentTitle(String floor, String seat) {
     return '$floor 层 $seat';
   }

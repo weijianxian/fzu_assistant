@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/update_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,6 +20,7 @@ class _AboutPageState extends State<AboutPage> {
   String _buildNumber = '';
   List<_Contributor> _contributors = [];
   bool _isChecking = false;
+  int _iconTapCount = 0;
 
   final _updateService = UpdateService();
 
@@ -118,13 +120,22 @@ class _AboutPageState extends State<AboutPage> {
         children: [
           const SizedBox(height: 32),
           Center(
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              child: Icon(
-                Icons.school,
-                size: 40,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+            child: GestureDetector(
+              onTap: () {
+                _iconTapCount++;
+                if (_iconTapCount == 7) {
+                  _iconTapCount = 0;
+                  context.pushNamed(AppRoutes.dev);
+                }
+              },
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                child: Icon(
+                  Icons.school,
+                  size: 40,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
               ),
             ),
           ),

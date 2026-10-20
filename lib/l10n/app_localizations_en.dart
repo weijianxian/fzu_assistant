@@ -900,18 +900,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learningUnknown => 'Unknown';
 
   @override
-  String get learningDateLabel => 'Date';
-
-  @override
-  String get learningPeriod => 'Time';
-
-  @override
-  String get learningStatus => 'Status';
-
-  @override
-  String get learningAppointmentId => 'Reservation ID';
-
-  @override
   String learningAppointmentTitle(String floor, String seat) {
     return 'Floor $floor · $seat';
   }
