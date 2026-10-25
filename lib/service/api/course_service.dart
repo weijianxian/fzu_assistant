@@ -220,7 +220,7 @@ class CourseService {
     bool west2AdjustmentsEnabled = false,
   }) async {
     // 先尝试缓存
-    if (useCache) {
+    if (useCache || ApiClient.instance.usingCachedSession.value) {
       final cached = await _loadCourseCache(term);
       if (cached != null) {
         final courses = (cached['courses'] as List)
@@ -230,6 +230,9 @@ class CourseService {
             ? _withHolidayAdjustments(term, courses, useCache)
             : courses;
       }
+    }
+    if (ApiClient.instance.usingCachedSession.value) {
+      throw Exception('当前为缓存模式，该学期暂无课表缓存');
     }
 
     // 获取表单状态（并缓存供页面使用）

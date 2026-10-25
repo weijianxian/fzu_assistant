@@ -98,6 +98,12 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @academicCachedSession.
+  ///
+  /// In zh, this message translates to:
+  /// **'教务处登录失败，正在展示历史缓存，数据可能不是最新的。可重试连接。'**
+  String get academicCachedSession;
+
   /// No description provided for @accountManagement.
   ///
   /// In zh, this message translates to:

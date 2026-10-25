@@ -122,6 +122,24 @@ void main() {
     addTearDown(() => ApiClient.instance.dio.interceptors.remove(offline));
   });
 
+  testWidgets('缓存模式提示可见且缺少考场缓存仍展示课表', (tester) async {
+    _viewport(tester, const Size(400, 800));
+    final settings = AppSettings();
+    addTearDown(settings.dispose);
+    await tester.runAsync(() async {
+      await _cacheSchedule();
+      await CacheHelper.removeAll([SpKeys.cacheExamRoomsMap]);
+    });
+    ApiClient.instance.usingCachedSession.value = true;
+    addTearDown(() => ApiClient.instance.usingCachedSession.value = false);
+    await tester.pumpWidget(_app(settings, child: const HomeScreen()));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('正在展示历史缓存'), findsOneWidget);
+    expect(find.text('重试'), findsOneWidget);
+    expect(find.textContaining('数学'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final size in [const Size(400, 800), const Size(1200, 800)]) {
     testWidgets('campus code is a main navigation tab at $size', (
       tester,

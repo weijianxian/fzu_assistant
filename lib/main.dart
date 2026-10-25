@@ -126,7 +126,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _autoLogin() async {
-    final ok = await ApiClient.instance.relogin();
+    final api = ApiClient.instance;
+    final ok = await api.relogin() || await api.restoreCachedSession();
     if (!mounted) return;
     context.pushReplacementNamed(ok ? AppRoutes.home : AppRoutes.login);
   }

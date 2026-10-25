@@ -55,11 +55,6 @@ class SchedulePage extends HookWidget {
           settings.termsKey.value = service.cachedTerms;
         }
 
-        // 从缓存加载考试数据
-        final exams = await academic.getExamRooms(term, useCache: useCache);
-        if (!isLatest()) return null;
-        examRooms.value = exams;
-
         final fm = await service.getFirstMondayForTerm(term);
         if (!isLatest()) return null;
         firstMonday.value = fm;
@@ -68,6 +63,11 @@ class SchedulePage extends HookWidget {
           week = CourseService.getWeekFromFirstMonday(fm);
           currentWeek.value = week;
         }
+
+        // 考场缓存缺失时仍保留课表日期和当前周次。
+        final exams = await academic.getExamRooms(term, useCache: useCache);
+        if (!isLatest()) return null;
+        examRooms.value = exams;
       } catch (e) {
         if (!isLatest()) return null;
         if (courses.value.isEmpty) error.value = e.toString();

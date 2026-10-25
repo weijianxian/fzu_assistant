@@ -8,6 +8,7 @@ import 'package:fzu_assistant/screen/schedule/schedule.dart';
 import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
 import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 
 class HomeScreen extends HookWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,9 @@ class HomeScreen extends HookWidget {
     final refreshTimelineTrigger = useState(0);
     final l10n = AppLocalizations.of(context)!;
     final settings = AppSettingsProvider.of(context);
+    final api = ApiClient.instance;
+    final cachedSession = useValueListenable(api.usingCachedSession);
+    final reconnecting = useState(false);
 
     return ValueListenableBuilder<String>(
       valueListenable: settings.homeStyleKey,
@@ -77,7 +81,46 @@ class HomeScreen extends HookWidget {
                   ],
                 ),
               Expanded(
-                child: IndexedStack(index: currentPage.value, children: pages),
+                child: Column(
+                  children: [
+                    if (cachedSession)
+                      SafeArea(
+                        bottom: false,
+                        child: MaterialBanner(
+                          content: Text(l10n.academicCachedSession),
+                          actions: [
+                            TextButton(
+                              onPressed: reconnecting.value
+                                  ? null
+                                  : () async {
+                                      reconnecting.value = true;
+                                      final ok = await api.refreshSession();
+                                      if (!context.mounted) return;
+                                      reconnecting.value = false;
+                                      if (!ok) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  l10n.academicCachedSession,
+                                                ),
+                                              ),
+                                            );
+                                      }
+                                    },
+                              child: Text(l10n.retry),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Expanded(
+                      child: IndexedStack(
+                        index: currentPage.value,
+                        children: pages,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

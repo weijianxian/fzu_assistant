@@ -73,6 +73,12 @@ class LoginPage extends HookWidget {
       } catch (e) {
         if (!context.mounted) return;
         errorMessage.value = e.toString().replaceFirst('Exception: ', '');
+        if (await ApiClient.instance.restoreCachedSession(username: username)) {
+          if (!context.mounted) return;
+          context.pushReplacementNamed(AppRoutes.home);
+          return;
+        }
+        if (!context.mounted) return;
         await refreshCaptcha();
       } finally {
         if (context.mounted) isLoading.value = false;

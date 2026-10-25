@@ -10,6 +10,9 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get academicCachedSession => '教务处登录失败，正在展示历史缓存，数据可能不是最新的。可重试连接。';
+
+  @override
   String get accountManagement => '账号管理';
 
   @override

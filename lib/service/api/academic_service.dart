@@ -205,6 +205,15 @@ class AcademicService {
     String preferredTerm, {
     bool useCache = true,
   }) async {
+    if (ApiClient.instance.usingCachedSession.value) {
+      final map = await CacheHelper.loadMap(SpKeys.cacheExamRoomsMap);
+      final target = preferredTerm.isNotEmpty
+          ? preferredTerm
+          : (map.keys.toList()..sort()).lastOrNull ?? '';
+      final cached = await _loadCachedExamRooms(target);
+      if (cached != null) return (target, cached);
+      throw Exception('当前为缓存模式，该学期暂无考场缓存');
+    }
     final termInfo = await _fetchExamTermInfo();
     final targetTerm =
         preferredTerm.isNotEmpty && termInfo.terms.contains(preferredTerm)
@@ -248,9 +257,12 @@ class AcademicService {
     if (term.isEmpty) return [];
 
     // 先尝试缓存
-    if (useCache) {
+    if (useCache || ApiClient.instance.usingCachedSession.value) {
       final cached = await _loadCachedExamRooms(term);
       if (cached != null) return cached;
+    }
+    if (ApiClient.instance.usingCachedSession.value) {
+      throw Exception('当前为缓存模式，该学期暂无考场缓存');
     }
 
     final termInfo = await _fetchExamTermInfo();
@@ -366,9 +378,12 @@ class AcademicService {
 
   /// 从缓存加载校历，缓存未命中时走网络并写入缓存。
   Future<SchoolCalendar> loadOrFetchCalendar({bool useCache = true}) async {
-    if (useCache) {
+    if (useCache || ApiClient.instance.usingCachedSession.value) {
       final map = await CacheHelper.loadMap(SpKeys.cacheSchoolCalendar);
       if (map.isNotEmpty) return SchoolCalendar.fromJson(map);
+    }
+    if (ApiClient.instance.usingCachedSession.value) {
+      throw Exception('当前为缓存模式，暂无校历缓存');
     }
     final cal = await getSchoolCalendar();
     await CacheHelper.saveMap(SpKeys.cacheSchoolCalendar, cal.toJson());
@@ -439,7 +454,7 @@ class AcademicService {
     String termId, {
     bool useCache = true,
   }) async {
-    if (useCache) {
+    if (useCache || ApiClient.instance.usingCachedSession.value) {
       final cached = await CacheHelper.loadForKey<CalTermEvents>(
         SpKeys.cacheTermEventsMap,
         termId,
@@ -447,6 +462,9 @@ class AcademicService {
             CalTermEvents.fromJson(Map<String, dynamic>.from(json as Map)),
       );
       if (cached != null) return cached;
+    }
+    if (ApiClient.instance.usingCachedSession.value) {
+      throw Exception('当前为缓存模式，暂无校历事件缓存');
     }
 
     final result = await getTermEvents(termId);

@@ -10,6 +10,10 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get academicCachedSession =>
+      'Academic login failed. Showing cached data, which may be out of date. Retry to reconnect.';
+
+  @override
   String get accountManagement => 'Accounts';
 
   @override

@@ -243,6 +243,7 @@ class ScheduleGrid extends HookWidget {
             weekday,
             style: TextStyle(
               fontSize: isWindows ? 13 : 12,
+              height: 1.2,
               fontWeight: isWindows ? FontWeight.w600 : FontWeight.bold,
               color: isToday ? scheme.onPrimaryContainer : null,
             ),
@@ -251,6 +252,7 @@ class ScheduleGrid extends HookWidget {
             '${date.month}/${date.day}',
             style: TextStyle(
               fontSize: isWindows ? 11 : 10,
+              height: 1.2,
               color: isToday ? scheme.onPrimaryContainer : Colors.grey,
             ),
           ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthStorage {
@@ -9,6 +11,24 @@ class AuthStorage {
 
   static const _keyUsername = 'fzu_username';
   static const _keyPassword = 'fzu_password';
+  static const _keyAcademicSession = 'fzu_academic_session';
+
+  Future<void> saveAcademicSession(Map<String, dynamic> session) =>
+      _storage.write(key: _keyAcademicSession, value: jsonEncode(session));
+
+  Future<Map<String, dynamic>?> loadAcademicSession() async {
+    try {
+      final raw = await _storage.read(key: _keyAcademicSession);
+      return raw == null ? null : Map<String, dynamic>.from(jsonDecode(raw));
+    } on FormatException {
+      return null;
+    } on TypeError {
+      return null;
+    }
+  }
+
+  Future<void> clearAcademicSession() =>
+      _storage.delete(key: _keyAcademicSession);
 
   Future<void> saveCredentials(String username, String password) async {
     await _storage.write(key: _keyUsername, value: username);

@@ -6,6 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/academic_service.dart';
+import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/service/api/course_service.dart';
+import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 模拟教务处"会话已失效"的响应：410 + nologin 页面。
@@ -61,6 +64,7 @@ class _RedirectOnlyAdapter implements HttpClientAdapter {
       302,
       headers: {
         'location': [location],
+        'set-cookie': ['ASP.NET_SessionId=history; Path=/; HttpOnly'],
       },
     );
 
@@ -144,9 +148,18 @@ class _EvaluationAdapter extends _RedirectOnlyAdapter {
 }
 
 void _mockStoredCredentials() {
+  final values = <String, String>{
+    'fzu_username': 'mocked',
+    'fzu_password': 'mocked',
+  };
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(_secureStorageChannel, (call) async {
-        if (call.method == 'read') return 'mocked';
+        final key = call.arguments['key'] as String?;
+        if (call.method == 'read') return values[key];
+        if (call.method == 'write') {
+          values[key!] = call.arguments['value'] as String;
+        }
+        if (call.method == 'delete') values.remove(key);
         return null;
       });
 }
@@ -187,6 +200,65 @@ void main() {
       ApiClient.instance.dio.httpClientAdapter = originalAdapter;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(_secureStorageChannel, null);
+    });
+
+    Future<void> saveHistoricalSession() async {
+      ApiClient.instance.dio.httpClientAdapter = _RedirectOnlyAdapter();
+      await ApiClient.instance.login('20210001', 'secret', '12');
+      await AuthStorage().saveCredentials('20210001', 'secret');
+      ApiClient.instance.dio.httpClientAdapter = adapter;
+      await ApiClient.instance.expireCookiesForDebug();
+    }
+
+    test('登录失败可恢复同账号历史会话，强制刷新仍读取缓存', () async {
+      final api = ApiClient.instance;
+      await saveHistoricalSession();
+      expect(await api.relogin(), isFalse);
+      expect(await api.restoreCachedSession(), isTrue);
+      expect(api.usingCachedSession.value, isTrue);
+      expect(api.studentId, '20210001');
+      expect(api.userId, isNull);
+      final calls = adapter.calls;
+      SharedPreferences.setMockInitialValues({
+        SpKeys.cacheCoursesMap: '{"202601":{"courses":[]}}',
+        SpKeys.cacheExamRoomsMap: '{"202601":[]}',
+      });
+      expect(
+        await CourseService().getCourses('202601', useCache: false),
+        isEmpty,
+      );
+      expect(
+        await AcademicService().getExamRooms('202601', useCache: false),
+        isEmpty,
+      );
+      final (term, rooms) = await AcademicService()
+          .getExamRoomsForPreferredTerm('202601');
+      expect(term, '202601');
+      expect(rooms, isEmpty);
+      expect(adapter.calls, calls);
+      expect(await api.refreshSession(), isFalse);
+      expect(api.studentId, '20210001');
+    });
+
+    test('历史会话不允许换号恢复，登出后不能再恢复', () async {
+      final api = ApiClient.instance;
+      await saveHistoricalSession();
+      expect(await api.restoreCachedSession(username: '20210002'), isFalse);
+      await AuthStorage().saveCredentials('20210002', 'other');
+      expect(await api.restoreCachedSession(), isFalse);
+      await AuthStorage().saveCredentials('20210001', 'secret');
+      await api.clearSession();
+      expect(await api.restoreCachedSession(), isFalse);
+    });
+
+    test('重试登录成功退出缓存模式', () async {
+      final api = ApiClient.instance;
+      await saveHistoricalSession();
+      expect(await api.restoreCachedSession(), isTrue);
+      api.dio.httpClientAdapter = _RedirectOnlyAdapter();
+      await api.login('20210001', 'secret', '12');
+      expect(api.usingCachedSession.value, isFalse);
+      expect(api.userId, 'IDENTIFIER');
     });
 
     test('登录取证请求不受会话过期逻辑拦截，原响应直接返回', () async {

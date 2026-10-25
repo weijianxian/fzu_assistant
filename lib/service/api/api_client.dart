@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
@@ -48,6 +48,7 @@ class ApiClient {
   Completer<bool>? _reloginCompleter;
   String? _userId;
   String? _studentId;
+  final usingCachedSession = ValueNotifier(false);
 
   Dio get dio => _dio;
   CookieJar get cookieJar => _cookieJar;
@@ -154,6 +155,46 @@ class ApiClient {
 
     await _verifySessionOwner(user);
     _studentId = user;
+    usingCachedSession.value = false;
+    // 保存会话 Cookie 和账号绑定关系，供下次教务处故障时进入缓存模式。
+    final cookies = await _cookieJar.loadForRequest(
+      Uri.parse(_urls['studentInfo']!),
+    );
+    await AuthStorage().saveAcademicSession({
+      'studentId': user,
+      'userId': userId,
+      'cookies': cookies.map((cookie) => cookie.toString()).toList(),
+    });
+  }
+
+  /// 仅恢复同一已保存账号的历史会话。旧 identifier 不用于网络请求。
+  Future<bool> restoreCachedSession({String? username}) async {
+    final auth = AuthStorage();
+    final creds = await auth.loadCredentials();
+    if (creds == null || (username != null && username != creds.username)) {
+      return false;
+    }
+    final session = await auth.loadAcademicSession();
+    if (session == null || session['studentId'] != creds.username) return false;
+    try {
+      final cookies = (session['cookies'] as List)
+          .map((raw) => Cookie.fromSetCookieValue(raw as String))
+          .toList();
+      if (cookies.isEmpty || session['userId'] is! String) return false;
+      await _cookieJar.deleteAll();
+      await _cookieJar.saveFromResponse(
+        Uri.parse(_urls['studentInfo']!),
+        cookies,
+      );
+    } on FormatException {
+      return false;
+    } on TypeError {
+      return false;
+    }
+    _userId = null;
+    _studentId = creds.username;
+    usingCachedSession.value = true;
+    return true;
   }
 
   /// 校验这次会话确实属于 [studentId]（防串号）。
@@ -233,6 +274,10 @@ class ApiClient {
     } catch (_) {
       _userId = null;
       return false;
+    } finally {
+      if (usingCachedSession.value && _studentId == null) {
+        _studentId = creds.username;
+      }
     }
   }
 
@@ -240,9 +285,11 @@ class ApiClient {
   ///
   /// 课程/考场缓存只按学期分片、不含账号维度，不清会读到上一个账号的数据。
   Future<void> clearSession() async {
+    usingCachedSession.value = false;
     _studentId = null;
     _userId = null;
     await _cookieJar.deleteAll();
+    await AuthStorage().clearAcademicSession();
     await CacheHelper.removeAll(SpKeys.userScopedCacheKeys);
   }
 
@@ -257,6 +304,7 @@ class ApiClient {
     _reloginCompleter = completer;
     try {
       final ok = await relogin();
+      if (!ok) await restoreCachedSession();
       completer.complete(ok);
       return ok;
     } catch (_) {
