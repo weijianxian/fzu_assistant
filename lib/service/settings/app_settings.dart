@@ -24,6 +24,8 @@ class AppSettings {
   final themeKey = ValueNotifier<String>('deep_purple');
   final themeModeKey = ValueNotifier<String>('system');
   final localeKey = ValueNotifier<String>('system');
+  final courseReminderEnabled = ValueNotifier<bool>(false);
+  final courseReminderMinutes = ValueNotifier<int>(21 * 60);
 
   // 首页
   final homeStyleKey = ValueNotifier<String>(scheduleHomeStyle);
@@ -67,6 +69,10 @@ class AppSettings {
 
   Future<void> load() async {
     final sp = await SharedPreferences.getInstance();
+    courseReminderEnabled.value =
+        sp.getBool(SpKeys.courseReminderEnabled) ?? false;
+    courseReminderMinutes.value =
+        (sp.getInt(SpKeys.courseReminderMinutes) ?? 21 * 60).clamp(0, 1439);
 
     final savedTheme = sp.getString(SpKeys.themeKey) ?? 'deep_purple';
     final validTheme =
@@ -152,6 +158,7 @@ class AppSettings {
     }
     for (final entry in {
       SpKeys.siteInjectionEnabled: siteInjectionEnabled,
+      SpKeys.courseReminderEnabled: courseReminderEnabled,
       SpKeys.showExamOnSchedule: showExamOnSchedule,
       SpKeys.showNonCurrentWeekCourses: showNonCurrentWeekCourses,
       SpKeys.autoAdjustCourse: autoAdjustCourse,
@@ -161,6 +168,10 @@ class AppSettings {
       _persist(entry.value, (value) => sp.setBool(entry.key, value));
     }
     _persist(timelineDaysKey, (value) => sp.setInt(SpKeys.timelineDays, value));
+    _persist(
+      courseReminderMinutes,
+      (value) => sp.setInt(SpKeys.courseReminderMinutes, value),
+    );
     _persist(
       termsKey,
       (value) => sp.setString(SpKeys.termsList, jsonEncode(value)),
@@ -258,6 +269,8 @@ class AppSettings {
   }
 
   void dispose() {
+    courseReminderEnabled.dispose();
+    courseReminderMinutes.dispose();
     themeKey.dispose();
     themeModeKey.dispose();
     localeKey.dispose();

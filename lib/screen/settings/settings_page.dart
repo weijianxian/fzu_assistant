@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -39,6 +40,15 @@ class SettingsPage extends HookWidget {
             subtitle: Text(l10n.advancedSettingsSubtitle),
             onTap: () => context.pushNamed(AppRoutes.advancedSettings),
           ),
+          if (CourseReminderService.supported) const Divider(),
+          if (CourseReminderService.supported) ...[
+            ChevronListTile(
+              leading: const Icon(Icons.notifications_active_outlined),
+              title: Text(l10n.courseReminderSettings),
+              subtitle: Text(l10n.courseReminderSettingsSubtitle),
+              onTap: () => context.pushNamed(AppRoutes.courseReminderSettings),
+            ),
+          ],
         ],
       ),
     );

@@ -7,6 +7,7 @@ import Foundation
 
 import dynamic_color
 import flutter_inappwebview_macos
+import flutter_local_notifications
 import flutter_secure_storage_darwin
 import mobile_scanner
 import package_info_plus
@@ -19,6 +20,7 @@ import window_manager
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   DynamicColorPlugin.register(with: registry.registrar(forPlugin: "DynamicColorPlugin"))
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
+  FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterSecureStorageDarwinPlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStorageDarwinPlugin"))
   MobileScannerPlugin.register(with: registry.registrar(forPlugin: "MobileScannerPlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))

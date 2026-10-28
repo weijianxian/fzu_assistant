@@ -1,9 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// SharedPreferences 按 key 存取 JSON Map 的泛型工具。
 abstract final class CacheHelper {
+  static final changes = ValueNotifier<int>(0);
+
   /// 读取 [spKey] 对应的 JSON Map；不存在则返回空 Map。
   static Future<Map<String, dynamic>> loadMap(String spKey) async {
     final sp = await SharedPreferences.getInstance();
@@ -16,6 +20,7 @@ abstract final class CacheHelper {
   static Future<void> saveMap(String spKey, Map<String, dynamic> map) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setString(spKey, jsonEncode(map));
+    changes.value++;
   }
 
   /// 从 [spKey] 的 Map 中读取 [termKey] 对应的条目，用 [fromJson] 反序列化。
@@ -47,5 +52,6 @@ abstract final class CacheHelper {
     for (final key in spKeys) {
       await sp.remove(key);
     }
+    changes.value++;
   }
 }

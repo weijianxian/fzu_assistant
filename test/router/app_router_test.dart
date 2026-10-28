@@ -25,6 +25,7 @@ const _argumentFreeRoutes = [
   AppRoutes.calendar,
   AppRoutes.profile,
   AppRoutes.settings,
+  AppRoutes.courseReminderSettings,
   AppRoutes.homeSettings,
   AppRoutes.generalSettings,
   AppRoutes.advancedSettings,
@@ -55,6 +56,11 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.getTopLeft(find.byIcon(Icons.science_outlined)).dx, 64);
+      await tester.scrollUntilVisible(
+        find.text('Native BottomSheet'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Native BottomSheet'));
       await tester.pumpAndSettle();
       final barrier = find.byType(ModalBarrier).last;

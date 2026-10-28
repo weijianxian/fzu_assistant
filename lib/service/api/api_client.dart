@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/service/captcha_solver.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 import 'package:html/parser.dart' as html_parser;
@@ -285,6 +286,7 @@ class ApiClient {
   ///
   /// 课程/考场缓存只按学期分片、不含账号维度，不清会读到上一个账号的数据。
   Future<void> clearSession() async {
+    await CourseReminderService.instance.cancel();
     usingCachedSession.value = false;
     _studentId = null;
     _userId = null;

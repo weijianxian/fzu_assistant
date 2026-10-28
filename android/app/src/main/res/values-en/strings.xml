@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="course_reminder_channel">Tomorrow’s classes</string>
     <string name="app_name">FZU Assistant</string>
 </resources>

@@ -1831,6 +1831,114 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'请扫描学习中心现场签到二维码'**
   String get learningScanHint;
+
+  /// No description provided for @courseReminderTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'明日课程提醒'**
+  String get courseReminderTitle;
+
+  /// No description provided for @courseReminderDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天提醒明天最早的课程，无课时提醒休息。'**
+  String get courseReminderDescription;
+
+  /// No description provided for @courseReminderUnknown.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂时无法确认明天的课程，请打开应用刷新课表和校历。'**
+  String get courseReminderUnknown;
+
+  /// No description provided for @courseReminderRest.
+  ///
+  /// In zh, this message translates to:
+  /// **'明天没有课，好好休息吧！'**
+  String get courseReminderRest;
+
+  /// No description provided for @courseReminderCourse.
+  ///
+  /// In zh, this message translates to:
+  /// **'明天最早 {time} · {course} · {location}'**
+  String courseReminderCourse(String time, String course, String location);
+
+  /// No description provided for @reminderTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'提醒时间'**
+  String get reminderTime;
+
+  /// No description provided for @reminderBeijingTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'北京时间 {time}'**
+  String reminderBeijingTime(String time);
+
+  /// No description provided for @reminderPermissionsRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先允许通知和精确闹钟，再开启提醒。'**
+  String get reminderPermissionsRequired;
+
+  /// No description provided for @reminderNotificationPermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知权限'**
+  String get reminderNotificationPermission;
+
+  /// No description provided for @reminderExactPermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'精确闹钟权限'**
+  String get reminderExactPermission;
+
+  /// No description provided for @reminderPermissionGranted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已允许，点击管理系统权限'**
+  String get reminderPermissionGranted;
+
+  /// No description provided for @reminderPermissionDenied.
+  ///
+  /// In zh, this message translates to:
+  /// **'未允许，点击前往系统设置'**
+  String get reminderPermissionDenied;
+
+  /// No description provided for @reminderPermissionLoading.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在读取权限'**
+  String get reminderPermissionLoading;
+
+  /// No description provided for @reminderFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'提醒设置失败，请检查权限后重试。'**
+  String get reminderFailed;
+
+  /// No description provided for @reminderNotificationStyle.
+  ///
+  /// In zh, this message translates to:
+  /// **'锁屏与通知样式'**
+  String get reminderNotificationStyle;
+
+  /// No description provided for @reminderNotificationStyleDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'管理课程提醒渠道的锁屏显示、声音和横幅；已修改的系统设置需在这里手动调整。'**
+  String get reminderNotificationStyleDescription;
+
+  /// No description provided for @courseReminderSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'早课提醒'**
+  String get courseReminderSettings;
+
+  /// No description provided for @courseReminderSettingsSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天晚上提醒明天最早的课程'**
+  String get courseReminderSettingsSubtitle;
 }
 
 class _AppLocalizationsDelegate

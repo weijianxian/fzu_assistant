@@ -5,6 +5,7 @@
 ## 技术栈
 
 - Flutter 3.47.6 + Dart 3.x
+- android_alarm_manager_plus（Android 精确闹钟、独立后台 Dart 回调和重启恢复）、flutter_local_notifications（通知展示与锁屏公开内容）
 - flutter_hooks（HookWidget / useState / useEffect / useMemoized）
 - flutter_svg（登录页 SVG 角色插画）
 - Dio + CookieJar 做 HTTP 请求，html 包解析 DOM
@@ -114,13 +115,14 @@ lib/
       about/             # 关于页
       calendar/          # 校历
     settings/            # 设置页（首页/一般/主题/高级设置入口）
-      settings_page.dart # 设置页面主页
+      settings_page.dart # 设置页面主页；底部分隔线后直接展示当前平台支持的功能入口或开关，无平台分类页
+      course_reminder_settings_page.dart # Android 早课提醒：提醒开关、北京时间及通知/精确闹钟授权和通知渠道管理
       home_settings_page.dart # 首页设置（视图、时间线范围、学期、课表选项及隐藏课程总览/恢复）
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
     dev/                 # 开发者工具
-      dev_tool.dart      # 开发者工具主页（导航入口）
+      dev_tool.dart      # 开发者工具主页（导航入口、Android 一分钟后通知测试）
       learning_center_debug_page.dart # 学习中心 API 调试：分组操作按钮、token 显隐、原始参数/spaceId 直传、HTTP 状态和原始响应；无业务校验和确认弹窗
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
       secure_storage_page.dart # SecureStorage 查看/编辑
@@ -133,6 +135,8 @@ lib/
     app_themes.dart      # 主题色列表 + buildTheme()
     webview_environment.dart # Windows WebView2 环境初始化
     desktop_window.dart # Windows 窗口初始化、状态监听与统一关闭行为
+    course_reminder_service.dart # Android 明日课程提醒计划：缓存校历和课表、北京时间、调课与隐藏课程过滤；预排 180 天
+    android_task_scheduler.dart # android_alarm_manager_plus 的命名任务分发、后台入口、计划持久化/取消与 flutter_local_notifications 展示
     api/                 # API 相关服务
       api_client.dart    # Dio 单例，登录/重登/拦截器；studentId 为稳定学号，userId 为会话 identifier
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
@@ -147,6 +151,8 @@ lib/
 ```
 
 ## 编码规范
+
+- 平台功能直接放在设置主列表底部分隔线之后，仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
 
 - 教务处成功登录后，将账号绑定的历史 Cookie 与 identifier 保存到 SecureStorage；启动/同账号登录失败且有历史会话时进入缓存模式，保留稳定学号，旧 identifier 不用于业务请求。课表、考场、校历与事件优先展示已有缓存，强制刷新也不得清空缓存；主页提示缓存模式并支持重试登录，退出教务账号同时删除历史会话。
 

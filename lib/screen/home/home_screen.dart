@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/utils/cache_helper.dart';
+import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -23,6 +27,33 @@ class HomeScreen extends HookWidget {
     final api = ApiClient.instance;
     final cachedSession = useValueListenable(api.usingCachedSession);
     final reconnecting = useState(false);
+    useEffect(() {
+      if (!CourseReminderService.supported) return null;
+      final inputs = <Listenable>[
+        CacheHelper.changes,
+        settings.courseReminderEnabled,
+        settings.courseReminderMinutes,
+        settings.autoAdjustCourse,
+        settings.west2AdjustmentsEnabled,
+        settings.hiddenCourseSessions,
+        settings.localeKey,
+      ];
+      void sync() => unawaited(CourseReminderService.instance.sync(settings));
+      for (final input in inputs) {
+        input.addListener(sync);
+      }
+      sync();
+      return () {
+        for (final input in inputs) {
+          input.removeListener(sync);
+        }
+      };
+    }, [settings]);
+    useOnAppLifecycleStateChange((_, state) {
+      if (state == AppLifecycleState.resumed) {
+        unawaited(CourseReminderService.instance.sync(settings));
+      }
+    });
 
     return ValueListenableBuilder<String>(
       valueListenable: settings.homeStyleKey,

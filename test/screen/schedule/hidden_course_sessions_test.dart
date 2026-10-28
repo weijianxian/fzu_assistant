@@ -1,4 +1,7 @@
 import 'dart:async';
+
+import '../../fixtures/reminder_channel.dart';
+
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -95,7 +98,10 @@ HiddenCourseSession _hidden({
 );
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    mockReminderChannel();
+    SharedPreferences.setMockInitialValues({});
+  });
 
   test('隐藏一次课不影响其他周次、节次、学期或账号，且支持调入课程', () {
     List<CourseSession> sessions({

@@ -1,5 +1,7 @@
 /// SharedPreferences 存储 key 常量
 abstract final class SpKeys {
+  static const courseReminderEnabled = 'course_reminder_enabled';
+  static const courseReminderMinutes = 'course_reminder_minutes';
   static const themeKey = 'theme_key';
   static const themeMode = 'theme_mode';
   static const localeKey = 'locale_key';

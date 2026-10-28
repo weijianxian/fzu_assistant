@@ -930,4 +930,63 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get learningScanHint => '请扫描学习中心现场签到二维码';
+
+  @override
+  String get courseReminderTitle => '明日课程提醒';
+
+  @override
+  String get courseReminderDescription => '每天提醒明天最早的课程，无课时提醒休息。';
+
+  @override
+  String get courseReminderUnknown => '暂时无法确认明天的课程，请打开应用刷新课表和校历。';
+
+  @override
+  String get courseReminderRest => '明天没有课，好好休息吧！';
+
+  @override
+  String courseReminderCourse(String time, String course, String location) {
+    return '明天最早 $time · $course · $location';
+  }
+
+  @override
+  String get reminderTime => '提醒时间';
+
+  @override
+  String reminderBeijingTime(String time) {
+    return '北京时间 $time';
+  }
+
+  @override
+  String get reminderPermissionsRequired => '请先允许通知和精确闹钟，再开启提醒。';
+
+  @override
+  String get reminderNotificationPermission => '通知权限';
+
+  @override
+  String get reminderExactPermission => '精确闹钟权限';
+
+  @override
+  String get reminderPermissionGranted => '已允许，点击管理系统权限';
+
+  @override
+  String get reminderPermissionDenied => '未允许，点击前往系统设置';
+
+  @override
+  String get reminderPermissionLoading => '正在读取权限';
+
+  @override
+  String get reminderFailed => '提醒设置失败，请检查权限后重试。';
+
+  @override
+  String get reminderNotificationStyle => '锁屏与通知样式';
+
+  @override
+  String get reminderNotificationStyleDescription =>
+      '管理课程提醒渠道的锁屏显示、声音和横幅；已修改的系统设置需在这里手动调整。';
+
+  @override
+  String get courseReminderSettings => '早课提醒';
+
+  @override
+  String get courseReminderSettingsSubtitle => '每天晚上提醒明天最早的课程';
 }

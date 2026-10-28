@@ -955,4 +955,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get learningScanHint => 'Scan the on-site check-in code';
+
+  @override
+  String get courseReminderTitle => 'Tomorrow’s classes';
+
+  @override
+  String get courseReminderDescription =>
+      'Daily reminder of tomorrow’s first class or a day off. ';
+
+  @override
+  String get courseReminderUnknown =>
+      'Tomorrow’s timetable is unavailable. Open the app to refresh the timetable and academic calendar.';
+
+  @override
+  String get courseReminderRest => 'No classes tomorrow. Enjoy your day off!';
+
+  @override
+  String courseReminderCourse(String time, String course, String location) {
+    return 'First class tomorrow: $time · $course · $location';
+  }
+
+  @override
+  String get reminderTime => 'Reminder time';
+
+  @override
+  String reminderBeijingTime(String time) {
+    return '$time Beijing time (UTC+8)';
+  }
+
+  @override
+  String get reminderPermissionsRequired =>
+      'Allow notifications and exact alarms before enabling reminders.';
+
+  @override
+  String get reminderNotificationPermission => 'Notifications';
+
+  @override
+  String get reminderExactPermission => 'Exact alarms';
+
+  @override
+  String get reminderPermissionGranted =>
+      'Allowed. Tap to manage in system settings';
+
+  @override
+  String get reminderPermissionDenied =>
+      'Not allowed. Tap to open system settings';
+
+  @override
+  String get reminderPermissionLoading => 'Checking permission';
+
+  @override
+  String get reminderFailed =>
+      'Could not configure reminders. Check permissions and retry.';
+
+  @override
+  String get reminderNotificationStyle => 'Lock screen and notification style';
+
+  @override
+  String get reminderNotificationStyleDescription =>
+      'Manage lock-screen visibility, sound and banners for course reminders. Previously changed system settings must be adjusted here.';
+
+  @override
+  String get courseReminderSettings => 'First class reminder';
+
+  @override
+  String get courseReminderSettingsSubtitle =>
+      'An evening reminder of tomorrow’s first class';
 }

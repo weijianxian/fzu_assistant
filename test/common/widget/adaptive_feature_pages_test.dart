@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../fixtures/reminder_channel.dart';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/common/widget/layout/split_navigation_page.dart';
@@ -62,6 +65,7 @@ void main() {
   });
 
   setUp(() async {
+    mockReminderChannel();
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
     await ApiClient.instance.clearSession();

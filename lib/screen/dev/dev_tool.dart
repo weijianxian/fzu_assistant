@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 
 import 'package:fzu_assistant/router/app_routes.dart';
@@ -20,6 +21,32 @@ class DevToolPage extends StatelessWidget {
       appBar: AppBar(title: Text('Dev Tools')),
       body: ListView(
         children: [
+          if (CourseReminderService.supported)
+            ListTile(
+              leading: const Icon(Icons.notification_add_outlined),
+              title: const Text('Notify in one minute'),
+              subtitle: const Text(
+                'Schedule an exact alarm to test background or lock-screen delivery.',
+              ),
+              onTap: () async {
+                try {
+                  await CourseReminderService.instance.testNotification();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Notification scheduled in one minute'),
+                    ),
+                  );
+                } catch (error) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to schedule notification: $error'),
+                    ),
+                  );
+                }
+              },
+            ),
           ChevronListTile(
             leading: const Icon(Icons.science_outlined),
             title: Text('Learning Center API Debug'),

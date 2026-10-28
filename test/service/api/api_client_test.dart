@@ -1,4 +1,7 @@
 import 'dart:async';
+
+import '../../fixtures/reminder_channel.dart';
+
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -187,6 +190,7 @@ void main() {
     late HttpClientAdapter originalAdapter;
 
     setUp(() {
+      mockReminderChannel();
       _mockStoredCredentials();
       // clearSession() 会清理 SharedPreferences 里的业务缓存。
       SharedPreferences.setMockInitialValues({});
