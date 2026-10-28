@@ -117,6 +117,7 @@ lib/
     settings/            # 设置页（首页/一般/主题/高级设置入口）
       settings_page.dart # 设置页面主页；底部分隔线后直接展示当前平台支持的功能入口或开关，无平台分类页
       course_reminder_settings_page.dart # Android 早课提醒：提醒开关、北京时间及通知/精确闹钟授权和通知渠道管理
+      android_permissions_page.dart # Android 预期权限固定清单：标题为权限名称，说明为具体用途和授权状态；不扫描权限，不展示 ID/类型，返回应用自动刷新
       home_settings_page.dart # 首页设置（视图、时间线范围、学期、课表选项及隐藏课程总览/恢复）
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
@@ -137,6 +138,7 @@ lib/
     desktop_window.dart # Windows 窗口初始化、状态监听与统一关闭行为
     course_reminder_service.dart # Android 明日课程提醒计划：缓存校历和课表、北京时间、调课与隐藏课程过滤；预排 180 天
     android_task_scheduler.dart # android_alarm_manager_plus 的命名任务分发、后台入口、计划持久化/取消与 flutter_local_notifications 展示
+    android_permissions_service.dart # 应用预期权限的实际授权状态读取和系统权限设置跳转
     api/                 # API 相关服务
       api_client.dart    # Dio 单例，登录/重登/拦截器；studentId 为稳定学号，userId 为会话 identifier
       academic_service.dart # 教务处数据抓取（GPA/成绩/考场/校历/空教室/通知/讲座）
@@ -152,13 +154,14 @@ lib/
 
 ## 编码规范
 
-- 平台功能直接放在设置主列表底部分隔线之后，仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
+- 平台功能直接放在设置主列表底部分隔线之后，仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示权限管理和早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
 
 - 教务处成功登录后，将账号绑定的历史 Cookie 与 identifier 保存到 SecureStorage；启动/同账号登录失败且有历史会话时进入缓存模式，保留稳定学号，旧 identifier 不用于业务请求。课表、考场、校历与事件优先展示已有缓存，强制刷新也不得清空缓存；主页提示缓存模式并支持重试登录，退出教务账号同时删除历史会话。
 
 - **每次项目结构或技术栈变更后，必须同步更新本 AGENTS.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
+- 设置的平台功能在主列表最底部用分隔线与通用设置分开，按当前平台显示或隐藏，不增加平台分类菜单。Android 权限管理手动维护预期权限清单（通知、精确闹钟、扫码相机、安装更新、联网、定时唤醒和重启恢复），不扫描安装包或插件权限；页面标题展示国际化权限名称，说明展示具体功能用途和授权状态，不展示权限 ID 或类型；通知、精确闹钟、安装未知应用使用实际系统状态，不仅依据 manifest 的授权标志。开发者工具文案及测试通知统一直接使用英文，不接入国际化。
 - 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；教务退出使用 `context.replaceAllNamed(AppRoutes.login)` 清空根导航栈，防止横屏嵌套导航或返回键回到已退出页面。路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
 - 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
 - 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取

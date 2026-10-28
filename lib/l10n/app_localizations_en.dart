@@ -1009,6 +1009,43 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not configure reminders. Check permissions and retry.';
 
   @override
+  String get permissionManagement => 'Permission management';
+
+  @override
+  String get permissionManagementSubtitle =>
+      'View required permissions and current access';
+
+  @override
+  String get permissionManagementDescription =>
+      'View why the app needs each permission and its current access. Tap to manage in system settings.';
+
+  @override
+  String get appPermissionSettings => 'App system settings';
+
+  @override
+  String get permissionSettingsFailed =>
+      'Could not open system settings. Please retry.';
+
+  @override
+  String get permissionLoadFailed =>
+      'Could not load app permissions. Please retry.';
+
+  @override
+  String get permissionAllowed => 'Allowed';
+
+  @override
+  String get permissionNotAllowed => 'Not allowed';
+
+  @override
+  String get permissionSpecial => 'Special access';
+
+  @override
+  String get permissionRuntime => 'Runtime permission';
+
+  @override
+  String get permissionInstall => 'Install-time permission';
+
+  @override
   String get reminderNotificationStyle => 'Lock screen and notification style';
 
   @override
@@ -1016,9 +1053,57 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manage lock-screen visibility, sound and banners for course reminders. Previously changed system settings must be adjusted here.';
 
   @override
+  String get permissionPurposeNotifications =>
+      'Send course and scheduled-task notifications';
+
+  @override
+  String get permissionPurposeAlarms =>
+      'Run background tasks at scheduled times';
+
+  @override
+  String get permissionPurposeCamera =>
+      'Scan learning center check-in QR codes';
+
+  @override
+  String get permissionPurposeInstall => 'Install app updates';
+
+  @override
+  String get permissionPurposeInternet =>
+      'Connect to fetch timetables, grades and campus services';
+
+  @override
+  String get permissionPurposeWake =>
+      'Keep the device awake while a background task runs';
+
+  @override
+  String get permissionPurposeBoot =>
+      'Restore scheduled tasks after device restart';
+
+  @override
   String get courseReminderSettings => 'First class reminder';
 
   @override
   String get courseReminderSettingsSubtitle =>
       'An evening reminder of tomorrow’s first class';
+
+  @override
+  String get permissionNameNotifications => 'Notifications';
+
+  @override
+  String get permissionNameAlarms => 'Exact alarms';
+
+  @override
+  String get permissionNameCamera => 'Camera';
+
+  @override
+  String get permissionNameInstall => 'Install apps';
+
+  @override
+  String get permissionNameInternet => 'Internet access';
+
+  @override
+  String get permissionNameWake => 'Keep awake';
+
+  @override
+  String get permissionNameBoot => 'Device restart';
 }

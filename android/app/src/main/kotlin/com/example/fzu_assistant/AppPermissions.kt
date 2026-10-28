@@ -3,6 +3,7 @@ package com.weijx.fzu_assistant
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -17,6 +18,27 @@ object AppPermissions {
         val channel = context.getSystemService(android.app.NotificationManager::class.java)
             .getNotificationChannel("tomorrow_courses")
         return channel?.importance != android.app.NotificationManager.IMPORTANCE_NONE
+    }
+    /** 仅维护产品需要展示的权限，不扫描安装包或插件的权限声明。 */
+    fun list(context: Context): List<Map<String, Any>> {
+        val permissions = listOf(
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.SCHEDULE_EXACT_ALARM,
+            Manifest.permission.CAMERA,
+            Manifest.permission.REQUEST_INSTALL_PACKAGES,
+            Manifest.permission.INTERNET,
+            Manifest.permission.WAKE_LOCK,
+            Manifest.permission.RECEIVE_BOOT_COMPLETED,
+        )
+        return permissions.map { name ->
+            val granted = when (name) {
+                Manifest.permission.POST_NOTIFICATIONS -> notificationsAllowed(context)
+                Manifest.permission.SCHEDULE_EXACT_ALARM -> exactAllowed(context)
+                Manifest.permission.REQUEST_INSTALL_PACKAGES -> Build.VERSION.SDK_INT < 26 || context.packageManager.canRequestPackageInstalls()
+                else -> androidx.core.content.ContextCompat.checkSelfPermission(context, name) == PackageManager.PERMISSION_GRANTED
+            }
+            mapOf("name" to name, "granted" to granted)
+        }
     }
     fun open(context: Context, name: String?) {
         val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}"))

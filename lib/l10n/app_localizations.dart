@@ -1916,6 +1916,72 @@ abstract class AppLocalizations {
   /// **'提醒设置失败，请检查权限后重试。'**
   String get reminderFailed;
 
+  /// No description provided for @permissionManagement.
+  ///
+  /// In zh, this message translates to:
+  /// **'权限管理'**
+  String get permissionManagement;
+
+  /// No description provided for @permissionManagementSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看应用需要的权限和授权状态'**
+  String get permissionManagementSubtitle;
+
+  /// No description provided for @permissionManagementDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'展示应用需要的权限用途和授权状态，点击条目进入系统管理。'**
+  String get permissionManagementDescription;
+
+  /// No description provided for @appPermissionSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'应用系统设置'**
+  String get appPermissionSettings;
+
+  /// No description provided for @permissionSettingsFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开系统权限设置，请重试。'**
+  String get permissionSettingsFailed;
+
+  /// No description provided for @permissionLoadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法读取应用权限，请重试。'**
+  String get permissionLoadFailed;
+
+  /// No description provided for @permissionAllowed.
+  ///
+  /// In zh, this message translates to:
+  /// **'已允许'**
+  String get permissionAllowed;
+
+  /// No description provided for @permissionNotAllowed.
+  ///
+  /// In zh, this message translates to:
+  /// **'未允许'**
+  String get permissionNotAllowed;
+
+  /// No description provided for @permissionSpecial.
+  ///
+  /// In zh, this message translates to:
+  /// **'特殊访问权限'**
+  String get permissionSpecial;
+
+  /// No description provided for @permissionRuntime.
+  ///
+  /// In zh, this message translates to:
+  /// **'运行时权限'**
+  String get permissionRuntime;
+
+  /// No description provided for @permissionInstall.
+  ///
+  /// In zh, this message translates to:
+  /// **'安装时权限'**
+  String get permissionInstall;
+
   /// No description provided for @reminderNotificationStyle.
   ///
   /// In zh, this message translates to:
@@ -1928,6 +1994,48 @@ abstract class AppLocalizations {
   /// **'管理课程提醒渠道的锁屏显示、声音和横幅；已修改的系统设置需在这里手动调整。'**
   String get reminderNotificationStyleDescription;
 
+  /// No description provided for @permissionPurposeNotifications.
+  ///
+  /// In zh, this message translates to:
+  /// **'发送课程与定时任务通知'**
+  String get permissionPurposeNotifications;
+
+  /// No description provided for @permissionPurposeAlarms.
+  ///
+  /// In zh, this message translates to:
+  /// **'按设定时间执行后台任务'**
+  String get permissionPurposeAlarms;
+
+  /// No description provided for @permissionPurposeCamera.
+  ///
+  /// In zh, this message translates to:
+  /// **'扫描学习中心签到二维码'**
+  String get permissionPurposeCamera;
+
+  /// No description provided for @permissionPurposeInstall.
+  ///
+  /// In zh, this message translates to:
+  /// **'安装应用更新'**
+  String get permissionPurposeInstall;
+
+  /// No description provided for @permissionPurposeInternet.
+  ///
+  /// In zh, this message translates to:
+  /// **'联网获取课表、成绩和校园服务数据'**
+  String get permissionPurposeInternet;
+
+  /// No description provided for @permissionPurposeWake.
+  ///
+  /// In zh, this message translates to:
+  /// **'后台任务执行时保持设备唤醒'**
+  String get permissionPurposeWake;
+
+  /// No description provided for @permissionPurposeBoot.
+  ///
+  /// In zh, this message translates to:
+  /// **'设备重启后恢复定时任务'**
+  String get permissionPurposeBoot;
+
   /// No description provided for @courseReminderSettings.
   ///
   /// In zh, this message translates to:
@@ -1939,6 +2047,48 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'每天晚上提醒明天最早的课程'**
   String get courseReminderSettingsSubtitle;
+
+  /// No description provided for @permissionNameNotifications.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知'**
+  String get permissionNameNotifications;
+
+  /// No description provided for @permissionNameAlarms.
+  ///
+  /// In zh, this message translates to:
+  /// **'精确闹钟'**
+  String get permissionNameAlarms;
+
+  /// No description provided for @permissionNameCamera.
+  ///
+  /// In zh, this message translates to:
+  /// **'相机'**
+  String get permissionNameCamera;
+
+  /// No description provided for @permissionNameInstall.
+  ///
+  /// In zh, this message translates to:
+  /// **'安装应用'**
+  String get permissionNameInstall;
+
+  /// No description provided for @permissionNameInternet.
+  ///
+  /// In zh, this message translates to:
+  /// **'网络访问'**
+  String get permissionNameInternet;
+
+  /// No description provided for @permissionNameWake.
+  ///
+  /// In zh, this message translates to:
+  /// **'保持唤醒'**
+  String get permissionNameWake;
+
+  /// No description provided for @permissionNameBoot.
+  ///
+  /// In zh, this message translates to:
+  /// **'接收开机通知'**
+  String get permissionNameBoot;
 }
 
 class _AppLocalizationsDelegate

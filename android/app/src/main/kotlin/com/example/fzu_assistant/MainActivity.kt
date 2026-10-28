@@ -17,6 +17,19 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.weijx.fzu_assistant/permissions")
+            .setMethodCallHandler { call, result ->
+                try {
+                    when (call.method) {
+                        "list" -> result.success(AppPermissions.list(this))
+                        "open" -> { AppPermissions.open(this, call.argument<String>("name")); result.success(null) }
+                        else -> result.notImplemented()
+                    }
+                } catch (error: Exception) {
+                    result.error("permissions_failed", error.message, null)
+                }
+            }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.weijx.fzu_assistant/reminders")
             .setMethodCallHandler { call, result ->
                 try {

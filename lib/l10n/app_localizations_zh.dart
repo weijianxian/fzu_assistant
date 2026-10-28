@@ -978,6 +978,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reminderFailed => '提醒设置失败，请检查权限后重试。';
 
   @override
+  String get permissionManagement => '权限管理';
+
+  @override
+  String get permissionManagementSubtitle => '查看应用需要的权限和授权状态';
+
+  @override
+  String get permissionManagementDescription => '展示应用需要的权限用途和授权状态，点击条目进入系统管理。';
+
+  @override
+  String get appPermissionSettings => '应用系统设置';
+
+  @override
+  String get permissionSettingsFailed => '无法打开系统权限设置，请重试。';
+
+  @override
+  String get permissionLoadFailed => '无法读取应用权限，请重试。';
+
+  @override
+  String get permissionAllowed => '已允许';
+
+  @override
+  String get permissionNotAllowed => '未允许';
+
+  @override
+  String get permissionSpecial => '特殊访问权限';
+
+  @override
+  String get permissionRuntime => '运行时权限';
+
+  @override
+  String get permissionInstall => '安装时权限';
+
+  @override
   String get reminderNotificationStyle => '锁屏与通知样式';
 
   @override
@@ -985,8 +1018,50 @@ class AppLocalizationsZh extends AppLocalizations {
       '管理课程提醒渠道的锁屏显示、声音和横幅；已修改的系统设置需在这里手动调整。';
 
   @override
+  String get permissionPurposeNotifications => '发送课程与定时任务通知';
+
+  @override
+  String get permissionPurposeAlarms => '按设定时间执行后台任务';
+
+  @override
+  String get permissionPurposeCamera => '扫描学习中心签到二维码';
+
+  @override
+  String get permissionPurposeInstall => '安装应用更新';
+
+  @override
+  String get permissionPurposeInternet => '联网获取课表、成绩和校园服务数据';
+
+  @override
+  String get permissionPurposeWake => '后台任务执行时保持设备唤醒';
+
+  @override
+  String get permissionPurposeBoot => '设备重启后恢复定时任务';
+
+  @override
   String get courseReminderSettings => '早课提醒';
 
   @override
   String get courseReminderSettingsSubtitle => '每天晚上提醒明天最早的课程';
+
+  @override
+  String get permissionNameNotifications => '通知';
+
+  @override
+  String get permissionNameAlarms => '精确闹钟';
+
+  @override
+  String get permissionNameCamera => '相机';
+
+  @override
+  String get permissionNameInstall => '安装应用';
+
+  @override
+  String get permissionNameInternet => '网络访问';
+
+  @override
+  String get permissionNameWake => '保持唤醒';
+
+  @override
+  String get permissionNameBoot => '接收开机通知';
 }

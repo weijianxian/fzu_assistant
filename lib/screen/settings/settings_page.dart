@@ -43,6 +43,12 @@ class SettingsPage extends HookWidget {
           if (CourseReminderService.supported) const Divider(),
           if (CourseReminderService.supported) ...[
             ChevronListTile(
+              leading: const Icon(Icons.admin_panel_settings_outlined),
+              title: Text(l10n.permissionManagement),
+              subtitle: Text(l10n.permissionManagementSubtitle),
+              onTap: () => context.pushNamed(AppRoutes.androidPermissions),
+            ),
+            ChevronListTile(
               leading: const Icon(Icons.notifications_active_outlined),
               title: Text(l10n.courseReminderSettings),
               subtitle: Text(l10n.courseReminderSettingsSubtitle),
