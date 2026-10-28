@@ -60,7 +60,7 @@ class KVTile extends HookWidget {
               child: Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  expanded.value ? '收起' : '展开全部',
+                  expanded.value ? 'Collapse' : 'Expand all',
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.primary,

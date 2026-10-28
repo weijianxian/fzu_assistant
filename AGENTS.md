@@ -123,7 +123,7 @@ lib/
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
     dev/                 # 开发者工具
-      dev_tool.dart      # 开发者工具主页（导航入口、Android 一分钟后通知测试）
+      dev_tool.dart      # 开发者工具主页（英文标题/分隔线原页分组，保留原有导航与操作）
       learning_center_debug_page.dart # 学习中心 API 调试：分组操作按钮、token 显隐、原始参数/spaceId 直传、HTTP 状态和原始响应；无业务校验和确认弹窗
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
       secure_storage_page.dart # SecureStorage 查看/编辑
@@ -161,7 +161,7 @@ lib/
 - **每次项目结构或技术栈变更后，必须同步更新本 AGENTS.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
-- 设置的平台功能在主列表最底部用分隔线与通用设置分开，按当前平台显示或隐藏，不增加平台分类菜单。Android 权限管理手动维护预期权限清单（通知、精确闹钟、扫码相机、安装更新、联网、定时唤醒和重启恢复），不扫描安装包或插件权限；页面标题展示国际化权限名称，说明展示具体功能用途和授权状态，不展示权限 ID 或类型；通知、精确闹钟、安装未知应用使用实际系统状态，不仅依据 manifest 的授权标志。开发者工具文案及测试通知统一直接使用英文，不接入国际化。
+- 设置的平台功能在主列表最底部用分隔线与通用设置分开，按当前平台显示或隐藏，不增加平台分类菜单。Android 权限管理手动维护预期权限清单（通知、精确闹钟、扫码相机、安装更新、联网、定时唤醒和重启恢复），不扫描安装包或插件权限；页面标题展示国际化权限名称，说明展示具体功能用途和授权状态，不展示权限 ID 或类型；通知、精确闹钟、安装未知应用使用实际系统状态，不仅依据 manifest 的授权标志。开发者工具文案及测试通知统一直接使用英文，不接入国际化；工具保持原有入口与操作，在同一列表中用英文标题和分隔线分组，不为分组新增二级页面。
 - 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；教务退出使用 `context.replaceAllNamed(AppRoutes.login)` 清空根导航栈，防止横屏嵌套导航或返回键回到已退出页面。路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
 - 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
 - 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取

@@ -22,6 +22,8 @@ class DevToolPage extends StatelessWidget {
       body: ListView(
         children: [
           if (CourseReminderService.supported)
+            const _DevGroupHeader('Notifications'),
+          if (CourseReminderService.supported)
             ListTile(
               leading: const Icon(Icons.notification_add_outlined),
               title: const Text('Notify in one minute'),
@@ -47,11 +49,15 @@ class DevToolPage extends StatelessWidget {
                 }
               },
             ),
+          if (CourseReminderService.supported) const Divider(),
+          const _DevGroupHeader('Learning Center'),
           ChevronListTile(
             leading: const Icon(Icons.science_outlined),
             title: Text('Learning Center API Debug'),
             onTap: () => context.pushNamed(AppRoutes.devLearningCenter),
           ),
+          const Divider(),
+          const _DevGroupHeader('Storage'),
           ..._tools.map(
             (tool) => ChevronListTile(
               leading: Icon(tool.$1),
@@ -60,6 +66,7 @@ class DevToolPage extends StatelessWidget {
             ),
           ),
           const Divider(),
+          const _DevGroupHeader('Session'),
           ListTile(
             leading: const Icon(Icons.cookie_outlined),
             title: const Text('Expire Cookies'),
@@ -99,6 +106,8 @@ class DevToolPage extends StatelessWidget {
               );
             },
           ),
+          const Divider(),
+          const _DevGroupHeader('Interface & Updates'),
           ListTile(
             leading: const Icon(Icons.drag_handle),
             title: const Text('Native BottomSheet'),
@@ -137,6 +146,8 @@ class DevToolPage extends StatelessWidget {
               );
             },
           ),
+          const Divider(),
+          const _DevGroupHeader('WebView'),
           ListTile(
             leading: const Icon(Icons.language),
             title: const Text('WebView (with Cookie)'),
@@ -184,4 +195,19 @@ class DevToolPage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DevGroupHeader extends StatelessWidget {
+  const _DevGroupHeader(this.title);
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+    child: Text(
+      title,
+      style: Theme.of(context).textTheme.titleSmall
+          ?.copyWith(color: Theme.of(context).colorScheme.primary),
+    ),
+  );
 }
