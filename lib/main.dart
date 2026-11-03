@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widget/layout/desktop_window_frame.dart';
+import 'package:fzu_assistant/common/widget/webdav_auto_sync.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_router.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
@@ -46,11 +47,14 @@ class MyApp extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = useMemoized(
-      () => AppSettings()
-        ..load()
-        ..initDynamicColor(),
-    );
+    final settings = useMemoized(AppSettings.new);
+    final settingsReady = useMemoized(() => settings.load(), [settings]);
+    final navigatorKey = useMemoized(GlobalKey<NavigatorState>.new);
+    final messengerKey = useMemoized(GlobalKey<ScaffoldMessengerState>.new);
+    useEffect(() {
+      unawaited(settings.initDynamicColor());
+      return null;
+    }, [settings]);
     useEffect(
       () =>
           () => settings.dispose(),
@@ -68,6 +72,8 @@ class MyApp extends HookWidget {
       builder: (_, _) => AppSettingsProvider(
         settings: settings,
         child: MaterialApp(
+          navigatorKey: navigatorKey,
+          scaffoldMessengerKey: messengerKey,
           onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
           debugShowCheckedModeBanner: false,
           theme: settings.lightTheme,
@@ -89,7 +95,13 @@ class MyApp extends HookWidget {
                   systemNavigationBarColor: Colors.transparent,
                   systemNavigationBarContrastEnforced: false,
                 ),
-                child: ColoredBox(color: scheme.surface, child: child!),
+                child: WebDavAutoSync(
+                  settings: settings,
+                  ready: settingsReady,
+                  navigatorKey: navigatorKey,
+                  messengerKey: messengerKey,
+                  child: ColoredBox(color: scheme.surface, child: child!),
+                ),
               ),
             );
           },

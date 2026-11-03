@@ -1132,4 +1132,88 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get customCourseLoginRequired => '请先登录教务账号后管理课程';
+
+  @override
+  String get webdavAutoSync => '每次打开自动同步';
+
+  @override
+  String get webdavAutoSyncDescription => '开启后在启动或返回应用时同步，两端都有改动时请手动选择。';
+
+  @override
+  String get webdavAutoSyncConflict => '两端数据不同，请前往 WebDAV 手动上传或下载。';
+
+  @override
+  String get webdavAutoSyncManualUpload => '服务器不支持防冲突覆盖，请前往 WebDAV 手动上传。';
+
+  @override
+  String get webdavAutoSyncFailed => '自动同步失败，请在 WebDAV 设置中检查连接。';
+
+  @override
+  String get webdavTestConnection => '测试连接';
+
+  @override
+  String get webdavTestDescription => '测试会自动创建缺失目录，并临时写入、读取及删除一个文件。';
+
+  @override
+  String get webdavConnectionValid => '连接有效，目录可读写且测试文件已清理。';
+
+  @override
+  String get webdavSync => 'WebDAV 同步';
+
+  @override
+  String get webdavDescription => '通过 WebDAV 同步设置及课程记录，不含登录信息与缓存。';
+
+  @override
+  String get webdavDirectory => 'WebDAV 目录地址';
+
+  @override
+  String get webdavDirectoryHint => '填写同步目录地址，上传时会自动创建缺失的文件夹。';
+
+  @override
+  String get webdavUsername => 'WebDAV 用户名';
+
+  @override
+  String get webdavSave => '保存配置';
+
+  @override
+  String get webdavSaved => 'WebDAV 配置已保存';
+
+  @override
+  String get webdavUpload => '上传到 WebDAV';
+
+  @override
+  String get webdavDownload => '下载并覆盖本地';
+
+  @override
+  String get webdavUploaded => '同步数据已上传';
+
+  @override
+  String get webdavDownloaded => '设置和课程记录已恢复';
+
+  @override
+  String get webdavCreateDescription => '将当前设置和课程记录上传到此目录？';
+
+  @override
+  String get webdavUploadDescription => '用当前设备的数据覆盖远端备份？';
+
+  @override
+  String get webdavDownloadDescription => '用备份覆盖本地设置和所有账号的自定义及隐藏课程记录，保留登录状态？';
+
+  @override
+  String get webdavRemoteUpdated => '备份时间';
+
+  @override
+  String get webdavCustomCourses => '自定义课程数';
+
+  @override
+  String get webdavHiddenCourses => '隐藏课程记录数';
+
+  @override
+  String get webdavNotFound => '远端没有同步文件，请先上传';
+
+  @override
+  String get webdavCancel => '取消';
+
+  @override
+  String get webdavConfirm => '确认';
 }

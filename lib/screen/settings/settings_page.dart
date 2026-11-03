@@ -46,6 +46,12 @@ class SettingsPage extends HookWidget {
             subtitle: Text(l10n.thirdPartyDescription),
             onTap: () => context.pushNamed(AppRoutes.thirdPartySettings),
           ),
+          ChevronListTile(
+            leading: const Icon(Icons.sync),
+            title: Text(l10n.webdavSync),
+            subtitle: Text(l10n.webdavDescription),
+            onTap: () => context.pushNamed(AppRoutes.webDavSettings),
+          ),
           if (CourseReminderService.supported) const Divider(),
           if (CourseReminderService.supported) ...[
             ChevronListTile(

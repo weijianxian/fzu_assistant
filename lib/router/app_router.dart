@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/settings/webdav_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/custom_courses_page.dart';
 import 'package:fzu_assistant/screen/settings/hidden_courses_page.dart';
 import 'package:fzu_assistant/screen/toolbox/campus_services/campus_services_page.dart';
@@ -67,6 +68,7 @@ abstract final class AppRouter {
     AppRoutes.calendar: (_) => const CalendarPage(),
     AppRoutes.profile: (_) => const ProfilePage(),
     AppRoutes.settings: (_) => const SettingsPage(),
+    AppRoutes.webDavSettings: (_) => const WebDavSettingsPage(),
     AppRoutes.thirdPartySettings: (_) => const ThirdPartySettingsPage(),
     AppRoutes.courseReminderSettings: (_) => const CourseReminderSettingsPage(),
     AppRoutes.androidPermissions: (_) => const AndroidPermissionsPage(),

@@ -23,6 +23,13 @@ class CustomCourseStore extends ValueNotifier<List<CustomCourse>> {
   /// Also used after WebDAV restores the stored JSON.
   Future<void> load() => _serialize(_read);
 
+  /// Keep imports in the same queue as edits so a pending save cannot be lost.
+  Future<void> restoreFromSync(Future<void> Function() write) =>
+      _serialize(() async {
+        await write();
+        await _read();
+      });
+
   Future<void> _read() async {
     final preferences = await SharedPreferences.getInstance();
     final raw = preferences.getString(storageKey);

@@ -19,6 +19,8 @@ abstract final class SpKeys {
   static const hiddenCourseSessions = 'hidden_course_sessions';
   static const autoAdjustCourse = 'auto_adjust_course';
   static const west2AdjustmentsEnabled = 'west2_adjustments_enabled';
+  static const west2AdjustmentsAccess = 'west2_adjustments_access';
+  static const papersAccess = 'papers_access';
   static const cacheHolidayAdjustmentsMap = 'cache_holiday_adjustments_map';
   static const githubProxyEnabled = 'github_proxy_enabled';
   static const githubProxyBaseUrl = 'github_proxy_base_url';

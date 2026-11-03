@@ -163,6 +163,10 @@ lib/
 
 - `model/custom_course.dart` 和 `service/custom_course_store.dart` 管理本地自定义课程；按稳定学号、学期、ID 隔离，存储键 `custom_courses_v1`，不写教务缓存、退出不删除。`screen/settings/custom_courses_page.dart` 提供新增/编辑/删除、周次单双周/星期/节次、教师地点备注和颜色，参数定义在 app_routes.dart。课表设置并列提供自定义课程管理与不展示课程管理入口，首页右上角加号直接打开创建页，周课表和提醒合并课程并监听修改，缺少正式课表/校历时提醒继续提示未知而不误报无课。
 
+## WebDAV 同步
+
+- `service/webdav_sync_service.dart` 和 `screen/settings/webdav_settings_page.dart` 提供手动上传/下载、测试连接及默认关闭的“每次打开自动同步”；`common/widget/webdav_auto_sync.dart` 等待设置加载后在启动和后台恢复时触发，不因短暂失焦重复同步。使用配置目录下 `fzu-assistant-sync.json`，白名单同步应用偏好、自定义课程和隐藏课程，不同步凭据、Cookie、缓存、WebDAV 配置、自动开关或同步基线，密码只写 SecureStorage。手动下载验证并预览确认后覆盖，运行时立即应用；自动同步以目录和用户名隔离的内容摘要基线判断单端变化，首次两端不同或两端都修改时保留数据并提示手动选择，现有文件缺少强 ETag 时禁止自动上传。上传使用 ETag / If-None-Match，手动确认和自动同步共用互斥锁，配置变化使在途结果失效；恢复与自定义课程保存同队列并在写前检查本地变化。上传或测试写入遇到 409 时使用 MKCOL 按需递归创建配置目录，201 为新建、405 为已存在，补建后仅重试一次且保留条件请求头，认证失败或重定向不得补建。读取同步文件的 404/409 视为尚无备份，写入仍受 If-None-Match 保护。连接测试使用当前输入和独立随机文件，验证写入、读取及删除，不保存输入、不改同步基线或正式备份；创建失败的 412 不删除已有文件，创建后读取失败仍清理，清理失败或上传结果不明须报告临时文件名。禁止跟随认证请求重定向，文件最大 5 MB，失败回滚本地设置。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。
@@ -170,7 +174,7 @@ lib/
 - 普通页面统一使用 AppScaffold，由内部 Scaffold.body 统一消费 AppBar 尚未处理的顶部和左右边距，保留底部给实际内容处理；背景、标题栏和导航自身延伸至系统区域。首页使用 AppScaffold.shell，外壳不预消费边距，实际子页面的 AppBar 和原生 NavigationRail 自行绘制系统区域并避让内容；横屏分栏仅保留各列触及屏幕外侧的边距。缓存提示统一使用 AppTopBanner，在原生 MaterialBanner 内部避让内容，提示背景覆盖状态栏，其下页面只消费一次顶部边距。状态栏透明并自然显示下方真实表面，保留 AppBar 滚动变色，不通过固定颜色或同步颜色制造沉浸。业务页面不单独放 SafeArea、不用固定留白代替系统边距；Navigator、路由和弹层遮罩保持全屏。普通对话框沿用 Flutter 安全区，全屏导览由 AppScaffold 管理；底部弹层统一使用 showAppBottomSheet 或 showHalfScreenSheet。 垂直滚动统一使用 AppListView、AppCustomScrollView 或 AppSingleChildScrollView，视口延伸至手势区，系统底边距只加入滚动内容末尾并向子树清零；不得在视口外加底部 SafeArea 或使用 Clip.none 泄漏绘制。第三方滚动控件通过 AppScrollInsets 接收内容边距；静态内容使用 AppSafeContent，固定底部操作使用 AppBottomBar 和 Scaffold.bottomNavigationBar，让操作面延伸背景并避让按钮。 横屏侧边抽屉占窗口宽度的2/3，清除不接触屏幕左边时的刘海边距；竖屏拖动柄统一使用 SheetDragHandle，上下各8逻辑像素，内容不再重复添加顶部间距。
 
 - west2 online 服务按功能独立配置 `FeatureAccess.tip / allow / hide`：默认 tip，入口可见但不得请求服务；allow 才启用请求；hide 隐藏入口，仍可在设置中恢复。原 west2 调课布尔开关迁移到 `west2AdjustmentsAccess`，已允许的用户保持 allow；历年卷使用独立 `papersAccess`。统一设置页为 `screen/settings/third_party_settings_page.dart`，模型为 `model/feature_access.dart`，周课表和后台提醒共同读取同一授权状态。
-- 本轮功能约束：自定义课程按账号和学期保存，并覆盖周课表与提醒；WebDAV 手动同步应用设置、自定义课程和隐藏课程，禁止上传登录凭据、Cookie、支付数据、缓存及 WebDAV 密码，下载覆盖前须确认。WebDAV 密码只放 SecureStorage。校园服务通过域名隔离的 SSO 会话进入，不把教务 Cookie 当作 SSO Cookie。
+- 本轮功能约束：自定义课程按账号和学期保存，并覆盖周课表与提醒；WebDAV 同步应用设置、自定义课程和隐藏课程，提供默认关闭的每次打开自动同步，禁止上传登录凭据、Cookie、支付数据、缓存及 WebDAV 密码，手动下载覆盖前须确认，自动同步冲突须手动选择。WebDAV 密码只放 SecureStorage。校园服务通过域名隔离的 SSO 会话进入，不把教务 Cookie 当作 SSO Cookie。
 
 - 平台功能直接放在设置主列表底部分隔线之后，仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示权限管理和早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
 

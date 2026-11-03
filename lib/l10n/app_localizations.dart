@@ -2239,6 +2239,174 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'请先登录教务账号后管理课程'**
   String get customCourseLoginRequired;
+
+  /// No description provided for @webdavAutoSync.
+  ///
+  /// In zh, this message translates to:
+  /// **'每次打开自动同步'**
+  String get webdavAutoSync;
+
+  /// No description provided for @webdavAutoSyncDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'开启后在启动或返回应用时同步，两端都有改动时请手动选择。'**
+  String get webdavAutoSyncDescription;
+
+  /// No description provided for @webdavAutoSyncConflict.
+  ///
+  /// In zh, this message translates to:
+  /// **'两端数据不同，请前往 WebDAV 手动上传或下载。'**
+  String get webdavAutoSyncConflict;
+
+  /// No description provided for @webdavAutoSyncManualUpload.
+  ///
+  /// In zh, this message translates to:
+  /// **'服务器不支持防冲突覆盖，请前往 WebDAV 手动上传。'**
+  String get webdavAutoSyncManualUpload;
+
+  /// No description provided for @webdavAutoSyncFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'自动同步失败，请在 WebDAV 设置中检查连接。'**
+  String get webdavAutoSyncFailed;
+
+  /// No description provided for @webdavTestConnection.
+  ///
+  /// In zh, this message translates to:
+  /// **'测试连接'**
+  String get webdavTestConnection;
+
+  /// No description provided for @webdavTestDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'测试会自动创建缺失目录，并临时写入、读取及删除一个文件。'**
+  String get webdavTestDescription;
+
+  /// No description provided for @webdavConnectionValid.
+  ///
+  /// In zh, this message translates to:
+  /// **'连接有效，目录可读写且测试文件已清理。'**
+  String get webdavConnectionValid;
+
+  /// No description provided for @webdavSync.
+  ///
+  /// In zh, this message translates to:
+  /// **'WebDAV 同步'**
+  String get webdavSync;
+
+  /// No description provided for @webdavDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'通过 WebDAV 同步设置及课程记录，不含登录信息与缓存。'**
+  String get webdavDescription;
+
+  /// No description provided for @webdavDirectory.
+  ///
+  /// In zh, this message translates to:
+  /// **'WebDAV 目录地址'**
+  String get webdavDirectory;
+
+  /// No description provided for @webdavDirectoryHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'填写同步目录地址，上传时会自动创建缺失的文件夹。'**
+  String get webdavDirectoryHint;
+
+  /// No description provided for @webdavUsername.
+  ///
+  /// In zh, this message translates to:
+  /// **'WebDAV 用户名'**
+  String get webdavUsername;
+
+  /// No description provided for @webdavSave.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存配置'**
+  String get webdavSave;
+
+  /// No description provided for @webdavSaved.
+  ///
+  /// In zh, this message translates to:
+  /// **'WebDAV 配置已保存'**
+  String get webdavSaved;
+
+  /// No description provided for @webdavUpload.
+  ///
+  /// In zh, this message translates to:
+  /// **'上传到 WebDAV'**
+  String get webdavUpload;
+
+  /// No description provided for @webdavDownload.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载并覆盖本地'**
+  String get webdavDownload;
+
+  /// No description provided for @webdavUploaded.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步数据已上传'**
+  String get webdavUploaded;
+
+  /// No description provided for @webdavDownloaded.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置和课程记录已恢复'**
+  String get webdavDownloaded;
+
+  /// No description provided for @webdavCreateDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'将当前设置和课程记录上传到此目录？'**
+  String get webdavCreateDescription;
+
+  /// No description provided for @webdavUploadDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'用当前设备的数据覆盖远端备份？'**
+  String get webdavUploadDescription;
+
+  /// No description provided for @webdavDownloadDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'用备份覆盖本地设置和所有账号的自定义及隐藏课程记录，保留登录状态？'**
+  String get webdavDownloadDescription;
+
+  /// No description provided for @webdavRemoteUpdated.
+  ///
+  /// In zh, this message translates to:
+  /// **'备份时间'**
+  String get webdavRemoteUpdated;
+
+  /// No description provided for @webdavCustomCourses.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义课程数'**
+  String get webdavCustomCourses;
+
+  /// No description provided for @webdavHiddenCourses.
+  ///
+  /// In zh, this message translates to:
+  /// **'隐藏课程记录数'**
+  String get webdavHiddenCourses;
+
+  /// No description provided for @webdavNotFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'远端没有同步文件，请先上传'**
+  String get webdavNotFound;
+
+  /// No description provided for @webdavCancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get webdavCancel;
+
+  /// No description provided for @webdavConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'确认'**
+  String get webdavConfirm;
 }
 
 class _AppLocalizationsDelegate

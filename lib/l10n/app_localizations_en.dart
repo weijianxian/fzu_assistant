@@ -1178,4 +1178,100 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get customCourseLoginRequired =>
       'Sign in to your academic account to manage courses';
+
+  @override
+  String get webdavAutoSync => 'Sync automatically on open';
+
+  @override
+  String get webdavAutoSyncDescription =>
+      'Sync on launch or return to the app, with manual selection when both sides change.';
+
+  @override
+  String get webdavAutoSyncConflict =>
+      'Data differs on both sides; open WebDAV to choose upload or download.';
+
+  @override
+  String get webdavAutoSyncManualUpload =>
+      'This server cannot protect against conflicting uploads; upload manually in WebDAV.';
+
+  @override
+  String get webdavAutoSyncFailed =>
+      'Automatic sync failed; check the connection in WebDAV settings.';
+
+  @override
+  String get webdavTestConnection => 'Test connection';
+
+  @override
+  String get webdavTestDescription =>
+      'The test creates missing folders and temporarily writes, reads and deletes a file.';
+
+  @override
+  String get webdavConnectionValid =>
+      'Connection verified; the directory is readable and writable and the test file was removed.';
+
+  @override
+  String get webdavSync => 'WebDAV sync';
+
+  @override
+  String get webdavDescription =>
+      'Sync settings and course records through WebDAV without login details or caches.';
+
+  @override
+  String get webdavDirectory => 'WebDAV directory URL';
+
+  @override
+  String get webdavDirectoryHint =>
+      'Enter a sync directory URL; missing folders are created when uploading.';
+
+  @override
+  String get webdavUsername => 'WebDAV username';
+
+  @override
+  String get webdavSave => 'Save configuration';
+
+  @override
+  String get webdavSaved => 'WebDAV configuration saved';
+
+  @override
+  String get webdavUpload => 'Upload to WebDAV';
+
+  @override
+  String get webdavDownload => 'Download and replace local data';
+
+  @override
+  String get webdavUploaded => 'Sync data uploaded';
+
+  @override
+  String get webdavDownloaded => 'Settings and course records restored';
+
+  @override
+  String get webdavCreateDescription =>
+      'Upload current settings and course records to this directory?';
+
+  @override
+  String get webdavUploadDescription =>
+      'Replace the remote backup with this device’s current data?';
+
+  @override
+  String get webdavDownloadDescription =>
+      'Replace local settings and every account’s custom and hidden course records with this backup while keeping login sessions?';
+
+  @override
+  String get webdavRemoteUpdated => 'Backup time';
+
+  @override
+  String get webdavCustomCourses => 'Custom courses';
+
+  @override
+  String get webdavHiddenCourses => 'Hidden course records';
+
+  @override
+  String get webdavNotFound =>
+      'Upload a backup to create the remote sync file.';
+
+  @override
+  String get webdavCancel => 'Cancel';
+
+  @override
+  String get webdavConfirm => 'Confirm';
 }

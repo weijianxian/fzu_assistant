@@ -102,19 +102,19 @@ class AppSettings {
 
     // 自动调课
     autoAdjustCourse.value = sp.getBool(SpKeys.autoAdjustCourse) ?? true;
-    west2AdjustmentsAccess.value = sp.containsKey('west2_adjustments_access')
-        ? FeatureAccess.parse(sp.getString('west2_adjustments_access'))
+    west2AdjustmentsAccess.value = sp.containsKey(SpKeys.west2AdjustmentsAccess)
+        ? FeatureAccess.parse(sp.getString(SpKeys.west2AdjustmentsAccess))
         : (sp.getBool(SpKeys.west2AdjustmentsEnabled) == true
               ? FeatureAccess.allow
               : FeatureAccess.tip);
-    papersAccess.value = FeatureAccess.parse(sp.getString('papers_access'));
+    papersAccess.value = FeatureAccess.parse(sp.getString(SpKeys.papersAccess));
     _persist(
       west2AdjustmentsAccess,
-      (value) => sp.setString('west2_adjustments_access', value.name),
+      (value) => sp.setString(SpKeys.west2AdjustmentsAccess, value.name),
     );
     _persist(
       papersAccess,
-      (value) => sp.setString('papers_access', value.name),
+      (value) => sp.setString(SpKeys.papersAccess, value.name),
     );
 
     // GitHub 代理
