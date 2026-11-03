@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:fzu_assistant/model/feature_access.dart';
+
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,7 +47,12 @@ class AppSettings {
 
   // 自动调课
   final autoAdjustCourse = ValueNotifier<bool>(true);
-  final west2AdjustmentsEnabled = ValueNotifier<bool>(false);
+  final west2AdjustmentsAccess = ValueNotifier<FeatureAccess>(
+    FeatureAccess.tip,
+  );
+  final papersAccess = ValueNotifier<FeatureAccess>(FeatureAccess.tip);
+  bool get useWest2Adjustments =>
+      west2AdjustmentsAccess.value == FeatureAccess.allow;
 
   // GitHub 代理
   final githubProxyEnabled = ValueNotifier<bool>(true);
@@ -111,8 +118,20 @@ class AppSettings {
 
     // 自动调课
     autoAdjustCourse.value = sp.getBool(SpKeys.autoAdjustCourse) ?? true;
-    west2AdjustmentsEnabled.value =
-        sp.getBool(SpKeys.west2AdjustmentsEnabled) ?? false;
+    west2AdjustmentsAccess.value = sp.containsKey('west2_adjustments_access')
+        ? FeatureAccess.parse(sp.getString('west2_adjustments_access'))
+        : (sp.getBool(SpKeys.west2AdjustmentsEnabled) == true
+              ? FeatureAccess.allow
+              : FeatureAccess.tip);
+    papersAccess.value = FeatureAccess.parse(sp.getString('papers_access'));
+    _persist(
+      west2AdjustmentsAccess,
+      (value) => sp.setString('west2_adjustments_access', value.name),
+    );
+    _persist(
+      papersAccess,
+      (value) => sp.setString('papers_access', value.name),
+    );
 
     // GitHub 代理
     githubProxyEnabled.value = sp.getBool(SpKeys.githubProxyEnabled) ?? true;
@@ -162,7 +181,6 @@ class AppSettings {
       SpKeys.showExamOnSchedule: showExamOnSchedule,
       SpKeys.showNonCurrentWeekCourses: showNonCurrentWeekCourses,
       SpKeys.autoAdjustCourse: autoAdjustCourse,
-      SpKeys.west2AdjustmentsEnabled: west2AdjustmentsEnabled,
       SpKeys.githubProxyEnabled: githubProxyEnabled,
     }.entries) {
       _persist(entry.value, (value) => sp.setBool(entry.key, value));
@@ -283,7 +301,8 @@ class AppSettings {
     showNonCurrentWeekCourses.dispose();
     hiddenCourseSessions.dispose();
     autoAdjustCourse.dispose();
-    west2AdjustmentsEnabled.dispose();
+    west2AdjustmentsAccess.dispose();
+    papersAccess.dispose();
     githubProxyEnabled.dispose();
     githubProxyBaseUrl.dispose();
   }

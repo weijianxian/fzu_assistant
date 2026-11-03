@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/course.dart';
@@ -126,7 +127,7 @@ void main() {
     ];
     expect(plans([early, late]).first['body'], contains('14:00'));
     settings.hiddenCourseSessions.value = [];
-    settings.west2AdjustmentsEnabled.value = true;
+    settings.west2AdjustmentsAccess.value = FeatureAccess.allow;
     final holidays = {
       '202601': [
         {'enabled': true, 'from_week': 2, 'from_weekday': 1, 'to_date': ''},

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +30,7 @@ void main() {
     settings.showNonCurrentWeekCourses.value = true;
     settings.siteInjectionEnabled.value = false;
     settings.autoAdjustCourse.value = false;
-    settings.west2AdjustmentsEnabled.value = true;
+    settings.west2AdjustmentsAccess.value = FeatureAccess.allow;
     settings.githubProxyEnabled.value = false;
     settings.githubProxyBaseUrl.value = 'https://proxy.example.com';
     settings.localeKey.value = 'zh';
@@ -49,7 +50,7 @@ void main() {
     expect(reloaded.showNonCurrentWeekCourses.value, isTrue);
     expect(reloaded.siteInjectionEnabled.value, isFalse);
     expect(reloaded.autoAdjustCourse.value, isFalse);
-    expect(reloaded.west2AdjustmentsEnabled.value, isTrue);
+    expect(reloaded.useWest2Adjustments, isTrue);
     expect(reloaded.githubProxyEnabled.value, isFalse);
     expect(reloaded.githubProxyBaseUrl.value, 'https://proxy.example.com/');
     settings.dispose();

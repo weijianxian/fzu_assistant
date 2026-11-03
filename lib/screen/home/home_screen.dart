@@ -34,7 +34,7 @@ class HomeScreen extends HookWidget {
         settings.courseReminderEnabled,
         settings.courseReminderMinutes,
         settings.autoAdjustCourse,
-        settings.west2AdjustmentsEnabled,
+        settings.west2AdjustmentsAccess,
         settings.hiddenCourseSessions,
         settings.localeKey,
       ];

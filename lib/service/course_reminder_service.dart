@@ -143,7 +143,7 @@ class CourseReminderService {
         var courses = ((caches[term.term] as Map)['courses'] as List)
             .map((c) => Course.fromJson(Map<String, dynamic>.from(c as Map)))
             .toList();
-        if (settings.west2AdjustmentsEnabled.value) {
+        if (settings.useWest2Adjustments) {
           courses = CourseService.applyHolidayAdjustments(
             courses,
             (holidays[term.term] as List?) ?? [],

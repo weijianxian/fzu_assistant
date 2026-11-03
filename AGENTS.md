@@ -154,6 +154,9 @@ lib/
 
 ## 编码规范
 
+- west2 online 服务按功能独立配置 `FeatureAccess.tip / allow / hide`：默认 tip，入口可见但不得请求服务；allow 才启用请求；hide 隐藏入口，仍可在设置中恢复。原 west2 调课布尔开关迁移到 `west2AdjustmentsAccess`，已允许的用户保持 allow；历年卷使用独立 `papersAccess`。统一设置页为 `screen/settings/third_party_settings_page.dart`，模型为 `model/feature_access.dart`，周课表、天视图和后台提醒共同读取同一授权状态。
+- 本轮功能约束：自定义课程按账号和学期保存，并覆盖周课表、天视图与提醒；WebDAV 手动同步应用设置、自定义课程和隐藏课程，禁止上传登录凭据、Cookie、支付数据、缓存及 WebDAV 密码，下载覆盖前须确认。WebDAV 密码只放 SecureStorage。校园服务通过域名隔离的 SSO 会话进入，不把教务 Cookie 当作 SSO Cookie。
+
 - 平台功能直接放在设置主列表底部分隔线之后，仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示权限管理和早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
 
 - 教务处成功登录后，将账号绑定的历史 Cookie 与 identifier 保存到 SecureStorage；启动/同账号登录失败且有历史会话时进入缓存模式，保留稳定学号，旧 identifier 不用于业务请求。课表、考场、校历与事件优先展示已有缓存，强制刷新也不得清空缓存；主页提示缓存模式并支持重试登录，退出教务账号同时删除历史会话。
@@ -375,3 +378,9 @@ version: 1.1.5+46
 - [fzuhelper-server](https://github.com/west2-online/fzuhelper-server)（`.reference/fzu-helper-server/`）：福大助手 Go 服务端，参考业务设计。
 - [FluxDown](https://github.com/zerx-lab/FluxDown)（`.reference/FluxDown/`）：Flutter 下载管理器，参考 Windows 安装包与自动更新流程。
 - [PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus)（`.reference/PiliPlus/`）：Flutter 哔哩哔哩客户端，参考 Flutter UI 与交互实现。
+
+## Review 与界面约定
+
+- 全应用的描述性文字只用一句简要概述，操作确认保留关键后果，不堆砌实现细节。
+- 第三方服务使用三选按钮，左侧“隐藏”、中间“询问”、右侧“开启”，默认“询问”且不请求服务。
+- review 修改直接 amend / squash 到对应功能的原提交，不创建额外 review 或 fixup 提交。

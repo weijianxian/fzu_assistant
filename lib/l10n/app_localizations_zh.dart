@@ -10,7 +10,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get academicCachedSession => '教务处登录失败，正在展示历史缓存，数据可能不是最新的。可重试连接。';
+  String get academicCachedSession => '教务连接失败，正在展示历史缓存，请重试以获取最新数据。';
 
   @override
   String get accountManagement => '账号管理';
@@ -182,7 +182,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get githubProxyBaseUrlDescription =>
-      '例如 https://gh-proxy.org/，会自动补全协议和斜杠';
+      '填写 GitHub 下载代理地址，例如 https://gh-proxy.org/。';
 
   @override
   String get webEnhancement => '网页增强';
@@ -495,8 +495,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get west2AdjustmentsEnabled => '从 west2 获取调课数据';
 
   @override
-  String get west2AdjustmentsDescription =>
-      '用于自动调课。部分调课数据由 AI 解析教务处通知生成，请以教务处通知为准。';
+  String get west2AdjustmentsDescription => '从西二在线补充全校调休安排，数据请以教务通知为准。';
 
   @override
   String get autoAdjustCourse => '自动调课';
@@ -984,7 +983,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get permissionManagementSubtitle => '查看应用需要的权限和授权状态';
 
   @override
-  String get permissionManagementDescription => '展示应用需要的权限用途和授权状态，点击条目进入系统管理。';
+  String get permissionManagementDescription => '查看权限用途与授权状态，点击进入系统管理。';
 
   @override
   String get appPermissionSettings => '应用系统设置';
@@ -1064,4 +1063,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get permissionNameBoot => '接收开机通知';
+
+  @override
+  String get thirdPartyServices => '第三方服务';
+
+  @override
+  String get thirdPartyDescription => '按功能选择隐藏、询问或开启西二在线服务。';
+
+  @override
+  String get thirdPartyDisabled => '尚未启用，请前往第三方服务设置';
+
+  @override
+  String get accessTip => '询问';
+
+  @override
+  String get accessAllow => '开启';
+
+  @override
+  String get accessHide => '隐藏';
+
+  @override
+  String get pastPapers => '历年卷';
+
+  @override
+  String get pastPapersDescription =>
+      '试卷目录和下载地址由 west2 online 提供。开启后会向该服务发送目录查询和下载请求。';
 }

@@ -46,7 +46,7 @@ class SchedulePage extends HookWidget {
         final list = await service.getCourses(
           term,
           useCache: useCache,
-          west2AdjustmentsEnabled: settings.west2AdjustmentsEnabled.value,
+          west2AdjustmentsEnabled: settings.useWest2Adjustments,
         );
         if (!isLatest()) return null;
         courses.value = list;
@@ -146,9 +146,9 @@ class SchedulePage extends HookWidget {
         if (target.isNotEmpty) refresh(target);
       }
 
-      settings.west2AdjustmentsEnabled.addListener(onSourceChanged);
+      settings.west2AdjustmentsAccess.addListener(onSourceChanged);
       return () =>
-          settings.west2AdjustmentsEnabled.removeListener(onSourceChanged);
+          settings.west2AdjustmentsAccess.removeListener(onSourceChanged);
     }, []);
 
     // 监听底部 tab 再次点击 → 跳转本周

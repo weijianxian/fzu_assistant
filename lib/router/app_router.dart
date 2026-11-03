@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/settings/third_party_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/android_permissions_page.dart';
 import 'package:fzu_assistant/screen/settings/course_reminder_settings_page.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
@@ -60,6 +61,7 @@ abstract final class AppRouter {
     AppRoutes.calendar: (_) => const CalendarPage(),
     AppRoutes.profile: (_) => const ProfilePage(),
     AppRoutes.settings: (_) => const SettingsPage(),
+    AppRoutes.thirdPartySettings: (_) => const ThirdPartySettingsPage(),
     AppRoutes.courseReminderSettings: (_) => const CourseReminderSettingsPage(),
     AppRoutes.androidPermissions: (_) => const AndroidPermissionsPage(),
     AppRoutes.accountManagement: (_) => const AccountManagementPage(),

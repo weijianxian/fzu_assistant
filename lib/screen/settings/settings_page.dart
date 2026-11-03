@@ -40,6 +40,12 @@ class SettingsPage extends HookWidget {
             subtitle: Text(l10n.advancedSettingsSubtitle),
             onTap: () => context.pushNamed(AppRoutes.advancedSettings),
           ),
+          ChevronListTile(
+            leading: const Icon(Icons.cloud_outlined),
+            title: Text(l10n.thirdPartyServices),
+            subtitle: Text(l10n.thirdPartyDescription),
+            onTap: () => context.pushNamed(AppRoutes.thirdPartySettings),
+          ),
           if (CourseReminderService.supported) const Divider(),
           if (CourseReminderService.supported) ...[
             ChevronListTile(

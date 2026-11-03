@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @academicCachedSession.
   ///
   /// In zh, this message translates to:
-  /// **'教务处登录失败，正在展示历史缓存，数据可能不是最新的。可重试连接。'**
+  /// **'教务连接失败，正在展示历史缓存，请重试以获取最新数据。'**
   String get academicCachedSession;
 
   /// No description provided for @accountManagement.
@@ -425,7 +425,7 @@ abstract class AppLocalizations {
   /// githubProxyBaseUrlDescription
   ///
   /// In zh, this message translates to:
-  /// **'例如 https://gh-proxy.org/，会自动补全协议和斜杠'**
+  /// **'填写 GitHub 下载代理地址，例如 https://gh-proxy.org/。'**
   String get githubProxyBaseUrlDescription;
 
   /// webEnhancement
@@ -1019,7 +1019,7 @@ abstract class AppLocalizations {
   /// No description provided for @west2AdjustmentsDescription.
   ///
   /// In zh, this message translates to:
-  /// **'用于自动调课。部分调课数据由 AI 解析教务处通知生成，请以教务处通知为准。'**
+  /// **'从西二在线补充全校调休安排，数据请以教务通知为准。'**
   String get west2AdjustmentsDescription;
 
   /// autoAdjustCourse
@@ -1931,7 +1931,7 @@ abstract class AppLocalizations {
   /// No description provided for @permissionManagementDescription.
   ///
   /// In zh, this message translates to:
-  /// **'展示应用需要的权限用途和授权状态，点击条目进入系统管理。'**
+  /// **'查看权限用途与授权状态，点击进入系统管理。'**
   String get permissionManagementDescription;
 
   /// No description provided for @appPermissionSettings.
@@ -2089,6 +2089,54 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'接收开机通知'**
   String get permissionNameBoot;
+
+  /// No description provided for @thirdPartyServices.
+  ///
+  /// In zh, this message translates to:
+  /// **'第三方服务'**
+  String get thirdPartyServices;
+
+  /// No description provided for @thirdPartyDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'按功能选择隐藏、询问或开启西二在线服务。'**
+  String get thirdPartyDescription;
+
+  /// No description provided for @thirdPartyDisabled.
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未启用，请前往第三方服务设置'**
+  String get thirdPartyDisabled;
+
+  /// No description provided for @accessTip.
+  ///
+  /// In zh, this message translates to:
+  /// **'询问'**
+  String get accessTip;
+
+  /// No description provided for @accessAllow.
+  ///
+  /// In zh, this message translates to:
+  /// **'开启'**
+  String get accessAllow;
+
+  /// No description provided for @accessHide.
+  ///
+  /// In zh, this message translates to:
+  /// **'隐藏'**
+  String get accessHide;
+
+  /// No description provided for @pastPapers.
+  ///
+  /// In zh, this message translates to:
+  /// **'历年卷'**
+  String get pastPapers;
+
+  /// No description provided for @pastPapersDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'试卷目录和下载地址由 west2 online 提供。开启后会向该服务发送目录查询和下载请求。'**
+  String get pastPapersDescription;
 }
 
 class _AppLocalizationsDelegate

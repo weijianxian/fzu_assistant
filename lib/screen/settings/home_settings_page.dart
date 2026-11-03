@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/model/feature_access.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/common/widgets.dart';
@@ -15,6 +17,7 @@ class HomeSettingsPage extends HookWidget {
     final settings = AppSettingsProvider.of(context);
     final l10n = AppLocalizations.of(context)!;
     final autoAdjustCourse = useValueListenable(settings.autoAdjustCourse);
+    final access = useValueListenable(settings.west2AdjustmentsAccess);
     final hidden =
         useValueListenable(settings.hiddenCourseSessions)
             .where((s) => s.account == ApiClient.instance.studentId)
@@ -195,11 +198,17 @@ class HomeSettingsPage extends HookWidget {
                   title: Text(l10n.autoAdjustCourse),
                   subtitle: Text(l10n.autoAdjustCourseDescription),
                 ),
-                if (autoAdjustCourse)
-                  SettingSwitchTile(
-                    notifier: settings.west2AdjustmentsEnabled,
+                if (autoAdjustCourse && access != FeatureAccess.hide)
+                  ListTile(
                     title: Text(l10n.west2AdjustmentsEnabled),
-                    subtitle: Text(l10n.west2AdjustmentsDescription),
+                    subtitle: Text(
+                      access == FeatureAccess.allow
+                          ? l10n.west2AdjustmentsDescription
+                          : l10n.thirdPartyDisabled,
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.thirdPartySettings),
                   ),
               ],
             ),

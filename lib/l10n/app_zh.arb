@@ -1,5 +1,5 @@
 {
-  "academicCachedSession": "教务处登录失败，正在展示历史缓存，数据可能不是最新的。可重试连接。",
+  "academicCachedSession": "教务连接失败，正在展示历史缓存，请重试以获取最新数据。",
   "accountManagement": "账号管理",
   "accountAcademic": "教务处",
   "accountSso": "统一身份认证（SSO）",
@@ -198,7 +198,7 @@
   "@githubProxyBaseUrl": {
     "description": "githubProxyBaseUrl"
   },
-  "githubProxyBaseUrlDescription": "例如 https://gh-proxy.org/，会自动补全协议和斜杠",
+  "githubProxyBaseUrlDescription": "填写 GitHub 下载代理地址，例如 https://gh-proxy.org/。",
   "@githubProxyBaseUrlDescription": {
     "description": "githubProxyBaseUrlDescription"
   },
@@ -629,7 +629,7 @@
     "description": "showExamOnScheduleDescription"
   },
   "west2AdjustmentsEnabled": "从 west2 获取调课数据",
-  "west2AdjustmentsDescription": "用于自动调课。部分调课数据由 AI 解析教务处通知生成，请以教务处通知为准。",
+  "west2AdjustmentsDescription": "从西二在线补充全校调休安排，数据请以教务通知为准。",
   "autoAdjustCourse": "自动调课",
   "@autoAdjustCourse": {
     "description": "autoAdjustCourse"
@@ -898,7 +898,7 @@
   "@reminderBeijingTime": {"placeholders": {"time": {"type": "String"}}},
   "permissionManagement": "权限管理",
   "permissionManagementSubtitle": "查看应用需要的权限和授权状态",
-  "permissionManagementDescription": "展示应用需要的权限用途和授权状态，点击条目进入系统管理。",
+  "permissionManagementDescription": "查看权限用途与授权状态，点击进入系统管理。",
   "appPermissionSettings": "应用系统设置",
   "permissionSettingsFailed": "无法打开系统权限设置，请重试。",
   "permissionLoadFailed": "无法读取应用权限，请重试。",
@@ -926,5 +926,13 @@
   "permissionNameWake": "保持唤醒",
   "permissionNameBoot": "接收开机通知",
   "@learningFloor": {"placeholders": {"floor": {"type": "String"}}},
-  "@learningSeatLabel": {"placeholders": {"floor": {"type": "String"}, "seat": {"type": "String"}}}
+  "@learningSeatLabel": {"placeholders": {"floor": {"type": "String"}, "seat": {"type": "String"}}},
+  "thirdPartyServices": "第三方服务",
+  "thirdPartyDescription": "按功能选择隐藏、询问或开启西二在线服务。",
+  "thirdPartyDisabled": "尚未启用，请前往第三方服务设置",
+  "accessTip": "询问",
+  "accessAllow": "开启",
+  "accessHide": "隐藏",
+  "pastPapers": "历年卷",
+  "pastPapersDescription": "试卷目录和下载地址由 west2 online 提供。开启后会向该服务发送目录查询和下载请求。"
 }
