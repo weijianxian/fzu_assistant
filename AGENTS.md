@@ -154,6 +154,10 @@ lib/
       app_settings.dart  # 统一设置管理（主题 + 语言 + 学期 + 网页注入，InheritedWidget + SP 持久化）
 ```
 
+## 校园服务
+
+- `screen/toolbox/campus_services/campus_services_page.dart` 提供公寓报修、综合预约、图书馆预约、失物招领、晚点名、电动车和校本化官方网页。`WebViewArgs.injectSsoCookies` 区分统一认证与教务会话，SSO 登录复用不申请学习中心 token 的页面。WebView 为 HookWidget，SOURCEID_TGC 仅注入 SSO HTTPS host；退出清理原生 Cookie，挂载页面按会话代次销毁旧内容。外部 App 协议仅在用户点击时打开。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。

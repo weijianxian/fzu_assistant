@@ -89,6 +89,12 @@ class ToolboxPage extends HookWidget {
             l10n.academicShortcutsSubtitle,
             AppRoutes.academicShortcuts,
           ),
+          (
+            Icons.apartment_outlined,
+            l10n.campusServices,
+            l10n.campusServicesDescription,
+            AppRoutes.campusServices,
+          ),
         ],
       ),
     ];

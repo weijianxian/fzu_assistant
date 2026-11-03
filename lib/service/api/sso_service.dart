@@ -8,6 +8,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/service/webview_session.dart';
 import 'package:html/parser.dart' as html;
 import 'package:pointycastle/export.dart';
 
@@ -20,7 +21,9 @@ typedef SmsVerification = Future<String?> Function(
 /// Protocol adapted from west2-online/fzuhelper-app lib/sso-login.ts.
 /// SSO cookies are isolated from the academic session and stored per account.
 class SsoService {
-  SsoService({Dio? dio}) : dio = dio ?? Dio() {
+  SsoService({Dio? dio, Future<void> Function()? clearWebViewCookies})
+    : dio = dio ?? Dio(),
+      _clearWebViewCookies = clearWebViewCookies ?? clearNativeWebViewCookies {
     this.dio.options
       ..followRedirects = false
       ..connectTimeout = const Duration(seconds: 20)
@@ -39,6 +42,8 @@ class SsoService {
   final _cookies = CookieJar();
   final sessionRevision = ValueNotifier(0);
   int _sessionGeneration = 0;
+  bool _loggingOut = false;
+  final Future<void> Function() _clearWebViewCookies;
   final _storage = const FlutterSecureStorage(
     mOptions: MacOsOptions(usesDataProtectionKeychain: false),
   );
@@ -64,6 +69,23 @@ class SsoService {
   Future<void> clearCampusToken() async =>
       _storage.delete(key: await _key('campus_token'));
 
+  /// Only the SSO host may receive this ticket. The browser follows each
+  /// service's own redirect flow and obtains its own domain-scoped session.
+  Future<String> loadWebViewCookie() async {
+    final generation = _sessionGeneration;
+    final key = await _key('cookie');
+    final cookie = await _storage.read(key: key);
+    final currentKey = await _key('cookie');
+    if (_loggingOut ||
+        cookie == null ||
+        cookie.isEmpty ||
+        generation != _sessionGeneration ||
+        key != currentKey) {
+      throw const SsoLoginRequired();
+    }
+    return cookie;
+  }
+
   Future<bool> hasSession() async {
     final prefix = await _key('');
     final values = await Future.wait([
@@ -75,14 +97,19 @@ class SsoService {
 
   Future<void> logout() async {
     _sessionGeneration++;
-    final prefix = await _key('');
+    _loggingOut = true;
+    // Mounted business pages must drop sensitive content immediately.
+    sessionRevision.value++;
     try {
+      final prefix = await _key('');
       await Future.wait([
         for (final kind in ['cookie', 'study_token', 'campus_token'])
           _storage.delete(key: '$prefix$kind'),
         _cookies.deleteAll(),
+        _clearWebViewCookies(),
       ]);
     } finally {
+      _loggingOut = false;
       sessionRevision.value++;
     }
   }

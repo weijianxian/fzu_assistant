@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/toolbox/campus_services/campus_services_page.dart';
 import 'package:fzu_assistant/screen/settings/third_party_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/android_permissions_page.dart';
 import 'package:fzu_assistant/screen/settings/course_reminder_settings_page.dart';
@@ -53,6 +54,9 @@ abstract final class AppRouter {
     AppRoutes.academicShortcuts: (_) => const AcademicShortcutsPage(),
     AppRoutes.learningCenter: (_) => const LearningCenterPage(),
     AppRoutes.campusCode: (_) => const CampusCodePage(),
+    AppRoutes.campusServices: (_) => const CampusServicesPage(),
+    AppRoutes.campusServicesLogin: (_) =>
+        const SsoLoginPage(loadStudyToken: false),
     AppRoutes.campusCodeLogin: (_) => const SsoLoginPage(loadStudyToken: false),
     AppRoutes.learningSeats: (_) => const LearningSeatsPage(),
     AppRoutes.learningAppointments: (_) => const LearningAppointmentsPage(),
@@ -129,6 +133,7 @@ abstract final class AppRouter {
         url: args.url,
         title: args.title,
         injectCookies: args.injectCookies,
+        injectSsoCookies: args.injectSsoCookies,
       ),
       settings: settings,
     );

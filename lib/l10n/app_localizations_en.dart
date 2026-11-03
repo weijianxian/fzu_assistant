@@ -722,7 +722,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ssoLoginDescription =>
-      'Use your FZU SSO account for campus codes and the learning center. Its password may differ from your academic password. Your password is not saved.';
+      'Sign in to campus services with your separate SSO account without saving its password.';
 
   @override
   String get ssoSmsVerification => 'SMS verification';
@@ -738,11 +738,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ssoLogoutDescription =>
-      'Sign out of campus codes, the learning center and SSO. Keep your academic session.';
+      'Sign out of SSO, campus codes and the learning center while keeping your academic session.';
 
   @override
-  String get ssoSessionExpired =>
-      'Session expired. Sign in and retry the operation.';
+  String get ssoSessionExpired => 'Sign in again to continue.';
 
   @override
   String get learningReserve => 'Reserve a seat';
@@ -756,7 +755,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get learningInstructions =>
-      'The learning center is on floors 4–5 of Jinjiang Building, Qishan Campus. Choose half-hour slots within the next seven days, up to four hours. Scan the on-site QR code to check in, and check out before leaving. Retry later if the server is slow.';
+      'Reserve a seat on floors 4–5 of Jinjiang Building, scan to check in and check out before leaving.';
 
   @override
   String get learningCancel => 'Cancel';
@@ -794,8 +793,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learningSeatTimes => 'Daily seat availability';
 
   @override
-  String get learningReserved =>
-      'Reserved. View it in My reservations and check in on time.';
+  String get learningReserved => 'View your reservation and check in on time.';
 
   @override
   String get learningSeatList => 'Seats';
@@ -829,11 +827,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get learningNoSeats => 'No seats found. Change time or retry later.';
+  String get learningNoSeats => 'Try another time to find available seats.';
 
   @override
   String get learningSeatLegend =>
-      'Highlighted seats are available. Tap an occupied seat for daily availability.';
+      'Select an available seat or tap an occupied one for its daily availability.';
 
   @override
   String get learningSignOut => 'Check out';
@@ -881,15 +879,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get learningScannerUnsupported =>
-      'Camera scanning is unavailable here. Use an Android, iOS or macOS device to scan the on-site code.';
+      'On-site scanning requires Android, iOS or macOS.';
 
   @override
   String get learningCameraError =>
-      'Cannot access the camera. Check permissions and reopen the scanner.';
+      'Check camera access and reopen the scanner.';
 
   @override
-  String get learningInvalidQr =>
-      'Invalid or expired QR code. Scan the current on-site code.';
+  String get learningInvalidQr => 'Scan a valid on-site check-in code.';
 
   @override
   String get learningScanHint => 'Scan the on-site check-in code';
@@ -1069,4 +1066,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pastPapersDescription =>
       'Paper listings and download links are provided by west2 online. Enabling sends listing and download requests to this service.';
+
+  @override
+  String get campusServices => 'Campus services';
+
+  @override
+  String get campusServicesDescription =>
+      'Use official campus services with your SSO account.';
+
+  @override
+  String get campusDormRepair => 'Dorm repairs';
+
+  @override
+  String get campusReservations => 'Campus reservations';
+
+  @override
+  String get campusLibraryReservation => 'Library reservations';
+
+  @override
+  String get campusLostAndFound => 'Lost and found';
+
+  @override
+  String get campusAttendance => 'Evening attendance';
+
+  @override
+  String get campusElectricBike => 'Electric bike management';
+
+  @override
+  String get campusYiban => 'Yiban campus services';
+
+  @override
+  String get webViewLoadError => 'Could not load webpage';
 }

@@ -1415,7 +1415,7 @@ abstract class AppLocalizations {
   /// No description provided for @ssoLoginDescription.
   ///
   /// In zh, this message translates to:
-  /// **'使用福州大学统一身份认证账号登录一码通、学习中心，密码可能与教务处不同。密码不会保存在本机。'**
+  /// **'使用独立的统一认证账号登录校园服务，密码不在本机保存。'**
   String get ssoLoginDescription;
 
   /// No description provided for @ssoSmsVerification.
@@ -1445,7 +1445,7 @@ abstract class AppLocalizations {
   /// No description provided for @ssoLogoutDescription.
   ///
   /// In zh, this message translates to:
-  /// **'退出一码通、学习中心和统一认证，保留教务处登录。'**
+  /// **'退出统一认证、一码通和学习中心，保留教务登录。'**
   String get ssoLogoutDescription;
 
   /// No description provided for @ssoSessionExpired.
@@ -1475,7 +1475,7 @@ abstract class AppLocalizations {
   /// No description provided for @learningInstructions.
   ///
   /// In zh, this message translates to:
-  /// **'学习中心位于旗山校区研究生科研楼（晋江楼）4–5 层。请选择未来七天内的整点或半点时段，每次不超过 4 小时。预约后到现场扫码签到，离开时签退。服务器响应较慢时请稍后重试。'**
+  /// **'预约晋江楼 4–5 层的学习座位，到场扫码签到并在离开时签退。'**
   String get learningInstructions;
 
   /// No description provided for @learningCancel.
@@ -2023,6 +2023,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'试卷目录和下载地址由 west2 online 提供。开启后会向该服务发送目录查询和下载请求。'**
   String get pastPapersDescription;
+
+  /// No description provided for @campusServices.
+  ///
+  /// In zh, this message translates to:
+  /// **'校园服务'**
+  String get campusServices;
+
+  /// No description provided for @campusServicesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'通过统一认证使用学校官方校园服务。'**
+  String get campusServicesDescription;
+
+  /// No description provided for @campusDormRepair.
+  ///
+  /// In zh, this message translates to:
+  /// **'公寓报修'**
+  String get campusDormRepair;
+
+  /// No description provided for @campusReservations.
+  ///
+  /// In zh, this message translates to:
+  /// **'综合预约'**
+  String get campusReservations;
+
+  /// No description provided for @campusLibraryReservation.
+  ///
+  /// In zh, this message translates to:
+  /// **'图书馆预约'**
+  String get campusLibraryReservation;
+
+  /// No description provided for @campusLostAndFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'失物招领'**
+  String get campusLostAndFound;
+
+  /// No description provided for @campusAttendance.
+  ///
+  /// In zh, this message translates to:
+  /// **'晚点名签到'**
+  String get campusAttendance;
+
+  /// No description provided for @campusElectricBike.
+  ///
+  /// In zh, this message translates to:
+  /// **'电动车管理'**
+  String get campusElectricBike;
+
+  /// No description provided for @campusYiban.
+  ///
+  /// In zh, this message translates to:
+  /// **'校本化（易班）'**
+  String get campusYiban;
+
+  /// No description provided for @webViewLoadError.
+  ///
+  /// In zh, this message translates to:
+  /// **'网页加载失败'**
+  String get webViewLoadError;
 }
 
 class _AppLocalizationsDelegate

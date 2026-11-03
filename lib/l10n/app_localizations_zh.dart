@@ -703,8 +703,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ssoLogin => '统一身份认证登录';
 
   @override
-  String get ssoLoginDescription =>
-      '使用福州大学统一身份认证账号登录一码通、学习中心，密码可能与教务处不同。密码不会保存在本机。';
+  String get ssoLoginDescription => '使用独立的统一认证账号登录校园服务，密码不在本机保存。';
 
   @override
   String get ssoSmsVerification => '手机验证';
@@ -719,7 +718,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ssoLogout => '退出统一认证';
 
   @override
-  String get ssoLogoutDescription => '退出一码通、学习中心和统一认证，保留教务处登录。';
+  String get ssoLogoutDescription => '退出统一认证、一码通和学习中心，保留教务登录。';
 
   @override
   String get ssoSessionExpired => '学习中心登录已过期，请重新登录后重试操作。';
@@ -734,8 +733,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get learningAppointments => '我的预约';
 
   @override
-  String get learningInstructions =>
-      '学习中心位于旗山校区研究生科研楼（晋江楼）4–5 层。请选择未来七天内的整点或半点时段，每次不超过 4 小时。预约后到现场扫码签到，离开时签退。服务器响应较慢时请稍后重试。';
+  String get learningInstructions => '预约晋江楼 4–5 层的学习座位，到场扫码签到并在离开时签退。';
 
   @override
   String get learningCancel => '取消';
@@ -1026,4 +1024,34 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get pastPapersDescription =>
       '试卷目录和下载地址由 west2 online 提供。开启后会向该服务发送目录查询和下载请求。';
+
+  @override
+  String get campusServices => '校园服务';
+
+  @override
+  String get campusServicesDescription => '通过统一认证使用学校官方校园服务。';
+
+  @override
+  String get campusDormRepair => '公寓报修';
+
+  @override
+  String get campusReservations => '综合预约';
+
+  @override
+  String get campusLibraryReservation => '图书馆预约';
+
+  @override
+  String get campusLostAndFound => '失物招领';
+
+  @override
+  String get campusAttendance => '晚点名签到';
+
+  @override
+  String get campusElectricBike => '电动车管理';
+
+  @override
+  String get campusYiban => '校本化（易班）';
+
+  @override
+  String get webViewLoadError => '网页加载失败';
 }

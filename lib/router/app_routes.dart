@@ -14,6 +14,8 @@ abstract final class AppRoutes {
   static const academicShortcuts = '/academic-shortcuts';
   static const learningCenter = '/learning-center';
   static const campusCode = '/campus-code';
+  static const campusServices = '/campus-services';
+  static const campusServicesLogin = '/campus-services/login';
   static const campusCodeLogin = '/campus-code/login';
   static const learningSeats = '/learning-center/seats';
   static const learningAvailableSeats = '/learning-center/available-seats';
@@ -71,8 +73,14 @@ class WebViewArgs {
   final String url;
   final String? title;
   final bool injectCookies;
+  final bool injectSsoCookies;
 
-  const WebViewArgs({required this.url, this.title, this.injectCookies = true});
+  const WebViewArgs({
+    required this.url,
+    this.title,
+    this.injectCookies = true,
+    this.injectSsoCookies = false,
+  });
 }
 
 class EditorArgs {
