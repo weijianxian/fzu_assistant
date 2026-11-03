@@ -1225,4 +1225,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get selectPlanManually => '在教务处手动选择培养计划';
+
+  @override
+  String get studentCardServices => '学生证与附卡';
+
+  @override
+  String get replaceStudentCard => '补办学生证';
+
+  @override
+  String get replaceSupplementaryCard => '补办附卡';
+
+  @override
+  String get changeTravelRoute => '更改乘车区间';
+
+  @override
+  String get graduationProject => '毕业设计（论文）';
 }

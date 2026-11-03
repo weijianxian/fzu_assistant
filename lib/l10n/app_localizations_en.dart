@@ -1284,4 +1284,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectPlanManually => 'Select a plan on the academic website';
+
+  @override
+  String get studentCardServices => 'Student card services';
+
+  @override
+  String get replaceStudentCard => 'Replace student card';
+
+  @override
+  String get replaceSupplementaryCard => 'Replace supplementary card';
+
+  @override
+  String get changeTravelRoute => 'Change travel route';
+
+  @override
+  String get graduationProject => 'Graduation project / thesis';
 }

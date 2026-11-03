@@ -2425,6 +2425,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'在教务处手动选择培养计划'**
   String get selectPlanManually;
+
+  /// No description provided for @studentCardServices.
+  ///
+  /// In zh, this message translates to:
+  /// **'学生证与附卡'**
+  String get studentCardServices;
+
+  /// No description provided for @replaceStudentCard.
+  ///
+  /// In zh, this message translates to:
+  /// **'补办学生证'**
+  String get replaceStudentCard;
+
+  /// No description provided for @replaceSupplementaryCard.
+  ///
+  /// In zh, this message translates to:
+  /// **'补办附卡'**
+  String get replaceSupplementaryCard;
+
+  /// No description provided for @changeTravelRoute.
+  ///
+  /// In zh, this message translates to:
+  /// **'更改乘车区间'**
+  String get changeTravelRoute;
+
+  /// No description provided for @graduationProject.
+  ///
+  /// In zh, this message translates to:
+  /// **'毕业设计（论文）'**
+  String get graduationProject;
 }
 
 class _AppLocalizationsDelegate

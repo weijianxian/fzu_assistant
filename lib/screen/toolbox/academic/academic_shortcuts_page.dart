@@ -33,7 +33,21 @@ class AcademicShortcutsPage extends HookWidget {
           (l10n.electiveCreditConversion, 'glsq/xxzcy/xxzcy_cszt.aspx'),
         ],
       ),
-      (l10n.campusInfo, [(l10n.jiaxiLectures, 'glbm/lecture/jxjt_cszt.aspx')]),
+      (
+        l10n.studentCardServices,
+        [
+          (l10n.replaceStudentCard, 'xszfk/xsz_bk.aspx'),
+          (l10n.replaceSupplementaryCard, 'xszfk/xsz_bfk.aspx'),
+          (l10n.changeTravelRoute, 'xszfk/xsz_gg.aspx'),
+        ],
+      ),
+      (
+        l10n.campusInfo,
+        [
+          (l10n.graduationProject, 'bylw/bylw_list.aspx'),
+          (l10n.jiaxiLectures, 'glbm/lecture/jxjt_cszt.aspx'),
+        ],
+      ),
     ];
 
     return AppScaffold(

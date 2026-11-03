@@ -101,7 +101,7 @@ lib/
       credit/            # 学分统计
       empty_room/        # 空教室查询（日期/节次/校区选择 + 结果列表）
       notice/            # 教务通知（分页列表，WebView 打开详情）
-      academic/          # 教务快捷入口（选课、教务申请、嘉锡讲坛，复用带 Cookie 的 WebView）
+      academic/          # 教务快捷入口（选课、教务申请、学生证与附卡、毕业设计、嘉锡讲坛，复用带 Cookie 的 WebView）
       learning_center/   # 学习中心：独立 SSO 登录、4/5 层座位查询/预约、时段查询、分页预约记录、取消/签到/签退
         learning_center_page.dart # 入口与 SSO 会话管理
         learning_seats_page.dart # 北京时间未来七天日期卡片、四列半小时时间格和区间高亮；查询后 push 独立座位列表页，返回保留选择
@@ -170,6 +170,10 @@ lib/
 ## 培养计划
 
 - `AcademicService.getCultivatePlan()` 直接读取教务处，按年级/学院/专业精确匹配，失败时用年级查询回退匹配专业，WebForms 令牌随每次响应更新，不接入 west2 服务。`screen/toolbox/academic/cultivate_plan_page.dart` 为工具箱入口，支持刷新及打开官方页面手动选择。最终链接仅接受教务处培养方案域名和路径，保留当前会话 id。
+
+## 教务快捷入口
+
+- 学生证补办、附卡补办、乘车区间更改与毕业设计（论文）统一放在 AcademicShortcutsPage，复用教务 Cookie 与会话 id 注入，不引入第三方服务。
 
 ## 编码规范
 

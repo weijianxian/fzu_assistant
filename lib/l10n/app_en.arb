@@ -968,5 +968,10 @@
   "webdavConfirm": "Confirm",
   "cultivatePlan": "Curriculum plan",
   "cultivatePlanDescription": "Find the official plan for your cohort, college and major",
-  "selectPlanManually": "Select a plan on the academic website"
+  "selectPlanManually": "Select a plan on the academic website",
+  "studentCardServices": "Student card services",
+  "replaceStudentCard": "Replace student card",
+  "replaceSupplementaryCard": "Replace supplementary card",
+  "changeTravelRoute": "Change travel route",
+  "graduationProject": "Graduation project / thesis"
 }

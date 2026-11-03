@@ -968,5 +968,10 @@
   "webdavConfirm": "确认",
   "cultivatePlan": "培养计划",
   "cultivatePlanDescription": "按年级、学院和专业查找教务处培养方案",
-  "selectPlanManually": "在教务处手动选择培养计划"
+  "selectPlanManually": "在教务处手动选择培养计划",
+  "studentCardServices": "学生证与附卡",
+  "replaceStudentCard": "补办学生证",
+  "replaceSupplementaryCard": "补办附卡",
+  "changeTravelRoute": "更改乘车区间",
+  "graduationProject": "毕业设计（论文）"
 }
