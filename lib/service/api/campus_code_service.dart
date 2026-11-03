@@ -82,6 +82,24 @@ class CampusCodeService {
     ),
   );
 
+  Future<String> _getBarcode(String token, Map<String, dynamic> pay) async {
+    final data = await _get(
+      '/berserker-app/ykt/tsm/batchGetBarCodeGet',
+      token: token,
+      query: {
+        for (final k in ['account', 'payacc', 'paytype']) k: pay[k],
+      },
+    );
+    final barcodes = data is Map ? data['barcode'] : null;
+    final barcode = barcodes is List && barcodes.isNotEmpty
+        ? barcodes.first?.toString()
+        : null;
+    if (barcode == null || !RegExp(r'^\d{20}$').hasMatch(barcode)) {
+      throw Exception('获取支付条码失败');
+    }
+    return barcode;
+  }
+
   Future<CampusPayCode> getPayCode(String token) async {
     final rows = await _get(
       '/berserker-app/ykt/tsm/codebarPayinfo',
@@ -91,21 +109,18 @@ class CampusCodeService {
       throw Exception('获取支付信息失败');
     }
     final pay = Map<String, dynamic>.from(rows.first as Map);
-    if ((pay['voucher']?.toString() ?? '').isEmpty &&
-        pay['voucherStatus'].toString() == '0') {
-      throw Exception('未开通离线支付权限，请前往“福大一卡通”微信小程序：我的 → 设置 → 支付设置 → 脱机二维码设置');
-    }
-    for (final key in ['account', 'payacc', 'paytype', 'voucher']) {
+    for (final key in ['account', 'payacc', 'paytype']) {
       if ((pay[key]?.toString() ?? '').isEmpty) throw Exception('获取支付信息失败');
     }
+    if ((pay['voucher']?.toString() ?? '').isEmpty) {
+      final barcode = await _getBarcode(token, pay);
+      return CampusPayCode(
+        bytes: Uint8List.fromList(ascii.encode(barcode)),
+        createdAt: DateTime.now(),
+      );
+    }
     final results = await Future.wait([
-      _get(
-        '/berserker-app/ykt/tsm/batchGetBarCodeGet',
-        token: token,
-        query: {
-          for (final k in ['account', 'payacc', 'paytype']) k: pay[k],
-        },
-      ),
+      _getBarcode(token, pay),
       _get(
         '/berserker-app/ykt/tsm/offlienPar',
         token: token,
@@ -115,12 +130,6 @@ class CampusCodeService {
       ),
       _get('/berserker-app/frontInfo'),
     ]);
-    final barcodes = (results[0] as Map)['barcode'];
-    if (barcodes is! List ||
-        barcodes.isEmpty ||
-        barcodes.first.toString().length != 20) {
-      throw Exception('获取支付条码失败');
-    }
     final front = jsonDecode(
       (results[2] as Map)['getFrontConfig'] as String,
     ) as Map<String, dynamic>;
@@ -132,7 +141,7 @@ class CampusCodeService {
     final now = DateTime.now();
     return CampusPayCode(
       bytes: generatePayBytes(
-        barcode: barcodes.first.toString(),
+        barcode: results[0] as String,
         payAccount: pay['payacc'].toString(),
         offlineData: offline['offline_userdata']?.toString() ?? '',
         hashKey: hashKey,

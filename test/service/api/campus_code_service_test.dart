@@ -23,7 +23,8 @@ class _Sso extends SsoService {
 
 class _Adapter implements HttpClientAdapter {
   bool expired = false;
-  bool offlineEnabled = true;
+  String? voucher = 'fake-voucher';
+  Object? barcodes = ['12345678901234567890'];
   bool networkError = false;
   final requests = <RequestOptions>[];
   late Map<String, dynamic> fixture;
@@ -58,14 +59,12 @@ class _Adapter implements HttpClientAdapter {
           'account': '123456789',
           'payacc': '1234',
           'paytype': '1',
-          'voucher': offlineEnabled ? 'fake-voucher' : '',
+          if (voucher != null) 'voucher': voucher,
           'voucherStatus': 0,
         },
       ];
     } else if (options.path.endsWith('/batchGetBarCodeGet')) {
-      data = {
-        'barcode': ['12345678901234567890'],
-      };
+      data = {'barcode': barcodes};
     } else if (options.path.endsWith('/offlienPar')) {
       data = {
         'offline_userdata': '80FF00AA',
@@ -190,12 +189,49 @@ void main() {
     expect(offline.headers['Synjones-Auth'], 'bearer test-token');
     expect(offline.headers.containsKey('cookie'), isFalse);
   });
-  test('disabled offline payments still allow library user lookup', () async {
-    adapter.offlineEnabled = false;
-    await expectLater(
-      service.getPayCode('test-token'),
-      throwsA(predicate((e) => e.toString().contains('未开通离线支付权限'))),
+  for (final voucher in ['', null]) {
+    test(
+      'empty or missing voucher ($voucher) uses the online payment code',
+      () async {
+        adapter.voucher = voucher;
+        final code = await service.getPayCode('test-token');
+        expect(ascii.decode(code.bytes), '12345678901234567890');
+        expect(adapter.requests.map((r) => r.uri.path), [
+          '/berserker-app/ykt/tsm/codebarPayinfo',
+          '/berserker-app/ykt/tsm/batchGetBarCodeGet',
+        ]);
+        final request = adapter.requests.last;
+        expect(request.queryParameters, {
+          'synAccessSource': 'h5',
+          'account': '123456789',
+          'payacc': '1234',
+          'paytype': '1',
+        });
+        expect(request.headers['Synjones-Auth'], 'bearer test-token');
+        expect((await service.getUser('test-token')).account, '123456789');
+      },
     );
-    expect((await service.getUser('test-token')).account, '123456789');
-  });
+  }
+  for (final voucher in ['', 'fake-voucher']) {
+    test(
+      'invalid barcode responses are rejected with voucher "$voucher"',
+      () async {
+        adapter.voucher = voucher;
+        for (final response in [
+          null,
+          <String>[],
+          [null],
+          ['123'],
+          ['1234567890123456789X'],
+          '12345678901234567890',
+        ]) {
+          adapter.barcodes = response;
+          await expectLater(
+            service.getPayCode('test-token'),
+            throwsA(predicate((e) => e.toString().contains('获取支付条码失败'))),
+          );
+        }
+      },
+    );
+  }
 }
