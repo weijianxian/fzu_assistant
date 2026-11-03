@@ -1260,4 +1260,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get papersOpenFailed => '无法打开浏览器，请复制链接后手动打开';
+
+  @override
+  String get utilityPayment => '水电缴费';
+
+  @override
+  String get utilityDescription => '选择校区后跳转建行 App 查询和缴纳宿舍水电费。';
+
+  @override
+  String get utilityMobileRequired =>
+      '宿舍水电缴费需要手机上的中国建设银行 App，请在 Android 或 iPhone 上使用此功能。';
+
+  @override
+  String get utilityCampusQishan => '旗山校区';
+
+  @override
+  String get utilityCampusTongpan => '铜盘校区';
+
+  @override
+  String get utilityCampusJinjiang => '晋江校区';
+
+  @override
+  String get utilityCampusYishan => '怡山校区';
+
+  @override
+  String get utilityOpenFailed => '无法打开建设银行 App';
+
+  @override
+  String get utilityInstallDescription => '请安装建行 App，或复制缴费链接后重试。';
+
+  @override
+  String get utilityClose => '关闭';
+
+  @override
+  String get utilityCopyLink => '复制缴费链接';
+
+  @override
+  String get utilityCopied => '缴费链接已复制';
+
+  @override
+  String get utilityInstall => '下载建行 App';
+
+  @override
+  String get utilityDownloadFailed => '无法打开下载页面，请前往应用商店搜索中国建设银行';
 }

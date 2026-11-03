@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/toolbox/utility_payment/utility_payment_page.dart';
 import 'package:fzu_assistant/screen/toolbox/paper/papers_page.dart';
 import 'package:fzu_assistant/screen/toolbox/academic/cultivate_plan_page.dart';
 import 'package:fzu_assistant/screen/settings/webdav_settings_page.dart';
@@ -61,6 +62,7 @@ abstract final class AppRouter {
     AppRoutes.learningCenter: (_) => const LearningCenterPage(),
     AppRoutes.campusCode: (_) => const CampusCodePage(),
     AppRoutes.campusServices: (_) => const CampusServicesPage(),
+    AppRoutes.utilityPayment: (_) => const UtilityPaymentPage(),
     AppRoutes.campusServicesLogin: (_) =>
         const SsoLoginPage(loadStudyToken: false),
     AppRoutes.campusCodeLogin: (_) => const SsoLoginPage(loadStudyToken: false),

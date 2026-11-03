@@ -179,6 +179,10 @@ lib/
 
 - `service/api/paper_service.dart` 使用公开 west2 online 历年卷目录/下载接口，不携带任何教务或 SSO 凭据；请求前后都检查独立 papersAccess。`screen/toolbox/paper/papers_page.dart` 默认 tip 仅展示说明与设置入口，allow 才构建查询组件，hide 从工具箱隐藏且直接路由也不请求。支持目录导航、当前目录本地搜索、浏览器查看/下载与复制下载地址；禁止路径穿越和非 HTTP(S) 下载地址，撤回授权即卸载数据页。
 
+## 水电缴费
+
+- `model/utility_payment.dart` 保存官方建行四校区深链，`screen/toolbox/utility_payment/utility_payment_page.dart` 提供旗山、铜盘、晋江、怡山缴费跳转。仅 Android/iOS 展示操作，桌面说明需手机建行 App。拉起失败可复制原链接或进入建行官方安装页；不接入 west2 服务。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。

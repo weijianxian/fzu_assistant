@@ -980,5 +980,19 @@
   "papersParent": "Go to parent folder",
   "papersEmpty": "No matching papers or folders",
   "papersOpenDescription": "View or download the paper in your browser, or copy its link.",
-  "papersOpenFailed": "Copy the link and open it manually in your browser."
+  "papersOpenFailed": "Copy the link and open it manually in your browser.",
+  "utilityPayment": "Utility payments",
+  "utilityDescription": "Choose a campus to view and pay dormitory utility bills in the CCB app.",
+  "utilityMobileRequired": "Dormitory utility payments require the China Construction Bank app on an Android phone or iPhone.",
+  "utilityCampusQishan": "Qishan campus",
+  "utilityCampusTongpan": "Tongpan campus",
+  "utilityCampusJinjiang": "Jinjiang campus",
+  "utilityCampusYishan": "Yishan campus",
+  "utilityOpenFailed": "Cannot open the CCB app",
+  "utilityInstallDescription": "Install the CCB app or copy the payment link to try again.",
+  "utilityClose": "Close",
+  "utilityCopyLink": "Copy payment link",
+  "utilityCopied": "Payment link copied",
+  "utilityInstall": "Get the CCB app",
+  "utilityDownloadFailed": "Search your app store for China Construction Bank."
 }

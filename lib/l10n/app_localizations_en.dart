@@ -1322,4 +1322,50 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get papersOpenFailed =>
       'Copy the link and open it manually in your browser.';
+
+  @override
+  String get utilityPayment => 'Utility payments';
+
+  @override
+  String get utilityDescription =>
+      'Choose a campus to view and pay dormitory utility bills in the CCB app.';
+
+  @override
+  String get utilityMobileRequired =>
+      'Dormitory utility payments require the China Construction Bank app on an Android phone or iPhone.';
+
+  @override
+  String get utilityCampusQishan => 'Qishan campus';
+
+  @override
+  String get utilityCampusTongpan => 'Tongpan campus';
+
+  @override
+  String get utilityCampusJinjiang => 'Jinjiang campus';
+
+  @override
+  String get utilityCampusYishan => 'Yishan campus';
+
+  @override
+  String get utilityOpenFailed => 'Cannot open the CCB app';
+
+  @override
+  String get utilityInstallDescription =>
+      'Install the CCB app or copy the payment link to try again.';
+
+  @override
+  String get utilityClose => 'Close';
+
+  @override
+  String get utilityCopyLink => 'Copy payment link';
+
+  @override
+  String get utilityCopied => 'Payment link copied';
+
+  @override
+  String get utilityInstall => 'Get the CCB app';
+
+  @override
+  String get utilityDownloadFailed =>
+      'Search your app store for China Construction Bank.';
 }

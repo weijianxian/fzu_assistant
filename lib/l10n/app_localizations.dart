@@ -2497,6 +2497,90 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'无法打开浏览器，请复制链接后手动打开'**
   String get papersOpenFailed;
+
+  /// No description provided for @utilityPayment.
+  ///
+  /// In zh, this message translates to:
+  /// **'水电缴费'**
+  String get utilityPayment;
+
+  /// No description provided for @utilityDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择校区后跳转建行 App 查询和缴纳宿舍水电费。'**
+  String get utilityDescription;
+
+  /// No description provided for @utilityMobileRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'宿舍水电缴费需要手机上的中国建设银行 App，请在 Android 或 iPhone 上使用此功能。'**
+  String get utilityMobileRequired;
+
+  /// No description provided for @utilityCampusQishan.
+  ///
+  /// In zh, this message translates to:
+  /// **'旗山校区'**
+  String get utilityCampusQishan;
+
+  /// No description provided for @utilityCampusTongpan.
+  ///
+  /// In zh, this message translates to:
+  /// **'铜盘校区'**
+  String get utilityCampusTongpan;
+
+  /// No description provided for @utilityCampusJinjiang.
+  ///
+  /// In zh, this message translates to:
+  /// **'晋江校区'**
+  String get utilityCampusJinjiang;
+
+  /// No description provided for @utilityCampusYishan.
+  ///
+  /// In zh, this message translates to:
+  /// **'怡山校区'**
+  String get utilityCampusYishan;
+
+  /// No description provided for @utilityOpenFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开建设银行 App'**
+  String get utilityOpenFailed;
+
+  /// No description provided for @utilityInstallDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'请安装建行 App，或复制缴费链接后重试。'**
+  String get utilityInstallDescription;
+
+  /// No description provided for @utilityClose.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get utilityClose;
+
+  /// No description provided for @utilityCopyLink.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制缴费链接'**
+  String get utilityCopyLink;
+
+  /// No description provided for @utilityCopied.
+  ///
+  /// In zh, this message translates to:
+  /// **'缴费链接已复制'**
+  String get utilityCopied;
+
+  /// No description provided for @utilityInstall.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载建行 App'**
+  String get utilityInstall;
+
+  /// No description provided for @utilityDownloadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开下载页面，请前往应用商店搜索中国建设银行'**
+  String get utilityDownloadFailed;
 }
 
 class _AppLocalizationsDelegate

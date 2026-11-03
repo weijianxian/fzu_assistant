@@ -18,6 +18,7 @@ abstract final class AppRoutes {
   static const learningCenter = '/learning-center';
   static const campusCode = '/campus-code';
   static const campusServices = '/campus-services';
+  static const utilityPayment = '/utility-payment';
   static const campusServicesLogin = '/campus-services/login';
   static const campusCodeLogin = '/campus-code/login';
   static const learningSeats = '/learning-center/seats';

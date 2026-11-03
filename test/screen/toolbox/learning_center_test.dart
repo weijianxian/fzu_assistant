@@ -213,11 +213,26 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      final menu = find
+          .descendant(
+            of: find.widgetWithText(Scaffold, '工具箱').last,
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      // The longer menu lazily builds the campus group. Keep the pointer down
+      // until it scrolls into view instead of restarting instant short drags.
       await tester.scrollUntilVisible(
         find.text('学习中心'),
         250,
-        scrollable: find.byType(Scrollable).first,
+        scrollable: menu,
+        continuous: true,
       );
+      if (size.width > size.height) {
+        expect(
+          tester.state<ScrollableState>(menu).position.pixels,
+          greaterThan(0),
+        );
+      }
       await tester.tap(find.text('学习中心'));
       await tester.pumpAndSettle();
       expect(find.byType(LearningCenterPage), findsOneWidget);

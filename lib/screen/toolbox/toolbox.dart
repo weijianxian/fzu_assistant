@@ -115,6 +115,12 @@ class ToolboxPage extends HookWidget {
             l10n.campusServicesDescription,
             AppRoutes.campusServices,
           ),
+          (
+            Icons.water_drop_outlined,
+            l10n.utilityPayment,
+            l10n.utilityDescription,
+            AppRoutes.utilityPayment,
+          ),
         ],
       ),
     ];
