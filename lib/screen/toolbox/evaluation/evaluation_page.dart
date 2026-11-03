@@ -19,7 +19,7 @@ class EvaluationPage extends HookWidget {
     final service = useMemoized(() => AcademicService());
     final oneKeyTrigger = useState(0);
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(l10n.evaluation),
         actions: [
@@ -162,83 +162,82 @@ class _EvaluationTab extends HookWidget {
       showEvaluationCaptchaDialog(context, service, toSubmit, load);
     }
 
-    return Column(
-      children: [
-        Expanded(
-          child: ToolPageWrapper(
-            onRefresh: load,
-            loading: loading.value,
-            error: error.value,
-            refreshTime: refreshTime.value,
-            hasData: teachers.value.isNotEmpty,
-            emptyText: l10n.noEvaluationData,
-            child: teachers.value.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.noEvaluationData,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(l10n.evalNotAvailable),
-                      ],
+    return AppScaffold(
+      body: ToolPageWrapper(
+        onRefresh: load,
+        loading: loading.value,
+        error: error.value,
+        refreshTime: refreshTime.value,
+        hasData: teachers.value.isNotEmpty,
+        emptyText: l10n.noEvaluationData,
+        child: teachers.value.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.noEvaluationData,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
-                    itemCount: teachers.value.length,
-                    itemBuilder: (context, i) => EvaluationTeacherCard(
-                      teacher: teachers.value[i],
-                      score: scores.value[i],
-                      selectedComment: selectedComments.value[i],
-                      customComment: customComments.value[i],
-                      onScoreChanged: (v) {
-                        final newList = List<String>.from(scores.value);
-                        newList[i] = v;
-                        scores.value = newList;
-                      },
-                      onCommentChanged: (idx) {
-                        final newList = List<int?>.from(selectedComments.value);
-                        newList[i] = idx;
-                        selectedComments.value = newList;
-                      },
-                      onCustomCommentChanged: (v) {
-                        final newList = List<String>.from(customComments.value);
-                        newList[i] = v;
-                        customComments.value = newList;
-                      },
-                      onSubmit: () => submitSingle(i),
-                    ),
-                  ),
-          ),
-        ),
-        if (teachers.value.isNotEmpty)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: FilledButton.icon(
-                onPressed: submitAll,
-                icon: const Icon(Icons.send),
-                label: Text(l10n.evalSubmitAll),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
+                    const SizedBox(height: 12),
+                    Text(l10n.evalNotAvailable),
+                  ],
+                ),
+              )
+            : AppListView.builder(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+                itemCount: teachers.value.length,
+                itemBuilder: (context, i) => EvaluationTeacherCard(
+                  teacher: teachers.value[i],
+                  score: scores.value[i],
+                  selectedComment: selectedComments.value[i],
+                  customComment: customComments.value[i],
+                  onScoreChanged: (v) {
+                    final newList = List<String>.from(scores.value);
+                    newList[i] = v;
+                    scores.value = newList;
+                  },
+                  onCommentChanged: (idx) {
+                    final newList = List<int?>.from(selectedComments.value);
+                    newList[i] = idx;
+                    selectedComments.value = newList;
+                  },
+                  onCustomCommentChanged: (v) {
+                    final newList = List<String>.from(customComments.value);
+                    newList[i] = v;
+                    customComments.value = newList;
+                  },
+                  onSubmit: () => submitSingle(i),
                 ),
               ),
-            ),
-          ),
-      ],
+      ),
+      bottomNavigationBar: teachers.value.isNotEmpty
+          ? AppBottomBar(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+                  ),
+                ),
+                child: FilledButton.icon(
+                  onPressed: submitAll,
+                  icon: const Icon(Icons.send),
+                  label: Text(l10n.evalSubmitAll),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

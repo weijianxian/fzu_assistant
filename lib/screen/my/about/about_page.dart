@@ -1,3 +1,4 @@
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
@@ -7,6 +8,7 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/update_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -114,9 +116,9 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.about)),
-      body: ListView(
+      body: AppListView(
         children: [
           const SizedBox(height: 32),
           Center(

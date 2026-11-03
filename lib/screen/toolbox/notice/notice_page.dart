@@ -44,7 +44,7 @@ class NoticePage extends HookWidget {
       return null;
     }, []);
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.officeNotice)),
       body: Column(
         children: [

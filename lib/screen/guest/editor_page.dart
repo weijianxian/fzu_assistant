@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:re_editor/re_editor.dart';
 import 'package:re_highlight/languages/json.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 
 class EditorPage extends StatelessWidget {
   final String title;
@@ -21,7 +23,7 @@ class EditorPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = CodeLineEditingController.fromText(initialValue);
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(title, overflow: TextOverflow.ellipsis),
         actions: [
@@ -47,31 +49,34 @@ class EditorPage extends StatelessWidget {
           ),
         ],
       ),
-      body: CodeEditor(
-        controller: controller,
-        style: CodeEditorStyle(
-          codeTheme: CodeHighlightTheme(
-            languages: {'json': CodeHighlightThemeMode(mode: langJson)},
-            theme: atomOneLightTheme,
+      body: AppScrollInsets(
+        builder: (context, insets) => CodeEditor(
+          controller: controller,
+          padding: const EdgeInsets.all(5) + insets,
+          style: CodeEditorStyle(
+            codeTheme: CodeHighlightTheme(
+              languages: {'json': CodeHighlightThemeMode(mode: langJson)},
+              theme: atomOneLightTheme,
+            ),
           ),
+          wordWrap: false,
+          indicatorBuilder:
+              (context, editingController, chunkController, notifier) {
+                return Row(
+                  children: [
+                    DefaultCodeLineNumber(
+                      controller: editingController,
+                      notifier: notifier,
+                    ),
+                    DefaultCodeChunkIndicator(
+                      width: 20,
+                      controller: chunkController,
+                      notifier: notifier,
+                    ),
+                  ],
+                );
+              },
         ),
-        wordWrap: false,
-        indicatorBuilder:
-            (context, editingController, chunkController, notifier) {
-              return Row(
-                children: [
-                  DefaultCodeLineNumber(
-                    controller: editingController,
-                    notifier: notifier,
-                  ),
-                  DefaultCodeChunkIndicator(
-                    width: 20,
-                    controller: chunkController,
-                    notifier: notifier,
-                  ),
-                ],
-              );
-            },
       ),
     );
   }

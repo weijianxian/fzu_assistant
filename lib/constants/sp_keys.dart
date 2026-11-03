@@ -5,8 +5,6 @@ abstract final class SpKeys {
   static const themeKey = 'theme_key';
   static const themeMode = 'theme_mode';
   static const localeKey = 'locale_key';
-  static const homeStyle = 'home_style';
-  static const timelineDays = 'timeline_days';
   static const selectedSemester = 'selected_semester';
   static const termsList = 'terms_list';
   static const cacheCoursesMap = 'cache_courses_map';

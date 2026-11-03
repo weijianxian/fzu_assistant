@@ -11,6 +11,7 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/desktop_window.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -140,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       body: Center(
         child: AnimatedBuilder(
           animation: _ctrl,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
-import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
@@ -11,6 +10,7 @@ import 'package:fzu_assistant/screen/schedule/widgets/floating_schedule_controls
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class SchedulePage extends HookWidget {
   final ValueNotifier<int>? jumpToWeekTrigger;
@@ -194,7 +194,7 @@ class SchedulePage extends HookWidget {
       },
     );
 
-    return Scaffold(
+    return AppScaffold(
       appBar: isLandscape
           ? null
           : AppBar(
@@ -214,7 +214,6 @@ class SchedulePage extends HookWidget {
                 AppLocalizations.of(context)!.weekN(displayWeek.value),
               ),
               actions: [
-                const HomeViewToggle(),
                 IconButton(
                   icon: const Icon(Icons.settings_outlined),
                   onPressed: () => context.pushNamed(AppRoutes.homeSettings),
@@ -224,41 +223,36 @@ class SchedulePage extends HookWidget {
       body: isLandscape
           ? ColoredBox(
               color: Theme.of(context).colorScheme.surface,
-              child: SafeArea(
-                left: false,
-                right: false,
-                bottom: false,
-                child: ClipRect(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      body,
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: FloatingScheduleControls(
-                          onSettings: () =>
-                              context.pushNamed(AppRoutes.homeSettings),
-                          onPrevious: pc != null && displayWeek.value > 1
-                              ? () => pc.previousPage(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                )
-                              : null,
-                          onNext:
-                              pc != null &&
-                                  displayWeek.value <
-                                      CourseService.totalScheduleWeeks
-                              ? () => pc.nextPage(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                )
-                              : null,
-                        ),
+              child: ClipRect(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    body,
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: FloatingScheduleControls(
+                        onSettings: () =>
+                            context.pushNamed(AppRoutes.homeSettings),
+                        onPrevious: pc != null && displayWeek.value > 1
+                            ? () => pc.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              )
+                            : null,
+                        onNext:
+                            pc != null &&
+                                displayWeek.value <
+                                    CourseService.totalScheduleWeeks
+                            ? () => pc.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              )
+                            : null,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             )

@@ -109,7 +109,7 @@ class LearningAppointmentsPage extends HookWidget {
       LearningAppointmentStatus.unknown => l10n.learningUnknown,
     };
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(l10n.learningAppointments),
         actions: [

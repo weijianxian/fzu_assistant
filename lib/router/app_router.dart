@@ -78,11 +78,11 @@ abstract final class AppRouter {
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     final builder = _routes[settings.name];
     if (builder != null) {
-      return _SafeAreaPageRoute(builder: builder, settings: settings);
+      return MaterialPageRoute(builder: builder, settings: settings);
     }
 
     return switch (settings.name) {
-      AppRoutes.learningSeatTimes => _SafeAreaPageRoute(
+      AppRoutes.learningSeatTimes => MaterialPageRoute(
         settings: settings,
         builder: (_) {
           final args = settings.arguments as LearningSeatTimesArgs;
@@ -94,7 +94,7 @@ abstract final class AppRouter {
           );
         },
       ),
-      AppRoutes.learningAvailableSeats => _SafeAreaPageRoute(
+      AppRoutes.learningAvailableSeats => MaterialPageRoute(
         settings: settings,
         builder: (_) {
           final args = settings.arguments as LearningAvailableSeatsArgs;
@@ -106,7 +106,7 @@ abstract final class AppRouter {
           );
         },
       ),
-      AppRoutes.learningScanner => _SafeAreaPageRoute(
+      AppRoutes.learningScanner => MaterialPageRoute(
         settings: settings,
         builder: (_) {
           final args = settings.arguments as LearningScannerArgs;
@@ -124,7 +124,7 @@ abstract final class AppRouter {
 
   static Route<dynamic> _webViewRoute(RouteSettings settings) {
     final args = settings.arguments as WebViewArgs;
-    return _SafeAreaPageRoute(
+    return MaterialPageRoute(
       builder: (_) => WebViewPage(
         url: args.url,
         title: args.title,
@@ -136,7 +136,7 @@ abstract final class AppRouter {
 
   static Route<dynamic> _editorRoute(RouteSettings settings) {
     final args = settings.arguments as EditorArgs;
-    return _SafeAreaPageRoute(
+    return MaterialPageRoute(
       builder: (_) => EditorPage(
         title: args.title,
         initialValue: args.initialValue,
@@ -145,20 +145,4 @@ abstract final class AppRouter {
       settings: settings,
     );
   }
-}
-
-/// Keep Navigator and its modal barriers full-screen; inset only page content.
-class _SafeAreaPageRoute<T> extends MaterialPageRoute<T> {
-  _SafeAreaPageRoute({required super.builder, required super.settings});
-
-  @override
-  Widget buildPage(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) => SafeArea(
-    top: false,
-    bottom: false,
-    child: super.buildPage(context, animation, secondaryAnimation),
-  );
 }

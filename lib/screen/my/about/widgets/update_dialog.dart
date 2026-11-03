@@ -187,160 +187,156 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
     final textTheme = Theme.of(context).textTheme;
     final progress = _downloadProgress;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: ListView(
-            controller: widget.controller,
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+    return AppScaffold(
+      body: AppListView(
+        controller: widget.controller,
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.system_update,
-                    color: colorScheme.primary,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.newVersionAvailable,
-                          style: textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+              Icon(Icons.system_update, color: colorScheme.primary, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.newVersionAvailable,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      'v${widget.release.version}',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.releaseNotes,
+            style: textTheme.labelLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: MarkdownBody(
+              data: widget.release.body.isEmpty ? '-' : widget.release.body,
+              selectable: true,
+              styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                  .copyWith(
+                    tableColumnWidth: FixedColumnWidth(
+                      kUpdateTableColumnWidth *
+                          MediaQuery.textScalerOf(context).scale(14) /
+                          14,
+                    ),
+                    tableScrollbarThumbVisibility: true,
+                    p: textTheme.bodyMedium?.copyWith(height: 1.6),
+                    h1: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    h2: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    h3: textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    code: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                    ),
+                    blockquoteDecoration: BoxDecoration(
+                      border: Border(
+                        left: BorderSide(
+                          color: colorScheme.outlineVariant,
+                          width: 4,
                         ),
-                        Text(
-                          'v${widget.release.version}',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                l10n.releaseNotes,
-                style: textTheme.labelLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.5,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: MarkdownBody(
-                  data: widget.release.body.isEmpty ? '-' : widget.release.body,
-                  selectable: true,
-                  styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                      .copyWith(
-                        tableColumnWidth: FixedColumnWidth(
-                          kUpdateTableColumnWidth *
-                              MediaQuery.textScalerOf(context).scale(14) /
-                              14,
-                        ),
-                        tableScrollbarThumbVisibility: true,
-                        p: textTheme.bodyMedium?.copyWith(height: 1.6),
-                        h1: textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        h2: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        h3: textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        code: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          backgroundColor: colorScheme.surfaceContainerHighest,
-                        ),
-                        blockquoteDecoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              color: colorScheme.outlineVariant,
-                              width: 4,
-                            ),
-                          ),
-                        ),
-                      ),
-                  onTapLink: (text, href, title) => _openMarkdownLink(href),
-                ),
-              ),
-              const SizedBox(height: 16),
-              OverflowBar(
-                alignment: MainAxisAlignment.end,
-                overflowAlignment: OverflowBarAlignment.end,
-                spacing: 4,
-                overflowSpacing: 4,
-                children: [
-                  TextButton(
-                    onPressed: _isDownloading
-                        ? null
-                        : () {
-                            widget.onSkip();
-                            Navigator.of(context).pop();
-                          },
-                    child: Text(l10n.skipThisVersion),
-                  ),
-                  TextButton(
-                    onPressed: _isDownloading
-                        ? null
-                        : () {
-                            widget.onSkipForever();
-                            Navigator.of(context).pop();
-                          },
-                    child: Text(l10n.skipUpdatesPermanently),
-                  ),
-                  TextButton.icon(
-                    onPressed: _isDownloading ? null : _openReleasePage,
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    label: Text(l10n.openInBrowser),
-                  ),
-                ],
-              ),
-            ],
+              onTapLink: (text, href, title) => _openMarkdownLink(href),
+            ),
           ),
-        ),
-        const Divider(height: 1),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
+          const SizedBox(height: 16),
+          OverflowBar(
+            alignment: MainAxisAlignment.end,
+            overflowAlignment: OverflowBarAlignment.end,
+            spacing: 4,
+            overflowSpacing: 4,
             children: [
-              if (_isDownloading) ...[
-                LinearProgressIndicator(value: progress),
-                const SizedBox(height: 12),
-              ],
-              FilledButton(
-                onPressed: _isDownloading ? null : _handleDownload,
-                child: _isDownloading
-                    ? _DownloadButtonProgress(
-                        progress: progress,
-                        openingInstaller: _openingInstaller,
-                      )
-                    : Text(
-                        _canInstallInApp
-                            ? l10n.installUpdate
-                            : l10n.downloadUpdate,
-                      ),
+              TextButton(
+                onPressed: _isDownloading
+                    ? null
+                    : () {
+                        widget.onSkip();
+                        Navigator.of(context).pop();
+                      },
+                child: Text(l10n.skipThisVersion),
+              ),
+              TextButton(
+                onPressed: _isDownloading
+                    ? null
+                    : () {
+                        widget.onSkipForever();
+                        Navigator.of(context).pop();
+                      },
+                child: Text(l10n.skipUpdatesPermanently),
+              ),
+              TextButton.icon(
+                onPressed: _isDownloading ? null : _openReleasePage,
+                icon: const Icon(Icons.open_in_new, size: 18),
+                label: Text(l10n.openInBrowser),
               ),
             ],
           ),
+        ],
+      ),
+      bottomNavigationBar: AppBottomBar(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_isDownloading) ...[
+                    LinearProgressIndicator(value: progress),
+                    const SizedBox(height: 12),
+                  ],
+                  FilledButton(
+                    onPressed: _isDownloading ? null : _handleDownload,
+                    child: _isDownloading
+                        ? _DownloadButtonProgress(
+                            progress: progress,
+                            openingInstaller: _openingInstaller,
+                          )
+                        : Text(
+                            _canInstallInApp
+                                ? l10n.installUpdate
+                                : l10n.downloadUpdate,
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

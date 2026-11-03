@@ -1,6 +1,8 @@
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widget/layout/section.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class NavigationPaneDestination {
   const NavigationPaneDestination({
@@ -53,6 +55,7 @@ class SplitNavigationPage extends HookWidget {
       [selectedRoute.value],
     );
     final scheme = Theme.of(context).colorScheme;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
 
     void selectDestination(String route) {
       if (route == selectedRoute.value) {
@@ -66,58 +69,68 @@ class SplitNavigationPage extends HookWidget {
       children: [
         Expanded(
           flex: 1,
-          child: Scaffold(
-            backgroundColor: scheme.surfaceContainerLow,
-            appBar: AppBar(
-              title: Text(title),
-              automaticallyImplyLeading: false,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeLeft: rtl,
+            removeRight: !rtl,
+            child: AppScaffold(
               backgroundColor: scheme.surfaceContainerLow,
-            ),
-            body: ListView(
-              padding: const EdgeInsets.only(bottom: 16),
-              children: [
-                for (final section in sections)
-                  if (section.title != null)
-                    Section(
-                      title: section.title!,
-                      child: _destinations(
+              appBar: AppBar(
+                title: Text(title),
+                automaticallyImplyLeading: false,
+                backgroundColor: scheme.surfaceContainerLow,
+              ),
+              body: AppListView(
+                padding: const EdgeInsets.only(bottom: 16),
+                children: [
+                  for (final section in sections)
+                    if (section.title != null)
+                      Section(
+                        title: section.title!,
+                        child: _destinations(
+                          section.destinations,
+                          selectedRoute.value,
+                          selectDestination,
+                        ),
+                      )
+                    else
+                      _destinations(
                         section.destinations,
                         selectedRoute.value,
                         selectDestination,
                       ),
-                    )
-                  else
-                    _destinations(
-                      section.destinations,
-                      selectedRoute.value,
-                      selectDestination,
-                    ),
-                if (footer != null) ...[const Divider(), footer!],
-              ],
+                  if (footer != null) ...[const Divider(), footer!],
+                ],
+              ),
             ),
           ),
         ),
         const VerticalDivider(width: 1, thickness: 1),
         Expanded(
           flex: 2,
-          child: ClipRect(
-            child: LayoutBuilder(
-              builder: (context, constraints) => MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(size: constraints.biggest),
-                child: HeroControllerScope(
-                  controller: heroController,
-                  child: NavigatorPopHandler<Object?>(
-                    enabled: isActive,
-                    onPopWithResult: (result) =>
-                        navigatorKey.currentState!.pop(result),
-                    child: Navigator(
-                      key: navigatorKey,
-                      initialRoute: selectedRoute.value,
-                      onGenerateInitialRoutes: (_, route) => [
-                        onGenerateRoute(RouteSettings(name: route))!,
-                      ],
-                      onGenerateRoute: onGenerateRoute,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeLeft: !rtl,
+            removeRight: rtl,
+            child: ClipRect(
+              child: LayoutBuilder(
+                builder: (context, constraints) => MediaQuery(
+                  data: MediaQuery.of(context)
+                      .copyWith(size: constraints.biggest),
+                  child: HeroControllerScope(
+                    controller: heroController,
+                    child: NavigatorPopHandler<Object?>(
+                      enabled: isActive,
+                      onPopWithResult: (result) =>
+                          navigatorKey.currentState!.pop(result),
+                      child: Navigator(
+                        key: navigatorKey,
+                        initialRoute: selectedRoute.value,
+                        onGenerateInitialRoutes: (_, route) => [
+                          onGenerateRoute(RouteSettings(name: route))!,
+                        ],
+                        onGenerateRoute: onGenerateRoute,
+                      ),
                     ),
                   ),
                 ),

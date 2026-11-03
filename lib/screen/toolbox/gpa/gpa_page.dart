@@ -15,7 +15,7 @@ class GpaPage extends HookWidget {
     final result = useAsyncData(service.getGPA);
     final gpa = result.data;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.gpaInfo)),
       body: ToolPageWrapper(
         onRefresh: result.refresh,
@@ -45,7 +45,7 @@ class GpaPage extends HookWidget {
         ],
     ];
 
-    return ListView(
+    return AppListView(
       children: [
         Card(
           margin: const EdgeInsets.all(12),

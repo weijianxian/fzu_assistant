@@ -38,7 +38,7 @@ Widget _app(
         viewPadding: insets,
         textScaler: TextScaler.linear(scale),
       ),
-      child: SafeArea(top: false, bottom: false, child: child!),
+      child: child!,
     ),
     routes: {
       AppRoutes.homeSettings: (_) =>
@@ -111,7 +111,10 @@ Future<void> _cacheSchedule() async {
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'home_style': 'timeline',
+      'timeline_days': 7,
+    });
     FlutterSecureStorage.setMockInitialValues({});
     final offline = InterceptorsWrapper(
       onRequest: (request, handler) => handler.reject(
@@ -140,13 +143,123 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final size in [const Size(400, 900), const Size(1200, 700)]) {
+    for (final cached in [true, false]) {
+      testWidgets(
+        'home consumes system insets once at $size (cached=$cached)',
+        (tester) async {
+          _viewport(tester, size);
+          final landscape = size.width > size.height;
+          final insets = landscape
+              ? const EdgeInsets.fromLTRB(40, 24, 20, 34)
+              : const EdgeInsets.only(top: 48, bottom: 34);
+          final settings = AppSettings();
+          addTearDown(settings.dispose);
+          await tester.runAsync(_cacheSchedule);
+          ApiClient.instance.usingCachedSession.value = cached;
+          addTearDown(
+            () => ApiClient.instance.usingCachedSession.value = false,
+          );
+          await tester.pumpWidget(
+            _app(settings, child: const HomeScreen(), insets: insets),
+          );
+          await tester.pumpAndSettle();
+
+          double contentTop() {
+            if (!cached) return 0;
+            final banner = tester.getRect(find.byType(MaterialBanner));
+            expect(banner.top, 0);
+            expect(
+              tester.getRect(find.textContaining('正在展示历史缓存')).top,
+              greaterThanOrEqualTo(insets.top),
+            );
+            return banner.bottom;
+          }
+
+          void expectAppBarsBelowBanner() {
+            final top = contentTop();
+            expect(find.byType(AppBar), findsAtLeastNWidgets(1));
+            for (final element in find.byType(AppBar).evaluate()) {
+              final rect = tester.getRect(find.byWidget(element.widget));
+              expect(rect.top, top);
+              expect(rect.height, kToolbarHeight + (cached ? 0 : insets.top));
+            }
+          }
+
+          if (landscape) {
+            final grid = tester.getRect(find.byType(HorizontalScheduleGrid));
+            final rail = tester.getRect(find.byType(NavigationRail));
+            expect(grid.top, cached ? contentTop() : insets.top);
+            expect(grid.bottom, size.height);
+            expect(rail.top, 0);
+            expect(rail.bottom, size.height);
+            expect(rail.left, 0);
+            expect(grid.left, rail.right);
+            final railLabel = tester.getRect(
+              find.descendant(
+                of: find.byType(NavigationRail),
+                matching: find.text('课程表'),
+              ),
+            );
+            expect(railLabel.left, greaterThanOrEqualTo(insets.left));
+            expect(railLabel.top, greaterThanOrEqualTo(insets.top));
+            expect(
+              railLabel.bottom,
+              lessThanOrEqualTo(size.height - insets.bottom),
+            );
+            expect(grid.right, size.width - insets.right);
+            expect(
+              tester
+                  .getRect(find.byKey(const ValueKey('schedule-week-header')))
+                  .top,
+              grid.top,
+            );
+          } else {
+            expectAppBarsBelowBanner();
+            final appBar = tester.getRect(find.byType(AppBar));
+            expect(
+              tester.getCenter(find.byIcon(Icons.settings_outlined)).dy,
+              contentTop() + (cached ? 0 : insets.top) + kToolbarHeight / 2,
+            );
+            final weekday = tester.getRect(find.text('周一').first);
+            expect(weekday.top, greaterThanOrEqualTo(appBar.bottom));
+            expect(weekday.bottom, lessThanOrEqualTo(appBar.bottom + 48));
+            final navigation = tester.getRect(find.byType(NavigationBar));
+            final label = tester.getRect(
+              find.descendant(
+                of: find.byType(NavigationBar),
+                matching: find.text('课程表'),
+              ),
+            );
+            expect(navigation.bottom, size.height);
+            expect(
+              label.bottom,
+              lessThanOrEqualTo(size.height - insets.bottom),
+            );
+          }
+
+          final navigation = landscape
+              ? find.byType(NavigationRail)
+              : find.byType(NavigationBar);
+          for (final label in ['工具箱', '一码通', '我的']) {
+            await tester.tap(
+              find.descendant(of: navigation, matching: find.text(label)),
+            );
+            await tester.pumpAndSettle();
+            expectAppBarsBelowBanner();
+          }
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
+
   for (final size in [const Size(400, 800), const Size(1200, 800)]) {
     testWidgets('campus code is a main navigation tab at $size', (
       tester,
     ) async {
       _viewport(tester, size);
       final settings = AppSettings();
-      settings.homeStyleKey.value = AppSettings.timelineHomeStyle;
       addTearDown(settings.dispose);
       await tester.runAsync(_cacheSchedule);
       await tester.pumpWidget(_app(settings, child: const HomeScreen()));
@@ -159,7 +272,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(CampusCodePage), findsOneWidget);
-      expect(find.text('消费码'), findsOneWidget);
+      expect(find.text('天视图'), findsNothing);
       expect(
         tester.widget<PageView>(find.byType(PageView)).scrollDirection,
         Axis.vertical,
@@ -215,9 +328,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('第 5 周'), findsOneWidget);
 
-    await tester.tap(find.text('天视图'));
-    await tester.pumpAndSettle();
-    expect(settings.homeStyleKey.value, AppSettings.timelineHomeStyle);
+    expect(find.text('天视图'), findsNothing);
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Settings page'), findsOneWidget);
@@ -263,7 +374,7 @@ void main() {
     final header = tester.getRect(
       find.byKey(const ValueKey('schedule-week-header')),
     );
-    expect(rail.left, 40);
+    expect(rail.left, 0);
     expect(grid.left, rail.right);
     expect(grid.right, 1400 - 16);
     expect(grid.top, 24);

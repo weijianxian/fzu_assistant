@@ -18,7 +18,7 @@ class CreditPage extends HookWidget {
     );
     final credits = result.data!;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.creditStats)),
       body: ToolPageWrapper(
         onRefresh: result.refresh,
@@ -33,7 +33,7 @@ class CreditPage extends HookWidget {
   }
 
   Widget _buildList(List<CreditStatistics> credits) {
-    return ListView.builder(
+    return AppListView.builder(
       itemCount: credits.length,
       itemBuilder: (context, i) {
         final c = credits[i];

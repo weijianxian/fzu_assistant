@@ -162,7 +162,7 @@
   "@homeSettings": {
     "description": "homeSettings"
   },
-  "homeSettingsSubtitle": "Home view, timeline range, and schedule options",
+  "homeSettingsSubtitle": "Semester, timetable options and hidden courses",
   "@homeSettingsSubtitle": {
     "description": "homeSettingsSubtitle"
   },
@@ -734,29 +734,6 @@
       }
     }
   },
-  "navHome": "Home",
-  "homeStyle": "Home View",
-  "homeStyleSchedule": "Week",
-  "homeStyleTimeline": "Day",
-  "semesterStart": "Semester starts",
-  "semesterEnd": "Semester ends",
-  "today": "Today",
-  "notStarted": "Not started",
-  "daysLeft": "{days} days left",
-  "@daysLeft": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "inProgress": "In progress",
-  "finished": "Finished",
-  "semesterProgress": "Semester progress",
-  "otherEvents": "Other events",
-  "timeline": "Timeline",
-  "starts": " starts",
-  "ends": " ends",
   "classPeriod": "Period {period}",
   "@classPeriod": {
     "placeholders": {
@@ -777,16 +754,6 @@
     }
   },
   "adjustedMark": "[Adjusted] ",
-  "timelineCourseRange": "Timeline course range",
-  "daysN": "{days} days",
-  "@daysN": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "nextMonth": "Next month",
   "windowMinimize": "Minimize",
   "windowMaximize": "Maximize",
   "windowRestore": "Restore window",
@@ -799,7 +766,7 @@
   "schedulePreviousWeek": "Previous week",
   "scheduleNextWeek": "Next week",
   "showNonCurrentWeekCourses": "Show courses from other weeks",
-  "showNonCurrentWeekCoursesDescription": "Show faded courses from other weeks in free timetable slots. The daily timeline is unaffected.",
+  "showNonCurrentWeekCoursesDescription": "Show faded courses from other weeks in free timetable slots.",
   "nonCurrentWeekMark": "[Other week]",
   "academicShortcuts": "Academic shortcuts",
   "academicShortcutsSubtitle": "Course selection, applications and Jiaxi lectures",
@@ -820,7 +787,7 @@
   "skipCourseSession": "I don't want to attend",
   "skipCourseSessionDescription": "Hide only this week's session. Restore it in Home settings.",
   "hiddenCourseSessions": "Hidden classes",
-  "hiddenCourseSessionsDescription": "Manage hidden sessions. Restore them to show them in the schedule and day view.",
+  "hiddenCourseSessionsDescription": "Manage hidden sessions. Restore them to show them in the schedule.",
   "noHiddenCourseSessions": "No hidden classes",
   "restoreCourseSession": "Show class again",
   "restoreAllCourseSessions": "Restore all",

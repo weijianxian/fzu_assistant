@@ -117,9 +117,9 @@ class ToolboxPage extends HookWidget {
       );
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.navToolbox)),
-      body: CustomScrollView(
+      body: AppCustomScrollView(
         slivers: [
           for (final section in sections)
             Section.sliver(

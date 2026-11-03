@@ -13,6 +13,7 @@ import 'package:fzu_assistant/service/api/campus_code_service.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
 import 'package:intl/intl.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class CampusCodePage extends HookWidget {
   const CampusCodePage({super.key, this.service, this.isActive = true});
@@ -147,7 +148,7 @@ class CampusCodePage extends HookWidget {
     final beijing = clock.value.toUtc().add(const Duration(hours: 8));
     return TickerMode(
       enabled: active,
-      child: Scaffold(
+      child: AppScaffold(
         appBar: AppBar(title: Text(l10n.campusCode)),
         floatingActionButton:
             needsLogin.value || (loading.value && user.value == null)
@@ -162,15 +163,14 @@ class CampusCodePage extends HookWidget {
                       )
                     : const Icon(Icons.refresh),
               ),
-        body: SafeArea(
-          top: false,
-          child: PageView(
-            controller: pages,
-            scrollDirection: Axis.vertical,
-            onPageChanged: (page) => selected.value = page,
-            children: [
-              for (final library in [false, true])
-                _CodePanel(
+        body: PageView(
+          controller: pages,
+          scrollDirection: Axis.vertical,
+          onPageChanged: (page) => selected.value = page,
+          children: [
+            for (final library in [false, true])
+              AppSafeContent(
+                child: _CodePanel(
                   library: library,
                   user: user.value,
                   payCode: payCode.value,
@@ -180,8 +180,8 @@ class CampusCodePage extends HookWidget {
                   needsLogin: needsLogin.value,
                   onLogin: login,
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

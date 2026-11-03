@@ -24,7 +24,7 @@
 如果你需要新建页面，请严格按照以下结构放置代码:
 ```
 lib/
-  main.dart              # 应用初始化、主题配置、全屏沉浸式 Navigator 与启动页；横向 SafeArea 在路由内容层处理，弹层遮罩覆盖系统安全区域
+  main.dart              # 应用初始化、主题配置、全屏沉浸式 Navigator 与启动页；页面通过 AppScaffold 统一避让系统栏
   l10n/                  # 国际化
     app_localizations.dart    # 自动生成的本地化类
     app_localizations_zh.dart # 中文翻译
@@ -51,21 +51,25 @@ lib/
       cache_helper.dart  # 缓存辅助工具
       html_utils.dart    # HTML 解析工具
       context_ext.dart   # BuildContext 扩展（isLandscape 方向判断）
-      course_sessions.dart # 周/天视图共用的课程筛选与节次时间
+      course_sessions.dart # 课表共用的课程筛选与节次时间
     widget/              # 通用组件
+      layout/app_scaffold.dart # 统一普通页面及导航壳：内容避让系统栏，实际 AppBar/导航绘制系统区
+      layout/app_scroll_view.dart # 统一滚动视口保持全屏，底部系统边距放在内容末尾
+      layout/app_top_banner.dart # 缓存提示条背景延伸至状态栏，内容边距统一处理
       input/password_field.dart # 教务和 SSO 登录共用密码框、显隐按钮及自动填充
-      navigation/home_view_toggle.dart # 首页周视图/天视图切换
       layout/desktop_window_frame.dart # Windows 全局窗口壳（自绘标题栏、提示 Overlay、内容裁剪与顶部缩放）
       layout/split_navigation_page.dart # 横屏两栏导航（左 1/3 功能按钮、右 2/3 独立详情导航）
       tool_page_wrapper.dart  # 工具页包装器（loading/error/refresh/footer，支持 child 和 slivers 两种模式）
       masonry_sliver_grid.dart # 瀑布流网格封装（SliverMasonryGrid.extent + 断点常量）
       section.dart       # 区域组件
       term_selector_button.dart # 学期选择按钮
-      half_screen_sheet.dart # 随屏幕方向实时切换侧栏/底部拖拽面板，独立管理滚动控制器并避让系统栏
+      half_screen_sheet.dart # 横屏右侧占窗口2/3，竖屏底部拖拽，独立滚动并按屏幕外侧避让系统栏
+      sheet/app_bottom_sheet.dart # 普通底部弹层统一处理安全区、键盘及滚动，遮罩保持全屏
+      sheet/sheet_drag_handle.dart # 统一顶部拖动柄，上下各8逻辑像素留白
       update_dialog.dart # 更新对话框
   router/                # 路由
     app_routes.dart      # 路由名、参数对象与命名导航扩展
-    app_router.dart      # 集中式路由表与页面构建；页面内容统一横向 SafeArea，Navigator/弹层遮罩保持全屏
+    app_router.dart      # 集中式路由表与页面构建；普通 MaterialPageRoute 保持全屏，不在路由层处理系统边距
   constants/             # 常量
     sp_keys.dart         # SharedPreferences key
     breakpoints.dart     # 响应式尺寸（横向课表最小节次列宽、日期列宽与行高）
@@ -85,11 +89,9 @@ lib/
         schedule_grid.dart # 课表方向切换、课程/调课/考试映射与详情，支持下拉刷新
         horizontal_schedule_grid.dart # 横屏周课表（固定日期列/周次与节次表头、横向时间轴、时段分组、今天高亮及默认聚焦今日/当前时间，手机隐藏滚动条）
         course_card.dart   # 课程卡片（横屏浅色底与课程色条）
-        floating_schedule_controls.dart # 横屏视图切换、设置及翻周悬浮按钮，叠在时间轴上方、避开日期列和系统安全区域，窄窗自动换行
-    home/                # 首页天视图
+        floating_schedule_controls.dart # 横屏设置及翻周悬浮按钮，叠在时间轴上方、避开日期列和系统安全区域，窄窗自动换行
+    home/                # 首页导航壳
       home_screen.dart   # 首页壳，管理自适应导航与首页、工具箱、一码通、我的四个主 Tab
-      home_timeline_page.dart # 时间线首页（课程 + 校历事件 + 学期概览）
-      timeline_events.dart # 校历事件日期解析与单日/跨日拆分
     toolbox/             # 工具箱（首页 tab）
       toolbox.dart       # 工具箱主页（MasonrySliverGrid 自适应多列）
       gpa/               # 绩点信息
@@ -118,7 +120,7 @@ lib/
       settings_page.dart # 设置页面主页；底部分隔线后直接展示当前平台支持的功能入口或开关，无平台分类页
       course_reminder_settings_page.dart # Android 早课提醒：提醒开关、北京时间及通知/精确闹钟授权和通知渠道管理
       android_permissions_page.dart # Android 预期权限固定清单：标题为权限名称，说明为具体用途和授权状态；不扫描权限，不展示 ID/类型，返回应用自动刷新
-      home_settings_page.dart # 首页设置（视图、时间线范围、学期、课表选项及隐藏课程总览/恢复）
+      home_settings_page.dart # 首页设置（学期、课表选项及隐藏课程总览/恢复）
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
@@ -154,8 +156,12 @@ lib/
 
 ## 编码规范
 
-- west2 online 服务按功能独立配置 `FeatureAccess.tip / allow / hide`：默认 tip，入口可见但不得请求服务；allow 才启用请求；hide 隐藏入口，仍可在设置中恢复。原 west2 调课布尔开关迁移到 `west2AdjustmentsAccess`，已允许的用户保持 allow；历年卷使用独立 `papersAccess`。统一设置页为 `screen/settings/third_party_settings_page.dart`，模型为 `model/feature_access.dart`，周课表、天视图和后台提醒共同读取同一授权状态。
-- 本轮功能约束：自定义课程按账号和学期保存，并覆盖周课表、天视图与提醒；WebDAV 手动同步应用设置、自定义课程和隐藏课程，禁止上传登录凭据、Cookie、支付数据、缓存及 WebDAV 密码，下载覆盖前须确认。WebDAV 密码只放 SecureStorage。校园服务通过域名隔离的 SSO 会话进入，不把教务 Cookie 当作 SSO Cookie。
+- 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。
+
+- 普通页面统一使用 AppScaffold，由内部 Scaffold.body 统一消费 AppBar 尚未处理的顶部和左右边距，保留底部给实际内容处理；背景、标题栏和导航自身延伸至系统区域。首页使用 AppScaffold.shell，外壳不预消费边距，实际子页面的 AppBar 和原生 NavigationRail 自行绘制系统区域并避让内容；横屏分栏仅保留各列触及屏幕外侧的边距。缓存提示统一使用 AppTopBanner，在原生 MaterialBanner 内部避让内容，提示背景覆盖状态栏，其下页面只消费一次顶部边距。状态栏透明并自然显示下方真实表面，保留 AppBar 滚动变色，不通过固定颜色或同步颜色制造沉浸。业务页面不单独放 SafeArea、不用固定留白代替系统边距；Navigator、路由和弹层遮罩保持全屏。普通对话框沿用 Flutter 安全区，全屏导览由 AppScaffold 管理；底部弹层统一使用 showAppBottomSheet 或 showHalfScreenSheet。 垂直滚动统一使用 AppListView、AppCustomScrollView 或 AppSingleChildScrollView，视口延伸至手势区，系统底边距只加入滚动内容末尾并向子树清零；不得在视口外加底部 SafeArea 或使用 Clip.none 泄漏绘制。第三方滚动控件通过 AppScrollInsets 接收内容边距；静态内容使用 AppSafeContent，固定底部操作使用 AppBottomBar 和 Scaffold.bottomNavigationBar，让操作面延伸背景并避让按钮。 横屏侧边抽屉占窗口宽度的2/3，清除不接触屏幕左边时的刘海边距；竖屏拖动柄统一使用 SheetDragHandle，上下各8逻辑像素，内容不再重复添加顶部间距。
+
+- west2 online 服务按功能独立配置 `FeatureAccess.tip / allow / hide`：默认 tip，入口可见但不得请求服务；allow 才启用请求；hide 隐藏入口，仍可在设置中恢复。原 west2 调课布尔开关迁移到 `west2AdjustmentsAccess`，已允许的用户保持 allow；历年卷使用独立 `papersAccess`。统一设置页为 `screen/settings/third_party_settings_page.dart`，模型为 `model/feature_access.dart`，周课表和后台提醒共同读取同一授权状态。
+- 本轮功能约束：自定义课程按账号和学期保存，并覆盖周课表与提醒；WebDAV 手动同步应用设置、自定义课程和隐藏课程，禁止上传登录凭据、Cookie、支付数据、缓存及 WebDAV 密码，下载覆盖前须确认。WebDAV 密码只放 SecureStorage。校园服务通过域名隔离的 SSO 会话进入，不把教务 Cookie 当作 SSO Cookie。
 
 - 平台功能直接放在设置主列表底部分隔线之后，仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示权限管理和早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
 
@@ -178,7 +184,7 @@ lib/
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串；开发者工具（`lib/screen/dev/`）文案直接定义，不使用国际化。
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化；普通查询页复用 common/hooks/use_async_data.dart，保留刷新期间的旧数据，特殊分页/条件查询独立管理状态
-- 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情列表底部提供“我不想上”，说明文字作为按钮的 subtitle，CourseSessions 统一过滤周课表及天视图，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
+- 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情列表底部提供“我不想上”，说明文字作为按钮的 subtitle，CourseSessions 统一过滤周课表，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
 - 学习中心协议参考 `.reference/fzuhelper-app/lib/sso-login.ts` 和 `utils/learning-center/api-service.ts`。SSO Cookie 与学习中心 token 存在 SecureStorage，按教务账号隔离，教务登出时清理；SSO 密码不保存。SSO Cookie 仅发送给其所属域名，学习中心变更请求不自动重试。正常签到须校验现场一分钟有效二维码，直接签到仅在开发者调试页提供。
 - 一码通协议参考 `.reference/fzuhelper-app/lib/ykt-login.ts`：无 voucher 时直接展示服务端返回的 20 位在线消费码，不请求离线参数或前端 RSA 配置；有 voucher 时生成离线消费码，SO 正文为原始字节、SP 正文为 Base64，二维码必须按字节编码；摘要对大写十六进制文本计算 SHA1，时间戳使用 Unix 秒。入馆二维码和 Code128 使用服务端用户 account。一码通 token 存在按教务账号隔离的 SecureStorage，SSO/教务登出时清理；支付码、RSA 配置和用户密钥只保留内存。消费码在页面前台每 50 秒刷新，后台/隐藏路由停止刷新并恢复亮度，重新进入时刷新；未开通离线支付仍可使用在线消费码和入馆码。一码通 SSO 登录不依赖学习中心授权。
 - 学习中心日期和无时区的服务端时间统一按北京时间（Asia/Shanghai，UTC+8）解释，不受设备时区影响；日期卡片、22 点后默认次日、过去时段禁用、未来七天范围、预约状态及现场二维码校验使用同一时间约定。时间选择参考 fzuhelper-app 的日期卡片与四列时间格，端点深色、区间浅色，最长 4 小时。

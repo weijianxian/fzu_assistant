@@ -162,7 +162,7 @@
   "@homeSettings": {
     "description": "homeSettings"
   },
-  "homeSettingsSubtitle": "首页视图、时间线范围与课表选项",
+  "homeSettingsSubtitle": "学期、课表选项与隐藏课程",
   "@homeSettingsSubtitle": {
     "description": "homeSettingsSubtitle"
   },
@@ -734,29 +734,6 @@
       }
     }
   },
-  "navHome": "首页",
-  "homeStyle": "首页视图",
-  "homeStyleSchedule": "周视图",
-  "homeStyleTimeline": "天视图",
-  "semesterStart": "开学",
-  "semesterEnd": "学期结束",
-  "today": "今天",
-  "notStarted": "未开学",
-  "daysLeft": "还有 {days} 天",
-  "@daysLeft": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "inProgress": "进行中",
-  "finished": "已结束",
-  "semesterProgress": "学期进度",
-  "otherEvents": "其他安排",
-  "timeline": "时间线",
-  "starts": "开始",
-  "ends": "结束",
   "classPeriod": "第 {period} 节",
   "@classPeriod": {
     "placeholders": {
@@ -777,16 +754,6 @@
     }
   },
   "adjustedMark": "[调课]",
-  "timelineCourseRange": "时间线课程范围",
-  "daysN": "{days} 天",
-  "@daysN": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "nextMonth": "未来一个月",
   "windowMinimize": "最小化",
   "windowMaximize": "最大化",
   "windowRestore": "还原窗口",
@@ -799,7 +766,7 @@
   "schedulePreviousWeek": "上一周",
   "scheduleNextWeek": "下一周",
   "showNonCurrentWeekCourses": "显示非本周课程",
-  "showNonCurrentWeekCoursesDescription": "在周课表的空闲时段淡化显示非本周课程，不影响今日时间线。",
+  "showNonCurrentWeekCoursesDescription": "在课表的空闲时段淡化显示非本周课程。",
   "nonCurrentWeekMark": "[非本周]",
   "academicShortcuts": "教务快捷入口",
   "academicShortcutsSubtitle": "选课、教务申请与嘉锡讲坛",
@@ -820,7 +787,7 @@
   "skipCourseSession": "我不想上",
   "skipCourseSessionDescription": "仅隐藏本周这一次课，可在首页设置中恢复。",
   "hiddenCourseSessions": "不展示的课",
-  "hiddenCourseSessionsDescription": "管理已隐藏的单次课程，恢复后重新显示在课表和天视图中。",
+  "hiddenCourseSessionsDescription": "管理已隐藏的单次课程，恢复后重新显示在课表中。",
   "noHiddenCourseSessions": "暂无不展示的课",
   "restoreCourseSession": "恢复展示",
   "restoreAllCourseSessions": "全部恢复",

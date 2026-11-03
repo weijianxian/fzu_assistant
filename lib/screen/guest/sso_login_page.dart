@@ -1,9 +1,11 @@
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widget/input/password_field.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class SsoLoginPage extends HookWidget {
   const SsoLoginPage({super.key, this.loadStudyToken = true});
@@ -54,12 +56,12 @@ class SsoLoginPage extends HookWidget {
 
     return PopScope(
       canPop: !busy.value,
-      child: Scaffold(
+      child: AppScaffold(
         appBar: AppBar(title: Text(l10n.ssoLogin)),
         body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: ListView(
+            child: AppListView(
               shrinkWrap: true,
               padding: const EdgeInsets.all(24),
               children: [
@@ -130,7 +132,7 @@ class _SmsDialog extends HookWidget {
     final sent = useState(false);
     return AlertDialog(
       title: Text(l10n.ssoSmsVerification),
-      content: SingleChildScrollView(
+      content: AppSingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

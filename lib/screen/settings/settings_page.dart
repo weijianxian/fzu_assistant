@@ -12,9 +12,9 @@ class SettingsPage extends HookWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.settings)),
-      body: ListView(
+      body: AppListView(
         children: [
           ChevronListTile(
             leading: const Icon(Icons.home_outlined),

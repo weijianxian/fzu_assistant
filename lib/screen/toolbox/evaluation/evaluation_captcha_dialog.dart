@@ -25,12 +25,8 @@ void showEvaluationCaptchaDialog(
   List<EvaluationSubmitItem> items,
   VoidCallback onSuccess,
 ) {
-  showModalBottomSheet(
+  showAppBottomSheet(
     context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
     builder: (ctx) => _CaptchaDialogContent(
       service: service,
       items: items,
@@ -129,31 +125,11 @@ class _CaptchaDialogContent extends HookWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 拖拽条
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withValues(
-                  alpha: 0.4,
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-
           // 标题
           if (!submitting.value)
             Text(

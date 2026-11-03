@@ -32,7 +32,7 @@ class LearningCenterPage extends HookWidget {
       if (context.mounted) await session.refresh();
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.learningCenter)),
       body: ToolPageWrapper(
         loading: session.loading,
@@ -40,7 +40,7 @@ class LearningCenterPage extends HookWidget {
         emptyText: l10n.noData,
         onRefresh: session.refresh,
         refreshTime: session.updatedAt,
-        child: ListView(
+        child: AppListView(
           children: [
             if (session.error != null)
               ListTile(

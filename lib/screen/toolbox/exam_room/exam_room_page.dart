@@ -72,7 +72,7 @@ class ExamRoomPage extends HookWidget {
         ? selectedTerm
         : effectiveTerm.value;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(
           menuTerm.isEmpty || terms.isEmpty

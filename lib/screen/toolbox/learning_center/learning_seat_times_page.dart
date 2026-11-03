@@ -30,7 +30,7 @@ class LearningSeatTimesPage extends HookWidget {
       }
     });
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(l10n.learningSeatTimes),
         actions: [
@@ -50,7 +50,7 @@ class LearningSeatTimesPage extends HookWidget {
         onRefresh: () async {
           if (!querying.value) await data.refresh();
         },
-        child: ListView(
+        child: AppListView(
           padding: const EdgeInsets.all(16),
           children: [
             Text(

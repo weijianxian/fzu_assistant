@@ -54,7 +54,7 @@ class MyPage extends HookWidget {
       );
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.navMy)),
       body: ProfilePage(
         showAppBar: false,

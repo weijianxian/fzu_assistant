@@ -72,7 +72,7 @@ class EmptyRoomPage extends HookWidget {
       if (context.mounted) loading.value = false;
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.emptyClassroom)),
       body: ToolPageWrapper(
         onRefresh: () async {

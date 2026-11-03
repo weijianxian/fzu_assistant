@@ -29,9 +29,9 @@ class ThemeSection extends HookWidget {
     final settings = AppSettingsProvider.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.appearance)),
-      body: ListView(
+      body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
           // ── 外观模式 ──

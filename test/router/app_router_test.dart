@@ -39,12 +39,17 @@ const _argumentFreeRoutes = [
 
 void main() {
   testWidgets(
-    'page content consumes cutout padding once while barriers stay full screen',
+    'page shell consumes cutout padding while backgrounds and barriers stay full screen',
     (tester) async {
       tester.view.physicalSize = const Size(1200, 600);
       tester.view.devicePixelRatio = 1;
-      tester.view.padding = const FakeViewPadding(left: 48, top: 24);
-      tester.view.viewPadding = const FakeViewPadding(left: 48, top: 24);
+      tester.view.padding = const FakeViewPadding(
+        left: 48,
+        top: 24,
+        right: 32,
+        bottom: 34,
+      );
+      tester.view.viewPadding = tester.view.padding;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.view.resetPadding);
@@ -56,6 +61,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      expect(tester.getRect(find.byType(Scaffold)).left, 0);
+      expect(tester.getRect(find.byType(Scaffold)).width, 1200);
+      expect(tester.getRect(find.byType(AppBar)).left, 0);
+      expect(tester.getRect(find.byType(AppBar)).width, 1200);
+      expect(tester.getRect(find.byType(ListView)).bottom, 600);
       expect(tester.getTopLeft(find.byIcon(Icons.science_outlined)).dx, 64);
       await tester.scrollUntilVisible(
         find.text('Native BottomSheet'),

@@ -206,7 +206,7 @@ class ScheduleGrid extends HookWidget {
 
         return RefreshIndicator(
           onRefresh: onRefresh,
-          child: SingleChildScrollView(
+          child: AppSingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: SizedBox(
               height: canFill ? gridHeight + headerHeight : null,
@@ -499,7 +499,7 @@ class ScheduleGrid extends HookWidget {
     final hide = await showHalfScreenSheet<bool>(
       context,
       builder: (controller) => Builder(
-        builder: (sheetContext) => ListView(
+        builder: (sheetContext) => AppListView(
           controller: controller,
           children: [
             ListTile(

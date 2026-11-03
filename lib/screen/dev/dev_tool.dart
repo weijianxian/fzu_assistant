@@ -17,9 +17,9 @@ class DevToolPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text('Dev Tools')),
-      body: ListView(
+      body: AppListView(
         children: [
           if (CourseReminderService.supported)
             const _DevGroupHeader('Notifications'),
@@ -113,7 +113,7 @@ class DevToolPage extends StatelessWidget {
             title: const Text('Native BottomSheet'),
             onTap: () => showHalfScreenSheet(
               context,
-              builder: (controller) => ListView.builder(
+              builder: (controller) => AppListView.builder(
                 controller: controller,
                 itemCount: 20,
                 itemBuilder: (context, index) =>

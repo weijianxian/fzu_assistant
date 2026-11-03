@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
@@ -9,6 +10,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class LoginPage extends HookWidget {
   const LoginPage({super.key});
@@ -89,7 +91,7 @@ class LoginPage extends HookWidget {
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
-        child: SingleChildScrollView(
+        child: AppSingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -201,32 +203,30 @@ class LoginPage extends HookWidget {
       ),
     );
 
-    return Scaffold(
-      body: SafeArea(
-        child: context.isLandscape
-            ? Row(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: LoginMascot(eyesClosed: passwordFocus.hasFocus),
-                      ),
+    return AppScaffold(
+      body: context.isLandscape
+          ? Row(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: LoginMascot(eyesClosed: passwordFocus.hasFocus),
                     ),
                   ),
-                  SizedBox(
-                    height: 240,
-                    child: VerticalDivider(
-                      width: 1,
-                      thickness: 1,
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
+                ),
+                SizedBox(
+                  height: 240,
+                  child: VerticalDivider(
+                    width: 1,
+                    thickness: 1,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
-                  Expanded(child: form),
-                ],
-              )
-            : form,
-      ),
+                ),
+                Expanded(child: form),
+              ],
+            )
+          : form,
     );
   }
 }

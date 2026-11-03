@@ -43,7 +43,7 @@ class LearningScannerPage extends HookWidget {
       },
       [controller],
     );
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.learningScanSignIn)),
       body: ToolPageWrapper(
         loading: false,
@@ -107,23 +107,20 @@ class LearningScannerPage extends HookWidget {
                           },
                         ),
                       ),
-                      SafeArea(
-                        top: false,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              Text(l10n.learningScanHint),
-                              if (busy.value) const LinearProgressIndicator(),
-                              if (paused.value && !busy.value)
-                                TextButton(
-                                  onPressed: () {
-                                    paused.value = false;
-                                  },
-                                  child: Text(l10n.retry),
-                                ),
-                            ],
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Text(l10n.learningScanHint),
+                            if (busy.value) const LinearProgressIndicator(),
+                            if (paused.value && !busy.value)
+                              TextButton(
+                                onPressed: () {
+                                  paused.value = false;
+                                },
+                                child: Text(l10n.retry),
+                              ),
+                          ],
                         ),
                       ),
                     ],

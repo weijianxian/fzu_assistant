@@ -121,7 +121,7 @@ class LearningAvailableSeatsPage extends HookWidget {
       }
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(l10n.learningSeatList),
         actions: [
@@ -244,7 +244,7 @@ class LearningAvailableSeatsPage extends HookWidget {
               child: ScrollConfiguration(
                 behavior: ScrollConfiguration.of(context)
                     .copyWith(scrollbars: false),
-                child: SingleChildScrollView(
+                child: AppSingleChildScrollView(
                   primary: false,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Column(

@@ -62,65 +62,11 @@ class HomeSettingsPage extends HookWidget {
       return null;
     }, []);
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.homeSettings)),
-      body: ListView(
+      body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          Section(
-            title: l10n.homeStyle,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ValueListenableBuilder<String>(
-                valueListenable: settings.homeStyleKey,
-                builder: (_, homeStyle, _) => DropdownButton<String>(
-                  value: homeStyle,
-                  isExpanded: true,
-                  items: [
-                    DropdownMenuItem(
-                      value: AppSettings.scheduleHomeStyle,
-                      child: Text(l10n.homeStyleSchedule),
-                    ),
-                    DropdownMenuItem(
-                      value: AppSettings.timelineHomeStyle,
-                      child: Text(l10n.homeStyleTimeline),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) settings.homeStyleKey.value = value;
-                  },
-                ),
-              ),
-            ),
-          ),
-          Section(
-            title: l10n.timelineCourseRange,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ValueListenableBuilder(
-                valueListenable: settings.timelineDaysKey,
-                builder: (_, days, _) => DropdownButton<int>(
-                  value: days,
-                  isExpanded: true,
-                  items: AppSettings.timelineDayOptions
-                      .map(
-                        (option) => DropdownMenuItem(
-                          value: option,
-                          child: Text(switch (option) {
-                            1 => l10n.today,
-                            30 => l10n.nextMonth,
-                            _ => l10n.daysN(option),
-                          }),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) settings.timelineDaysKey.value = value;
-                  },
-                ),
-              ),
-            ),
-          ),
           Section(
             title: l10n.selectSemester,
             child: Padding(

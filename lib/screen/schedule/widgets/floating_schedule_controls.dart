@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 
@@ -20,7 +19,6 @@ class FloatingScheduleControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final scale = math.max(
       1.0,
@@ -32,16 +30,6 @@ class FloatingScheduleControls extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        Material(
-          color: scheme.surfaceContainerHigh,
-          elevation: 3,
-          shadowColor: scheme.shadow.withValues(alpha: 0.2),
-          shape: const StadiumBorder(),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: HomeViewToggle(),
-          ),
-        ),
         _FloatingButton(
           icon: Icons.settings_outlined,
           tooltip: l10n.homeSettings,

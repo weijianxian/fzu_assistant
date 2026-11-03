@@ -12,10 +12,6 @@ import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/model/hidden_course_session.dart';
 
 class AppSettings {
-  static const scheduleHomeStyle = 'schedule';
-  static const timelineHomeStyle = 'timeline';
-  static const timelineDayOptions = [1, 3, 7, 30];
-
   static ColorScheme? _systemLightScheme;
   static ColorScheme? _systemDarkScheme;
   static bool dynamicColorSupported = false;
@@ -30,8 +26,6 @@ class AppSettings {
   final courseReminderMinutes = ValueNotifier<int>(21 * 60);
 
   // 首页
-  final homeStyleKey = ValueNotifier<String>(scheduleHomeStyle);
-  final timelineDaysKey = ValueNotifier<int>(1);
 
   // 学期相关
   final selectedSemesterKey = ValueNotifier<String>(''); // 空 = 自动当前学期
@@ -93,16 +87,6 @@ class AppSettings {
     final savedLocale = sp.getString(SpKeys.localeKey) ?? 'system';
     final validLocale = _localeOptions.any((o) => o.$1 == savedLocale);
     localeKey.value = validLocale ? savedLocale : 'system';
-
-    final savedHomeStyle = sp.getString(SpKeys.homeStyle) ?? scheduleHomeStyle;
-    homeStyleKey.value =
-        {scheduleHomeStyle, timelineHomeStyle}.contains(savedHomeStyle)
-        ? savedHomeStyle
-        : scheduleHomeStyle;
-    final savedTimelineDays = sp.getInt(SpKeys.timelineDays) ?? 1;
-    timelineDaysKey.value = timelineDayOptions.contains(savedTimelineDays)
-        ? savedTimelineDays
-        : 1;
 
     // 学期相关
     selectedSemesterKey.value = sp.getString(SpKeys.selectedSemester) ?? '';
@@ -170,7 +154,6 @@ class AppSettings {
       SpKeys.themeKey: themeKey,
       SpKeys.themeMode: themeModeKey,
       SpKeys.localeKey: localeKey,
-      SpKeys.homeStyle: homeStyleKey,
       SpKeys.selectedSemester: selectedSemesterKey,
     }.entries) {
       _persist(entry.value, (value) => sp.setString(entry.key, value));
@@ -185,7 +168,6 @@ class AppSettings {
     }.entries) {
       _persist(entry.value, (value) => sp.setBool(entry.key, value));
     }
-    _persist(timelineDaysKey, (value) => sp.setInt(SpKeys.timelineDays, value));
     _persist(
       courseReminderMinutes,
       (value) => sp.setInt(SpKeys.courseReminderMinutes, value),
@@ -292,8 +274,6 @@ class AppSettings {
     themeKey.dispose();
     themeModeKey.dispose();
     localeKey.dispose();
-    homeStyleKey.dispose();
-    timelineDaysKey.dispose();
     selectedSemesterKey.dispose();
     termsKey.dispose();
     siteInjectionEnabled.dispose();

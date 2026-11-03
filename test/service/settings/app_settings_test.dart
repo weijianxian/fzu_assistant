@@ -22,10 +22,8 @@ void main() {
 
     settings.localeKey.value = 'en';
     settings.themeModeKey.value = 'dark';
-    settings.timelineDaysKey.value = 7;
     settings.selectedSemesterKey.value = '202601';
     settings.termsKey.value = ['202601', '202501'];
-    settings.homeStyleKey.value = AppSettings.timelineHomeStyle;
     settings.showExamOnSchedule.value = false;
     settings.showNonCurrentWeekCourses.value = true;
     settings.siteInjectionEnabled.value = false;
@@ -42,10 +40,8 @@ void main() {
     expect(reloaded.currentThemeMode, ThemeMode.dark);
     expect(reloaded.lightTheme.brightness, Brightness.light);
     expect(reloaded.darkTheme.brightness, Brightness.dark);
-    expect(reloaded.timelineDaysKey.value, 7);
     expect(reloaded.selectedSemesterKey.value, '202601');
     expect(reloaded.termsKey.value, ['202601', '202501']);
-    expect(reloaded.homeStyleKey.value, AppSettings.timelineHomeStyle);
     expect(reloaded.showExamOnSchedule.value, isFalse);
     expect(reloaded.showNonCurrentWeekCourses.value, isTrue);
     expect(reloaded.siteInjectionEnabled.value, isFalse);

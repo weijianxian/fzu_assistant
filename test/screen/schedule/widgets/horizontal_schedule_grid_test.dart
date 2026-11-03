@@ -74,6 +74,16 @@ void _viewport(WidgetTester tester, Size size) {
   addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
 }
 
+SingleChildScrollView _verticalScrollView(WidgetTester tester, String key) =>
+    tester.widget<SingleChildScrollView>(
+      find
+          .descendant(
+            of: find.byKey(ValueKey(key)),
+            matching: find.byType(SingleChildScrollView),
+          )
+          .first,
+    );
+
 Finder _card(String name) => find.byWidgetPredicate(
   (widget) => widget is CourseCard && widget.course.name == name,
 );
@@ -182,11 +192,10 @@ void main() {
             find.byKey(const ValueKey('schedule-time-scroll')),
           )
           .controller!;
-      final days = tester
-          .widget<SingleChildScrollView>(
-            find.byKey(const ValueKey('schedule-day-scroll')),
-          )
-          .controller!;
+      final days = _verticalScrollView(
+        tester,
+        'schedule-day-scroll',
+      ).controller!;
       days.jumpTo(days.position.maxScrollExtent);
       await tester.pumpAndSettle();
       final bar = tester.getRect(
@@ -277,11 +286,10 @@ void main() {
             find.byKey(const ValueKey('schedule-time-scroll')),
           )
           .controller!;
-      final days = tester
-          .widget<SingleChildScrollView>(
-            find.byKey(const ValueKey('schedule-day-scroll')),
-          )
-          .controller!;
+      final days = _verticalScrollView(
+        tester,
+        'schedule-day-scroll',
+      ).controller!;
       await tester.timedDragFrom(
         tester.getCenter(find.byKey(const ValueKey('schedule-day-scroll'))),
         const Offset(-200, 0),
@@ -438,9 +446,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final days = tester.widget<SingleChildScrollView>(
-        find.byKey(const ValueKey('schedule-day-scroll')),
-      );
+      final days = _verticalScrollView(tester, 'schedule-day-scroll');
       final times = tester.widget<SingleChildScrollView>(
         find.byKey(const ValueKey('schedule-time-scroll')),
       );
@@ -465,11 +471,10 @@ void main() {
         closeTo(times.controller!.offset, 0.01),
       );
       final headerTop = tester.getTopLeft(find.text('第 6 节')).dy;
-      final dates = tester
-          .widget<SingleChildScrollView>(
-            find.byKey(const ValueKey('schedule-date-scroll')),
-          )
-          .controller!;
+      final dates = _verticalScrollView(
+        tester,
+        'schedule-date-scroll',
+      ).controller!;
       expect(dates.offset, closeTo(days.controller!.offset, 0.01));
       days.controller!.jumpTo(0);
       times.controller!.jumpTo(0);
@@ -503,11 +508,10 @@ void main() {
       );
       await tester.pumpWidget(timeline(DateTime(2026, 10, 2, 15, 10)));
       await tester.pumpAndSettle();
-      final days = tester
-          .widget<SingleChildScrollView>(
-            find.byKey(const ValueKey('schedule-day-scroll')),
-          )
-          .controller!;
+      final days = _verticalScrollView(
+        tester,
+        'schedule-day-scroll',
+      ).controller!;
       final times = tester
           .widget<SingleChildScrollView>(
             find.byKey(const ValueKey('schedule-time-scroll')),

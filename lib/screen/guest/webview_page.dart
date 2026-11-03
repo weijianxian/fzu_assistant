@@ -9,6 +9,7 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class WebViewPage extends StatefulWidget {
   final String url;
@@ -123,7 +124,7 @@ class _WebViewPageState extends State<WebViewPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(_pageTitle.isNotEmpty ? _pageTitle : l10n.webView),
         actions: [
@@ -162,52 +163,55 @@ class _WebViewPageState extends State<WebViewPage> {
           ),
         ],
       ),
-      body: _ready
-          ? Column(
-              children: [
-                if (_progress < 1.0) LinearProgressIndicator(value: _progress),
-                Expanded(
-                  child: InAppWebView(
-                    webViewEnvironment: webViewEnvironment,
-                    initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
-                    initialSettings: InAppWebViewSettings(
-                      javaScriptEnabled: true,
-                      useHybridComposition: !Platform.isAndroid,
-                      algorithmicDarkeningAllowed: true,
-                      mixedContentMode:
-                          MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
-                    ),
-                    onWebViewCreated: (controller) {
-                      _controller = controller;
-                    },
-                    onLoadStart: (controller, url) {
-                      setState(() => _currentUrl = url?.toString() ?? '');
-                    },
-                    onTitleChanged: (controller, title) {
-                      setState(() => _pageTitle = title ?? '');
-                    },
-                    onProgressChanged: (controller, progress) {
-                      setState(() => _progress = progress / 100.0);
-                    },
-                    onReceivedServerTrustAuthRequest:
-                        (controller, challenge) async {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.sslWarning)),
+      body: AppSafeContent(
+        child: _ready
+            ? Column(
+                children: [
+                  if (_progress < 1.0)
+                    LinearProgressIndicator(value: _progress),
+                  Expanded(
+                    child: InAppWebView(
+                      webViewEnvironment: webViewEnvironment,
+                      initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
+                      initialSettings: InAppWebViewSettings(
+                        javaScriptEnabled: true,
+                        useHybridComposition: !Platform.isAndroid,
+                        algorithmicDarkeningAllowed: true,
+                        mixedContentMode:
+                            MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+                      ),
+                      onWebViewCreated: (controller) {
+                        _controller = controller;
+                      },
+                      onLoadStart: (controller, url) {
+                        setState(() => _currentUrl = url?.toString() ?? '');
+                      },
+                      onTitleChanged: (controller, title) {
+                        setState(() => _pageTitle = title ?? '');
+                      },
+                      onProgressChanged: (controller, progress) {
+                        setState(() => _progress = progress / 100.0);
+                      },
+                      onReceivedServerTrustAuthRequest:
+                          (controller, challenge) async {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.sslWarning)),
+                              );
+                            }
+                            return ServerTrustAuthResponse(
+                              action: ServerTrustAuthResponseAction.PROCEED,
                             );
-                          }
-                          return ServerTrustAuthResponse(
-                            action: ServerTrustAuthResponseAction.PROCEED,
-                          );
-                        },
-                    onLoadStop: (controller, url) {
-                      _injectForDomain(controller, url);
-                    },
+                          },
+                      onLoadStop: (controller, url) {
+                        _injectForDomain(controller, url);
+                      },
+                    ),
                   ),
-                ),
-              ],
-            )
-          : const Center(child: CircularProgressIndicator.adaptive()),
+                ],
+              )
+            : const Center(child: CircularProgressIndicator.adaptive()),
+      ),
     );
   }
 }

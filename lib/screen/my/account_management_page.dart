@@ -1,9 +1,11 @@
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/account_service.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class AccountManagementPage extends HookWidget {
   const AccountManagementPage({super.key, this.service});
@@ -62,13 +64,13 @@ class AccountManagementPage extends HookWidget {
 
     return PopScope(
       canPop: !busy.value,
-      child: Scaffold(
+      child: AppScaffold(
         appBar: AppBar(title: Text(l10n.accountManagement)),
         body: status.loading
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
                 onRefresh: status.refresh,
-                child: ListView(
+                child: AppListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     if (status.error != null)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 
 class ToolPageWrapper extends StatelessWidget {
@@ -46,7 +47,7 @@ class ToolPageWrapper extends StatelessWidget {
   Widget _withFooter(BuildContext context) {
     // slivers 模式：直接构建 CustomScrollView
     if (slivers != null) {
-      return CustomScrollView(
+      return AppCustomScrollView(
         controller: scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -58,32 +59,24 @@ class ToolPageWrapper extends StatelessWidget {
 
     final content = child!;
 
-    // ListView：把 footer 插到末尾
-    if (content is ListView) {
-      final delegate = content.childrenDelegate;
-      if (delegate is SliverChildListDelegate) {
-        return ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: content.padding,
-          children: [...delegate.children, _footer(context)],
-        );
-      }
-      if (delegate is SliverChildBuilderDelegate) {
-        final originalCount = delegate.childCount ?? 0;
-        return ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: content.padding,
-          itemCount: originalCount + 1,
-          itemBuilder: (ctx, i) {
-            if (i == originalCount) return _footer(context);
-            return delegate.builder(ctx, i);
-          },
-        );
-      }
+    // Preserve native delegates, list options and controllers when adding a footer.
+    final list = content is AppListView
+        ? content.nativeListView
+        : content is ListView
+        ? content
+        : null;
+    if (list != null) {
+      return AppListView.fromListView(
+        list,
+        footer: _footer(context),
+        controller: scrollController ?? list.controller,
+        physics: const AlwaysScrollableScrollPhysics(),
+      );
     }
 
     // 通用情况：用 ListView 包一层
-    return ListView(
+    return AppListView(
+      controller: scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       children: [content, _footer(context)],
     );
@@ -105,7 +98,8 @@ class ToolPageWrapper extends StatelessWidget {
   }
 
   Widget _emptyView(BuildContext context) {
-    return ListView(
+    return AppListView(
+      controller: scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
         const SizedBox(height: 200),

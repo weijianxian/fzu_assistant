@@ -28,7 +28,7 @@ class MarksPage extends HookWidget {
     );
     final marks = result.data!;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.marksQuery)),
       body: ToolPageWrapper(
         onRefresh: result.refresh,

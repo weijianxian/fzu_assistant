@@ -63,13 +63,13 @@ class LearningSeatsPage extends HookWidget {
       }
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.learningReserve)),
       body: ToolPageWrapper(
         loading: false,
         emptyText: l10n.learningNoSeats,
         onRefresh: () async {},
-        child: ListView(
+        child: AppListView(
           padding: const EdgeInsets.all(16),
           children: [
             Row(

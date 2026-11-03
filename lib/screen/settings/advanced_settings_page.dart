@@ -33,9 +33,9 @@ class AdvancedSettingsPage extends HookWidget {
       settings.githubProxyBaseUrl.value = normalized;
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.advancedSettings)),
-      body: ListView(
+      body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
           Section(

@@ -159,7 +159,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSettingsSubtitle =>
-      'Home view, timeline range, and schedule options';
+      'Semester, timetable options and hidden courses';
 
   @override
   String get generalSettings => 'General Settings';
@@ -587,56 +587,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get navHome => 'Home';
-
-  @override
-  String get homeStyle => 'Home View';
-
-  @override
-  String get homeStyleSchedule => 'Week';
-
-  @override
-  String get homeStyleTimeline => 'Day';
-
-  @override
-  String get semesterStart => 'Semester starts';
-
-  @override
-  String get semesterEnd => 'Semester ends';
-
-  @override
-  String get today => 'Today';
-
-  @override
-  String get notStarted => 'Not started';
-
-  @override
-  String daysLeft(int days) {
-    return '$days days left';
-  }
-
-  @override
-  String get inProgress => 'In progress';
-
-  @override
-  String get finished => 'Finished';
-
-  @override
-  String get semesterProgress => 'Semester progress';
-
-  @override
-  String get otherEvents => 'Other events';
-
-  @override
-  String get timeline => 'Timeline';
-
-  @override
-  String get starts => ' starts';
-
-  @override
-  String get ends => ' ends';
-
-  @override
   String classPeriod(int period) {
     return 'Period $period';
   }
@@ -648,17 +598,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adjustedMark => '[Adjusted] ';
-
-  @override
-  String get timelineCourseRange => 'Timeline course range';
-
-  @override
-  String daysN(int days) {
-    return '$days days';
-  }
-
-  @override
-  String get nextMonth => 'Next month';
 
   @override
   String get windowMinimize => 'Minimize';
@@ -698,7 +637,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showNonCurrentWeekCoursesDescription =>
-      'Show faded courses from other weeks in free timetable slots. The daily timeline is unaffected.';
+      'Show faded courses from other weeks in free timetable slots.';
 
   @override
   String get nonCurrentWeekMark => '[Other week]';
@@ -764,7 +703,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hiddenCourseSessionsDescription =>
-      'Manage hidden sessions. Restore them to show them in the schedule and day view.';
+      'Manage hidden sessions. Restore them to show them in the schedule.';
 
   @override
   String get noHiddenCourseSessions => 'No hidden classes';

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -9,6 +10,7 @@ import 'package:fzu_assistant/model/learning_center.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/learning_center_service.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 /// Mirrors fzuhelper-app's devtools/learning-center-api.tsx.
 class LearningCenterDebugPage extends HookWidget {
@@ -103,9 +105,9 @@ class LearningCenterDebugPage extends HookWidget {
           child: Text(label),
         );
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text('Learning Center API Debug')),
-      body: ListView(
+      body: AppListView(
         padding: const EdgeInsets.all(16),
         children: [
           _DebugButtonGroup(

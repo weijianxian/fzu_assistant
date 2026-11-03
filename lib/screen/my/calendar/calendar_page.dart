@@ -20,7 +20,7 @@ class CalendarPage extends HookWidget {
     final result = useAsyncData(service.getSchoolCalendar);
     final calendar = result.data;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.calendar)),
       body: ToolPageWrapper(
         onRefresh: result.refresh,
@@ -69,7 +69,7 @@ class CalendarPage extends HookWidget {
     ValueNotifier<Map<String, bool>> loadingMap,
     ValueNotifier<Map<String, String>> errorMap,
   ) {
-    return ListView.builder(
+    return AppListView.builder(
       itemCount: cal.terms.length,
       itemBuilder: (context, i) {
         final t = cal.terms[i];

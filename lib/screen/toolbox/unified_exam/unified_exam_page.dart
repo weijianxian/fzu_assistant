@@ -18,7 +18,7 @@ class UnifiedExamPage extends HookWidget {
     );
     final [cet, js] = result.data!;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.unifiedExam)),
       body: ToolPageWrapper(
         onRefresh: result.refresh,
@@ -37,7 +37,7 @@ class UnifiedExamPage extends HookWidget {
     List<UnifiedExam> cet,
     List<UnifiedExam> js,
   ) {
-    return ListView(
+    return AppListView(
       children: [
         if (cet.isNotEmpty)
           Section(

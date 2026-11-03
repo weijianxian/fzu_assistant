@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show PointerDeviceKind;
 
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
@@ -281,7 +282,7 @@ class HorizontalScheduleGrid extends HookWidget {
                               child: ScrollConfiguration(
                                 behavior: ScrollConfiguration.of(context)
                                     .copyWith(scrollbars: false),
-                                child: SingleChildScrollView(
+                                child: AppSingleChildScrollView(
                                   key: const ValueKey('schedule-date-scroll'),
                                   controller: datesController,
                                   physics:
@@ -305,7 +306,7 @@ class HorizontalScheduleGrid extends HookWidget {
                             Expanded(
                               child: Builder(
                                 builder: (context) {
-                                  final timeline = SingleChildScrollView(
+                                  final timeline = AppSingleChildScrollView(
                                     key: const ValueKey('schedule-day-scroll'),
                                     controller: verticalController,
                                     physics:

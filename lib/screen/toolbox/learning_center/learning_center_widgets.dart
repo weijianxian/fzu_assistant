@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 Future<void> showLearningSeatGuide(BuildContext context) => showDialog<void>(
   context: context,
+  useSafeArea: false,
   builder: (context) => Dialog.fullscreen(
-    child: Scaffold(
+    child: AppScaffold(
       appBar: AppBar(
         leading: CloseButton(onPressed: () => Navigator.of(context).pop()),
         title: Text(AppLocalizations.of(context)!.learningSeatGuide),
       ),
-      body: SafeArea(
-        top: false,
+      body: AppSafeContent(
         child: InteractiveViewer(
           minScale: 1,
           maxScale: 8,

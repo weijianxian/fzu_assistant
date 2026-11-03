@@ -1,8 +1,10 @@
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class ThirdPartySettingsPage extends HookWidget {
   const ThirdPartySettingsPage({super.key});
@@ -10,9 +12,9 @@ class ThirdPartySettingsPage extends HookWidget {
   Widget build(BuildContext context) {
     final settings = AppSettingsProvider.of(context);
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.thirdPartyServices)),
-      body: ListView(
+      body: AppListView(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),

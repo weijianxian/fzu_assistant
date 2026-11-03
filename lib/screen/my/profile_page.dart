@@ -1,3 +1,4 @@
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -6,6 +7,7 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/user_service.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class ProfilePage extends HookWidget {
   const ProfilePage({super.key, this.showAppBar = true, this.footer});
@@ -66,7 +68,7 @@ class ProfilePage extends HookWidget {
 
     if (!showAppBar) {
       if (footer != null && (loading.value || error.value != null)) {
-        return ListView(
+        return AppListView(
           children: [
             SizedBox(height: 200, child: body),
             footer!,
@@ -75,7 +77,7 @@ class ProfilePage extends HookWidget {
       }
       return body;
     }
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.profileInfo)),
       body: body,
     );
@@ -88,7 +90,7 @@ class ProfilePage extends HookWidget {
     VoidCallback onAvatarTap,
   ) {
     final l10n = AppLocalizations.of(context)!;
-    return ListView(
+    return AppListView(
       children: [
         const SizedBox(height: 32),
         Center(

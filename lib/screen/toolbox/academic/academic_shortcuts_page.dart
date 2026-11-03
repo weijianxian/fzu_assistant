@@ -36,7 +36,7 @@ class AcademicShortcutsPage extends HookWidget {
       (l10n.campusInfo, [(l10n.jiaxiLectures, 'glbm/lecture/jxjt_cszt.aspx')]),
     ];
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.academicShortcuts)),
       body: ToolPageWrapper(
         loading: false,

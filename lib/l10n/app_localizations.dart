@@ -371,7 +371,7 @@ abstract class AppLocalizations {
   /// homeSettingsSubtitle
   ///
   /// In zh, this message translates to:
-  /// **'首页视图、时间线范围与课表选项'**
+  /// **'学期、课表选项与隐藏课程'**
   String get homeSettingsSubtitle;
 
   /// generalSettings
@@ -1160,102 +1160,6 @@ abstract class AppLocalizations {
   /// **'评议提交失败: {error}'**
   String evalSubmitFailed(String error);
 
-  /// No description provided for @navHome.
-  ///
-  /// In zh, this message translates to:
-  /// **'首页'**
-  String get navHome;
-
-  /// No description provided for @homeStyle.
-  ///
-  /// In zh, this message translates to:
-  /// **'首页视图'**
-  String get homeStyle;
-
-  /// No description provided for @homeStyleSchedule.
-  ///
-  /// In zh, this message translates to:
-  /// **'周视图'**
-  String get homeStyleSchedule;
-
-  /// No description provided for @homeStyleTimeline.
-  ///
-  /// In zh, this message translates to:
-  /// **'天视图'**
-  String get homeStyleTimeline;
-
-  /// No description provided for @semesterStart.
-  ///
-  /// In zh, this message translates to:
-  /// **'开学'**
-  String get semesterStart;
-
-  /// No description provided for @semesterEnd.
-  ///
-  /// In zh, this message translates to:
-  /// **'学期结束'**
-  String get semesterEnd;
-
-  /// No description provided for @today.
-  ///
-  /// In zh, this message translates to:
-  /// **'今天'**
-  String get today;
-
-  /// No description provided for @notStarted.
-  ///
-  /// In zh, this message translates to:
-  /// **'未开学'**
-  String get notStarted;
-
-  /// No description provided for @daysLeft.
-  ///
-  /// In zh, this message translates to:
-  /// **'还有 {days} 天'**
-  String daysLeft(int days);
-
-  /// No description provided for @inProgress.
-  ///
-  /// In zh, this message translates to:
-  /// **'进行中'**
-  String get inProgress;
-
-  /// No description provided for @finished.
-  ///
-  /// In zh, this message translates to:
-  /// **'已结束'**
-  String get finished;
-
-  /// No description provided for @semesterProgress.
-  ///
-  /// In zh, this message translates to:
-  /// **'学期进度'**
-  String get semesterProgress;
-
-  /// No description provided for @otherEvents.
-  ///
-  /// In zh, this message translates to:
-  /// **'其他安排'**
-  String get otherEvents;
-
-  /// No description provided for @timeline.
-  ///
-  /// In zh, this message translates to:
-  /// **'时间线'**
-  String get timeline;
-
-  /// No description provided for @starts.
-  ///
-  /// In zh, this message translates to:
-  /// **'开始'**
-  String get starts;
-
-  /// No description provided for @ends.
-  ///
-  /// In zh, this message translates to:
-  /// **'结束'**
-  String get ends;
-
   /// No description provided for @classPeriod.
   ///
   /// In zh, this message translates to:
@@ -1273,24 +1177,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'[调课]'**
   String get adjustedMark;
-
-  /// No description provided for @timelineCourseRange.
-  ///
-  /// In zh, this message translates to:
-  /// **'时间线课程范围'**
-  String get timelineCourseRange;
-
-  /// No description provided for @daysN.
-  ///
-  /// In zh, this message translates to:
-  /// **'{days} 天'**
-  String daysN(int days);
-
-  /// No description provided for @nextMonth.
-  ///
-  /// In zh, this message translates to:
-  /// **'未来一个月'**
-  String get nextMonth;
 
   /// No description provided for @windowMinimize.
   ///
@@ -1367,7 +1253,7 @@ abstract class AppLocalizations {
   /// No description provided for @showNonCurrentWeekCoursesDescription.
   ///
   /// In zh, this message translates to:
-  /// **'在周课表的空闲时段淡化显示非本周课程，不影响今日时间线。'**
+  /// **'在课表的空闲时段淡化显示非本周课程。'**
   String get showNonCurrentWeekCoursesDescription;
 
   /// No description provided for @nonCurrentWeekMark.
@@ -1493,7 +1379,7 @@ abstract class AppLocalizations {
   /// No description provided for @hiddenCourseSessionsDescription.
   ///
   /// In zh, this message translates to:
-  /// **'管理已隐藏的单次课程，恢复后重新显示在课表和天视图中。'**
+  /// **'管理已隐藏的单次课程，恢复后重新显示在课表中。'**
   String get hiddenCourseSessionsDescription;
 
   /// No description provided for @noHiddenCourseSessions.
