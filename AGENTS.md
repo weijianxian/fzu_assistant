@@ -120,7 +120,8 @@ lib/
       settings_page.dart # 设置页面主页；底部分隔线后直接展示当前平台支持的功能入口或开关，无平台分类页
       course_reminder_settings_page.dart # Android 早课提醒：提醒开关、北京时间及通知/精确闹钟授权和通知渠道管理
       android_permissions_page.dart # Android 预期权限固定清单：标题为权限名称，说明为具体用途和授权状态；不扫描权限，不展示 ID/类型，返回应用自动刷新
-      home_settings_page.dart # 首页设置（学期、课表选项及隐藏课程总览/恢复）
+      home_settings_page.dart # 课表设置（学期、课表显示、自定义课程管理及不展示课程管理）
+      hidden_courses_page.dart # 独立管理当前账号的隐藏课程并逐项或全部恢复
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
         theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
@@ -158,6 +159,10 @@ lib/
 
 - `screen/toolbox/campus_services/campus_services_page.dart` 提供公寓报修、综合预约、图书馆预约、失物招领、晚点名、电动车和校本化官方网页。`WebViewArgs.injectSsoCookies` 区分统一认证与教务会话，SSO 登录复用不申请学习中心 token 的页面。WebView 为 HookWidget，SOURCEID_TGC 仅注入 SSO HTTPS host；退出清理原生 Cookie，挂载页面按会话代次销毁旧内容。外部 App 协议仅在用户点击时打开。
 
+## 自定义课程
+
+- `model/custom_course.dart` 和 `service/custom_course_store.dart` 管理本地自定义课程；按稳定学号、学期、ID 隔离，存储键 `custom_courses_v1`，不写教务缓存、退出不删除。`screen/settings/custom_courses_page.dart` 提供新增/编辑/删除、周次单双周/星期/节次、教师地点备注和颜色，参数定义在 app_routes.dart。课表设置并列提供自定义课程管理与不展示课程管理入口，首页右上角加号直接打开创建页，周课表和提醒合并课程并监听修改，缺少正式课表/校历时提醒继续提示未知而不误报无课。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。
@@ -188,7 +193,7 @@ lib/
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串；开发者工具（`lib/screen/dev/`）文案直接定义，不使用国际化。
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化；普通查询页复用 common/hooks/use_async_data.dart，保留刷新期间的旧数据，特殊分页/条件查询独立管理状态
-- 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情列表底部提供“我不想上”，说明文字作为按钮的 subtitle，CourseSessions 统一过滤周课表，首页设置支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
+- 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情列表底部提供“我不想上”，说明文字作为按钮的 subtitle，CourseSessions 统一过滤周课表，不展示课程管理页支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
 - 学习中心协议参考 `.reference/fzuhelper-app/lib/sso-login.ts` 和 `utils/learning-center/api-service.ts`。SSO Cookie 与学习中心 token 存在 SecureStorage，按教务账号隔离，教务登出时清理；SSO 密码不保存。SSO Cookie 仅发送给其所属域名，学习中心变更请求不自动重试。正常签到须校验现场一分钟有效二维码，直接签到仅在开发者调试页提供。
 - 一码通协议参考 `.reference/fzuhelper-app/lib/ykt-login.ts`：无 voucher 时直接展示服务端返回的 20 位在线消费码，不请求离线参数或前端 RSA 配置；有 voucher 时生成离线消费码，SO 正文为原始字节、SP 正文为 Base64，二维码必须按字节编码；摘要对大写十六进制文本计算 SHA1，时间戳使用 Unix 秒。入馆二维码和 Code128 使用服务端用户 account。一码通 token 存在按教务账号隔离的 SecureStorage，SSO/教务登出时清理；支付码、RSA 配置和用户密钥只保留内存。消费码在页面前台每 50 秒刷新，后台/隐藏路由停止刷新并恢复亮度，重新进入时刷新；未开通离线支付仍可使用在线消费码和入馆码。一码通 SSO 登录不依赖学习中心授权。
 - 学习中心日期和无时区的服务端时间统一按北京时间（Asia/Shanghai，UTC+8）解释，不受设备时区影响；日期卡片、22 点后默认次日、过去时段禁用、未来七天范围、预约状态及现场二维码校验使用同一时间约定。时间选择参考 fzuhelper-app 的日期卡片与四列时间格，端点深色、区间浅色，最长 4 小时。

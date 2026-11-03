@@ -7,7 +7,6 @@ import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
-import 'package:fzu_assistant/service/api/api_client.dart';
 
 class HomeSettingsPage extends HookWidget {
   const HomeSettingsPage({super.key});
@@ -18,29 +17,6 @@ class HomeSettingsPage extends HookWidget {
     final l10n = AppLocalizations.of(context)!;
     final autoAdjustCourse = useValueListenable(settings.autoAdjustCourse);
     final access = useValueListenable(settings.west2AdjustmentsAccess);
-    final hidden =
-        useValueListenable(settings.hiddenCourseSessions)
-            .where((s) => s.account == ApiClient.instance.studentId)
-            .toList()
-          ..sort((a, b) {
-            final byTerm = b.term.compareTo(a.term);
-            if (byTerm != 0) return byTerm;
-            final byWeek = a.week.compareTo(b.week);
-            if (byWeek != 0) return byWeek;
-            final byDay = a.weekday.compareTo(b.weekday);
-            if (byDay != 0) return byDay;
-            return a.startClass.compareTo(b.startClass);
-          });
-    final weekdays = [
-      l10n.monday,
-      l10n.tuesday,
-      l10n.wednesday,
-      l10n.thursday,
-      l10n.friday,
-      l10n.saturday,
-      l10n.sunday,
-    ];
-
     final termsLoading = useState(false);
     final termsError = useState<String?>(null);
 
@@ -67,6 +43,20 @@ class HomeSettingsPage extends HookWidget {
       body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          ListTile(
+            leading: const Icon(Icons.event_note_outlined),
+            title: Text(l10n.customCourseManagement),
+            subtitle: Text(l10n.customCoursesDescription),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.pushNamed(AppRoutes.customCourses),
+          ),
+          ListTile(
+            leading: const Icon(Icons.visibility_off_outlined),
+            title: Text(l10n.hiddenCourseManagement),
+            subtitle: Text(l10n.hiddenCourseSessionsDescription),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.pushNamed(AppRoutes.hiddenCourses),
+          ),
           Section(
             title: l10n.selectSemester,
             child: Padding(
@@ -74,7 +64,10 @@ class HomeSettingsPage extends HookWidget {
               child: ValueListenableBuilder(
                 valueListenable: settings.selectedSemesterKey,
                 builder: (_, selected, _) {
-                  final terms = settings.termsKey.value;
+                  final terms = <String>{
+                    ...settings.termsKey.value,
+                    if (selected.isNotEmpty) selected,
+                  }.toList()..sort((a, b) => b.compareTo(a));
 
                   if (termsLoading.value) {
                     return const Padding(
@@ -155,44 +148,6 @@ class HomeSettingsPage extends HookWidget {
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () =>
                         context.pushNamed(AppRoutes.thirdPartySettings),
-                  ),
-              ],
-            ),
-          ),
-          Section(
-            title: l10n.hiddenCourseSessions,
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text(l10n.hiddenCourseSessionsDescription),
-                  trailing: hidden.isEmpty
-                      ? null
-                      : TextButton(
-                          onPressed: () => settings.restoreAllCourseSessions(
-                            ApiClient.instance.studentId!,
-                          ),
-                          child: Text(l10n.restoreAllCourseSessions),
-                        ),
-                ),
-                if (hidden.isEmpty)
-                  ListTile(title: Text(l10n.noHiddenCourseSessions)),
-                for (final session in hidden)
-                  ListTile(
-                    title: Text(session.name),
-                    subtitle: Text(
-                      [
-                        SemesterUtils.formatSemester(session.term),
-                        '${l10n.weekN(session.week)} · ${weekdays[session.weekday - 1]} · ${l10n.classPeriodRange(session.startClass, session.endClass)}',
-                        if (session.teacher.isNotEmpty) session.teacher,
-                        if (session.location.isNotEmpty) session.location,
-                      ].join('\n'),
-                    ),
-                    isThreeLine: true,
-                    trailing: IconButton(
-                      icon: const Icon(Icons.visibility_outlined),
-                      tooltip: l10n.restoreCourseSession,
-                      onPressed: () => settings.restoreCourseSession(session),
-                    ),
                   ),
               ],
             ),

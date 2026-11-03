@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/course.dart';
@@ -14,6 +15,7 @@ import 'package:fzu_assistant/model/hidden_course_session.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/schedule_grid.dart';
 import 'package:fzu_assistant/screen/settings/home_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/hidden_courses_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -101,6 +103,7 @@ void main() {
   setUp(() {
     mockReminderChannel();
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   test('隐藏一次课不影响其他周次、节次、学期或账号，且支持调入课程', () {
@@ -185,7 +188,10 @@ void main() {
             locale: const Locale('zh'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            routes: {AppRoutes.homeSettings: (_) => const HomeSettingsPage()},
+            routes: {
+              AppRoutes.homeSettings: (_) => const HomeSettingsPage(),
+              AppRoutes.hiddenCourses: (_) => const HiddenCoursesPage(),
+            },
             home: Builder(
               builder: (context) => Scaffold(
                 appBar: AppBar(
@@ -237,7 +243,10 @@ void main() {
       expect(find.text(_course.name), findsOneWidget);
       await tester.tap(find.byIcon(Icons.settings));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.text('不展示的课'), 250);
+      expect(find.text(_course.name), findsNothing);
+      await tester.scrollUntilVisible(find.text('不展示课程管理'), 250);
+      await tester.tap(find.text('不展示课程管理'));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.byTooltip('恢复展示'));
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('恢复展示'));
@@ -251,6 +260,9 @@ void main() {
       await tester.tap(find.text('全部恢复'));
       await tester.pumpAndSettle();
       expect(settings.hiddenCourseSessions.value, isEmpty);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(find.text(_course.name), findsNothing);
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(find.text(_course.name), findsNWidgets(2));

@@ -1,4 +1,6 @@
 {
+  "hiddenCourseManagement": "不展示课程管理",
+  "customCourseManagement": "自定义课程管理",
   "academicCachedSession": "教务连接失败，正在展示历史缓存，请重试以获取最新数据。",
   "accountManagement": "账号管理",
   "accountAcademic": "教务处",
@@ -158,11 +160,11 @@
   "@settings": {
     "description": "settings"
   },
-  "homeSettings": "首页设置",
+  "homeSettings": "课表设置",
   "@homeSettings": {
     "description": "homeSettings"
   },
-  "homeSettingsSubtitle": "学期、课表选项与隐藏课程",
+  "homeSettingsSubtitle": "管理学期、课表显示与自定义课程。",
   "@homeSettingsSubtitle": {
     "description": "homeSettingsSubtitle"
   },
@@ -785,9 +787,9 @@
   "electiveCreditConversion": "选修转创拓",
   "jiaxiLectures": "嘉锡讲坛",
   "skipCourseSession": "我不想上",
-  "skipCourseSessionDescription": "仅隐藏本周这一次课，可在首页设置中恢复。",
+  "skipCourseSessionDescription": "仅隐藏本周这一次课，可在课表设置中恢复。",
   "hiddenCourseSessions": "不展示的课",
-  "hiddenCourseSessionsDescription": "管理已隐藏的单次课程，恢复后重新显示在课表中。",
+  "hiddenCourseSessionsDescription": "恢复课表中已隐藏的单次课程。",
   "noHiddenCourseSessions": "暂无不展示的课",
   "restoreCourseSession": "恢复展示",
   "restoreAllCourseSessions": "全部恢复",
@@ -911,5 +913,29 @@
   "campusAttendance": "晚点名签到",
   "campusElectricBike": "电动车管理",
   "campusYiban": "校本化（易班）",
-  "webViewLoadError": "网页加载失败"
+  "webViewLoadError": "网页加载失败",
+  "customCourses": "自定义课程",
+  "customCoursesDescription": "管理当前账号各学期的自定义课程。",
+  "customCoursesEmpty": "当前学期暂无自定义课程",
+  "customCourseAdd": "添加课程",
+  "customCourseEdit": "编辑课程",
+  "customCourseDelete": "删除课程",
+  "customCourseSave": "保存课程",
+  "customCourseName": "课程名称",
+  "customCourseTeacher": "教师（选填）",
+  "customCourseLocation": "地点（选填）",
+  "customCourseRemark": "备注（选填）",
+  "customCourseWeekday": "星期",
+  "customCourseStartWeek": "起始周",
+  "customCourseEndWeek": "结束周",
+  "customCourseRepeat": "重复方式",
+  "customCourseEveryWeek": "每周",
+  "customCourseOddWeeks": "单周",
+  "customCourseEvenWeeks": "双周",
+  "customCourseColor": "课程颜色",
+  "customCourseNameRequired": "请输入课程名称",
+  "customCourseTermHint": "六位学期编号，例如 202601",
+  "customCourseTermInvalid": "请输入六位学期编号",
+  "customCourseRangeInvalid": "结束周或结束节次不能早于起始值",
+  "customCourseLoginRequired": "请先登录教务账号后管理课程"
 }

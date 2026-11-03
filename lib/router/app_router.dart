@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/settings/custom_courses_page.dart';
+import 'package:fzu_assistant/screen/settings/hidden_courses_page.dart';
 import 'package:fzu_assistant/screen/toolbox/campus_services/campus_services_page.dart';
 import 'package:fzu_assistant/screen/settings/third_party_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/android_permissions_page.dart';
@@ -70,6 +72,8 @@ abstract final class AppRouter {
     AppRoutes.androidPermissions: (_) => const AndroidPermissionsPage(),
     AppRoutes.accountManagement: (_) => const AccountManagementPage(),
     AppRoutes.homeSettings: (_) => const HomeSettingsPage(),
+    AppRoutes.customCourses: (_) => const CustomCoursesPage(),
+    AppRoutes.hiddenCourses: (_) => const HiddenCoursesPage(),
     AppRoutes.generalSettings: (_) => const GeneralSettingsPage(),
     AppRoutes.advancedSettings: (_) => const AdvancedSettingsPage(),
     AppRoutes.themeSettings: (_) => const ThemeSection(),
@@ -86,6 +90,12 @@ abstract final class AppRouter {
     }
 
     return switch (settings.name) {
+      AppRoutes.customCourseEdit => MaterialPageRoute(
+        settings: settings,
+        builder: (_) => CustomCourseEditPage(
+          args: settings.arguments as CustomCourseEditArgs,
+        ),
+      ),
       AppRoutes.learningSeatTimes => MaterialPageRoute(
         settings: settings,
         builder: (_) {

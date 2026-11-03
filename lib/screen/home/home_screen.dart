@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:fzu_assistant/service/custom_course_store.dart';
+
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
@@ -36,6 +38,7 @@ class HomeScreen extends HookWidget {
         settings.autoAdjustCourse,
         settings.west2AdjustmentsAccess,
         settings.hiddenCourseSessions,
+        CustomCourseStore.instance,
         settings.localeKey,
       ];
       void sync() => unawaited(CourseReminderService.instance.sync(settings));

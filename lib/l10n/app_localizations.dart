@@ -98,6 +98,18 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @hiddenCourseManagement.
+  ///
+  /// In zh, this message translates to:
+  /// **'不展示课程管理'**
+  String get hiddenCourseManagement;
+
+  /// No description provided for @customCourseManagement.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义课程管理'**
+  String get customCourseManagement;
+
   /// No description provided for @academicCachedSession.
   ///
   /// In zh, this message translates to:
@@ -365,13 +377,13 @@ abstract class AppLocalizations {
   /// homeSettings
   ///
   /// In zh, this message translates to:
-  /// **'首页设置'**
+  /// **'课表设置'**
   String get homeSettings;
 
   /// homeSettingsSubtitle
   ///
   /// In zh, this message translates to:
-  /// **'学期、课表选项与隐藏课程'**
+  /// **'管理学期、课表显示与自定义课程。'**
   String get homeSettingsSubtitle;
 
   /// generalSettings
@@ -1367,7 +1379,7 @@ abstract class AppLocalizations {
   /// No description provided for @skipCourseSessionDescription.
   ///
   /// In zh, this message translates to:
-  /// **'仅隐藏本周这一次课，可在首页设置中恢复。'**
+  /// **'仅隐藏本周这一次课，可在课表设置中恢复。'**
   String get skipCourseSessionDescription;
 
   /// No description provided for @hiddenCourseSessions.
@@ -1379,7 +1391,7 @@ abstract class AppLocalizations {
   /// No description provided for @hiddenCourseSessionsDescription.
   ///
   /// In zh, this message translates to:
-  /// **'管理已隐藏的单次课程，恢复后重新显示在课表中。'**
+  /// **'恢复课表中已隐藏的单次课程。'**
   String get hiddenCourseSessionsDescription;
 
   /// No description provided for @noHiddenCourseSessions.
@@ -2083,6 +2095,150 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'网页加载失败'**
   String get webViewLoadError;
+
+  /// No description provided for @customCourses.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义课程'**
+  String get customCourses;
+
+  /// No description provided for @customCoursesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'管理当前账号各学期的自定义课程。'**
+  String get customCoursesDescription;
+
+  /// No description provided for @customCoursesEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前学期暂无自定义课程'**
+  String get customCoursesEmpty;
+
+  /// No description provided for @customCourseAdd.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加课程'**
+  String get customCourseAdd;
+
+  /// No description provided for @customCourseEdit.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑课程'**
+  String get customCourseEdit;
+
+  /// No description provided for @customCourseDelete.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除课程'**
+  String get customCourseDelete;
+
+  /// No description provided for @customCourseSave.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存课程'**
+  String get customCourseSave;
+
+  /// No description provided for @customCourseName.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程名称'**
+  String get customCourseName;
+
+  /// No description provided for @customCourseTeacher.
+  ///
+  /// In zh, this message translates to:
+  /// **'教师（选填）'**
+  String get customCourseTeacher;
+
+  /// No description provided for @customCourseLocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'地点（选填）'**
+  String get customCourseLocation;
+
+  /// No description provided for @customCourseRemark.
+  ///
+  /// In zh, this message translates to:
+  /// **'备注（选填）'**
+  String get customCourseRemark;
+
+  /// No description provided for @customCourseWeekday.
+  ///
+  /// In zh, this message translates to:
+  /// **'星期'**
+  String get customCourseWeekday;
+
+  /// No description provided for @customCourseStartWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'起始周'**
+  String get customCourseStartWeek;
+
+  /// No description provided for @customCourseEndWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'结束周'**
+  String get customCourseEndWeek;
+
+  /// No description provided for @customCourseRepeat.
+  ///
+  /// In zh, this message translates to:
+  /// **'重复方式'**
+  String get customCourseRepeat;
+
+  /// No description provided for @customCourseEveryWeek.
+  ///
+  /// In zh, this message translates to:
+  /// **'每周'**
+  String get customCourseEveryWeek;
+
+  /// No description provided for @customCourseOddWeeks.
+  ///
+  /// In zh, this message translates to:
+  /// **'单周'**
+  String get customCourseOddWeeks;
+
+  /// No description provided for @customCourseEvenWeeks.
+  ///
+  /// In zh, this message translates to:
+  /// **'双周'**
+  String get customCourseEvenWeeks;
+
+  /// No description provided for @customCourseColor.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程颜色'**
+  String get customCourseColor;
+
+  /// No description provided for @customCourseNameRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入课程名称'**
+  String get customCourseNameRequired;
+
+  /// No description provided for @customCourseTermHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'六位学期编号，例如 202601'**
+  String get customCourseTermHint;
+
+  /// No description provided for @customCourseTermInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入六位学期编号'**
+  String get customCourseTermInvalid;
+
+  /// No description provided for @customCourseRangeInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'结束周或结束节次不能早于起始值'**
+  String get customCourseRangeInvalid;
+
+  /// No description provided for @customCourseLoginRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先登录教务账号后管理课程'**
+  String get customCourseLoginRequired;
 }
 
 class _AppLocalizationsDelegate

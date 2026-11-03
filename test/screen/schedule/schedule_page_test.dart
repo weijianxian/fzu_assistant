@@ -25,6 +25,7 @@ Widget _app(
   String language = 'zh',
   Brightness brightness = Brightness.light,
   double scale = 1,
+  RouteFactory? onGenerateRoute,
 }) => AppSettingsProvider(
   settings: settings,
   child: MaterialApp(
@@ -44,6 +45,7 @@ Widget _app(
       AppRoutes.homeSettings: (_) =>
           const Scaffold(body: Text('Settings page')),
     },
+    onGenerateRoute: onGenerateRoute,
     home: child,
   ),
 );
@@ -255,6 +257,59 @@ void main() {
   }
 
   for (final size in [const Size(400, 800), const Size(1200, 800)]) {
+    for (final cached in [true, false]) {
+      testWidgets(
+        'add custom course stays left of settings and uses the displayed term at $size (cached=$cached)',
+        (tester) async {
+          _viewport(tester, size);
+          final settings = AppSettings();
+          addTearDown(settings.dispose);
+          if (cached) {
+            await tester.runAsync(_cacheSchedule);
+          } else {
+            settings.selectedSemesterKey.value = '202501';
+          }
+          CustomCourseEditArgs? args;
+          await tester.pumpWidget(
+            _app(
+              settings,
+              onGenerateRoute: (route) {
+                expect(route.name, AppRoutes.customCourseEdit);
+                args = route.arguments as CustomCourseEditArgs;
+                return MaterialPageRoute<void>(
+                  settings: route,
+                  builder: (_) =>
+                      const Scaffold(body: Text('custom-course-editor')),
+                );
+              },
+            ),
+          );
+          if (cached) {
+            await tester.pumpAndSettle();
+          } else {
+            // A failed academic query may leave its loading indicator active;
+            // creating a local course must remain available regardless.
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 100));
+          }
+          final add = find.byTooltip('添加课程');
+          final settingsButton = find.byIcon(Icons.settings_outlined);
+          final addRect = tester.getRect(add);
+          final settingsRect = tester.getRect(settingsButton);
+          expect(addRect.right, lessThanOrEqualTo(settingsRect.left));
+          expect(addRect.center.dy, settingsRect.center.dy);
+          await tester.tap(add);
+          await tester.pumpAndSettle();
+          expect(args?.term, cached ? '202601' : '202501');
+          expect(args?.course, isNull);
+          expect(find.text('custom-course-editor'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
+
+  for (final size in [const Size(400, 800), const Size(1200, 800)]) {
     testWidgets('campus code is a main navigation tab at $size', (
       tester,
     ) async {
@@ -437,7 +492,10 @@ void main() {
                 top: 0,
                 left: 0,
                 right: 0,
-                child: FloatingScheduleControls(onSettings: () {}),
+                child: FloatingScheduleControls(
+                  onAdd: () {},
+                  onSettings: () {},
+                ),
               ),
             ],
           ),

@@ -8,11 +8,13 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 class FloatingScheduleControls extends StatelessWidget {
   const FloatingScheduleControls({
     super.key,
+    required this.onAdd,
     required this.onSettings,
     this.onPrevious,
     this.onNext,
   });
 
+  final VoidCallback onAdd;
   final VoidCallback onSettings;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
@@ -30,10 +32,21 @@ class FloatingScheduleControls extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        _FloatingButton(
-          icon: Icons.settings_outlined,
-          tooltip: l10n.homeSettings,
-          onPressed: onSettings,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _FloatingButton(
+              icon: Icons.add,
+              tooltip: l10n.customCourseAdd,
+              onPressed: onAdd,
+            ),
+            const SizedBox(width: 8),
+            _FloatingButton(
+              icon: Icons.settings_outlined,
+              tooltip: l10n.homeSettings,
+              onPressed: onSettings,
+            ),
+          ],
         ),
         _FloatingButton(
           icon: Icons.chevron_left,

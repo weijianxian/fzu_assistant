@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/model/course.dart';
 
 class CourseCard extends StatelessWidget {
@@ -73,14 +74,21 @@ class CourseCard extends StatelessWidget {
     final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     if (isHorizontal) return _buildHorizontal(context);
     final colors = isDark ? _darkColors : _lightColors;
-    final bg = colors[course.name.hashCode.abs() % colors.length];
+    final customColor = CustomCourseStore.instance.colorForCourse(course);
+    final bg = Color(
+      customColor ??
+          colors[course.name.hashCode.abs() % colors.length].toARGB32(),
+    );
+    final darkBackground = customColor == null
+        ? isDark
+        : ThemeData.estimateBrightnessForColor(bg) == Brightness.dark;
     final title = Text(
       displayName ?? course.name,
       style: TextStyle(
         fontSize: isWindows ? 13 : 11,
         fontWeight: FontWeight.w600,
         height: isWindows ? 1.3 : null,
-        color: isDark ? Colors.white : Colors.black87,
+        color: darkBackground ? Colors.white : Colors.black87,
       ),
       textAlign: TextAlign.center,
       maxLines: 3,
@@ -91,7 +99,7 @@ class CourseCard extends StatelessWidget {
       style: TextStyle(
         fontSize: isWindows ? 11 : 9,
         height: isWindows ? 1.3 : null,
-        color: isDark ? Colors.white70 : Colors.black54,
+        color: darkBackground ? Colors.white70 : Colors.black54,
       ),
       textAlign: TextAlign.center,
       maxLines: 3,
@@ -131,7 +139,10 @@ class CourseCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final index = course.name.hashCode.abs() % _lightColors.length;
-    final accent = isDark ? _lightColors[index] : _darkColors[index];
+    final accent = Color(
+      CustomCourseStore.instance.colorForCourse(course) ??
+          (isDark ? _lightColors[index] : _darkColors[index]).toARGB32(),
+    );
     final background = Color.alphaBlend(
       accent.withValues(alpha: isDark ? 0.12 : 0.08),
       scheme.surfaceContainerLow,

@@ -10,6 +10,12 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get hiddenCourseManagement => '不展示课程管理';
+
+  @override
+  String get customCourseManagement => '自定义课程管理';
+
+  @override
   String get academicCachedSession => '教务连接失败，正在展示历史缓存，请重试以获取最新数据。';
 
   @override
@@ -151,10 +157,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settings => '设置';
 
   @override
-  String get homeSettings => '首页设置';
+  String get homeSettings => '课表设置';
 
   @override
-  String get homeSettingsSubtitle => '学期、课表选项与隐藏课程';
+  String get homeSettingsSubtitle => '管理学期、课表显示与自定义课程。';
 
   @override
   String get generalSettings => '一般设置';
@@ -679,13 +685,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get skipCourseSession => '我不想上';
 
   @override
-  String get skipCourseSessionDescription => '仅隐藏本周这一次课，可在首页设置中恢复。';
+  String get skipCourseSessionDescription => '仅隐藏本周这一次课，可在课表设置中恢复。';
 
   @override
   String get hiddenCourseSessions => '不展示的课';
 
   @override
-  String get hiddenCourseSessionsDescription => '管理已隐藏的单次课程，恢复后重新显示在课表中。';
+  String get hiddenCourseSessionsDescription => '恢复课表中已隐藏的单次课程。';
 
   @override
   String get noHiddenCourseSessions => '暂无不展示的课';
@@ -1054,4 +1060,76 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get webViewLoadError => '网页加载失败';
+
+  @override
+  String get customCourses => '自定义课程';
+
+  @override
+  String get customCoursesDescription => '管理当前账号各学期的自定义课程。';
+
+  @override
+  String get customCoursesEmpty => '当前学期暂无自定义课程';
+
+  @override
+  String get customCourseAdd => '添加课程';
+
+  @override
+  String get customCourseEdit => '编辑课程';
+
+  @override
+  String get customCourseDelete => '删除课程';
+
+  @override
+  String get customCourseSave => '保存课程';
+
+  @override
+  String get customCourseName => '课程名称';
+
+  @override
+  String get customCourseTeacher => '教师（选填）';
+
+  @override
+  String get customCourseLocation => '地点（选填）';
+
+  @override
+  String get customCourseRemark => '备注（选填）';
+
+  @override
+  String get customCourseWeekday => '星期';
+
+  @override
+  String get customCourseStartWeek => '起始周';
+
+  @override
+  String get customCourseEndWeek => '结束周';
+
+  @override
+  String get customCourseRepeat => '重复方式';
+
+  @override
+  String get customCourseEveryWeek => '每周';
+
+  @override
+  String get customCourseOddWeeks => '单周';
+
+  @override
+  String get customCourseEvenWeeks => '双周';
+
+  @override
+  String get customCourseColor => '课程颜色';
+
+  @override
+  String get customCourseNameRequired => '请输入课程名称';
+
+  @override
+  String get customCourseTermHint => '六位学期编号，例如 202601';
+
+  @override
+  String get customCourseTermInvalid => '请输入六位学期编号';
+
+  @override
+  String get customCourseRangeInvalid => '结束周或结束节次不能早于起始值';
+
+  @override
+  String get customCourseLoginRequired => '请先登录教务账号后管理课程';
 }

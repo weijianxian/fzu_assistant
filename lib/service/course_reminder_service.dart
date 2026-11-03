@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:fzu_assistant/model/custom_course.dart';
+import 'package:fzu_assistant/service/custom_course_store.dart';
+
 import 'package:fzu_assistant/service/android_task_scheduler.dart';
 
 import 'package:flutter/foundation.dart';
@@ -81,6 +84,7 @@ class CourseReminderService {
         caches: caches,
         holidays: holidays,
         now: DateTime.now().toUtc(),
+        customCourses: CustomCourseStore.instance.value,
       );
       if (stale()) return;
       final status = await permissions();
@@ -111,6 +115,7 @@ class CourseReminderService {
     required Map<String, dynamic> caches,
     required Map<String, dynamic> holidays,
     required DateTime now,
+    List<CustomCourse> customCourses = const [],
   }) {
     final terms = calendar.isEmpty
         ? <CalTerm>[]
@@ -149,6 +154,12 @@ class CourseReminderService {
             (holidays[term.term] as List?) ?? [],
           );
         }
+        courses = [
+          ...courses,
+          ...customCourses
+              .where((c) => c.account == account && c.term == term!.term)
+              .map((c) => c.toCourse()),
+        ];
         final monday = CourseService.getFirstMondayFromTerm(term);
         // 使用 UTC 的年月日计算校历周次，不受设备时区和夏令时影响。
         final offset = monday == null

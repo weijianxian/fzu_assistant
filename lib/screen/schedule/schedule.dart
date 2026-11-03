@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/service/custom_course_store.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -20,6 +22,10 @@ class SchedulePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsProvider.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final customStore = CustomCourseStore.instance;
+    useValueListenable(customStore);
+    final localController = usePageController();
     final courses = useState<List<Course>>([]);
     final examRooms = useState<List<ExamRoomInfo>>([]);
     final displayWeek = useState<int>(1);
@@ -170,14 +176,28 @@ class SchedulePage extends HookWidget {
       return () => trigger.removeListener(onTrigger);
     }, [trigger]);
 
-    final pc = pageController.value;
+    final displayTerm =
+        currentLoadedTerm.value ??
+        (settings.selectedSemesterKey.value.isNotEmpty
+            ? settings.selectedSemesterKey.value
+            : currentTerm.value);
+    final custom = customStore.coursesForTerm(
+      ApiClient.instance.studentId ?? '',
+      displayTerm,
+    );
+    final pc =
+        pageController.value ?? (custom.isNotEmpty ? localController : null);
     final isLandscape = context.isLandscape;
+    void addCustomCourse() => context.pushNamed(
+      AppRoutes.customCourseEdit,
+      arguments: CustomCourseEditArgs(term: displayTerm),
+    );
 
     final body = _ScheduleBody(
-      term: currentLoadedTerm.value ?? '',
+      term: displayTerm,
       loading: loading.value,
       error: error.value,
-      courses: courses.value,
+      courses: [...courses.value, ...custom],
       examRooms: examRooms.value,
       pageController: pc,
       displayWeek: displayWeek,
@@ -210,12 +230,16 @@ class SchedulePage extends HookWidget {
                   ),
                 ),
               ),
-              title: Text(
-                AppLocalizations.of(context)!.weekN(displayWeek.value),
-              ),
+              title: Text(l10n.weekN(displayWeek.value)),
               actions: [
                 IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: l10n.customCourseAdd,
+                  onPressed: addCustomCourse,
+                ),
+                IconButton(
                   icon: const Icon(Icons.settings_outlined),
+                  tooltip: l10n.homeSettings,
                   onPressed: () => context.pushNamed(AppRoutes.homeSettings),
                 ),
               ],
@@ -233,6 +257,7 @@ class SchedulePage extends HookWidget {
                       left: 0,
                       right: 0,
                       child: FloatingScheduleControls(
+                        onAdd: addCustomCourse,
                         onSettings: () =>
                             context.pushNamed(AppRoutes.homeSettings),
                         onPrevious: pc != null && displayWeek.value > 1

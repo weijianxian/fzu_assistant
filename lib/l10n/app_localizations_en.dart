@@ -10,6 +10,12 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get hiddenCourseManagement => 'Hidden course management';
+
+  @override
+  String get customCourseManagement => 'Custom course management';
+
+  @override
   String get academicCachedSession =>
       'The academic connection failed, so cached data is shown until you reconnect.';
 
@@ -155,11 +161,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String get homeSettings => 'Home Settings';
+  String get homeSettings => 'Timetable settings';
 
   @override
   String get homeSettingsSubtitle =>
-      'Semester, timetable options and hidden courses';
+      'Manage semesters, timetable display and custom courses.';
 
   @override
   String get generalSettings => 'General Settings';
@@ -696,14 +702,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skipCourseSessionDescription =>
-      'Hide only this week\'s session. Restore it in Home settings.';
+      'Hide this session for the current week and restore it in Timetable settings.';
 
   @override
   String get hiddenCourseSessions => 'Hidden classes';
 
   @override
   String get hiddenCourseSessionsDescription =>
-      'Manage hidden sessions. Restore them to show them in the schedule.';
+      'Restore individual sessions hidden from the timetable.';
 
   @override
   String get noHiddenCourseSessions => 'No hidden classes';
@@ -1097,4 +1103,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webViewLoadError => 'Could not load webpage';
+
+  @override
+  String get customCourses => 'Custom courses';
+
+  @override
+  String get customCoursesDescription =>
+      'Manage custom courses for each term of the current account.';
+
+  @override
+  String get customCoursesEmpty => 'No custom courses for this term';
+
+  @override
+  String get customCourseAdd => 'Add course';
+
+  @override
+  String get customCourseEdit => 'Edit course';
+
+  @override
+  String get customCourseDelete => 'Delete course';
+
+  @override
+  String get customCourseSave => 'Save course';
+
+  @override
+  String get customCourseName => 'Course name';
+
+  @override
+  String get customCourseTeacher => 'Teacher (optional)';
+
+  @override
+  String get customCourseLocation => 'Location (optional)';
+
+  @override
+  String get customCourseRemark => 'Notes (optional)';
+
+  @override
+  String get customCourseWeekday => 'Day of week';
+
+  @override
+  String get customCourseStartWeek => 'First week';
+
+  @override
+  String get customCourseEndWeek => 'Last week';
+
+  @override
+  String get customCourseRepeat => 'Repeat';
+
+  @override
+  String get customCourseEveryWeek => 'Every week';
+
+  @override
+  String get customCourseOddWeeks => 'Odd weeks';
+
+  @override
+  String get customCourseEvenWeeks => 'Even weeks';
+
+  @override
+  String get customCourseColor => 'Course color';
+
+  @override
+  String get customCourseNameRequired => 'Enter a course name';
+
+  @override
+  String get customCourseTermHint => 'Six-digit term ID, for example 202601';
+
+  @override
+  String get customCourseTermInvalid => 'Enter a six-digit term ID';
+
+  @override
+  String get customCourseRangeInvalid =>
+      'The ending week and period must not precede the start';
+
+  @override
+  String get customCourseLoginRequired =>
+      'Sign in to your academic account to manage courses';
 }

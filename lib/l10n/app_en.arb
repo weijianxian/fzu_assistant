@@ -1,4 +1,6 @@
 {
+  "hiddenCourseManagement": "Hidden course management",
+  "customCourseManagement": "Custom course management",
   "academicCachedSession": "The academic connection failed, so cached data is shown until you reconnect.",
   "accountManagement": "Accounts",
   "accountAcademic": "Academic affairs",
@@ -158,11 +160,11 @@
   "@settings": {
     "description": "settings"
   },
-  "homeSettings": "Home Settings",
+  "homeSettings": "Timetable settings",
   "@homeSettings": {
     "description": "homeSettings"
   },
-  "homeSettingsSubtitle": "Semester, timetable options and hidden courses",
+  "homeSettingsSubtitle": "Manage semesters, timetable display and custom courses.",
   "@homeSettingsSubtitle": {
     "description": "homeSettingsSubtitle"
   },
@@ -785,9 +787,9 @@
   "electiveCreditConversion": "Convert elective credits",
   "jiaxiLectures": "Jiaxi lectures",
   "skipCourseSession": "I don't want to attend",
-  "skipCourseSessionDescription": "Hide only this week's session. Restore it in Home settings.",
+  "skipCourseSessionDescription": "Hide this session for the current week and restore it in Timetable settings.",
   "hiddenCourseSessions": "Hidden classes",
-  "hiddenCourseSessionsDescription": "Manage hidden sessions. Restore them to show them in the schedule.",
+  "hiddenCourseSessionsDescription": "Restore individual sessions hidden from the timetable.",
   "noHiddenCourseSessions": "No hidden classes",
   "restoreCourseSession": "Show class again",
   "restoreAllCourseSessions": "Restore all",
@@ -911,5 +913,29 @@
   "campusAttendance": "Evening attendance",
   "campusElectricBike": "Electric bike management",
   "campusYiban": "Yiban campus services",
-  "webViewLoadError": "Could not load webpage"
+  "webViewLoadError": "Could not load webpage",
+  "customCourses": "Custom courses",
+  "customCoursesDescription": "Manage custom courses for each term of the current account.",
+  "customCoursesEmpty": "No custom courses for this term",
+  "customCourseAdd": "Add course",
+  "customCourseEdit": "Edit course",
+  "customCourseDelete": "Delete course",
+  "customCourseSave": "Save course",
+  "customCourseName": "Course name",
+  "customCourseTeacher": "Teacher (optional)",
+  "customCourseLocation": "Location (optional)",
+  "customCourseRemark": "Notes (optional)",
+  "customCourseWeekday": "Day of week",
+  "customCourseStartWeek": "First week",
+  "customCourseEndWeek": "Last week",
+  "customCourseRepeat": "Repeat",
+  "customCourseEveryWeek": "Every week",
+  "customCourseOddWeeks": "Odd weeks",
+  "customCourseEvenWeeks": "Even weeks",
+  "customCourseColor": "Course color",
+  "customCourseNameRequired": "Enter a course name",
+  "customCourseTermHint": "Six-digit term ID, for example 202601",
+  "customCourseTermInvalid": "Enter a six-digit term ID",
+  "customCourseRangeInvalid": "The ending week and period must not precede the start",
+  "customCourseLoginRequired": "Sign in to your academic account to manage courses"
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/model/custom_course.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
@@ -32,6 +33,9 @@ abstract final class AppRoutes {
   static const androidPermissions = '/settings/permissions';
   static const accountManagement = '/account-management';
   static const homeSettings = '/settings/home';
+  static const customCourses = '/settings/custom-courses';
+  static const hiddenCourses = '/settings/hidden-courses';
+  static const customCourseEdit = '/settings/custom-courses/edit';
   static const generalSettings = '/settings/general';
   static const advancedSettings = '/settings/advanced';
   static const themeSettings = '/settings/theme';
@@ -109,4 +113,10 @@ extension NavigationX on BuildContext {
   }) =>
       Navigator.of(this)
           .pushReplacementNamed<T, TO>(routeName, arguments: arguments);
+}
+
+class CustomCourseEditArgs {
+  const CustomCourseEditArgs({this.course, this.term = ''});
+  final CustomCourse? course;
+  final String term;
 }

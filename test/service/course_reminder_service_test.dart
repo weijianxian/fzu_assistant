@@ -4,6 +4,7 @@ import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/custom_course.dart';
 import 'package:fzu_assistant/model/hidden_course_session.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
@@ -48,6 +49,7 @@ void main() {
     List<Course>? courses, {
     DateTime? now,
     Map<String, dynamic> holidays = const {},
+    List<CustomCourse> customCourses = const [],
   }) => CourseReminderService.buildPlans(
     settings: settings,
     account: 'student',
@@ -59,6 +61,7 @@ void main() {
             '202601': {'courses': courses.map((c) => c.toJson()).toList()},
           },
     holidays: holidays,
+    customCourses: customCourses,
     now: now ?? DateTime.utc(2026, 9, 13, 12),
   );
 
@@ -67,6 +70,34 @@ void main() {
     l10n = await AppLocalizations.delegate.load(const Locale('zh'));
   });
   tearDown(() => settings.dispose());
+
+  test('custom reminders isolate account and term and still require academic caches', () {
+    CustomCourse local(String account, String term, String name) =>
+        CustomCourse(
+          id: name,
+          account: account,
+          term: term,
+          name: name,
+          startClass: 1,
+          endClass: 2,
+          startWeek: 1,
+          endWeek: 19,
+          weekday: 1,
+        );
+    final custom = [
+      local('student', '202601', '实验'),
+      local('other', '202601', '其他账号'),
+      local('student', '202501', '历史课程'),
+    ];
+    final body = plans([], customCourses: custom).first['body'] as String;
+    expect(body, contains('实验'));
+    expect(body, isNot(contains('其他账号')));
+    expect(body, isNot(contains('历史课程')));
+    expect(
+      plans(null, customCourses: custom).first['body'],
+      l10n.courseReminderUnknown,
+    );
+  });
 
   test('北京时间 21 点提醒最早课程，保留同时间冲突课程', () {
     final result = plans([course('下午', start: 5), course('高数'), course('英语')]);
