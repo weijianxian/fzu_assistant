@@ -1889,7 +1889,7 @@ abstract class AppLocalizations {
   /// No description provided for @reminderNotificationStyleDescription.
   ///
   /// In zh, this message translates to:
-  /// **'管理课程提醒渠道的锁屏显示、声音和横幅；已修改的系统设置需在这里手动调整。'**
+  /// **'管理课程提醒的锁屏显示、声音与横幅。'**
   String get reminderNotificationStyleDescription;
 
   /// No description provided for @permissionPurposeNotifications.
@@ -2581,6 +2581,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'无法打开下载页面，请前往应用商店搜索中国建设银行'**
   String get utilityDownloadFailed;
+
+  /// No description provided for @reminderXiaomiNotice.
+  ///
+  /// In zh, this message translates to:
+  /// **'系统限制提醒'**
+  String get reminderXiaomiNotice;
+
+  /// No description provided for @reminderXiaomiDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。'**
+  String get reminderXiaomiDescription;
 }
 
 class _AppLocalizationsDelegate

@@ -34,6 +34,10 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 try {
                     when (call.method) {
+                        "deviceInfo" -> result.success(mapOf(
+                            "manufacturer" to Build.MANUFACTURER,
+                            "brand" to Build.BRAND,
+                        ))
                         "permissions" -> result.success(mapOf(
                             "notifications" to AppPermissions.notificationsAllowed(this),
                             "exact" to AppPermissions.exactAllowed(this),

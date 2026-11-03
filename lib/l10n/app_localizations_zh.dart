@@ -955,8 +955,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reminderNotificationStyle => '锁屏与通知样式';
 
   @override
-  String get reminderNotificationStyleDescription =>
-      '管理课程提醒渠道的锁屏显示、声音和横幅；已修改的系统设置需在这里手动调整。';
+  String get reminderNotificationStyleDescription => '管理课程提醒的锁屏显示、声音与横幅。';
 
   @override
   String get permissionPurposeNotifications => '发送课程与定时任务通知';
@@ -1303,4 +1302,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get utilityDownloadFailed => '无法打开下载页面，请前往应用商店搜索中国建设银行';
+
+  @override
+  String get reminderXiaomiNotice => '系统限制提醒';
+
+  @override
+  String get reminderXiaomiDescription =>
+      '由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。';
 }

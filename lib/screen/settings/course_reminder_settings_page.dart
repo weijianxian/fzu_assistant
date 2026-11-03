@@ -19,6 +19,7 @@ class CourseReminderSettingsPage extends HookWidget {
     final permissions = useState<Map<String, bool>?>(null);
     final failed = useState(false);
     final busy = useState(false);
+    final isXiaomi = useState<bool?>(null);
     final enabled = useValueListenable(settings.courseReminderEnabled);
     final minutes = useValueListenable(settings.courseReminderMinutes);
     final syncError = useValueListenable(reminder.error);
@@ -36,6 +37,16 @@ class CourseReminderSettingsPage extends HookWidget {
       }
     }
 
+    Future<void> loadDeviceHint() async {
+      if (!CourseReminderService.supported) return;
+      try {
+        final xiaomi = await reminder.isXiaomiDevice();
+        if (context.mounted) isXiaomi.value = xiaomi;
+      } catch (_) {
+        // Device information only controls the advisory, never the feature.
+      }
+    }
+
     Future<void> run(Future<void> Function() action) async {
       busy.value = true;
       try {
@@ -49,10 +60,14 @@ class CourseReminderSettingsPage extends HookWidget {
 
     useEffect(() {
       unawaited(reload());
+      unawaited(loadDeviceHint());
       return null;
     }, []);
     useOnAppLifecycleStateChange((_, state) {
-      if (state == AppLifecycleState.resumed) unawaited(reload());
+      if (state == AppLifecycleState.resumed) {
+        unawaited(reload());
+        unawaited(loadDeviceHint());
+      }
     });
     final ready =
         permissions.value?['notifications'] == true &&
@@ -62,6 +77,12 @@ class CourseReminderSettingsPage extends HookWidget {
       appBar: AppBar(title: Text(l10n.courseReminderSettings)),
       body: AppListView(
         children: [
+          if (isXiaomi.value == true)
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(l10n.reminderXiaomiNotice),
+              subtitle: Text(l10n.reminderXiaomiDescription),
+            ),
           SwitchListTile(
             title: Text(l10n.courseReminderTitle),
             subtitle: Text(l10n.courseReminderDescription),

@@ -877,7 +877,7 @@
   "permissionRuntime": "运行时权限",
   "permissionInstall": "安装时权限",
   "reminderNotificationStyle": "锁屏与通知样式",
-  "reminderNotificationStyleDescription": "管理课程提醒渠道的锁屏显示、声音和横幅；已修改的系统设置需在这里手动调整。",
+  "reminderNotificationStyleDescription": "管理课程提醒的锁屏显示、声音与横幅。",
   "permissionPurposeNotifications": "发送课程与定时任务通知",
   "permissionPurposeAlarms": "按设定时间执行后台任务",
   "permissionPurposeCamera": "扫描学习中心签到二维码",
@@ -994,5 +994,7 @@
   "utilityCopyLink": "复制缴费链接",
   "utilityCopied": "缴费链接已复制",
   "utilityInstall": "下载建行 App",
-  "utilityDownloadFailed": "无法打开下载页面，请前往应用商店搜索中国建设银行"
+  "utilityDownloadFailed": "无法打开下载页面，请前往应用商店搜索中国建设银行",
+  "reminderXiaomiNotice": "系统限制提醒",
+  "reminderXiaomiDescription": "由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。"
 }

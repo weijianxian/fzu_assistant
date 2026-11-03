@@ -906,10 +906,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courseReminderUnknown =>
-      'Tomorrow’s timetable is unavailable. Open the app to refresh the timetable and academic calendar.';
+      'Refresh the timetable and academic calendar to view tomorrow’s classes.';
 
   @override
-  String get courseReminderRest => 'No classes tomorrow. Enjoy your day off!';
+  String get courseReminderRest =>
+      'No classes tomorrow, so enjoy your day off!';
 
   @override
   String courseReminderCourse(String time, String course, String location) {
@@ -936,18 +937,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderPermissionGranted =>
-      'Allowed. Tap to manage in system settings';
+      'Allowed; tap to manage in system settings.';
 
   @override
   String get reminderPermissionDenied =>
-      'Not allowed. Tap to open system settings';
+      'Not allowed; tap to open system settings.';
 
   @override
   String get reminderPermissionLoading => 'Checking permission';
 
   @override
-  String get reminderFailed =>
-      'Could not configure reminders. Check permissions and retry.';
+  String get reminderFailed => 'Check permissions and retry reminder setup.';
 
   @override
   String get permissionManagement => 'Permission management';
@@ -989,7 +989,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderNotificationStyleDescription =>
-      'Manage lock-screen visibility, sound and banners for course reminders. Previously changed system settings must be adjusted here.';
+      'Manage lock-screen visibility, sounds and banners for course reminders.';
 
   @override
   String get permissionPurposeNotifications =>
@@ -1368,4 +1368,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get utilityDownloadFailed =>
       'Search your app store for China Construction Bank.';
+
+  @override
+  String get reminderXiaomiNotice => 'System restriction notice';
+
+  @override
+  String get reminderXiaomiDescription =>
+      'MIUI / HyperOS restricts background local notifications, so this feature is unavailable and you may try unlocking the restriction after rooting your device.';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 
@@ -12,7 +13,7 @@ const _tools = [
   (Icons.lock, 'SecureStorage', AppRoutes.devSecureStorage),
 ];
 
-class DevToolPage extends StatelessWidget {
+class DevToolPage extends HookWidget {
   const DevToolPage({super.key});
 
   @override

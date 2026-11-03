@@ -27,6 +27,28 @@ class CourseReminderService {
   final error = ValueNotifier<bool>(false);
   int _revision = 0;
 
+  @visibleForTesting
+  static bool matchesXiaomiDevice({String? manufacturer, String? brand}) {
+    const names = {'xiaomi', 'redmi', 'poco'};
+    String normalize(String? value) => value?.trim().toLowerCase() ?? '';
+    return names.contains(normalize(manufacturer)) ||
+        names.contains(normalize(brand));
+  }
+
+  Future<bool> isXiaomiDevice() async {
+    if (!supported) return false;
+    try {
+      final info = await channel.invokeMapMethod<String, dynamic>('deviceInfo');
+      return matchesXiaomiDevice(
+        manufacturer: info?['manufacturer'] as String?,
+        brand: info?['brand'] as String?,
+      );
+    } on MissingPluginException {
+      // Widget/unit tests and older hosts may not register this read-only method.
+      return false;
+    }
+  }
+
   Future<Map<String, bool>> permissions() async {
     if (!supported) return {'notifications': false, 'exact': false};
     final result = await channel.invokeMapMethod<String, bool>('permissions');
@@ -34,7 +56,9 @@ class CourseReminderService {
   }
 
   Future<void> requestPermission(String permission) async {
-    if (supported) await channel.invokeMethod<void>(permission);
+    if (supported) {
+      await channel.invokeMethod<void>(permission);
+    }
   }
 
   Future<void> cancel() async {
@@ -60,6 +84,7 @@ class CourseReminderService {
     bool stale() =>
         revision != _revision || account != ApiClient.instance.studentId;
     try {
+      if (stale()) return;
       if (!settings.courseReminderEnabled.value || account == null) {
         await AndroidTaskScheduler.replaceCoursePlans([]);
         error.value = false;

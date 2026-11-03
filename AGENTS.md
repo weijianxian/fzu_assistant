@@ -183,6 +183,10 @@ lib/
 
 - `model/utility_payment.dart` 保存官方建行四校区深链，`screen/toolbox/utility_payment/utility_payment_page.dart` 提供旗山、铜盘、晋江、怡山缴费跳转。仅 Android/iOS 展示操作，桌面说明需手机建行 App。拉起失败可复制原链接或进入建行官方安装页；不接入 west2 服务。
 
+## 小米设备的课程提醒
+
+- 保留 `android_alarm_manager_plus` 调度与 `flutter_local_notifications` 展示通知的插件实现，不恢复通知实验 stash 或新增原生调度层。通过现有 reminders MethodChannel 的只读 `deviceInfo` 读取 Android Build.MANUFACTURER / BRAND，归一化精确识别 Xiaomi、Redmi、POCO，仅显示 MIUI / HyperOS 后台本地通知限制及 root 后可尝试解除限制的提示，不按品牌强制关闭开关、取消计划、拦截授权或禁用开发者测试。品牌检测未完成或失败不得阻断提醒操作，所有设备继续正常授权与插件调度流程；不检测或自动修改 root 状态。开发者工具保留直接通知测试入口，不读取机型、不显示系统限制或 root 提示，也不附加品牌门槛。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。

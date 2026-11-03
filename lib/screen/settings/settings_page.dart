@@ -11,6 +11,9 @@ class SettingsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final device = useFuture(
+      useMemoized(() => CourseReminderService.instance.isXiaomiDevice()),
+    );
 
     return AppScaffold(
       appBar: AppBar(title: Text(l10n.settings)),
@@ -63,7 +66,11 @@ class SettingsPage extends HookWidget {
             ChevronListTile(
               leading: const Icon(Icons.notifications_active_outlined),
               title: Text(l10n.courseReminderSettings),
-              subtitle: Text(l10n.courseReminderSettingsSubtitle),
+              subtitle: Text(
+                device.data == true
+                    ? l10n.reminderXiaomiNotice
+                    : l10n.courseReminderSettingsSubtitle,
+              ),
               onTap: () => context.pushNamed(AppRoutes.courseReminderSettings),
             ),
           ],
