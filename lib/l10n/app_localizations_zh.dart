@@ -1028,8 +1028,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pastPapers => '历年卷';
 
   @override
-  String get pastPapersDescription =>
-      '试卷目录和下载地址由 west2 online 提供。开启后会向该服务发送目录查询和下载请求。';
+  String get pastPapersDescription => '从西二在线获取历年试卷目录与下载链接。';
 
   @override
   String get campusServices => '校园服务';
@@ -1240,4 +1239,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get graduationProject => '毕业设计（论文）';
+
+  @override
+  String get papersHidden => '历年卷入口已隐藏';
+
+  @override
+  String get papersSearch => '搜索当前目录';
+
+  @override
+  String get papersRoot => '试卷根目录';
+
+  @override
+  String get papersParent => '返回上一级目录';
+
+  @override
+  String get papersEmpty => '当前目录没有匹配的试卷或文件夹';
+
+  @override
+  String get papersOpenDescription => '在浏览器查看或下载试卷，也可复制下载链接。';
+
+  @override
+  String get papersOpenFailed => '无法打开浏览器，请复制链接后手动打开';
 }

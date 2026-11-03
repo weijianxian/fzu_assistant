@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/toolbox/paper/papers_page.dart';
 import 'package:fzu_assistant/screen/toolbox/academic/cultivate_plan_page.dart';
 import 'package:fzu_assistant/screen/settings/webdav_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/custom_courses_page.dart';
@@ -94,6 +95,11 @@ abstract final class AppRouter {
     }
 
     return switch (settings.name) {
+      AppRoutes.papers => MaterialPageRoute(
+        settings: settings,
+        builder: (_) =>
+            PapersPage(path: (settings.arguments as PapersArgs?)?.path ?? '/'),
+      ),
       AppRoutes.customCourseEdit => MaterialPageRoute(
         settings: settings,
         builder: (_) => CustomCourseEditPage(

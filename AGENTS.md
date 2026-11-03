@@ -175,6 +175,10 @@ lib/
 
 - 学生证补办、附卡补办、乘车区间更改与毕业设计（论文）统一放在 AcademicShortcutsPage，复用教务 Cookie 与会话 id 注入，不引入第三方服务。
 
+## 历年卷
+
+- `service/api/paper_service.dart` 使用公开 west2 online 历年卷目录/下载接口，不携带任何教务或 SSO 凭据；请求前后都检查独立 papersAccess。`screen/toolbox/paper/papers_page.dart` 默认 tip 仅展示说明与设置入口，allow 才构建查询组件，hide 从工具箱隐藏且直接路由也不请求。支持目录导航、当前目录本地搜索、浏览器查看/下载与复制下载地址；禁止路径穿越和非 HTTP(S) 下载地址，撤回授权即卸载数据页。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/model/feature_access.dart';
+import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
 import 'package:fzu_assistant/common/widgets.dart';
@@ -14,6 +16,9 @@ class ToolboxPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final paperAccess = useValueListenable(
+      AppSettingsProvider.of(context).papersAccess,
+    );
 
     final sections = [
       (
@@ -60,6 +65,15 @@ class ToolboxPage extends HookWidget {
             l10n.examRoomSubtitle,
             AppRoutes.examRoom,
           ),
+          if (paperAccess != FeatureAccess.hide)
+            (
+              Icons.folder_copy_outlined,
+              l10n.pastPapers,
+              paperAccess == FeatureAccess.allow
+                  ? l10n.pastPapersDescription
+                  : l10n.thirdPartyDisabled,
+              AppRoutes.papers,
+            ),
           (
             Icons.class_outlined,
             l10n.emptyClassroom,

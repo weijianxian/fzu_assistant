@@ -2033,7 +2033,7 @@ abstract class AppLocalizations {
   /// No description provided for @pastPapersDescription.
   ///
   /// In zh, this message translates to:
-  /// **'试卷目录和下载地址由 west2 online 提供。开启后会向该服务发送目录查询和下载请求。'**
+  /// **'从西二在线获取历年试卷目录与下载链接。'**
   String get pastPapersDescription;
 
   /// No description provided for @campusServices.
@@ -2455,6 +2455,48 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'毕业设计（论文）'**
   String get graduationProject;
+
+  /// No description provided for @papersHidden.
+  ///
+  /// In zh, this message translates to:
+  /// **'历年卷入口已隐藏'**
+  String get papersHidden;
+
+  /// No description provided for @papersSearch.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索当前目录'**
+  String get papersSearch;
+
+  /// No description provided for @papersRoot.
+  ///
+  /// In zh, this message translates to:
+  /// **'试卷根目录'**
+  String get papersRoot;
+
+  /// No description provided for @papersParent.
+  ///
+  /// In zh, this message translates to:
+  /// **'返回上一级目录'**
+  String get papersParent;
+
+  /// No description provided for @papersEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前目录没有匹配的试卷或文件夹'**
+  String get papersEmpty;
+
+  /// No description provided for @papersOpenDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'在浏览器查看或下载试卷，也可复制下载链接。'**
+  String get papersOpenDescription;
+
+  /// No description provided for @papersOpenFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开浏览器，请复制链接后手动打开'**
+  String get papersOpenFailed;
 }
 
 class _AppLocalizationsDelegate

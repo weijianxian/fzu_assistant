@@ -1071,7 +1071,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pastPapersDescription =>
-      'Paper listings and download links are provided by west2 online. Enabling sends listing and download requests to this service.';
+      'Get past-paper listings and download links from west2 online.';
 
   @override
   String get campusServices => 'Campus services';
@@ -1299,4 +1299,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get graduationProject => 'Graduation project / thesis';
+
+  @override
+  String get papersHidden => 'Past papers are hidden';
+
+  @override
+  String get papersSearch => 'Search this folder';
+
+  @override
+  String get papersRoot => 'Paper library';
+
+  @override
+  String get papersParent => 'Go to parent folder';
+
+  @override
+  String get papersEmpty => 'No matching papers or folders';
+
+  @override
+  String get papersOpenDescription =>
+      'View or download the paper in your browser, or copy its link.';
+
+  @override
+  String get papersOpenFailed =>
+      'Copy the link and open it manually in your browser.';
 }

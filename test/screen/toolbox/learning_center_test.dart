@@ -213,7 +213,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('学习中心'));
+      await tester.scrollUntilVisible(
+        find.text('学习中心'),
+        250,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('学习中心'));
       await tester.pumpAndSettle();
       expect(find.byType(LearningCenterPage), findsOneWidget);

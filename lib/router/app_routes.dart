@@ -11,6 +11,7 @@ abstract final class AppRoutes {
   static const examRoom = '/exam-room';
   static const emptyRoom = '/empty-room';
   static const notice = '/notice';
+  static const papers = '/papers';
   static const evaluation = '/evaluation';
   static const academicShortcuts = '/academic-shortcuts';
   static const cultivatePlan = '/cultivate-plan';
@@ -121,4 +122,9 @@ class CustomCourseEditArgs {
   const CustomCourseEditArgs({this.course, this.term = ''});
   final CustomCourse? course;
   final String term;
+}
+
+class PapersArgs {
+  const PapersArgs({this.path = '/'});
+  final String path;
 }

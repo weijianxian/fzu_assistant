@@ -903,7 +903,7 @@
   "accessAllow": "Enable",
   "accessHide": "Hide",
   "pastPapers": "Past papers",
-  "pastPapersDescription": "Paper listings and download links are provided by west2 online. Enabling sends listing and download requests to this service.",
+  "pastPapersDescription": "Get past-paper listings and download links from west2 online.",
   "campusServices": "Campus services",
   "campusServicesDescription": "Use official campus services with your SSO account.",
   "campusDormRepair": "Dorm repairs",
@@ -973,5 +973,12 @@
   "replaceStudentCard": "Replace student card",
   "replaceSupplementaryCard": "Replace supplementary card",
   "changeTravelRoute": "Change travel route",
-  "graduationProject": "Graduation project / thesis"
+  "graduationProject": "Graduation project / thesis",
+  "papersHidden": "Past papers are hidden",
+  "papersSearch": "Search this folder",
+  "papersRoot": "Paper library",
+  "papersParent": "Go to parent folder",
+  "papersEmpty": "No matching papers or folders",
+  "papersOpenDescription": "View or download the paper in your browser, or copy its link.",
+  "papersOpenFailed": "Copy the link and open it manually in your browser."
 }
