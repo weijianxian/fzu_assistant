@@ -19,8 +19,112 @@ import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/html_helper.dart';
+import 'package:fzu_assistant/service/api/user_service.dart';
 
 class AcademicService {
+  static const cultivatePlanListUrl =
+      'https://jwcjwxt2.fzu.edu.cn:81/pyfa/pyjh/pyjh_list.aspx';
+
+  /// Match the user's cohort/college/major using the official WebForms page.
+  Future<String> getCultivatePlan() async {
+    final student = await UserService().getUserInfo();
+    final doc = await _fetch(cultivatePlanListUrl);
+    String? option(Document page, String name, bool Function(String) match) =>
+        page
+            .querySelectorAll('select[id\$="$name"] option')
+            .where((e) => match(e.text.trim()))
+            .map((e) => e.attributes['value'])
+            .whereType<String>()
+            .firstOrNull;
+    final college = option(
+      doc,
+      'xymcdpl',
+      (name) =>
+          name == student.college ||
+          (student.college.contains('数学与计算机') &&
+              (name.contains('计算机与大数据') || name.contains('数学与统计'))),
+    );
+    final selected = await _post(cultivatePlanListUrl, {
+      for (final input in doc.querySelectorAll('input[type="hidden"][name]'))
+        input.attributes['name']!: input.attributes['value'] ?? '',
+      '__EVENTTARGET': college == null ? '' : 'ctl00\$njdpl',
+      '__EVENTARGUMENT': '',
+      'ctl00\$njdpl': student.grade,
+      'ctl00\$xymcdpl': ?college,
+      'ctl00\$dldpl': college == null ? '【全部】' : '<-全部->',
+      'ctl00\$zymcdpl': college == null ? '【全部】' : '<-全部->',
+      'ctl00\$zylbdpl': '本专业',
+      'ctl00\$ContentPlaceHolder1\$DDL_syxw': college == null
+          ? '【全部】'
+          : '<-全部->',
+      'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
+    });
+    final major = option(selected, 'zymcdpl', (name) => name == student.major);
+    if (college != null && major != null) {
+      return Uri.parse(cultivatePlanListUrl)
+          .resolve('pyfa_bzy.aspx')
+          .replace(
+            queryParameters: {
+              'nj': student.grade,
+              'xyh': college,
+              'zyh': major,
+              'zylb': '本专业',
+              ..._idParam,
+            },
+          )
+          .toString();
+    }
+    final fallback = college == null
+        ? selected
+        : await _post(cultivatePlanListUrl, {
+            for (final input in selected.querySelectorAll(
+              'input[type="hidden"][name]',
+            ))
+              input.attributes['name']!: input.attributes['value'] ?? '',
+            '__EVENTTARGET': '',
+            '__EVENTARGUMENT': '',
+            'ctl00\$njdpl': student.grade,
+            'ctl00\$dldpl': '【全部】',
+            'ctl00\$zymcdpl': '【全部】',
+            'ctl00\$zylbdpl': '本专业',
+            'ctl00\$ContentPlaceHolder1\$DDL_syxw': '【全部】',
+            'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
+          });
+    final fallbackUrl = Uri.parse(
+      parseCultivatePlanLink(fallback, student.major),
+    );
+    return fallbackUrl
+        .replace(queryParameters: {...fallbackUrl.queryParameters, ..._idParam})
+        .toString();
+  }
+
+  static String parseCultivatePlanLink(Document doc, String major) {
+    if (major.isEmpty) throw Exception('教务处未返回专业，请在教务页面手动选择培养计划');
+    for (final row in doc.querySelectorAll('tr')) {
+      final matches = row
+          .querySelectorAll('td')
+          .any(
+            (cell) =>
+                cell.text.trim().replaceFirst(RegExp(r'^[（(].*?[）)]'), '') ==
+                major,
+          );
+      if (!matches) continue;
+      for (final link in row.querySelectorAll('a[href]')) {
+        var href = link.attributes['href']!;
+        if (href.startsWith('javascript:')) {
+          href = RegExp(r"pop1\('([^']+)'\)").firstMatch(href)?.group(1) ?? '';
+        }
+        if (!href.contains('pyfa')) continue;
+        final uri = Uri.parse(cultivatePlanListUrl).resolve(href);
+        if (uri.origin == Uri.parse(cultivatePlanListUrl).origin &&
+            uri.path.startsWith('/pyfa/')) {
+          return uri.toString();
+        }
+      }
+    }
+    throw Exception('未找到当前年级和专业的培养计划，可在教务页面手动选择');
+  }
+
   static const _gpaUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xyzk/jdpm/GPA_sheet.aspx';
   static const _marksUrl =

@@ -2407,6 +2407,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'确认'**
   String get webdavConfirm;
+
+  /// No description provided for @cultivatePlan.
+  ///
+  /// In zh, this message translates to:
+  /// **'培养计划'**
+  String get cultivatePlan;
+
+  /// No description provided for @cultivatePlanDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'按年级、学院和专业查找教务处培养方案'**
+  String get cultivatePlanDescription;
+
+  /// No description provided for @selectPlanManually.
+  ///
+  /// In zh, this message translates to:
+  /// **'在教务处手动选择培养计划'**
+  String get selectPlanManually;
 }
 
 class _AppLocalizationsDelegate

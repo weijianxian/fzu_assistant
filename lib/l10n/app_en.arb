@@ -965,5 +965,8 @@
   "webdavHiddenCourses": "Hidden course records",
   "webdavNotFound": "Upload a backup to create the remote sync file.",
   "webdavCancel": "Cancel",
-  "webdavConfirm": "Confirm"
+  "webdavConfirm": "Confirm",
+  "cultivatePlan": "Curriculum plan",
+  "cultivatePlanDescription": "Find the official plan for your cohort, college and major",
+  "selectPlanManually": "Select a plan on the academic website"
 }

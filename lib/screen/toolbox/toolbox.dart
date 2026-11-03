@@ -37,6 +37,12 @@ class ToolboxPage extends HookWidget {
             l10n.creditStatsSubtitle,
             AppRoutes.credit,
           ),
+          (
+            Icons.menu_book_outlined,
+            l10n.cultivatePlan,
+            l10n.cultivatePlanDescription,
+            AppRoutes.cultivatePlan,
+          ),
         ],
       ),
       (

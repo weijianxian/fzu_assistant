@@ -1274,4 +1274,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webdavConfirm => 'Confirm';
+
+  @override
+  String get cultivatePlan => 'Curriculum plan';
+
+  @override
+  String get cultivatePlanDescription =>
+      'Find the official plan for your cohort, college and major';
+
+  @override
+  String get selectPlanManually => 'Select a plan on the academic website';
 }

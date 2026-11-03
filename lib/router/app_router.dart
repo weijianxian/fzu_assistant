@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/toolbox/academic/cultivate_plan_page.dart';
 import 'package:fzu_assistant/screen/settings/webdav_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/custom_courses_page.dart';
 import 'package:fzu_assistant/screen/settings/hidden_courses_page.dart';
@@ -55,6 +56,7 @@ abstract final class AppRouter {
     AppRoutes.notice: (_) => const NoticePage(),
     AppRoutes.evaluation: (_) => const EvaluationPage(),
     AppRoutes.academicShortcuts: (_) => const AcademicShortcutsPage(),
+    AppRoutes.cultivatePlan: (_) => const CultivatePlanPage(),
     AppRoutes.learningCenter: (_) => const LearningCenterPage(),
     AppRoutes.campusCode: (_) => const CampusCodePage(),
     AppRoutes.campusServices: (_) => const CampusServicesPage(),

@@ -1216,4 +1216,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get webdavConfirm => '确认';
+
+  @override
+  String get cultivatePlan => '培养计划';
+
+  @override
+  String get cultivatePlanDescription => '按年级、学院和专业查找教务处培养方案';
+
+  @override
+  String get selectPlanManually => '在教务处手动选择培养计划';
 }

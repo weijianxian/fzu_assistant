@@ -965,5 +965,8 @@
   "webdavHiddenCourses": "隐藏课程记录数",
   "webdavNotFound": "远端没有同步文件，请先上传",
   "webdavCancel": "取消",
-  "webdavConfirm": "确认"
+  "webdavConfirm": "确认",
+  "cultivatePlan": "培养计划",
+  "cultivatePlanDescription": "按年级、学院和专业查找教务处培养方案",
+  "selectPlanManually": "在教务处手动选择培养计划"
 }
