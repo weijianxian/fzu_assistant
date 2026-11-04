@@ -1078,7 +1078,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get campusServicesDescription =>
-      'Use official campus services with your SSO account.';
+      'Open official university services when needed; services requiring sign-in reuse university SSO.';
 
   @override
   String get campusDormRepair => 'Dorm repairs';
@@ -1412,4 +1412,214 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gradesMissingGpa => 'GPA missing';
+
+  @override
+  String get campusServicesLife => 'Living and housing';
+
+  @override
+  String get campusServicesBookings => 'Spaces and reservations';
+
+  @override
+  String get campusServicesGrowth => 'Learning and activities';
+
+  @override
+  String get campusServicesOffice => 'Information and services';
+
+  @override
+  String get campusServicesNetwork => 'Maps and campus network';
+
+  @override
+  String get campusDormRepairDescription =>
+      'Report dorm facility problems and check repair progress.';
+
+  @override
+  String get campusReservationsDescription =>
+      'Make reservations through the university booking platform.';
+
+  @override
+  String get campusLibraryReservationDescription =>
+      'Find and reserve library seats.';
+
+  @override
+  String get campusLostAndFoundDescription =>
+      'Post and browse lost and found items on campus.';
+
+  @override
+  String get campusAttendanceDescription =>
+      'Check in through the evening attendance service.';
+
+  @override
+  String get campusElectricBikeDescription =>
+      'Access campus electric bike management services.';
+
+  @override
+  String get campusYibanDescription => 'Open university services on Yiban.';
+
+  @override
+  String get campusMailbox => 'FZU email';
+
+  @override
+  String get campusMailboxDescription =>
+      'Activate and access your university email account.';
+
+  @override
+  String get campusQuickResponse => 'Campus feedback';
+
+  @override
+  String get campusQuickResponseDescription =>
+      'Submit campus requests, feedback and suggestions.';
+
+  @override
+  String get campusTrustedDocuments => 'Trusted electronic documents';
+
+  @override
+  String get campusTrustedDocumentsDescription =>
+      'Access the university trusted document service.';
+
+  @override
+  String get campusOfficialNotices => 'University notices and documents';
+
+  @override
+  String get campusOfficialNoticesDescription =>
+      'Browse official university notices and documents.';
+
+  @override
+  String get campusYouthLeague => 'Youth League services';
+
+  @override
+  String get campusYouthLeagueDescription =>
+      'Access the university Youth League service platform.';
+
+  @override
+  String get campusStudentAffairs => 'One-stop student affairs';
+
+  @override
+  String get campusStudentAffairsDescription =>
+      'Access student affairs and support services.';
+
+  @override
+  String get campusLectureReports => 'Lectures and talks';
+
+  @override
+  String get campusLectureReportsDescription =>
+      'Browse public university lectures and talks.';
+
+  @override
+  String get campusCertifications => 'Certification information';
+
+  @override
+  String get campusCertificationsDescription =>
+      'Find information on certification and qualification exams.';
+
+  @override
+  String get campusElectricBikeRegistration => 'Electric bike registration';
+
+  @override
+  String get campusElectricBikeRegistrationDescription =>
+      'Open the university electric bike registration service.';
+
+  @override
+  String get campusUnifiedPayment => 'University payments';
+
+  @override
+  String get campusUnifiedPaymentDescription =>
+      'Make payments through the university payment platform.';
+
+  @override
+  String get campusCardServices => 'Campus card services';
+
+  @override
+  String get campusCardServicesDescription =>
+      'Access the official university campus card platform.';
+
+  @override
+  String get campusForms => 'University forms';
+
+  @override
+  String get campusFormsDescription =>
+      'Complete forms through the university form platform.';
+
+  @override
+  String get campusResume => 'Personal resume';
+
+  @override
+  String get campusResumeDescription =>
+      'View and maintain your resume in campus services.';
+
+  @override
+  String get campusVenueReservation => 'Venue reservations';
+
+  @override
+  String get campusVenueReservationDescription =>
+      'Find and reserve available university venues.';
+
+  @override
+  String get campusNewStudentServices => 'New student services';
+
+  @override
+  String get campusNewStudentServicesDescription =>
+      'Access arrival and registration services for new students.';
+
+  @override
+  String get campusIdentityVerification => 'Identity verification';
+
+  @override
+  String get campusIdentityVerificationDescription =>
+      'Open the university identity verification service.';
+
+  @override
+  String get campusMap => 'Campus map';
+
+  @override
+  String get campusMapDescription =>
+      'Explore the campus map and find university locations.';
+
+  @override
+  String get campusActivities => 'Campus activities';
+
+  @override
+  String get campusActivitiesDescription =>
+      'Browse campus activities and their details.';
+
+  @override
+  String get campusSavedActivities => 'Saved campus activities';
+
+  @override
+  String get campusSavedActivitiesDescription =>
+      'View your saved campus activities.';
+
+  @override
+  String get campusNetworkRepair => 'Campus network repairs';
+
+  @override
+  String get campusNetworkRepairDescription =>
+      'Report campus network problems.';
+
+  @override
+  String get campusNetworkGuide => 'Campus network access guide';
+
+  @override
+  String get campusNetworkGuideDescription =>
+      'Read instructions for connecting to the campus network.';
+
+  @override
+  String get campusReturnReservation => 'Group return reservations';
+
+  @override
+  String get campusReturnReservationDescription =>
+      'Arrange reservations for a group return to campus.';
+
+  @override
+  String get campusPartyTraining => 'Party member training';
+
+  @override
+  String get campusPartyTrainingDescription =>
+      'Access the university party member training platform.';
+
+  @override
+  String get campusAccommodation => 'Accommodation applications';
+
+  @override
+  String get campusAccommodationDescription =>
+      'Submit applications for accommodation services.';
 }

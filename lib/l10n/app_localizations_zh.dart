@@ -1033,7 +1033,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get campusServices => '校园服务';
 
   @override
-  String get campusServicesDescription => '通过统一认证使用学校官方校园服务。';
+  String get campusServicesDescription => '按需打开学校官方服务；需要登录的服务复用统一身份认证。';
 
   @override
   String get campusDormRepair => '公寓报修';
@@ -1343,4 +1343,184 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get gradesMissingGpa => '绩点缺失';
+
+  @override
+  String get campusServicesLife => '生活与住宿';
+
+  @override
+  String get campusServicesBookings => '空间与预约';
+
+  @override
+  String get campusServicesGrowth => '学习与活动';
+
+  @override
+  String get campusServicesOffice => '信息与办事';
+
+  @override
+  String get campusServicesNetwork => '地图与校园网';
+
+  @override
+  String get campusDormRepairDescription => '提交公寓设施报修，查看维修进度。';
+
+  @override
+  String get campusReservationsDescription => '进入学校综合预约平台办理预约。';
+
+  @override
+  String get campusLibraryReservationDescription => '查询并预约图书馆座位。';
+
+  @override
+  String get campusLostAndFoundDescription => '发布和查找校园失物招领信息。';
+
+  @override
+  String get campusAttendanceDescription => '进入晚点名平台完成签到。';
+
+  @override
+  String get campusElectricBikeDescription => '办理校园电动车相关管理业务。';
+
+  @override
+  String get campusYibanDescription => '进入校本化易班校园服务。';
+
+  @override
+  String get campusMailbox => '福大邮箱';
+
+  @override
+  String get campusMailboxDescription => '开通和使用学校提供的电子邮箱。';
+
+  @override
+  String get campusQuickResponse => '马上就办';
+
+  @override
+  String get campusQuickResponseDescription => '提交校园诉求和意见建议。';
+
+  @override
+  String get campusTrustedDocuments => '可信电子文档';
+
+  @override
+  String get campusTrustedDocumentsDescription => '进入学校可信电子文档系统办理业务。';
+
+  @override
+  String get campusOfficialNotices => '通知文件系统';
+
+  @override
+  String get campusOfficialNoticesDescription => '浏览学校发布的通知和文件。';
+
+  @override
+  String get campusYouthLeague => '团委管理服务';
+
+  @override
+  String get campusYouthLeagueDescription => '进入团委管理服务平台办理团务。';
+
+  @override
+  String get campusStudentAffairs => '一站式智慧学工';
+
+  @override
+  String get campusStudentAffairsDescription => '办理学生事务并查看学工服务。';
+
+  @override
+  String get campusLectureReports => '讲座报告';
+
+  @override
+  String get campusLectureReportsDescription => '查看学校公开发布的讲座与报告。';
+
+  @override
+  String get campusCertifications => '考证信息';
+
+  @override
+  String get campusCertificationsDescription => '查询校园考证和资格考试信息。';
+
+  @override
+  String get campusElectricBikeRegistration => '电动车登记';
+
+  @override
+  String get campusElectricBikeRegistrationDescription => '进入学校电动车登记系统。';
+
+  @override
+  String get campusUnifiedPayment => '统一支付';
+
+  @override
+  String get campusUnifiedPaymentDescription => '进入学校统一支付平台办理缴费。';
+
+  @override
+  String get campusCardServices => '一卡通服务';
+
+  @override
+  String get campusCardServicesDescription => '进入学校一卡通服务平台。';
+
+  @override
+  String get campusForms => '一表通';
+
+  @override
+  String get campusFormsDescription => '进入学校一表通平台填报表单。';
+
+  @override
+  String get campusResume => '个人简历';
+
+  @override
+  String get campusResumeDescription => '查看和维护校园服务中的个人简历。';
+
+  @override
+  String get campusVenueReservation => '场地预约';
+
+  @override
+  String get campusVenueReservationDescription => '查询和预约学校开放的场地。';
+
+  @override
+  String get campusNewStudentServices => '迎新服务';
+
+  @override
+  String get campusNewStudentServicesDescription => '查看新生报到及迎新办理事项。';
+
+  @override
+  String get campusIdentityVerification => '实名身份核验';
+
+  @override
+  String get campusIdentityVerificationDescription => '进入学校实名身份核验服务。';
+
+  @override
+  String get campusMap => '校园地图';
+
+  @override
+  String get campusMapDescription => '查看校园地图并查找校内地点。';
+
+  @override
+  String get campusActivities => '校园活动';
+
+  @override
+  String get campusActivitiesDescription => '浏览校园活动并查看活动详情。';
+
+  @override
+  String get campusSavedActivities => '校园活动收藏';
+
+  @override
+  String get campusSavedActivitiesDescription => '查看已收藏的校园活动。';
+
+  @override
+  String get campusNetworkRepair => '校园网报修';
+
+  @override
+  String get campusNetworkRepairDescription => '提交校园网络故障报修。';
+
+  @override
+  String get campusNetworkGuide => '校园网接入指南';
+
+  @override
+  String get campusNetworkGuideDescription => '查看校园网络接入说明。';
+
+  @override
+  String get campusReturnReservation => '集体返校预约';
+
+  @override
+  String get campusReturnReservationDescription => '办理集体返校相关预约。';
+
+  @override
+  String get campusPartyTraining => '党员培训';
+
+  @override
+  String get campusPartyTrainingDescription => '进入学校党员培训平台学习。';
+
+  @override
+  String get campusAccommodation => '住宿服务申请';
+
+  @override
+  String get campusAccommodationDescription => '提交住宿服务相关申请。';
 }

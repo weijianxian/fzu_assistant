@@ -157,7 +157,7 @@ lib/
 
 ## 校园服务
 
-- `screen/toolbox/campus_services/campus_services_page.dart` 提供公寓报修、综合预约、图书馆预约、失物招领、晚点名、电动车和校本化官方网页。`WebViewArgs.injectSsoCookies` 区分统一认证与教务会话，SSO 登录复用不申请学习中心 token 的页面。WebView 为 HookWidget，SOURCEID_TGC 仅注入 SSO HTTPS host；退出清理原生 Cookie，挂载页面按会话代次销毁旧内容。外部 App 协议仅在用户点击时打开。
+- `model/campus_service.dart` 定义 31 项官方校园服务，`screen/toolbox/campus_services/campus_services_page.dart` 按生活住宿、空间预约、学习活动、信息办事、地图校园网分组；保留原有公寓报修等入口，补齐邮箱、可信电子文档、统一支付、智慧学工、地图和网络服务。所有入口禁用教务 Cookie，公开地图、通知文件、网络指南与讲座报告不要求 SSO，其余复用统一认证；不预请求、不重复列出同地址的校园／校友活动。`WebViewArgs.injectSsoCookies` 区分统一认证与教务会话，SSO 登录复用不申请学习中心 token 的页面。WebView 为 HookWidget，SOURCEID_TGC 仅注入 SSO HTTPS host；退出清理原生 Cookie，挂载页面按会话代次销毁旧内容。外部 App 协议仅在用户点击时打开。
 
 ## 自定义课程
 

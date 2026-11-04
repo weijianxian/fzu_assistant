@@ -2045,7 +2045,7 @@ abstract class AppLocalizations {
   /// No description provided for @campusServicesDescription.
   ///
   /// In zh, this message translates to:
-  /// **'通过统一认证使用学校官方校园服务。'**
+  /// **'按需打开学校官方服务；需要登录的服务复用统一身份认证。'**
   String get campusServicesDescription;
 
   /// No description provided for @campusDormRepair.
@@ -2659,6 +2659,366 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'绩点缺失'**
   String get gradesMissingGpa;
+
+  /// No description provided for @campusServicesLife.
+  ///
+  /// In zh, this message translates to:
+  /// **'生活与住宿'**
+  String get campusServicesLife;
+
+  /// No description provided for @campusServicesBookings.
+  ///
+  /// In zh, this message translates to:
+  /// **'空间与预约'**
+  String get campusServicesBookings;
+
+  /// No description provided for @campusServicesGrowth.
+  ///
+  /// In zh, this message translates to:
+  /// **'学习与活动'**
+  String get campusServicesGrowth;
+
+  /// No description provided for @campusServicesOffice.
+  ///
+  /// In zh, this message translates to:
+  /// **'信息与办事'**
+  String get campusServicesOffice;
+
+  /// No description provided for @campusServicesNetwork.
+  ///
+  /// In zh, this message translates to:
+  /// **'地图与校园网'**
+  String get campusServicesNetwork;
+
+  /// No description provided for @campusDormRepairDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'提交公寓设施报修，查看维修进度。'**
+  String get campusDormRepairDescription;
+
+  /// No description provided for @campusReservationsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校综合预约平台办理预约。'**
+  String get campusReservationsDescription;
+
+  /// No description provided for @campusLibraryReservationDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询并预约图书馆座位。'**
+  String get campusLibraryReservationDescription;
+
+  /// No description provided for @campusLostAndFoundDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'发布和查找校园失物招领信息。'**
+  String get campusLostAndFoundDescription;
+
+  /// No description provided for @campusAttendanceDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入晚点名平台完成签到。'**
+  String get campusAttendanceDescription;
+
+  /// No description provided for @campusElectricBikeDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'办理校园电动车相关管理业务。'**
+  String get campusElectricBikeDescription;
+
+  /// No description provided for @campusYibanDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入校本化易班校园服务。'**
+  String get campusYibanDescription;
+
+  /// No description provided for @campusMailbox.
+  ///
+  /// In zh, this message translates to:
+  /// **'福大邮箱'**
+  String get campusMailbox;
+
+  /// No description provided for @campusMailboxDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'开通和使用学校提供的电子邮箱。'**
+  String get campusMailboxDescription;
+
+  /// No description provided for @campusQuickResponse.
+  ///
+  /// In zh, this message translates to:
+  /// **'马上就办'**
+  String get campusQuickResponse;
+
+  /// No description provided for @campusQuickResponseDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'提交校园诉求和意见建议。'**
+  String get campusQuickResponseDescription;
+
+  /// No description provided for @campusTrustedDocuments.
+  ///
+  /// In zh, this message translates to:
+  /// **'可信电子文档'**
+  String get campusTrustedDocuments;
+
+  /// No description provided for @campusTrustedDocumentsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校可信电子文档系统办理业务。'**
+  String get campusTrustedDocumentsDescription;
+
+  /// No description provided for @campusOfficialNotices.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知文件系统'**
+  String get campusOfficialNotices;
+
+  /// No description provided for @campusOfficialNoticesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'浏览学校发布的通知和文件。'**
+  String get campusOfficialNoticesDescription;
+
+  /// No description provided for @campusYouthLeague.
+  ///
+  /// In zh, this message translates to:
+  /// **'团委管理服务'**
+  String get campusYouthLeague;
+
+  /// No description provided for @campusYouthLeagueDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入团委管理服务平台办理团务。'**
+  String get campusYouthLeagueDescription;
+
+  /// No description provided for @campusStudentAffairs.
+  ///
+  /// In zh, this message translates to:
+  /// **'一站式智慧学工'**
+  String get campusStudentAffairs;
+
+  /// No description provided for @campusStudentAffairsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'办理学生事务并查看学工服务。'**
+  String get campusStudentAffairsDescription;
+
+  /// No description provided for @campusLectureReports.
+  ///
+  /// In zh, this message translates to:
+  /// **'讲座报告'**
+  String get campusLectureReports;
+
+  /// No description provided for @campusLectureReportsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看学校公开发布的讲座与报告。'**
+  String get campusLectureReportsDescription;
+
+  /// No description provided for @campusCertifications.
+  ///
+  /// In zh, this message translates to:
+  /// **'考证信息'**
+  String get campusCertifications;
+
+  /// No description provided for @campusCertificationsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询校园考证和资格考试信息。'**
+  String get campusCertificationsDescription;
+
+  /// No description provided for @campusElectricBikeRegistration.
+  ///
+  /// In zh, this message translates to:
+  /// **'电动车登记'**
+  String get campusElectricBikeRegistration;
+
+  /// No description provided for @campusElectricBikeRegistrationDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校电动车登记系统。'**
+  String get campusElectricBikeRegistrationDescription;
+
+  /// No description provided for @campusUnifiedPayment.
+  ///
+  /// In zh, this message translates to:
+  /// **'统一支付'**
+  String get campusUnifiedPayment;
+
+  /// No description provided for @campusUnifiedPaymentDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校统一支付平台办理缴费。'**
+  String get campusUnifiedPaymentDescription;
+
+  /// No description provided for @campusCardServices.
+  ///
+  /// In zh, this message translates to:
+  /// **'一卡通服务'**
+  String get campusCardServices;
+
+  /// No description provided for @campusCardServicesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校一卡通服务平台。'**
+  String get campusCardServicesDescription;
+
+  /// No description provided for @campusForms.
+  ///
+  /// In zh, this message translates to:
+  /// **'一表通'**
+  String get campusForms;
+
+  /// No description provided for @campusFormsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校一表通平台填报表单。'**
+  String get campusFormsDescription;
+
+  /// No description provided for @campusResume.
+  ///
+  /// In zh, this message translates to:
+  /// **'个人简历'**
+  String get campusResume;
+
+  /// No description provided for @campusResumeDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看和维护校园服务中的个人简历。'**
+  String get campusResumeDescription;
+
+  /// No description provided for @campusVenueReservation.
+  ///
+  /// In zh, this message translates to:
+  /// **'场地预约'**
+  String get campusVenueReservation;
+
+  /// No description provided for @campusVenueReservationDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询和预约学校开放的场地。'**
+  String get campusVenueReservationDescription;
+
+  /// No description provided for @campusNewStudentServices.
+  ///
+  /// In zh, this message translates to:
+  /// **'迎新服务'**
+  String get campusNewStudentServices;
+
+  /// No description provided for @campusNewStudentServicesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看新生报到及迎新办理事项。'**
+  String get campusNewStudentServicesDescription;
+
+  /// No description provided for @campusIdentityVerification.
+  ///
+  /// In zh, this message translates to:
+  /// **'实名身份核验'**
+  String get campusIdentityVerification;
+
+  /// No description provided for @campusIdentityVerificationDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校实名身份核验服务。'**
+  String get campusIdentityVerificationDescription;
+
+  /// No description provided for @campusMap.
+  ///
+  /// In zh, this message translates to:
+  /// **'校园地图'**
+  String get campusMap;
+
+  /// No description provided for @campusMapDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看校园地图并查找校内地点。'**
+  String get campusMapDescription;
+
+  /// No description provided for @campusActivities.
+  ///
+  /// In zh, this message translates to:
+  /// **'校园活动'**
+  String get campusActivities;
+
+  /// No description provided for @campusActivitiesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'浏览校园活动并查看活动详情。'**
+  String get campusActivitiesDescription;
+
+  /// No description provided for @campusSavedActivities.
+  ///
+  /// In zh, this message translates to:
+  /// **'校园活动收藏'**
+  String get campusSavedActivities;
+
+  /// No description provided for @campusSavedActivitiesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看已收藏的校园活动。'**
+  String get campusSavedActivitiesDescription;
+
+  /// No description provided for @campusNetworkRepair.
+  ///
+  /// In zh, this message translates to:
+  /// **'校园网报修'**
+  String get campusNetworkRepair;
+
+  /// No description provided for @campusNetworkRepairDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'提交校园网络故障报修。'**
+  String get campusNetworkRepairDescription;
+
+  /// No description provided for @campusNetworkGuide.
+  ///
+  /// In zh, this message translates to:
+  /// **'校园网接入指南'**
+  String get campusNetworkGuide;
+
+  /// No description provided for @campusNetworkGuideDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看校园网络接入说明。'**
+  String get campusNetworkGuideDescription;
+
+  /// No description provided for @campusReturnReservation.
+  ///
+  /// In zh, this message translates to:
+  /// **'集体返校预约'**
+  String get campusReturnReservation;
+
+  /// No description provided for @campusReturnReservationDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'办理集体返校相关预约。'**
+  String get campusReturnReservationDescription;
+
+  /// No description provided for @campusPartyTraining.
+  ///
+  /// In zh, this message translates to:
+  /// **'党员培训'**
+  String get campusPartyTraining;
+
+  /// No description provided for @campusPartyTrainingDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'进入学校党员培训平台学习。'**
+  String get campusPartyTrainingDescription;
+
+  /// No description provided for @campusAccommodation.
+  ///
+  /// In zh, this message translates to:
+  /// **'住宿服务申请'**
+  String get campusAccommodation;
+
+  /// No description provided for @campusAccommodationDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'提交住宿服务相关申请。'**
+  String get campusAccommodationDescription;
 }
 
 class _AppLocalizationsDelegate
