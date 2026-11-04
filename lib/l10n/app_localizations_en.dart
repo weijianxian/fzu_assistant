@@ -1375,4 +1375,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reminderXiaomiDescription =>
       'MIUI / HyperOS restricts background local notifications, so this feature is unavailable and you may try unlocking the restriction after rooting your device.';
+
+  @override
+  String get gradesSummaryTitle => 'Semester summary';
+
+  @override
+  String get gradesSummaryTotalCredits => 'Total credits';
+
+  @override
+  String get gradesSummaryHighestScore => 'Highest grade';
+
+  @override
+  String get gradesSummaryEstimatedGpa => 'Estimated GPA';
+
+  @override
+  String get gradesSummaryMissingValue => 'Missing';
+
+  @override
+  String get gradesSummaryNoGpa => 'No eligible courses';
+
+  @override
+  String get gradesSummaryIncompleteGpa =>
+      'Some course credits or GPAs are missing. An estimate is unavailable.';
+
+  @override
+  String get gradesSummaryIncompleteCredits =>
+      'Some course credits are missing. Total credits includes known values only.';
+
+  @override
+  String get gradesSummaryGpaNote =>
+      'Credit-weighted estimate for reference. Official academic records take precedence.';
+
+  @override
+  String get gradesSummaryRules =>
+      'Graded make-up exams replace original records; each course counts once. Excluded categories, second majors and pass/fail courses do not contribute to GPA.';
+
+  @override
+  String get gradesMissingGpa => 'GPA missing';
 }

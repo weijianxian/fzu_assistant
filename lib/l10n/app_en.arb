@@ -996,5 +996,16 @@
   "utilityInstall": "Get the CCB app",
   "utilityDownloadFailed": "Search your app store for China Construction Bank.",
   "reminderXiaomiNotice": "System restriction notice",
-  "reminderXiaomiDescription": "MIUI / HyperOS restricts background local notifications, so this feature is unavailable and you may try unlocking the restriction after rooting your device."
+  "reminderXiaomiDescription": "MIUI / HyperOS restricts background local notifications, so this feature is unavailable and you may try unlocking the restriction after rooting your device.",
+  "gradesSummaryTitle": "Semester summary",
+  "gradesSummaryTotalCredits": "Total credits",
+  "gradesSummaryHighestScore": "Highest grade",
+  "gradesSummaryEstimatedGpa": "Estimated GPA",
+  "gradesSummaryMissingValue": "Missing",
+  "gradesSummaryNoGpa": "No eligible courses",
+  "gradesSummaryIncompleteGpa": "Some course credits or GPAs are missing. An estimate is unavailable.",
+  "gradesSummaryIncompleteCredits": "Some course credits are missing. Total credits includes known values only.",
+  "gradesSummaryGpaNote": "Credit-weighted estimate for reference. Official academic records take precedence.",
+  "gradesSummaryRules": "Graded make-up exams replace original records; each course counts once. Excluded categories, second majors and pass/fail courses do not contribute to GPA.",
+  "gradesMissingGpa": "GPA missing"
 }

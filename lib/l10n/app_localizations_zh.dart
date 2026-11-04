@@ -1309,4 +1309,38 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get reminderXiaomiDescription =>
       '由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。';
+
+  @override
+  String get gradesSummaryTitle => '学期汇总';
+
+  @override
+  String get gradesSummaryTotalCredits => '总修学分';
+
+  @override
+  String get gradesSummaryHighestScore => '单科最高';
+
+  @override
+  String get gradesSummaryEstimatedGpa => '估算 GPA';
+
+  @override
+  String get gradesSummaryMissingValue => '缺失';
+
+  @override
+  String get gradesSummaryNoGpa => '无适用课程';
+
+  @override
+  String get gradesSummaryIncompleteGpa => '部分课程的学分或绩点缺失，暂无法估算。';
+
+  @override
+  String get gradesSummaryIncompleteCredits => '部分课程学分缺失，总修学分仅统计已知值。';
+
+  @override
+  String get gradesSummaryGpaNote => '按课程学分加权，仅供参考，以教务处为准。';
+
+  @override
+  String get gradesSummaryRules =>
+      '已出分的补考替代原记录，同一课程不重复计学分；不计绩点类别、二专业和两级制课程不参与 GPA。';
+
+  @override
+  String get gradesMissingGpa => '绩点缺失';
 }

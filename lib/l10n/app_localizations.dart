@@ -2593,6 +2593,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。'**
   String get reminderXiaomiDescription;
+
+  /// No description provided for @gradesSummaryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'学期汇总'**
+  String get gradesSummaryTitle;
+
+  /// No description provided for @gradesSummaryTotalCredits.
+  ///
+  /// In zh, this message translates to:
+  /// **'总修学分'**
+  String get gradesSummaryTotalCredits;
+
+  /// No description provided for @gradesSummaryHighestScore.
+  ///
+  /// In zh, this message translates to:
+  /// **'单科最高'**
+  String get gradesSummaryHighestScore;
+
+  /// No description provided for @gradesSummaryEstimatedGpa.
+  ///
+  /// In zh, this message translates to:
+  /// **'估算 GPA'**
+  String get gradesSummaryEstimatedGpa;
+
+  /// No description provided for @gradesSummaryMissingValue.
+  ///
+  /// In zh, this message translates to:
+  /// **'缺失'**
+  String get gradesSummaryMissingValue;
+
+  /// No description provided for @gradesSummaryNoGpa.
+  ///
+  /// In zh, this message translates to:
+  /// **'无适用课程'**
+  String get gradesSummaryNoGpa;
+
+  /// No description provided for @gradesSummaryIncompleteGpa.
+  ///
+  /// In zh, this message translates to:
+  /// **'部分课程的学分或绩点缺失，暂无法估算。'**
+  String get gradesSummaryIncompleteGpa;
+
+  /// No description provided for @gradesSummaryIncompleteCredits.
+  ///
+  /// In zh, this message translates to:
+  /// **'部分课程学分缺失，总修学分仅统计已知值。'**
+  String get gradesSummaryIncompleteCredits;
+
+  /// No description provided for @gradesSummaryGpaNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'按课程学分加权，仅供参考，以教务处为准。'**
+  String get gradesSummaryGpaNote;
+
+  /// No description provided for @gradesSummaryRules.
+  ///
+  /// In zh, this message translates to:
+  /// **'已出分的补考替代原记录，同一课程不重复计学分；不计绩点类别、二专业和两级制课程不参与 GPA。'**
+  String get gradesSummaryRules;
+
+  /// No description provided for @gradesMissingGpa.
+  ///
+  /// In zh, this message translates to:
+  /// **'绩点缺失'**
+  String get gradesMissingGpa;
 }
 
 class _AppLocalizationsDelegate

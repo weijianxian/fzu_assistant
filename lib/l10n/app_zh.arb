@@ -996,5 +996,16 @@
   "utilityInstall": "下载建行 App",
   "utilityDownloadFailed": "无法打开下载页面，请前往应用商店搜索中国建设银行",
   "reminderXiaomiNotice": "系统限制提醒",
-  "reminderXiaomiDescription": "由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。"
+  "reminderXiaomiDescription": "由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。",
+  "gradesSummaryTitle": "学期汇总",
+  "gradesSummaryTotalCredits": "总修学分",
+  "gradesSummaryHighestScore": "单科最高",
+  "gradesSummaryEstimatedGpa": "估算 GPA",
+  "gradesSummaryMissingValue": "缺失",
+  "gradesSummaryNoGpa": "无适用课程",
+  "gradesSummaryIncompleteGpa": "部分课程的学分或绩点缺失，暂无法估算。",
+  "gradesSummaryIncompleteCredits": "部分课程学分缺失，总修学分仅统计已知值。",
+  "gradesSummaryGpaNote": "按课程学分加权，仅供参考，以教务处为准。",
+  "gradesSummaryRules": "已出分的补考替代原记录，同一课程不重复计学分；不计绩点类别、二专业和两级制课程不参与 GPA。",
+  "gradesMissingGpa": "绩点缺失"
 }

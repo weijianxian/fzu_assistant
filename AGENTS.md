@@ -171,6 +171,10 @@ lib/
 
 - `AcademicService.getCultivatePlan()` 直接读取教务处，按年级/学院/专业精确匹配，失败时用年级查询回退匹配专业，WebForms 令牌随每次响应更新，不接入 west2 服务。`screen/toolbox/academic/cultivate_plan_page.dart` 为工具箱入口，支持刷新及打开官方页面手动选择。最终链接仅接受教务处培养方案域名和路径，保留当前会话 id。
 
+## 成绩学期汇总
+
+- `common/utils/grade_summary.dart` 统一数字、五级制及两级制成绩排序和配色；`model/semester_summary.dart` 按学期、课程名、教师及二专业区分课程，已出分的补考替代原记录，同一课程不重复计学分。成绩页保留原始明细，汇总显示有效课程数、总修学分、最高成绩及估算 GPA；按学分加权，排除不计绩点的选修类别、二专业与两级制课程，学分或绩点缺失时明确显示缺失，不按零分计算。估算结果仅供参考，以教务处为准。
+
 ## 教务快捷入口
 
 - 学生证补办、附卡补办、乘车区间更改与毕业设计（论文）统一放在 AcademicShortcutsPage，复用教务 Cookie 与会话 id 注入，不引入第三方服务。
