@@ -1523,4 +1523,58 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get campusAccommodationDescription => '提交住宿服务相关申请。';
+
+  @override
+  String get jobFairTitle => '招聘会／宣讲会';
+
+  @override
+  String get jobFairDescription => '查看学校发布的招聘活动，时间均为北京时间。';
+
+  @override
+  String get jobFairPreviousMonth => '上个月';
+
+  @override
+  String get jobFairNextMonth => '下个月';
+
+  @override
+  String get jobFairCurrentMonth => '回到本月';
+
+  @override
+  String get jobFairSelectMonth => '选择月份';
+
+  @override
+  String get jobFairUpcoming => '未开始';
+
+  @override
+  String get jobFairPast => '往期活动';
+
+  @override
+  String get jobFairRecruitment => '招聘会';
+
+  @override
+  String get jobFairKeynote => '宣讲会';
+
+  @override
+  String get jobFairNoEvents => '本月暂无招聘会或宣讲会';
+
+  @override
+  String get jobFairUnknownTitle => '未公布活动名称';
+
+  @override
+  String get jobFairUnknownPlace => '地点待公布';
+
+  @override
+  String get jobFairLoadFailed => '招聘活动加载失败，请重试。';
+
+  @override
+  String get jobFairRefreshFailed => '刷新失败，仍显示上次加载的活动。';
+
+  @override
+  String get jobFairInvalidDetails => '该活动的官方详情地址无效。';
+
+  @override
+  String get jobFairShowingPreviousMonth => '月份加载失败，仍显示上次成功加载的月份。';
+
+  @override
+  String get jobFairPartialData => '部分活动格式异常，已略过，请以官方公告为准。';
 }

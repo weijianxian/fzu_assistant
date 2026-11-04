@@ -1622,4 +1622,64 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get campusAccommodationDescription =>
       'Submit applications for accommodation services.';
+
+  @override
+  String get jobFairTitle => 'Job fairs & career talks';
+
+  @override
+  String get jobFairDescription =>
+      'Recruiting events published by FZU, with all times in Beijing time.';
+
+  @override
+  String get jobFairPreviousMonth => 'Previous month';
+
+  @override
+  String get jobFairNextMonth => 'Next month';
+
+  @override
+  String get jobFairCurrentMonth => 'This month';
+
+  @override
+  String get jobFairSelectMonth => 'Select month';
+
+  @override
+  String get jobFairUpcoming => 'Upcoming';
+
+  @override
+  String get jobFairPast => 'Past events';
+
+  @override
+  String get jobFairRecruitment => 'Job fair';
+
+  @override
+  String get jobFairKeynote => 'Career talk';
+
+  @override
+  String get jobFairNoEvents => 'No job fairs or career talks this month';
+
+  @override
+  String get jobFairUnknownTitle => 'Event title not announced';
+
+  @override
+  String get jobFairUnknownPlace => 'Venue to be announced';
+
+  @override
+  String get jobFairLoadFailed =>
+      'Could not load recruiting events. Please retry.';
+
+  @override
+  String get jobFairRefreshFailed =>
+      'Could not refresh. Previously loaded events are still shown.';
+
+  @override
+  String get jobFairInvalidDetails =>
+      'This event has an invalid official details address.';
+
+  @override
+  String get jobFairShowingPreviousMonth =>
+      'Could not load the selected month. The last successfully loaded month is still shown.';
+
+  @override
+  String get jobFairPartialData =>
+      'Some events could not be read and were skipped. Please check official announcements.';
 }

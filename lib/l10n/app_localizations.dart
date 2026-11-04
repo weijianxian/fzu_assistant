@@ -3019,6 +3019,114 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'提交住宿服务相关申请。'**
   String get campusAccommodationDescription;
+
+  /// No description provided for @jobFairTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'招聘会／宣讲会'**
+  String get jobFairTitle;
+
+  /// No description provided for @jobFairDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看学校发布的招聘活动，时间均为北京时间。'**
+  String get jobFairDescription;
+
+  /// No description provided for @jobFairPreviousMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'上个月'**
+  String get jobFairPreviousMonth;
+
+  /// No description provided for @jobFairNextMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'下个月'**
+  String get jobFairNextMonth;
+
+  /// No description provided for @jobFairCurrentMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'回到本月'**
+  String get jobFairCurrentMonth;
+
+  /// No description provided for @jobFairSelectMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择月份'**
+  String get jobFairSelectMonth;
+
+  /// No description provided for @jobFairUpcoming.
+  ///
+  /// In zh, this message translates to:
+  /// **'未开始'**
+  String get jobFairUpcoming;
+
+  /// No description provided for @jobFairPast.
+  ///
+  /// In zh, this message translates to:
+  /// **'往期活动'**
+  String get jobFairPast;
+
+  /// No description provided for @jobFairRecruitment.
+  ///
+  /// In zh, this message translates to:
+  /// **'招聘会'**
+  String get jobFairRecruitment;
+
+  /// No description provided for @jobFairKeynote.
+  ///
+  /// In zh, this message translates to:
+  /// **'宣讲会'**
+  String get jobFairKeynote;
+
+  /// No description provided for @jobFairNoEvents.
+  ///
+  /// In zh, this message translates to:
+  /// **'本月暂无招聘会或宣讲会'**
+  String get jobFairNoEvents;
+
+  /// No description provided for @jobFairUnknownTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'未公布活动名称'**
+  String get jobFairUnknownTitle;
+
+  /// No description provided for @jobFairUnknownPlace.
+  ///
+  /// In zh, this message translates to:
+  /// **'地点待公布'**
+  String get jobFairUnknownPlace;
+
+  /// No description provided for @jobFairLoadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'招聘活动加载失败，请重试。'**
+  String get jobFairLoadFailed;
+
+  /// No description provided for @jobFairRefreshFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新失败，仍显示上次加载的活动。'**
+  String get jobFairRefreshFailed;
+
+  /// No description provided for @jobFairInvalidDetails.
+  ///
+  /// In zh, this message translates to:
+  /// **'该活动的官方详情地址无效。'**
+  String get jobFairInvalidDetails;
+
+  /// No description provided for @jobFairShowingPreviousMonth.
+  ///
+  /// In zh, this message translates to:
+  /// **'月份加载失败，仍显示上次成功加载的月份。'**
+  String get jobFairShowingPreviousMonth;
+
+  /// No description provided for @jobFairPartialData.
+  ///
+  /// In zh, this message translates to:
+  /// **'部分活动格式异常，已略过，请以官方公告为准。'**
+  String get jobFairPartialData;
 }
 
 class _AppLocalizationsDelegate

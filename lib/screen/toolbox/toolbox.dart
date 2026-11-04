@@ -98,6 +98,12 @@ class ToolboxPage extends HookWidget {
             AppRoutes.notice,
           ),
           (
+            Icons.work_outline,
+            l10n.jobFairTitle,
+            l10n.jobFairDescription,
+            AppRoutes.jobFair,
+          ),
+          (
             Icons.rate_review_outlined,
             l10n.evaluation,
             l10n.evaluationSubtitle,

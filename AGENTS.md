@@ -191,6 +191,10 @@ lib/
 
 - 保留 `android_alarm_manager_plus` 调度与 `flutter_local_notifications` 展示通知的插件实现，不恢复通知实验 stash 或新增原生调度层。通过现有 reminders MethodChannel 的只读 `deviceInfo` 读取 Android Build.MANUFACTURER / BRAND，归一化精确识别 Xiaomi、Redmi、POCO，仅显示 MIUI / HyperOS 后台本地通知限制及 root 后可尝试解除限制的提示，不按品牌强制关闭开关、取消计划、拦截授权或禁用开发者测试。品牌检测未完成或失败不得阻断提醒操作，所有设备继续正常授权与插件调度流程；不检测或自动修改 root 状态。开发者工具保留直接通知测试入口，不读取机型、不显示系统限制或 root 提示，也不附加品牌门槛。
 
+## 招聘会与宣讲会
+
+- `model/job_fair.dart`、`service/api/job_fair_service.dart` 和 `screen/toolbox/job_fair/job_fair_page.dart` 直接读取学校就业网的公开月度接口，不携带教务/SSO 凭据、不接入 west2 服务。支持月份选择、活动分类、未开始/往期、刷新和官方详情，时间按北京时间解释；失败保留上次数据并提示月份差异，部分坏记录提示略过，全量不可解析时报错，旧响应不得覆盖新选择。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。
