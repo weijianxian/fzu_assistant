@@ -195,6 +195,10 @@ lib/
 
 - `model/job_fair.dart`、`service/api/job_fair_service.dart` 和 `screen/toolbox/job_fair/job_fair_page.dart` 直接读取学校就业网的公开月度接口，不携带教务/SSO 凭据、不接入 west2 服务。支持月份选择、活动分类、未开始/往期、刷新和官方详情，时间按北京时间解释；失败保留上次数据并提示月份差异，部分坏记录提示略过，全量不可解析时报错，旧响应不得覆盖新选择。
 
+## 嘉锡讲坛原生查询
+
+- `model/lecture.dart`、`AcademicService.getLectures()` 和 `screen/toolbox/academic/lectures_page.dart` 直接读取教务处已报名讲座七列表格，复用教务 Cookie 与当前 identifier，支持 UTF-8/GBK、北京时间、刷新和官方页面回退。工具箱和教务快捷入口均进入原生页；未登录/缓存模式、会话失效、缺失表格与空报名列表分别处理，刷新失败保留旧数据，不接入 west2 服务。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。

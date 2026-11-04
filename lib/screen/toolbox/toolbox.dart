@@ -104,6 +104,12 @@ class ToolboxPage extends HookWidget {
             AppRoutes.jobFair,
           ),
           (
+            Icons.record_voice_over_outlined,
+            l10n.jiaxiLectures,
+            l10n.lecturesDescription,
+            AppRoutes.lectures,
+          ),
+          (
             Icons.rate_review_outlined,
             l10n.evaluation,
             l10n.evaluationSubtitle,

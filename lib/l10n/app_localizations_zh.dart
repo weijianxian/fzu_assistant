@@ -1577,4 +1577,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get jobFairPartialData => '部分活动格式异常，已略过，请以官方公告为准。';
+
+  @override
+  String get lecturesDescription => '查看已报名讲座及出勤情况，报名请前往教务处官方页面。';
+
+  @override
+  String get lecturesEmpty => '暂无已报名讲座';
+
+  @override
+  String get lecturesOpenOfficial => '打开官方页面报名 / 查看';
+
+  @override
+  String get lectureCategory => '类别';
+
+  @override
+  String get lectureIssueNumber => '期数';
+
+  @override
+  String get lectureSpeaker => '主讲人';
+
+  @override
+  String get lectureDateTime => '时间（北京）';
+
+  @override
+  String get lectureLocation => '地点';
+
+  @override
+  String get lectureAttendance => '出勤情况';
+
+  @override
+  String get lectureUnknown => '待公布';
+
+  @override
+  String get lectureUntitled => '未命名讲座';
 }

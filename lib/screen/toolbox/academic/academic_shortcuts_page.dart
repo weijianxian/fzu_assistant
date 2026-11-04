@@ -69,15 +69,25 @@ class AcademicShortcutsPage extends HookWidget {
                     margin: EdgeInsets.zero,
                     child: ListTile(
                       title: Text(entry.$1),
-                      trailing: const Icon(Icons.open_in_new),
-                      onTap: () => context.pushNamed(
-                        AppRoutes.webview,
-                        arguments: WebViewArgs(
-                          url:
-                              'https://jwcjwxt2.fzu.edu.cn:81/student/${entry.$2}',
-                          title: entry.$1,
-                        ),
+                      trailing: Icon(
+                        entry.$2 == 'glbm/lecture/jxjt_cszt.aspx'
+                            ? Icons.chevron_right
+                            : Icons.open_in_new,
                       ),
+                      onTap: () {
+                        if (entry.$2 == 'glbm/lecture/jxjt_cszt.aspx') {
+                          context.pushNamed(AppRoutes.lectures);
+                          return;
+                        }
+                        context.pushNamed(
+                          AppRoutes.webview,
+                          arguments: WebViewArgs(
+                            url:
+                                'https://jwcjwxt2.fzu.edu.cn:81/student/${entry.$2}',
+                            title: entry.$1,
+                          ),
+                        );
+                      },
                     ),
                   );
                 },

@@ -1085,5 +1085,16 @@
   "jobFairRefreshFailed": "Could not refresh. Previously loaded events are still shown.",
   "jobFairInvalidDetails": "This event has an invalid official details address.",
   "jobFairShowingPreviousMonth": "Could not load the selected month. The last successfully loaded month is still shown.",
-  "jobFairPartialData": "Some events could not be read and were skipped. Please check official announcements."
+  "jobFairPartialData": "Some events could not be read and were skipped. Please check official announcements.",
+  "lecturesDescription": "View registered lectures and attendance; register on the official academic website.",
+  "lecturesEmpty": "No registered lectures",
+  "lecturesOpenOfficial": "Register / view on official website",
+  "lectureCategory": "Category",
+  "lectureIssueNumber": "Issue",
+  "lectureSpeaker": "Speaker",
+  "lectureDateTime": "Time (Beijing)",
+  "lectureLocation": "Location",
+  "lectureAttendance": "Attendance",
+  "lectureUnknown": "To be announced",
+  "lectureUntitled": "Untitled lecture"
 }

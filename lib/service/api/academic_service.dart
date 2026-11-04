@@ -14,16 +14,20 @@ import 'package:fzu_assistant/model/evaluation.dart';
 import 'package:fzu_assistant/model/exam_room.dart';
 import 'package:fzu_assistant/model/gpa.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/lecture.dart';
 import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/html_helper.dart';
+import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 import 'package:fzu_assistant/service/api/user_service.dart';
 
 class AcademicService {
   static const cultivatePlanListUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/pyfa/pyjh/pyjh_list.aspx';
+  static const lecturesUrl =
+      'https://jwcjwxt2.fzu.edu.cn:81/student/glbm/lecture/jxjt_cszt.aspx';
 
   /// Match the user's cohort/college/major using the official WebForms page.
   Future<String> getCultivatePlan() async {
@@ -168,12 +172,121 @@ class AcademicService {
     return null;
   }
 
-  Future<Document> _fetch(String url) {
-    return HtmlHelper.fetchHtml(url, queryParameters: _idParam);
+  Future<Document> _fetch(String url, {bool allowGbkFallback = false}) async {
+    final doc = await HtmlHelper.fetchHtml(url, queryParameters: _idParam);
+    if (allowGbkFallback && doc.outerHtml.contains('\uFFFD')) {
+      // ASP.NET normally serves UTF-8; older deployments may still send GBK.
+      // Keep the shared session-expiry and evaluation checks on both paths.
+      final (gbkDoc, _) = await HtmlHelper.fetchHtmlGbk(
+        url,
+        queryParameters: _idParam,
+      );
+      return gbkDoc;
+    }
+    return doc;
   }
 
   Future<Document> _post(String url, Map<String, dynamic> data) {
     return HtmlHelper.postHtml(url, data: data, queryParameters: _idParam);
+  }
+
+  // ─── 嘉锡讲坛：已报名讲座 ───
+
+  Future<List<Lecture>> getLectures() async {
+    if (ApiClient.instance.usingCachedSession.value) {
+      throw Exception('当前为缓存模式，请重新登录后查询已报名讲座');
+    }
+    if (ApiClient.instance.userId == null) throw Exception('未登录');
+    final doc = await _fetch(lecturesUrl, allowGbkFallback: true);
+    return parseLectures(doc);
+  }
+
+  /// Parse the official seven-column table without relying on inline styles or
+  /// an exact number of spacer/title rows. A missing table is a failed query,
+  /// whereas a present table with no registrations is a valid empty result.
+  static List<Lecture> parseLectures(Document doc) {
+    if (SessionExpiryDetector.isHtml(doc.outerHtml) ||
+        doc.querySelector('input[type="password"]') != null) {
+      throw const SessionExpiredException();
+    }
+    final alertMessage = extractAlertMessage(doc);
+    if (alertMessage != null) throw Exception(alertMessage);
+    final table = doc.getElementById('ContentPlaceHolder1_DataList_xxk');
+    if (table == null) {
+      throw Exception('未找到已报名讲座表格，请在教务页面手动查看');
+    }
+
+    final lectures = <Lecture>[];
+    for (final row in table.querySelectorAll('tr')) {
+      var owner = row.parent;
+      while (owner != null && owner.localName != 'table') {
+        owner = owner.parent;
+      }
+      if (owner != table) continue;
+      final cells = row.children
+          .where((cell) => cell.localName == 'td' || cell.localName == 'th')
+          .toList();
+      if (cells.length < 7 || cells.any((cell) => cell.localName == 'th')) {
+        continue;
+      }
+      final values = cells.map((cell) => _lectureText(cell.text)).toList();
+      if (values.every((value) => value.isEmpty)) continue;
+      if (values[1].contains('期') &&
+          (values[0].contains('类别') ||
+              values[0].contains('分类') ||
+              (values[2].contains('题目') && values[3].contains('主讲')))) {
+        continue;
+      }
+      lectures.add(
+        Lecture(
+          category: values[0],
+          issueNumber: int.tryParse(values[1]),
+          title: values[2],
+          speaker: values[3],
+          startTime: parseLectureDateTime(values[4]),
+          rawDateTime: values[4],
+          location: values[5],
+          attendanceStatus: values[6],
+        ),
+      );
+    }
+    return lectures;
+  }
+
+  static String _lectureText(String text) =>
+      text.replaceAll(RegExp(r'[\s\u00a0\u3000]+'), ' ').trim();
+
+  /// Server dates have no zone suffix and always mean UTC+8. Validate every
+  /// component because DateTime otherwise normalizes dates such as February 30.
+  static DateTime? parseLectureDateTime(String raw) {
+    final match = RegExp(
+      r'^(\d{4})[-/](\d{1,2})[-/](\d{1,2})[ T]+'
+      r'(\d{1,2})[:：](\d{2})(?:[:：](\d{2}))?$',
+    ).firstMatch(_lectureText(raw));
+    if (match == null) return null;
+    final year = int.parse(match[1]!);
+    final month = int.parse(match[2]!);
+    final day = int.parse(match[3]!);
+    final hour = int.parse(match[4]!);
+    final minute = int.parse(match[5]!);
+    final second = int.parse(match[6] ?? '0');
+    if (year < 1 ||
+        month < 1 ||
+        month > 12 ||
+        day < 1 ||
+        day > 31 ||
+        hour > 23 ||
+        minute > 59 ||
+        second > 59) {
+      return null;
+    }
+    final wallClock = DateTime.utc(year, month, day, hour, minute, second);
+    if (wallClock.year != year ||
+        wallClock.month != month ||
+        wallClock.day != day) {
+      return null;
+    }
+    return wallClock.subtract(const Duration(hours: 8));
   }
 
   // ─── GPA ───

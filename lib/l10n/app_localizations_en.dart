@@ -1682,4 +1682,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get jobFairPartialData =>
       'Some events could not be read and were skipped. Please check official announcements.';
+
+  @override
+  String get lecturesDescription =>
+      'View registered lectures and attendance; register on the official academic website.';
+
+  @override
+  String get lecturesEmpty => 'No registered lectures';
+
+  @override
+  String get lecturesOpenOfficial => 'Register / view on official website';
+
+  @override
+  String get lectureCategory => 'Category';
+
+  @override
+  String get lectureIssueNumber => 'Issue';
+
+  @override
+  String get lectureSpeaker => 'Speaker';
+
+  @override
+  String get lectureDateTime => 'Time (Beijing)';
+
+  @override
+  String get lectureLocation => 'Location';
+
+  @override
+  String get lectureAttendance => 'Attendance';
+
+  @override
+  String get lectureUnknown => 'To be announced';
+
+  @override
+  String get lectureUntitled => 'Untitled lecture';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/toolbox/academic/lectures_page.dart';
 import 'package:fzu_assistant/screen/toolbox/job_fair/job_fair_page.dart';
 import 'package:fzu_assistant/screen/toolbox/utility_payment/utility_payment_page.dart';
 import 'package:fzu_assistant/screen/toolbox/paper/papers_page.dart';
@@ -58,6 +59,7 @@ abstract final class AppRouter {
     AppRoutes.emptyRoom: (_) => const EmptyRoomPage(),
     AppRoutes.notice: (_) => const NoticePage(),
     AppRoutes.jobFair: (_) => const JobFairPage(),
+    AppRoutes.lectures: (_) => const LecturesPage(),
     AppRoutes.evaluation: (_) => const EvaluationPage(),
     AppRoutes.academicShortcuts: (_) => const AcademicShortcutsPage(),
     AppRoutes.cultivatePlan: (_) => const CultivatePlanPage(),

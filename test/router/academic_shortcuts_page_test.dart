@@ -7,9 +7,10 @@ import 'package:fzu_assistant/screen/toolbox/academic/academic_shortcuts_page.da
 void main() {
   for (final locale in ['zh', 'en']) {
     testWidgets(
-      'academic links preserve login injection and page title ($locale)',
+      'academic web links preserve login injection and Jiaxi opens natively ($locale)',
       (tester) async {
         WebViewArgs? args;
+        RouteSettings? openedRoute;
         await tester.pumpWidget(
           MaterialApp(
             locale: Locale(locale),
@@ -17,11 +18,13 @@ void main() {
             supportedLocales: AppLocalizations.supportedLocales,
             home: const AcademicShortcutsPage(),
             onGenerateRoute: (settings) {
-              expect(settings.name, AppRoutes.webview);
-              args = settings.arguments as WebViewArgs;
+              openedRoute = settings;
+              args = settings.name == AppRoutes.webview
+                  ? settings.arguments as WebViewArgs
+                  : null;
               return MaterialPageRoute<void>(
                 builder: (_) =>
-                    const Scaffold(body: Text('webview-placeholder')),
+                    const Scaffold(body: Text('destination-placeholder')),
               );
             },
           ),
@@ -31,6 +34,7 @@ void main() {
         final l10n = AppLocalizations.of(context)!;
         await tester.tap(find.text(l10n.evalTabXqxk));
         await tester.pumpAndSettle();
+        expect(openedRoute!.name, AppRoutes.webview);
         expect(
           args!.url,
           'https://jwcjwxt2.fzu.edu.cn:81/student/glxk/xqxk/xqxk_cszt.aspx',
@@ -42,12 +46,9 @@ void main() {
         await tester.scrollUntilVisible(find.text(l10n.jiaxiLectures), 250);
         await tester.tap(find.text(l10n.jiaxiLectures));
         await tester.pumpAndSettle();
-        expect(
-          args!.url,
-          'https://jwcjwxt2.fzu.edu.cn:81/student/glbm/lecture/jxjt_cszt.aspx',
-        );
-        expect(args!.title, l10n.jiaxiLectures);
-        expect(args!.injectCookies, isTrue);
+        expect(openedRoute!.name, AppRoutes.lectures);
+        expect(openedRoute!.arguments, isNull);
+        expect(args, isNull);
         expect(tester.takeException(), isNull);
       },
     );

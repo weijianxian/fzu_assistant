@@ -3127,6 +3127,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'部分活动格式异常，已略过，请以官方公告为准。'**
   String get jobFairPartialData;
+
+  /// No description provided for @lecturesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看已报名讲座及出勤情况，报名请前往教务处官方页面。'**
+  String get lecturesDescription;
+
+  /// No description provided for @lecturesEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无已报名讲座'**
+  String get lecturesEmpty;
+
+  /// No description provided for @lecturesOpenOfficial.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开官方页面报名 / 查看'**
+  String get lecturesOpenOfficial;
+
+  /// No description provided for @lectureCategory.
+  ///
+  /// In zh, this message translates to:
+  /// **'类别'**
+  String get lectureCategory;
+
+  /// No description provided for @lectureIssueNumber.
+  ///
+  /// In zh, this message translates to:
+  /// **'期数'**
+  String get lectureIssueNumber;
+
+  /// No description provided for @lectureSpeaker.
+  ///
+  /// In zh, this message translates to:
+  /// **'主讲人'**
+  String get lectureSpeaker;
+
+  /// No description provided for @lectureDateTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'时间（北京）'**
+  String get lectureDateTime;
+
+  /// No description provided for @lectureLocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'地点'**
+  String get lectureLocation;
+
+  /// No description provided for @lectureAttendance.
+  ///
+  /// In zh, this message translates to:
+  /// **'出勤情况'**
+  String get lectureAttendance;
+
+  /// No description provided for @lectureUnknown.
+  ///
+  /// In zh, this message translates to:
+  /// **'待公布'**
+  String get lectureUnknown;
+
+  /// No description provided for @lectureUntitled.
+  ///
+  /// In zh, this message translates to:
+  /// **'未命名讲座'**
+  String get lectureUntitled;
 }
 
 class _AppLocalizationsDelegate
