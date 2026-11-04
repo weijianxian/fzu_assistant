@@ -1610,4 +1610,74 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lectureUntitled => '未命名讲座';
+
+  @override
+  String get papersDownloadDescription => '下载到应用目录后，可打开或分享文件。';
+
+  @override
+  String get papersDownloadLocal => '下载到本地';
+
+  @override
+  String get papersDownloadPreparing => '正在获取下载地址';
+
+  @override
+  String get papersDownloading => '正在下载';
+
+  @override
+  String get papersDownloadComplete => '下载完成';
+
+  @override
+  String get papersDownloadCancelled => '下载已取消';
+
+  @override
+  String get papersDownloadFailed => '下载失败，请重试或在浏览器中打开';
+
+  @override
+  String get papersDownloadInvalidFile => '试卷路径或文件名无效';
+
+  @override
+  String get papersDownloadIncomplete => '文件不完整，请重新下载';
+
+  @override
+  String get papersDownloadCleanupFailed => '无法清理未完成的文件，请检查应用存储后重试';
+
+  @override
+  String get papersOpenFile => '打开文件';
+
+  @override
+  String get papersShareFile => '分享文件';
+
+  @override
+  String get papersOpenFolder => '打开所在文件夹';
+
+  @override
+  String get papersCopyLocalPath => '复制本地路径';
+
+  @override
+  String get papersLocalOpenFailed => '无法打开文件，可分享文件或在浏览器中打开';
+
+  @override
+  String get papersShareFailed => '此设备无法分享该文件，可复制本地路径或在浏览器中打开';
+
+  @override
+  String get papersByteUnit => 'B';
+
+  @override
+  String get papersKibibyteUnit => 'KiB';
+
+  @override
+  String get papersMebibyteUnit => 'MiB';
+
+  @override
+  String get papersGibibyteUnit => 'GiB';
+
+  @override
+  String papersDownloadBytes(String received) {
+    return '已下载 $received';
+  }
+
+  @override
+  String papersDownloadProgress(String received, String total, String percent) {
+    return '$received / $total · $percent';
+  }
 }

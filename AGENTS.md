@@ -5,6 +5,7 @@
 ## 技术栈
 
 - Flutter 3.47.6 + Dart 3.x
+- open_filex（Android/iOS 文件打开）、share_plus（原生文件分享；Linux 使用文件目录/路径回退）
 - android_alarm_manager_plus（Android 精确闹钟、独立后台 Dart 回调和重启恢复）、flutter_local_notifications（通知展示与锁屏公开内容）
 - flutter_hooks（HookWidget / useState / useEffect / useMemoized）
 - flutter_svg（登录页 SVG 角色插画）
@@ -198,6 +199,10 @@ lib/
 ## 嘉锡讲坛原生查询
 
 - `model/lecture.dart`、`AcademicService.getLectures()` 和 `screen/toolbox/academic/lectures_page.dart` 直接读取教务处已报名讲座七列表格，复用教务 Cookie 与当前 identifier，支持 UTF-8/GBK、北京时间、刷新和官方页面回退。工具箱和教务快捷入口均进入原生页；未登录/缓存模式、会话失效、缺失表格与空报名列表分别处理，刷新失败保留旧数据，不接入 west2 服务。
+
+## 历年卷应用内下载
+
+- `service/paper_download_service.dart`、`screen/toolbox/paper/paper_download_sheet.dart` 和 `paper_file_actions.dart` 在原有 papersAccess 授权下提供下载进度、取消/重试、本地打开和分享。每次操作重新获取动态下载地址，独立无凭据客户端最多跟随五次 HTTP(S) 重定向，撤回授权立即取消且重新允许不能恢复旧任务。文件写入应用私有目录的独立子目录，使用 .part、完整性检查和失败清理，禁止路径穿越、保留文件名或覆盖已有文件。新增 open_filex 和 share_plus：Android/iOS 使用原生文件打开，桌面使用 file URI；Linux 不显示文件分享，桌面提供打开目录和复制本地路径。
 
 ## 编码规范
 

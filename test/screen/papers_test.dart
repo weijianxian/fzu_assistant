@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/toolbox/paper/paper_download_sheet.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
@@ -112,7 +113,8 @@ void main() {
     await tester.tap(find.text('2025数学.pdf'));
     await tester.pumpAndSettle();
     expect(service.downloads, 1);
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(PaperDownloadSheet), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
     settings.papersAccess.value = FeatureAccess.hide;
     await tester.pumpAndSettle();
     expect(find.text('2025数学.pdf'), findsNothing);

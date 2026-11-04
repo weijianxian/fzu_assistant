@@ -1716,4 +1716,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lectureUntitled => 'Untitled lecture';
+
+  @override
+  String get papersDownloadDescription =>
+      'Download to the app folder, then open or share the file.';
+
+  @override
+  String get papersDownloadLocal => 'Download file';
+
+  @override
+  String get papersDownloadPreparing => 'Getting download link';
+
+  @override
+  String get papersDownloading => 'Downloading';
+
+  @override
+  String get papersDownloadComplete => 'Download complete';
+
+  @override
+  String get papersDownloadCancelled => 'Download cancelled';
+
+  @override
+  String get papersDownloadFailed =>
+      'Download failed. Retry or open in your browser.';
+
+  @override
+  String get papersDownloadInvalidFile => 'Invalid paper path or file name';
+
+  @override
+  String get papersDownloadIncomplete =>
+      'The file is incomplete. Please download it again.';
+
+  @override
+  String get papersDownloadCleanupFailed =>
+      'Unable to remove the unfinished file. Check app storage and retry.';
+
+  @override
+  String get papersOpenFile => 'Open file';
+
+  @override
+  String get papersShareFile => 'Share file';
+
+  @override
+  String get papersOpenFolder => 'Open containing folder';
+
+  @override
+  String get papersCopyLocalPath => 'Copy local path';
+
+  @override
+  String get papersLocalOpenFailed =>
+      'Unable to open the file. Share it or open it in your browser.';
+
+  @override
+  String get papersShareFailed =>
+      'File sharing is unavailable. Copy the local path or open it in your browser.';
+
+  @override
+  String get papersByteUnit => 'B';
+
+  @override
+  String get papersKibibyteUnit => 'KiB';
+
+  @override
+  String get papersMebibyteUnit => 'MiB';
+
+  @override
+  String get papersGibibyteUnit => 'GiB';
+
+  @override
+  String papersDownloadBytes(String received) {
+    return '$received downloaded';
+  }
+
+  @override
+  String papersDownloadProgress(String received, String total, String percent) {
+    return '$received / $total · $percent';
+  }
 }

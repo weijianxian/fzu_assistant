@@ -1096,5 +1096,47 @@
   "lectureLocation": "地点",
   "lectureAttendance": "出勤情况",
   "lectureUnknown": "待公布",
-  "lectureUntitled": "未命名讲座"
+  "lectureUntitled": "未命名讲座",
+  "papersDownloadDescription": "下载到应用目录后，可打开或分享文件。",
+  "papersDownloadLocal": "下载到本地",
+  "papersDownloadPreparing": "正在获取下载地址",
+  "papersDownloading": "正在下载",
+  "papersDownloadComplete": "下载完成",
+  "papersDownloadCancelled": "下载已取消",
+  "papersDownloadFailed": "下载失败，请重试或在浏览器中打开",
+  "papersDownloadInvalidFile": "试卷路径或文件名无效",
+  "papersDownloadIncomplete": "文件不完整，请重新下载",
+  "papersDownloadCleanupFailed": "无法清理未完成的文件，请检查应用存储后重试",
+  "papersOpenFile": "打开文件",
+  "papersShareFile": "分享文件",
+  "papersOpenFolder": "打开所在文件夹",
+  "papersCopyLocalPath": "复制本地路径",
+  "papersLocalOpenFailed": "无法打开文件，可分享文件或在浏览器中打开",
+  "papersShareFailed": "此设备无法分享该文件，可复制本地路径或在浏览器中打开",
+  "papersByteUnit": "B",
+  "papersKibibyteUnit": "KiB",
+  "papersMebibyteUnit": "MiB",
+  "papersGibibyteUnit": "GiB",
+  "papersDownloadBytes": "已下载 {received}",
+  "@papersDownloadBytes": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      }
+    }
+  },
+  "papersDownloadProgress": "{received} / {total} · {percent}",
+  "@papersDownloadProgress": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  }
 }

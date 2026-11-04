@@ -1096,5 +1096,47 @@
   "lectureLocation": "Location",
   "lectureAttendance": "Attendance",
   "lectureUnknown": "To be announced",
-  "lectureUntitled": "Untitled lecture"
+  "lectureUntitled": "Untitled lecture",
+  "papersDownloadDescription": "Download to the app folder, then open or share the file.",
+  "papersDownloadLocal": "Download file",
+  "papersDownloadPreparing": "Getting download link",
+  "papersDownloading": "Downloading",
+  "papersDownloadComplete": "Download complete",
+  "papersDownloadCancelled": "Download cancelled",
+  "papersDownloadFailed": "Download failed. Retry or open in your browser.",
+  "papersDownloadInvalidFile": "Invalid paper path or file name",
+  "papersDownloadIncomplete": "The file is incomplete. Please download it again.",
+  "papersDownloadCleanupFailed": "Unable to remove the unfinished file. Check app storage and retry.",
+  "papersOpenFile": "Open file",
+  "papersShareFile": "Share file",
+  "papersOpenFolder": "Open containing folder",
+  "papersCopyLocalPath": "Copy local path",
+  "papersLocalOpenFailed": "Unable to open the file. Share it or open it in your browser.",
+  "papersShareFailed": "File sharing is unavailable. Copy the local path or open it in your browser.",
+  "papersByteUnit": "B",
+  "papersKibibyteUnit": "KiB",
+  "papersMebibyteUnit": "MiB",
+  "papersGibibyteUnit": "GiB",
+  "papersDownloadBytes": "{received} downloaded",
+  "@papersDownloadBytes": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      }
+    }
+  },
+  "papersDownloadProgress": "{received} / {total} · {percent}",
+  "@papersDownloadProgress": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  }
 }

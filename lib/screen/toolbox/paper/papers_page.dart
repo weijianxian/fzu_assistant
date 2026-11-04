@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
+import 'package:fzu_assistant/screen/toolbox/paper/paper_download_sheet.dart';
 import 'package:fzu_assistant/service/api/paper_service.dart';
+import 'package:fzu_assistant/service/paper_download_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PapersPage extends HookWidget {
   const PapersPage({super.key, this.path = '/', this.service});
@@ -75,6 +75,11 @@ class _AllowedPapersPage extends HookWidget {
       [service, settings],
     );
     useEffect(() => service == null ? api.close : null, [api]);
+    final downloads = useMemoized(
+      () => PaperDownloadService(access: settings.papersAccess, api: api),
+      [api, settings],
+    );
+    useEffect(() => downloads.close, [downloads]);
     final state = useAsyncData(() => api.list(path));
     final search = useTextEditingController();
     useListenable(search);
@@ -90,100 +95,13 @@ class _AllowedPapersPage extends HookWidget {
       if (busy.value) return;
       busy.value = true;
       try {
-        final uri = await api.download(
-          PaperService.childPath(path, entry.name),
-        );
-        if (!context.mounted ||
-            settings.papersAccess.value != FeatureAccess.allow) {
-          return;
-        }
-        busy.value = false;
-        await showDialog<void>(
+        await showAppBottomSheet<void>(
           context: context,
-          builder: (dialogContext) => ValueListenableBuilder<FeatureAccess>(
-            valueListenable: settings.papersAccess,
-            builder: (_, access, _) {
-              if (access != FeatureAccess.allow) {
-                return AlertDialog(
-                  title: Text(l10n.pastPapers),
-                  content: Text(l10n.thirdPartyDisabled),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                      child: Text(l10n.learningCancel),
-                    ),
-                  ],
-                );
-              }
-              return AlertDialog(
-                title: Text(entry.name),
-                content: Text(l10n.papersOpenDescription),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(),
-                    child: Text(l10n.learningCancel),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      if (settings.papersAccess.value != FeatureAccess.allow) {
-                        Navigator.of(dialogContext).pop();
-                        return;
-                      }
-                      try {
-                        await Clipboard.setData(
-                          ClipboardData(text: uri.toString()),
-                        );
-                        if (dialogContext.mounted) {
-                          Navigator.of(dialogContext).pop();
-                        }
-                        if (context.mounted &&
-                            settings.papersAccess.value ==
-                                FeatureAccess.allow) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text(l10n.copied)));
-                        }
-                      } catch (error) {
-                        if (context.mounted &&
-                            settings.papersAccess.value ==
-                                FeatureAccess.allow) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(error.toString())),
-                          );
-                        }
-                      }
-                    },
-                    child: Text(l10n.copyLink),
-                  ),
-                  FilledButton(
-                    onPressed: () async {
-                      Navigator.of(dialogContext).pop();
-                      if (settings.papersAccess.value != FeatureAccess.allow) {
-                        return;
-                      }
-                      try {
-                        final opened = await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                        if (!opened && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.papersOpenFailed)),
-                          );
-                        }
-                      } catch (_) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.papersOpenFailed)),
-                          );
-                        }
-                      }
-                    },
-                    child: Text(l10n.openInBrowser),
-                  ),
-                ],
-              );
-            },
+          builder: (_) => PaperDownloadSheet(
+            path: PaperService.childPath(path, entry.name),
+            name: entry.name,
+            service: downloads,
+            access: settings.papersAccess,
           ),
         );
       } catch (error) {
@@ -245,7 +163,6 @@ class _AllowedPapersPage extends HookWidget {
                 child: Text(l10n.retry),
               ),
             ),
-          if (busy.value) const LinearProgressIndicator(),
           Expanded(
             child: ToolPageWrapper(
               loading: state.loading,
@@ -268,7 +185,7 @@ class _AllowedPapersPage extends HookWidget {
                       trailing: Icon(
                         entry.isFolder
                             ? Icons.chevron_right
-                            : Icons.open_in_new,
+                            : Icons.download_outlined,
                       ),
                       onTap: busy.value
                           ? null

@@ -3193,6 +3193,138 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'未命名讲座'**
   String get lectureUntitled;
+
+  /// No description provided for @papersDownloadDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载到应用目录后，可打开或分享文件。'**
+  String get papersDownloadDescription;
+
+  /// No description provided for @papersDownloadLocal.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载到本地'**
+  String get papersDownloadLocal;
+
+  /// No description provided for @papersDownloadPreparing.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在获取下载地址'**
+  String get papersDownloadPreparing;
+
+  /// No description provided for @papersDownloading.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在下载'**
+  String get papersDownloading;
+
+  /// No description provided for @papersDownloadComplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载完成'**
+  String get papersDownloadComplete;
+
+  /// No description provided for @papersDownloadCancelled.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载已取消'**
+  String get papersDownloadCancelled;
+
+  /// No description provided for @papersDownloadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载失败，请重试或在浏览器中打开'**
+  String get papersDownloadFailed;
+
+  /// No description provided for @papersDownloadInvalidFile.
+  ///
+  /// In zh, this message translates to:
+  /// **'试卷路径或文件名无效'**
+  String get papersDownloadInvalidFile;
+
+  /// No description provided for @papersDownloadIncomplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'文件不完整，请重新下载'**
+  String get papersDownloadIncomplete;
+
+  /// No description provided for @papersDownloadCleanupFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法清理未完成的文件，请检查应用存储后重试'**
+  String get papersDownloadCleanupFailed;
+
+  /// No description provided for @papersOpenFile.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开文件'**
+  String get papersOpenFile;
+
+  /// No description provided for @papersShareFile.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享文件'**
+  String get papersShareFile;
+
+  /// No description provided for @papersOpenFolder.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开所在文件夹'**
+  String get papersOpenFolder;
+
+  /// No description provided for @papersCopyLocalPath.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制本地路径'**
+  String get papersCopyLocalPath;
+
+  /// No description provided for @papersLocalOpenFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开文件，可分享文件或在浏览器中打开'**
+  String get papersLocalOpenFailed;
+
+  /// No description provided for @papersShareFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'此设备无法分享该文件，可复制本地路径或在浏览器中打开'**
+  String get papersShareFailed;
+
+  /// No description provided for @papersByteUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'B'**
+  String get papersByteUnit;
+
+  /// No description provided for @papersKibibyteUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'KiB'**
+  String get papersKibibyteUnit;
+
+  /// No description provided for @papersMebibyteUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'MiB'**
+  String get papersMebibyteUnit;
+
+  /// No description provided for @papersGibibyteUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'GiB'**
+  String get papersGibibyteUnit;
+
+  /// No description provided for @papersDownloadBytes.
+  ///
+  /// In zh, this message translates to:
+  /// **'已下载 {received}'**
+  String papersDownloadBytes(String received);
+
+  /// No description provided for @papersDownloadProgress.
+  ///
+  /// In zh, this message translates to:
+  /// **'{received} / {total} · {percent}'**
+  String papersDownloadProgress(String received, String total, String percent);
 }
 
 class _AppLocalizationsDelegate
