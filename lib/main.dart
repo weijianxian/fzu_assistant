@@ -11,6 +11,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_router.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/app_shortcut_service.dart';
 import 'package:fzu_assistant/service/desktop_window.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
@@ -18,6 +19,7 @@ import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppShortcutService.instance.initialize();
   await DesktopWindow.instance.initialize();
   await initWebViewEnvironment();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

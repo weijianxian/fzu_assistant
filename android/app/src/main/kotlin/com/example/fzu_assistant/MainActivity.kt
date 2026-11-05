@@ -13,9 +13,12 @@ import java.io.File
 class MainActivity : FlutterActivity() {
     private val channelName = "com.weijx.fzu_assistant/update"
     private var notificationPermissionResult: MethodChannel.Result? = null
+    private var shortcutBridge: AppShortcutBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        shortcutBridge = AppShortcutBridge(this, flutterEngine.dartExecutor.binaryMessenger)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.weijx.fzu_assistant/permissions")
             .setMethodCallHandler { call, result ->
@@ -121,6 +124,12 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        shortcutBridge?.onNewIntent(intent)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

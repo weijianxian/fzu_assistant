@@ -204,6 +204,10 @@ lib/
 
 - `service/paper_download_service.dart`、`screen/toolbox/paper/paper_download_sheet.dart` 和 `paper_file_actions.dart` 在原有 papersAccess 授权下提供下载进度、取消/重试、本地打开和分享。每次操作重新获取动态下载地址，独立无凭据客户端最多跟随五次 HTTP(S) 重定向，撤回授权立即取消且重新允许不能恢复旧任务。文件写入应用私有目录的独立子目录，使用 .part、完整性检查和失败清理，禁止路径穿越、保留文件名或覆盖已有文件。新增 open_filex 和 share_plus：Android/iOS 使用原生文件打开，桌面使用 file URI；Linux 不显示文件分享，桌面提供打开目录和复制本地路径。
 
+## 一码通应用图标快捷操作
+
+- `service/app_shortcut_service.dart` 对接 Android `AppShortcutBridge.kt` 和 iOS `AppDelegate.swift` / `SceneDelegate.swift`，动态注册唯一一码通快捷操作，通过正常登录流程后由 Home 切换一码通 Tab；冷/热启动操作等待登录后消费，恢复 Activity 不重复消费，未知 iOS 操作转交原有生命周期。语言随应用文案更新，不持久化二维码或登录数据。Android 的同一桥接也接收小组件打开课表操作。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。

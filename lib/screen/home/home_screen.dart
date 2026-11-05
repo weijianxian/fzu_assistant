@@ -14,6 +14,7 @@ import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
 import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/app_shortcut_service.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 import 'package:fzu_assistant/common/widget/layout/app_top_banner.dart';
 
@@ -29,6 +30,34 @@ class HomeScreen extends HookWidget {
     final api = ApiClient.instance;
     final cachedSession = useValueListenable(api.usingCachedSession);
     final reconnecting = useState(false);
+    useEffect(() {
+      final shortcuts = AppShortcutService.instance;
+      void openShortcut() {
+        final action = shortcuts.consumePendingAction(
+          authenticated: api.studentId?.isNotEmpty == true,
+        );
+        if (action == null) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted || api.studentId?.isNotEmpty != true) return;
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).popUntil((route) => route.isFirst);
+          currentPage.value = action == AppShortcutAction.campusCode ? 2 : 0;
+          if (action == AppShortcutAction.schedule) jumpToWeekTrigger.value++;
+        });
+      }
+
+      shortcuts.pendingAction.addListener(openShortcut);
+      openShortcut();
+      return () => shortcuts.pendingAction.removeListener(openShortcut);
+    }, [api]);
+    useEffect(() {
+      unawaited(
+        AppShortcutService.instance.updateLabels(campusCode: l10n.campusCode),
+      );
+      return null;
+    }, [l10n.campusCode]);
     useEffect(() {
       if (!CourseReminderService.supported) return null;
       final inputs = <Listenable>[
