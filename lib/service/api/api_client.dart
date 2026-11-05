@@ -12,6 +12,8 @@ import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
+import 'package:fzu_assistant/service/next_course_widget_service.dart';
+import 'package:fzu_assistant/service/widget_sync_service.dart';
 import 'package:fzu_assistant/service/captcha_solver.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 import 'package:html/parser.dart' as html_parser;
@@ -50,6 +52,10 @@ class ApiClient {
   String? _userId;
   String? _studentId;
   final usingCachedSession = ValueNotifier(false);
+
+  /// Background refreshes use an ephemeral session so an in-flight login cannot
+  /// restore credentials or cookies after the foreground account has logged out.
+  bool persistAcademicSession = true;
 
   Dio get dio => _dio;
   CookieJar get cookieJar => _cookieJar;
@@ -161,11 +167,13 @@ class ApiClient {
     final cookies = await _cookieJar.loadForRequest(
       Uri.parse(_urls['studentInfo']!),
     );
-    await AuthStorage().saveAcademicSession({
-      'studentId': user,
-      'userId': userId,
-      'cookies': cookies.map((cookie) => cookie.toString()).toList(),
-    });
+    if (persistAcademicSession) {
+      await AuthStorage().saveAcademicSession({
+        'studentId': user,
+        'userId': userId,
+        'cookies': cookies.map((cookie) => cookie.toString()).toList(),
+      });
+    }
   }
 
   /// 仅恢复同一已保存账号的历史会话。旧 identifier 不用于网络请求。
@@ -286,10 +294,12 @@ class ApiClient {
   ///
   /// 课程/考场缓存只按学期分片、不含账号维度，不清会读到上一个账号的数据。
   Future<void> clearSession() async {
+    await WidgetSyncService.instance.cancel();
     await CourseReminderService.instance.cancel();
     usingCachedSession.value = false;
     _studentId = null;
     _userId = null;
+    await NextCourseWidgetService.instance.clear();
     await _cookieJar.deleteAll();
     await AuthStorage().clearAcademicSession();
     await CacheHelper.removeAll(SpKeys.userScopedCacheKeys);

@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../fixtures/next_course_widget_channel.dart';
 import '../../fixtures/reminder_channel.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -19,6 +23,7 @@ import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
 import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +45,7 @@ Widget _app(
 );
 
 void main() {
+  late List<MethodCall> widgetCalls;
   testWidgets('空教室横屏矮窗口查询条件可滚动且不溢出', (tester) async {
     tester.view.physicalSize = const Size(640, 280);
     tester.view.devicePixelRatio = 1;
@@ -66,10 +72,54 @@ void main() {
 
   setUp(() async {
     mockReminderChannel();
+    widgetCalls = mockNextCourseWidgetChannel();
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
     await ApiClient.instance.clearSession();
   });
+
+  test('widget cleanup does not retain a completed write from an old zone', () async {
+    final oldMicrotasks = <void Function()>[];
+    final oldZone = Zone.current.fork(
+      specification: ZoneSpecification(
+        scheduleMicrotask: (self, parent, zone, task) {
+          oldMicrotasks.add(() => zone.run(task));
+        },
+      ),
+    );
+    final service = oldZone.run(NextCourseWidgetService.new);
+    addTearDown(service.error.dispose);
+    addTearDown(service.snapshot.dispose);
+    widgetCalls.clear();
+
+    void flushOldMicrotasks() {
+      for (var i = 0; oldMicrotasks.isNotEmpty && i < 1000; i++) {
+        oldMicrotasks.removeAt(0)();
+      }
+      expect(oldMicrotasks, isEmpty);
+    }
+
+    var firstCompleted = false;
+    oldZone.run(() {
+      unawaited(
+        service.clear().then<void>((_) {
+          firstCompleted = true;
+        }),
+      );
+    });
+    flushOldMicrotasks();
+    expect(firstCompleted, isTrue);
+
+    // Simulate the next widget test: the previous zone is no longer pumped.
+    final second = service.clear();
+    final scheduledIntoOldZone = oldMicrotasks.isNotEmpty;
+    // Drain before asserting, so the original bug fails without hanging tests.
+    flushOldMicrotasks();
+    await second;
+    expect(scheduledIntoOldZone, isFalse);
+    expect(widgetCalls.where((call) => call.method == 'clear'), hasLength(2));
+  });
+
   testWidgets(
     'portrait account management remains accessible when profile loading fails',
     (tester) async {
@@ -187,9 +237,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    widgetCalls.clear();
     await tester.tap(find.text('确定'));
     await tester.pumpAndSettle();
 
+    expect(widgetCalls.where((call) => call.method == 'clear'), hasLength(1));
     expect(find.text('Signed out'), findsOneWidget);
     expect(find.byType(MyPage), findsNothing);
     expect(find.byType(SplitNavigationPage), findsNothing);

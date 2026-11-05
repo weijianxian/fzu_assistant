@@ -1680,4 +1680,87 @@ class AppLocalizationsZh extends AppLocalizations {
   String papersDownloadProgress(String received, String total, String percent) {
     return '$received / $total · $percent';
   }
+
+  @override
+  String get nextCourseWidgetSettings => '桌面小组件';
+
+  @override
+  String get nextCourseWidgetDescription => '在桌面查看下一节课或本周课表，点击返回课表。';
+
+  @override
+  String get nextCourseWidgetAdd => '添加到桌面';
+
+  @override
+  String get nextCourseWidgetAddDescription => '由桌面确认添加；也可长按桌面，在小组件中选择福大助手。';
+
+  @override
+  String get nextCourseWidgetPinUnavailable => '当前桌面不支持直接添加，请长按桌面，从小组件列表添加。';
+
+  @override
+  String get nextCourseWidgetRefresh => '立即联网更新';
+
+  @override
+  String get nextCourseWidgetRefreshDescription => '登录教务处并刷新本地校历、课表和所有小组件。';
+
+  @override
+  String get nextCourseWidgetUpdated => '小组件已更新';
+
+  @override
+  String get nextCourseWidgetFailed => '小组件更新失败，请重试。';
+
+  @override
+  String get nextCourseWidgetPrivacy => '桌面会显示课程名称、时间和地点，退出教务账号后清空。';
+
+  @override
+  String get nextCourseWidgetMissing => '请先刷新校历和当前学期课表。';
+
+  @override
+  String get nextCourseWidgetUnsupported => '桌面小组件暂仅支持 Android。';
+
+  @override
+  String get widgetVariantCompact => '2×1';
+
+  @override
+  String get widgetVariantSquare => '2×2';
+
+  @override
+  String get widgetVariantTimetable => '周课表 4×4';
+
+  @override
+  String get widgetPreview => '小组件预览';
+
+  @override
+  String get widgetNextClass => '下一节课';
+
+  @override
+  String get widgetInProgress => '正在上课';
+
+  @override
+  String get widgetWeeklyTimetable => '本周课表';
+
+  @override
+  String widgetAddVariant(String variant) {
+    return '添加 $variant 小组件';
+  }
+
+  @override
+  String get widgetSyncEnabled => '夜间自动更新';
+
+  @override
+  String get widgetSyncDescription => '每天登录教务处，更新本地课表和桌面小组件。';
+
+  @override
+  String get widgetSyncTime => '自动更新时间';
+
+  @override
+  String get widgetSyncLastSuccess => '上次成功更新';
+
+  @override
+  String get widgetSyncNever => '尚未成功联网更新';
+
+  @override
+  String get widgetSyncNext => '下次自动更新';
+
+  @override
+  String get widgetSyncFailed => '联网更新失败，继续使用已有缓存，请重试。';
 }

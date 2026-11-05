@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
+import 'package:fzu_assistant/constants/sp_keys.dart';
 
 /// SharedPreferences 按 key 存取 JSON Map 的泛型工具。
 abstract final class CacheHelper {
@@ -11,6 +13,7 @@ abstract final class CacheHelper {
   /// 读取 [spKey] 对应的 JSON Map；不存在则返回空 Map。
   static Future<Map<String, dynamic>> loadMap(String spKey) async {
     final sp = await SharedPreferences.getInstance();
+    if (WidgetPreferenceBridge.nativeSupported) await sp.reload();
     final raw = sp.getString(spKey);
     if (raw == null) return {};
     return Map<String, dynamic>.from(jsonDecode(raw));
@@ -19,7 +22,7 @@ abstract final class CacheHelper {
   /// 将整个 [map] 写入 [spKey]。
   static Future<void> saveMap(String spKey, Map<String, dynamic> map) async {
     final sp = await SharedPreferences.getInstance();
-    await sp.setString(spKey, jsonEncode(map));
+    await WidgetPreferenceBridge.write(sp, spKey, jsonEncode(map));
     changes.value++;
   }
 
@@ -41,6 +44,18 @@ abstract final class CacheHelper {
     String termKey,
     dynamic value,
   ) async {
+    if (WidgetPreferenceBridge.nativeSupported &&
+        (spKey == SpKeys.cacheCoursesMap ||
+            spKey == SpKeys.cacheHolidayAdjustmentsMap)) {
+      await WidgetPreferenceBridge.writeCacheTerm(
+        await SharedPreferences.getInstance(),
+        spKey,
+        termKey,
+        jsonEncode(value),
+      );
+      changes.value++;
+      return;
+    }
     final map = await loadMap(spKey);
     map[termKey] = value;
     await saveMap(spKey, map);
@@ -50,7 +65,7 @@ abstract final class CacheHelper {
   static Future<void> removeAll(Iterable<String> spKeys) async {
     final sp = await SharedPreferences.getInstance();
     for (final key in spKeys) {
-      await sp.remove(key);
+      await WidgetPreferenceBridge.write(sp, key, null);
     }
     changes.value++;
   }

@@ -12,6 +12,7 @@ import 'package:fzu_assistant/screen/schedule/widgets/floating_schedule_controls
 import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/widget_sync_service.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class SchedulePage extends HookWidget {
@@ -122,6 +123,19 @@ class SchedulePage extends HookWidget {
         }
       }();
       return null;
+    }, []);
+
+    // 后台同步提交缓存后，刷新当前学期的课表。
+    useEffect(() {
+      void onWidgetCacheUpdated() {
+        final selected = settings.selectedSemesterKey.value;
+        final target = selected.isNotEmpty ? selected : currentTerm.value;
+        if (target.isNotEmpty) refresh(target);
+      }
+
+      WidgetSyncService.cacheUpdates.addListener(onWidgetCacheUpdated);
+      return () =>
+          WidgetSyncService.cacheUpdates.removeListener(onWidgetCacheUpdated);
     }, []);
 
     // 监听学期切换

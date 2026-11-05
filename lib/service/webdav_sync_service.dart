@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
+
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -635,13 +638,7 @@ class WebDavSyncService {
   }
 
   static Future<bool> _write(SharedPreferences sp, String key, Object? value) =>
-      switch (value) {
-        bool() => sp.setBool(key, value),
-        int() => sp.setInt(key, value),
-        String() => sp.setString(key, value),
-        null => sp.remove(key),
-        _ => throw const FormatException('不支持的设置类型'),
-      };
+      WidgetPreferenceBridge.write(sp, key, value);
 }
 
 /// Apply already validated data without binding a second set of SP listeners.

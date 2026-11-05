@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/custom_course.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
 
 /// Local user data stays separate from fetched academic caches and survives logout.
 class CustomCourseStore extends ValueNotifier<List<CustomCourse>> {
@@ -88,7 +89,8 @@ class CustomCourseStore extends ValueNotifier<List<CustomCourse>> {
 
   Future<void> _write(List<CustomCourse> courses) async {
     final preferences = await SharedPreferences.getInstance();
-    final saved = await preferences.setString(
+    final saved = await WidgetPreferenceBridge.write(
+      preferences,
       storageKey,
       jsonEncode(courses.map((course) => course.toJson()).toList()),
     );

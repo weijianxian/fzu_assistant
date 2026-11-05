@@ -148,6 +148,7 @@ class CourseService {
   Future<void> _saveCourseCache(String term, List<Course> courses) {
     return CacheHelper.saveForKey(SpKeys.cacheCoursesMap, term, {
       'courses': courses.map((c) => c.toJson()).toList(),
+      'updatedAt': DateTime.now().toUtc().millisecondsSinceEpoch,
     });
   }
 
@@ -218,6 +219,7 @@ class CourseService {
     String term, {
     bool useCache = true,
     bool west2AdjustmentsEnabled = false,
+    bool persistCache = true,
   }) async {
     // 先尝试缓存
     if (useCache || ApiClient.instance.usingCachedSession.value) {
@@ -252,7 +254,7 @@ class CourseService {
     );
 
     final table = doc.getElementById('ContentPlaceHolder1_DataList_xxk');
-    if (table == null) return [];
+    if (table == null) throw StateError('教务处未返回有效课表，请稍后重试');
 
     final rows = table.querySelectorAll('tbody > tr');
     if (rows.length <= 2) return [];
@@ -269,7 +271,7 @@ class CourseService {
     }
 
     // 写入缓存
-    await _saveCourseCache(term, courses);
+    if (persistCache) await _saveCourseCache(term, courses);
     return west2AdjustmentsEnabled
         ? _withHolidayAdjustments(term, courses, false)
         : courses;

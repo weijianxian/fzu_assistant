@@ -1792,4 +1792,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String papersDownloadProgress(String received, String total, String percent) {
     return '$received / $total · $percent';
   }
+
+  @override
+  String get nextCourseWidgetSettings => 'Home screen widgets';
+
+  @override
+  String get nextCourseWidgetDescription =>
+      'See your next class or weekly timetable on the home screen; tap to open your timetable.';
+
+  @override
+  String get nextCourseWidgetAdd => 'Add to home screen';
+
+  @override
+  String get nextCourseWidgetAddDescription =>
+      'Confirm with your launcher, or long-press the home screen and select FZU Assistant under Widgets.';
+
+  @override
+  String get nextCourseWidgetPinUnavailable =>
+      'This launcher cannot add widgets directly. Long-press the home screen and add it from the widget list.';
+
+  @override
+  String get nextCourseWidgetRefresh => 'Refresh from academic services';
+
+  @override
+  String get nextCourseWidgetRefreshDescription =>
+      'Sign in and refresh your cached calendar, timetable and all widgets.';
+
+  @override
+  String get nextCourseWidgetUpdated => 'Widget updated';
+
+  @override
+  String get nextCourseWidgetFailed =>
+      'Could not update the widget. Try again.';
+
+  @override
+  String get nextCourseWidgetPrivacy =>
+      'Class names, times and locations are visible on the home screen. Signing out of your academic account clears them.';
+
+  @override
+  String get nextCourseWidgetMissing =>
+      'Refresh your calendar and current term timetable first.';
+
+  @override
+  String get nextCourseWidgetUnsupported =>
+      'Home screen widgets are currently available on Android.';
+
+  @override
+  String get widgetVariantCompact => '2×1';
+
+  @override
+  String get widgetVariantSquare => '2×2';
+
+  @override
+  String get widgetVariantTimetable => 'Weekly 4×4';
+
+  @override
+  String get widgetPreview => 'Widget preview';
+
+  @override
+  String get widgetNextClass => 'Next class';
+
+  @override
+  String get widgetInProgress => 'In class';
+
+  @override
+  String get widgetWeeklyTimetable => 'This week';
+
+  @override
+  String widgetAddVariant(String variant) {
+    return 'Add $variant widget';
+  }
+
+  @override
+  String get widgetSyncEnabled => 'Automatic nightly refresh';
+
+  @override
+  String get widgetSyncDescription =>
+      'Sign in daily to update your cached timetable and home screen widgets.';
+
+  @override
+  String get widgetSyncTime => 'Automatic refresh time';
+
+  @override
+  String get widgetSyncLastSuccess => 'Last successful refresh';
+
+  @override
+  String get widgetSyncNever => 'No successful online refresh yet';
+
+  @override
+  String get widgetSyncNext => 'Next automatic refresh';
+
+  @override
+  String get widgetSyncFailed =>
+      'Online refresh failed. Your existing cache is still available; try again.';
 }

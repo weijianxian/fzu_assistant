@@ -1,0 +1,344 @@
+import 'dart:convert';
+import 'dart:ui';
+
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:fzu_assistant/constants/sp_keys.dart';
+import 'package:fzu_assistant/model/calendar.dart';
+import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/service/android_task_scheduler.dart';
+import 'package:fzu_assistant/service/widget_sync_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  final now = DateTime.utc(2026, 11, 5, 15);
+  const term = CalTerm(
+    termId: '2026012026090120270120',
+    schoolYear: '2026',
+    term: '202601',
+    startDate: '2026-09-01',
+    endDate: '2027-01-20',
+  );
+  final calendar = SchoolCalendar(currentTerm: '202601', terms: [term]);
+  final calls = <MethodCall>[];
+  Map<String, dynamic>? commit;
+  var accepted = true;
+  var valid = true;
+
+  setUp(() {
+    calls.clear();
+    commit = null;
+    accepted = true;
+    valid = true;
+    SharedPreferences.setMockInitialValues({
+      SpKeys.cacheCoursesMap: jsonEncode({
+        '202601': {'courses': [], 'updatedAt': 1},
+        '202501': {'courses': []},
+      }),
+    });
+    messenger.setMockMethodCallHandler(WidgetSyncService.channel, (call) async {
+      calls.add(call);
+      if (call.method == 'prepare') {
+        return valid
+            ? {
+                'baseline': {'flutter.cache_courses_map': 'captured'},
+              }
+            : null;
+      }
+      if (call.method == 'commit') {
+        commit = Map<String, dynamic>.from(call.arguments as Map);
+        return accepted;
+      }
+      return null;
+    });
+  });
+
+  tearDown(() {
+    messenger.setMockMethodCallHandler(WidgetSyncService.channel, null);
+    messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, null);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  test(
+    'nightly exact alarm uses Beijing time across midnight and year end',
+    () {
+      expect(
+        AndroidTaskScheduler.nextWidgetSync(
+          DateTime.utc(2026, 11, 5, 14, 59),
+          23 * 60,
+        ),
+        DateTime.utc(2026, 11, 5, 15),
+      );
+      expect(
+        AndroidTaskScheduler.nextWidgetSync(now, 23 * 60),
+        DateTime.utc(2026, 11, 6, 15),
+      );
+      expect(
+        AndroidTaskScheduler.nextWidgetSync(
+          DateTime.utc(2026, 12, 31, 15),
+          23 * 60,
+        ),
+        DateTime.utc(2027, 1, 1, 15),
+      );
+    },
+  );
+
+  test('each generation schedules its own alarm identity', () async {
+    AndroidAlarmManager.setTestOverrides(
+      getCallbackHandle: (_) => CallbackHandle.fromRawHandle(1),
+    );
+    final identities = <int>[];
+    messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
+      call,
+    ) async {
+      if (call.method == 'Alarm.oneShotAt') {
+        identities.add((call.arguments as List).first as int);
+      }
+      return true;
+    });
+    for (final id in [1000001, 1000002]) {
+      await AndroidTaskScheduler.scheduleWidgetSync(
+        generation: '$id',
+        minutes: 1380,
+        alarmId: id,
+      );
+    }
+    expect(identities, [1000001, 1000002]);
+  });
+
+  test(
+    'logout still cancels Android alarm if native storage revocation fails',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final canceled = <int>[];
+      messenger.setMockMethodCallHandler(WidgetSyncService.channel, (
+        call,
+      ) async {
+        throw PlatformException(code: 'disk_failure');
+      });
+      messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
+        call,
+      ) async {
+        if (call.method == 'Alarm.cancel') {
+          canceled.add((call.arguments as List).first as int);
+        }
+        return true;
+      });
+      await WidgetSyncService().cancel();
+      expect(canceled, contains(AndroidTaskScheduler.widgetSyncTaskId));
+    },
+  );
+
+  test(
+    'nightly alarm uses independent exact wakeup reboot-restored task',
+    () async {
+      AndroidAlarmManager.setTestOverrides(
+        getCallbackHandle: (_) => CallbackHandle.fromRawHandle(1),
+      );
+      final alarms = <MethodCall>[];
+      messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
+        call,
+      ) async {
+        alarms.add(call);
+        return true;
+      });
+      await AndroidTaskScheduler.scheduleWidgetSync(
+        generation: 'new-session',
+        minutes: 23 * 60,
+      );
+      final arguments =
+          alarms
+                  .singleWhere((call) => call.method == 'Alarm.oneShotAt')
+                  .arguments
+              as List;
+      expect(arguments[0], AndroidTaskScheduler.widgetSyncTaskId);
+      for (final index in [2, 3, 4, 6]) {
+        expect(arguments[index], isTrue);
+      }
+      expect(arguments[8], {'generation': 'new-session', 'task': 'widgetSync'});
+    },
+  );
+
+  test(
+    'canceled background generation does not schedule or access credentials',
+    () async {
+      messenger.setMockMethodCallHandler(WidgetSyncService.channel, (
+        call,
+      ) async {
+        calls.add(call);
+        return call.method == 'getState'
+            ? {'generation': 'current', 'enabled': true}
+            : null;
+      });
+      await WidgetSyncService.runBackground('canceled');
+      expect(calls.map((call) => call.method), ['getState']);
+    },
+  );
+
+  test(
+    'background wake lock is released even when prepared work is obsolete',
+    () async {
+      final alarms = <MethodCall>[];
+      AndroidAlarmManager.setTestOverrides(
+        getCallbackHandle: (_) => CallbackHandle.fromRawHandle(1),
+      );
+      messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
+        call,
+      ) async {
+        alarms.add(call);
+        return true;
+      });
+      messenger.setMockMethodCallHandler(WidgetSyncService.channel, (
+        call,
+      ) async {
+        calls.add(call);
+        return switch (call.method) {
+          'getState' => {
+            'generation': 'current',
+            'enabled': true,
+            'minutes': 1380,
+          },
+          'acquireWakeLock' => true,
+          _ => null,
+        };
+      });
+      await WidgetSyncService.runBackground('current');
+      expect(alarms.map((call) => call.method), [
+        'AlarmService.start',
+        'Alarm.oneShotAt',
+      ]);
+      expect(calls.map((call) => call.method), [
+        'getState',
+        'acquireWakeLock',
+        'prepare',
+        'releaseWakeLock',
+      ]);
+    },
+  );
+
+  test(
+    'stages caches and credential-free snapshot in a single fenced commit',
+    () async {
+      final ok = await refreshWidgetData(
+        'generation',
+        now: now,
+        authenticate: () async => 'account-private',
+        fetchCalendar: () async => calendar,
+        fetchCourses: (term) async => [
+          Course(
+            type: '必修',
+            name: '算法设计',
+            credits: '3',
+            electiveType: '',
+            examType: '',
+            teacher: '',
+            rawExamTime: '',
+            remark: '',
+            scheduleRules: [
+              CourseScheduleRule(
+                location: '西3-101',
+                startClass: 1,
+                endClass: 2,
+                startWeek: 1,
+                endWeek: 19,
+                weekday: 5,
+                single: true,
+                double: true,
+              ),
+            ],
+            adjustRules: [],
+          ),
+        ],
+      );
+      expect(ok, isTrue);
+      expect(commit!['baseline'], {'flutter.cache_courses_map': 'captured'});
+      final writes = commit!['writes'] as Map;
+      final courses =
+          jsonDecode(writes[SpKeys.cacheCoursesMap] as String) as Map;
+      expect(courses.keys, containsAll(['202501', '202601']));
+      expect(courses['202601']['updatedAt'], now.millisecondsSinceEpoch);
+      final snapshot = commit!['snapshot'] as String;
+      expect(snapshot, contains('算法设计'));
+      expect(snapshot, isNot(contains('account-private')));
+      expect(snapshot, isNot(contains('teacher')));
+      // The worker does not mutate the shared cache before native acceptance.
+      expect(
+        jsonDecode(
+          (await SharedPreferences.getInstance()).getString(
+            SpKeys.cacheCoursesMap,
+          )!,
+        )['202601']['updatedAt'],
+        1,
+      );
+    },
+  );
+
+  test('login/network failures keep prior caches and snapshot', () async {
+    final ok = await refreshWidgetData(
+      'generation',
+      authenticate: () async => null,
+      fetchCalendar: () async => throw StateError('must not fetch'),
+    );
+    expect(ok, isFalse);
+    expect(commit, isNull);
+    expect(calls.map((c) => c.method), ['prepare', 'markFailed']);
+    expect(
+      (await SharedPreferences.getInstance()).getString(SpKeys.cacheCoursesMap),
+      contains('"updatedAt":1'),
+    );
+  });
+
+  test(
+    'stale generation stops before login; refused commits do not retry',
+    () async {
+      valid = false;
+      expect(
+        await refreshWidgetData(
+          'stale',
+          authenticate: () async => throw StateError('must not sign in'),
+        ),
+        isFalse,
+      );
+      expect(calls.map((c) => c.method), ['prepare']);
+      valid = true;
+      accepted = false;
+      calls.clear();
+      expect(
+        await refreshWidgetData(
+          'generation',
+          now: now,
+          authenticate: () async => 'account',
+          fetchCalendar: () async => calendar,
+          fetchCourses: (_) async => [],
+        ),
+        isFalse,
+      );
+      expect(calls.map((c) => c.method), ['prepare', 'commit']);
+    },
+  );
+
+  test('refresh chooses actual date terms and the upcoming term', () {
+    final summer = SchoolCalendar(
+      currentTerm: 'old-ui-term',
+      terms: [
+        term,
+        const CalTerm(
+          termId: 'next',
+          schoolYear: '2027',
+          term: '202602',
+          startDate: '2027-02-01',
+          endDate: '2027-07-01',
+        ),
+      ],
+    );
+    expect(widgetRefreshTerms(summer, DateTime.utc(2027, 1, 20, 15)), [
+      '202601',
+      '202602',
+    ]);
+  });
+}

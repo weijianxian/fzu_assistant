@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_next_class">下一节课</string>
+    <string name="widget_next_class_compact">下一节课 · 2×1</string>
+    <string name="widget_next_class_square">下一节课 · 2×2</string>
+    <string name="widget_refresh">刷新已保存课表</string>
+    <string name="widget_sign_in">登录后查看课程</string>
+    <string name="widget_sign_in_short">请登录</string>
+    <string name="widget_sign_in_description">点击打开福大助手</string>
+    <string name="widget_unknown">请刷新课表</string>
+    <string name="widget_refresh_description">打开应用，刷新校历和当前学期课表</string>
+    <string name="widget_upcoming">即将上课</string>
+    <string name="widget_in_progress">正在上课</string>
+    <string name="widget_no_upcoming">暂无后续课程</string>
+    <string name="widget_cached_range">仅限已保存的日期范围</string>
+    <string name="widget_cached">已缓存课表</string>
+    <string name="widget_cache_missing">需要刷新</string>
+    <string name="widget_location_unknown">地点待确认</string>
+    <string name="widget_beijing_time">%1$s · 北京时间</string>
+    <string name="widget_updated">课表更新于 %1$s</string>
+    <string name="widget_period_range">第 %1$d–%2$d 节</string>
+    <string name="widget_timetable">本周课表</string>
+    <string name="widget_timetable_week">课表 · 第 %1$d 周</string>
+    <string name="widget_timetable_description">周一至周日 · 北京时间</string>
+    <string name="widget_timetable_provider">本周课表 · 4×4</string>
+    <string name="widget_timetable_provider_description">按北京时间展示本周课表，包含已经过去的日期，最小可缩至 3×3。</string>
+    <string name="widget_compact_description">横向布局，显示课程、开课时间与日期。</string>
+    <string name="widget_square_description">方形布局，显示下一节课的时间与地点。</string>
+    <string name="widget_week_range">%1$s–%2$s · 北京时间</string>
+    <string name="widget_week_partial">部分日期需刷新课表</string>
+    <string name="widget_day_empty">当天无课</string>
+    <string name="widget_week_empty">本周无课</string>
+</resources>

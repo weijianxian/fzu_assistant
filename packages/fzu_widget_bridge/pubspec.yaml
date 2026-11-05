@@ -1,0 +1,19 @@
+name: fzu_widget_bridge
+description: Local Android storage and rendering bridge for background widget updates.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: '>=3.47.6'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.weijx.fzu_widget_bridge
+        pluginClass: FzuWidgetBridgePlugin

@@ -19,6 +19,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         shortcutBridge = AppShortcutBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        NextCourseWidgetBridge(this, flutterEngine.dartExecutor.binaryMessenger)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.weijx.fzu_assistant/permissions")
             .setMethodCallHandler { call, result ->

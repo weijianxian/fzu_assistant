@@ -208,6 +208,14 @@ lib/
 
 - `service/app_shortcut_service.dart` 对接 Android `AppShortcutBridge.kt` 和 iOS `AppDelegate.swift` / `SceneDelegate.swift`，动态注册唯一一码通快捷操作，通过正常登录流程后由 Home 切换一码通 Tab；冷/热启动操作等待登录后消费，恢复 Activity 不重复消费，未知 iOS 操作转交原有生命周期。语言随应用文案更新，不持久化二维码或登录数据。Android 的同一桥接也接收小组件打开课表操作。
 
+## Android 桌面课程小组件
+
+- `model/next_course_widget.dart`、`service/next_course_widget_service.dart`、`screen/settings/next_course_widget_settings_page.dart` 与 Android `NextCourseWidgetBridge.kt` / `NextCourseWidgetProvider.kt` 提供桌面课程。设置入口置于主设置底部 Android 功能区，支持系统确认添加与手动更新。从本地校历匹配实际学期，合并课表、自定义课程、单双周、调课及隐藏课程生成最多 180 天最小快照，不保存账号标识、凭据或支付码；缺少有效缓存时提示刷新，不能误报无课。原生使用系统小组件半小时更新和手动刷新重新渲染本地显示；时间统一北京时间，支持正在上课/下一节、同起始时刻冲突与真实缓存更新时间，点击回到周课表。缓存、设置、语言和前台恢复触发更新，教务退出使在途写入失效并清空，原生写入串行且只保留未完成队列；小组件异常不得阻断教务退出。
+
+- 小组件采用 Material Design 3 的圆角、色彩角色与文字层级，提供下一节课横向 2×1、方形 2×2 和本周课表 4×4 三种预设；支持调整尺寸，完整周课表从北京时间本周一开始生成，包含已过去日期，周次与日期按实际校历匹配，不跟随首页手动选择的历史学期。
+- `service/widget_sync_service.dart` 使用现有 `AndroidTaskScheduler` 的独立 `widgetSync` 命名任务，每晚默认北京时间 23:00 通过精确唤醒闹钟重新登录教务，刷新实际学期及近期跨学期的校历、课表缓存并发布所有课程小组件；时间和开关可设置，精确闹钟需系统授权。保留插件调度及重启恢复，不另建原生调度层。后台登录只使用安全存储中的教务凭据，不写回登录会话，不请求 SSO 或支付服务，联网失败保留已有缓存及最近成功时间。
+- 本地插件 `packages/fzu_widget_bridge` 由 Flutter 自动注册到前台和后台引擎，只负责后台存储、有限时长唤醒锁与原生小组件更新；以任务代次和本地输入基线校验所有在途结果，退出/换号/设置或课程修改后拒绝旧数据写入。`common/utils/widget_preference_bridge.dart` 将影响小组件的前台缓存、设置、自定义课程及 WebDAV 恢复写入统一送入同一原生锁，学期缓存在原生合并，前台发布也校验输入基线。缓存和不含身份信息的快照通过受限提交一起更新；每代同步分配独立闹钟 ID，旧回调不能覆盖新计划。取消同步先在内存失效代次，磁盘失败也不恢复授权，再独立取消闹钟，不影响课程提醒。回到前台重新读取后台缓存并刷新课表。第三方调休继续遵守独立授权，夜间只使用已授权的缓存调休。
+
 ## 编码规范
 
 - 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。

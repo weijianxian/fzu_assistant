@@ -15,6 +15,8 @@ import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/app_shortcut_service.dart';
+import 'package:fzu_assistant/service/next_course_widget_service.dart';
+import 'package:fzu_assistant/service/widget_sync_service.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 import 'package:fzu_assistant/common/widget/layout/app_top_banner.dart';
 
@@ -59,6 +61,11 @@ class HomeScreen extends HookWidget {
       return null;
     }, [l10n.campusCode]);
     useEffect(() {
+      unawaited(NextCourseWidgetService.instance.sync(settings));
+      unawaited(WidgetSyncService.instance.activate());
+      return null;
+    }, [settings]);
+    useEffect(() {
       if (!CourseReminderService.supported) return null;
       final inputs = <Listenable>[
         CacheHelper.changes,
@@ -83,6 +90,11 @@ class HomeScreen extends HookWidget {
     }, [settings]);
     useOnAppLifecycleStateChange((_, state) {
       if (state == AppLifecycleState.resumed) {
+        unawaited(
+          WidgetSyncService.instance.reloadCaches().then(
+            (_) => WidgetSyncService.instance.reconcile(),
+          ),
+        );
         unawaited(CourseReminderService.instance.sync(settings));
       }
     });

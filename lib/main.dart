@@ -12,6 +12,7 @@ import 'package:fzu_assistant/router/app_router.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/app_shortcut_service.dart';
+import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/desktop_window.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
@@ -53,6 +54,25 @@ class MyApp extends HookWidget {
     final settingsReady = useMemoized(() => settings.load(), [settings]);
     final navigatorKey = useMemoized(GlobalKey<NavigatorState>.new);
     final messengerKey = useMemoized(GlobalKey<ScaffoldMessengerState>.new);
+    useEffect(() {
+      var mounted = true;
+      VoidCallback? unbind;
+      unawaited(
+        settingsReady
+            .then((_) {
+              if (mounted) {
+                unbind = NextCourseWidgetService.instance.bind(settings);
+              }
+            })
+            .catchError((Object _) {
+              // Settings already report their loading failure in the app.
+            }),
+      );
+      return () {
+        mounted = false;
+        unbind?.call();
+      };
+    }, [settings, settingsReady]);
     useEffect(() {
       unawaited(settings.initDynamicColor());
       return null;

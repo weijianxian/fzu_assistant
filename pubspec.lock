@@ -469,6 +469,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fzu_widget_bridge:
+    dependency: "direct main"
+    description:
+      path: "packages/fzu_widget_bridge"
+      relative: true
+    source: path
+    version: "0.0.1"
   hooks:
     dependency: transitive
     description:

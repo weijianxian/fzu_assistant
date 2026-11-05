@@ -36,6 +36,7 @@ abstract final class AppRoutes {
   static const thirdPartySettings = '/settings/third-party';
   static const webDavSettings = '/settings/webdav';
   static const courseReminderSettings = '/settings/course-reminder';
+  static const nextCourseWidgetSettings = '/settings/next-course-widget';
   static const androidPermissions = '/settings/permissions';
   static const accountManagement = '/account-management';
   static const homeSettings = '/settings/home';

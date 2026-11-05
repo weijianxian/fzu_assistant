@@ -73,6 +73,13 @@ class SettingsPage extends HookWidget {
               ),
               onTap: () => context.pushNamed(AppRoutes.courseReminderSettings),
             ),
+            ChevronListTile(
+              leading: const Icon(Icons.widgets_outlined),
+              title: Text(l10n.nextCourseWidgetSettings),
+              subtitle: Text(l10n.nextCourseWidgetDescription),
+              onTap: () =>
+                  context.pushNamed(AppRoutes.nextCourseWidgetSettings),
+            ),
           ],
         ],
       ),

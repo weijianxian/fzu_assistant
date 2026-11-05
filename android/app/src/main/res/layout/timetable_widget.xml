@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp"
+    android:background="@drawable/widget_next_course_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="40dp"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:orientation="vertical" android:layout_weight="1">
+            <TextView android:id="@+id/widget_heading" style="@style/WidgetCourse.Text"
+                android:textSize="15sp" android:textStyle="bold" android:text="@string/widget_timetable"/>
+            <TextView android:id="@+id/widget_date" style="@style/WidgetCourse.Caption"
+                android:layout_marginTop="2dp" android:text="@string/widget_timetable_description"/>
+        </LinearLayout>
+        <ImageButton android:id="@+id/widget_refresh" style="@style/WidgetCourse.Refresh"
+            android:layout_marginStart="6dp"/>
+    </LinearLayout>
+    <ImageView android:id="@+id/widget_timetable_grid"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:layout_marginTop="6dp" android:layout_marginBottom="6dp"
+        android:scaleType="fitXY" android:importantForAccessibility="yes"/>
+    <TextView android:id="@+id/widget_timetable_message" style="@style/WidgetCourse.Text"
+        android:layout_height="0dp" android:layout_weight="1" android:maxLines="3"
+        android:gravity="center" android:textSize="18sp" android:textStyle="bold"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/widget_updated" style="@style/WidgetCourse.Caption"
+        android:textSize="10sp"/>
+</LinearLayout>

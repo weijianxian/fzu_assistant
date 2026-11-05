@@ -10,6 +10,7 @@ import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/model/hidden_course_session.dart';
+import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
 
 class AppSettings {
   static ColorScheme? _systemLightScheme;
@@ -110,7 +111,11 @@ class AppSettings {
     papersAccess.value = FeatureAccess.parse(sp.getString(SpKeys.papersAccess));
     _persist(
       west2AdjustmentsAccess,
-      (value) => sp.setString(SpKeys.west2AdjustmentsAccess, value.name),
+      (value) => WidgetPreferenceBridge.write(
+        sp,
+        SpKeys.west2AdjustmentsAccess,
+        value.name,
+      ),
     );
     _persist(
       papersAccess,
@@ -156,7 +161,10 @@ class AppSettings {
       SpKeys.localeKey: localeKey,
       SpKeys.selectedSemester: selectedSemesterKey,
     }.entries) {
-      _persist(entry.value, (value) => sp.setString(entry.key, value));
+      _persist(
+        entry.value,
+        (value) => WidgetPreferenceBridge.write(sp, entry.key, value),
+      );
     }
     for (final entry in {
       SpKeys.siteInjectionEnabled: siteInjectionEnabled,
@@ -166,7 +174,10 @@ class AppSettings {
       SpKeys.autoAdjustCourse: autoAdjustCourse,
       SpKeys.githubProxyEnabled: githubProxyEnabled,
     }.entries) {
-      _persist(entry.value, (value) => sp.setBool(entry.key, value));
+      _persist(
+        entry.value,
+        (value) => WidgetPreferenceBridge.write(sp, entry.key, value),
+      );
     }
     _persist(
       courseReminderMinutes,
@@ -185,7 +196,8 @@ class AppSettings {
     );
     _persist(
       hiddenCourseSessions,
-      (value) => sp.setString(
+      (value) => WidgetPreferenceBridge.write(
+        sp,
         SpKeys.hiddenCourseSessions,
         jsonEncode(value.map((s) => s.toJson()).toList()),
       ),

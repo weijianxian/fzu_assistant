@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_next_class">Next class</string>
+    <string name="widget_next_class_compact">Next class · 2×1</string>
+    <string name="widget_next_class_square">Next class · 2×2</string>
+    <string name="widget_refresh">Refresh from saved timetable</string>
+    <string name="widget_sign_in">Sign in to view classes</string>
+    <string name="widget_sign_in_short">Sign in</string>
+    <string name="widget_sign_in_description">Tap to open FZU Assistant</string>
+    <string name="widget_unknown">Refresh your timetable</string>
+    <string name="widget_refresh_description">Open the app and refresh your calendar and current timetable</string>
+    <string name="widget_upcoming">Up next</string>
+    <string name="widget_in_progress">In progress</string>
+    <string name="widget_no_upcoming">No upcoming classes</string>
+    <string name="widget_cached_range">Within the saved date range</string>
+    <string name="widget_cached">Saved timetable</string>
+    <string name="widget_cache_missing">Refresh needed</string>
+    <string name="widget_location_unknown">Location unavailable</string>
+    <string name="widget_beijing_time">%1$s · Beijing time</string>
+    <string name="widget_updated">Saved %1$s</string>
+    <string name="widget_period_range">Periods %1$d–%2$d</string>
+    <string name="widget_timetable">This week</string>
+    <string name="widget_timetable_week">Timetable · Week %1$d</string>
+    <string name="widget_timetable_description">Seven days · Beijing time</string>
+    <string name="widget_timetable_provider">Weekly timetable · 4×4</string>
+    <string name="widget_timetable_provider_description">Your current Beijing week, including past days. Resizes down to 3×3.</string>
+    <string name="widget_compact_description">Horizontal next class with course, start time and date.</string>
+    <string name="widget_square_description">Next class with time and location in a square layout.</string>
+    <string name="widget_week_range">%1$s–%2$s · Beijing time</string>
+    <string name="widget_week_partial">Some days need a timetable refresh</string>
+    <string name="widget_day_empty">No classes</string>
+    <string name="widget_week_empty">No classes this week</string>
+</resources>

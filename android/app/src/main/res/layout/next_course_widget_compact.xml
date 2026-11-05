@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="horizontal" android:gravity="center_vertical" android:padding="10dp"
+    android:background="@drawable/widget_next_course_background">
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:orientation="vertical">
+        <TextView android:id="@+id/widget_heading" style="@style/WidgetCourse.Label"
+            android:text="@string/widget_next_class" android:textSize="10sp"
+            android:textColor="@color/widget_accent"/>
+        <TextView android:id="@+id/widget_course" style="@style/WidgetCourse.Text"
+            android:layout_marginTop="3dp" android:textSize="15sp"
+            android:textStyle="bold" android:maxLines="2"
+            android:text="@string/widget_sign_in_short"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginStart="8dp" android:gravity="end" android:orientation="vertical">
+        <TextView android:id="@+id/widget_time" style="@style/WidgetCourse.Text"
+            android:layout_width="wrap_content"
+            android:textSize="18sp" android:textStyle="bold" android:visibility="gone"/>
+        <TextView android:id="@+id/widget_date" style="@style/WidgetCourse.Caption"
+            android:layout_width="wrap_content" android:layout_marginTop="3dp" android:textSize="10sp"/>
+    </LinearLayout>
+    <TextView android:id="@+id/widget_location" style="@style/WidgetCourse.Caption"
+        android:textSize="10sp" android:visibility="gone"/>
+    <TextView android:id="@+id/widget_status" style="@style/WidgetCourse.Label"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/widget_updated" style="@style/WidgetCourse.Caption"
+        android:visibility="gone"/>
+    <ImageButton android:id="@+id/widget_refresh" style="@style/WidgetCourse.Refresh"
+        android:visibility="gone"/>
+</LinearLayout>

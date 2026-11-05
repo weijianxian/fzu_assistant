@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
+
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -68,7 +70,7 @@ class SharedPrefsPage extends HookWidget {
                   },
                   onDelete: () async {
                     final sp = await SharedPreferences.getInstance();
-                    await sp.remove(e.key);
+                    await WidgetPreferenceBridge.write(sp, e.key, null);
                     await load();
                   },
                 );
@@ -89,16 +91,20 @@ class SharedPrefsPage extends HookWidget {
       case double _:
         await sp.setDouble(key, double.parse(text));
       case bool _:
-        await sp.setBool(key, text.toLowerCase() == 'true');
+        await WidgetPreferenceBridge.write(
+          sp,
+          key,
+          text.toLowerCase() == 'true',
+        );
       case List _:
         final decoded = jsonDecode(text);
         if (decoded is List) {
           await sp.setStringList(key, decoded.cast<String>());
         } else {
-          await sp.setString(key, text);
+          await WidgetPreferenceBridge.write(sp, key, text);
         }
       default:
-        await sp.setString(key, text);
+        await WidgetPreferenceBridge.write(sp, key, text);
     }
   }
 }

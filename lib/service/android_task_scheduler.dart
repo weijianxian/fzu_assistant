@@ -8,12 +8,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/service/widget_sync_service.dart';
 
 /// 闹钟只保存任务名和 JSON 参数，回调在插件的后台 isolate 执行。
 /// 后续定时代码在 [dispatchAndroidTask] 中增加明确的任务分支。
 abstract final class AndroidTaskScheduler {
   static const courseTaskId = 4201;
   static const testTaskId = 4202;
+  static const widgetSyncTaskId = 4203;
   static const _plansKey = 'android_course_reminder_plans';
   static const _generationKey = 'android_course_reminder_generation';
   static const _testGenerationKey = 'android_notification_test_generation';
@@ -103,6 +105,40 @@ abstract final class AndroidTaskScheduler {
     );
   });
 
+  static DateTime nextWidgetSync(DateTime now, int minutes) {
+    final beijing = now.toUtc().add(const Duration(hours: 8));
+    var next = DateTime.utc(beijing.year, beijing.month, beijing.day)
+        .add(Duration(minutes: minutes.clamp(0, 1439)))
+        .subtract(const Duration(hours: 8));
+    if (!next.isAfter(now.toUtc())) next = next.add(const Duration(days: 1));
+    return next;
+  }
+
+  static Future<void> scheduleWidgetSync({
+    required String generation,
+    required int minutes,
+    int? alarmId,
+  }) async {
+    // This entry is also called from the headless engine. It uses only the
+    // registered alarm plugin, without the Activity-only reminder channel.
+    if (!await AndroidAlarmManager.initialize()) {
+      throw StateError('无法初始化小组件后台同步');
+    }
+    await schedule(
+      id: alarmId ?? widgetSyncTaskId,
+      at: nextWidgetSync(DateTime.now(), minutes),
+      task: 'widgetSync',
+      params: {'generation': generation},
+    );
+  }
+
+  static Future<void> cancelWidgetSync({int? alarmId}) async {
+    await AndroidAlarmManager.cancel(alarmId ?? widgetSyncTaskId);
+    if (alarmId != null && alarmId != widgetSyncTaskId) {
+      await AndroidAlarmManager.cancel(widgetSyncTaskId);
+    }
+  }
+
   static Future<void> schedule({
     required int id,
     required DateTime at,
@@ -167,6 +203,10 @@ Future<void> dispatchAndroidTask(int id, Map<String, dynamic> params) async {
     name: 'AndroidTasks',
   );
   try {
+    if (params['task'] == 'widgetSync') {
+      await WidgetSyncService.runBackground(params['generation'] as String?);
+      return;
+    }
     final sp = await SharedPreferences.getInstance();
     await sp.reload();
     final task = params['task'];

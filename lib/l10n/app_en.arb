@@ -1138,5 +1138,33 @@
         "type": "String"
       }
     }
-  }
+  },
+  "nextCourseWidgetSettings": "Home screen widgets",
+  "nextCourseWidgetDescription": "See your next class or weekly timetable on the home screen; tap to open your timetable.",
+  "nextCourseWidgetAdd": "Add to home screen",
+  "nextCourseWidgetAddDescription": "Confirm with your launcher, or long-press the home screen and select FZU Assistant under Widgets.",
+  "nextCourseWidgetPinUnavailable": "This launcher cannot add widgets directly. Long-press the home screen and add it from the widget list.",
+  "nextCourseWidgetRefresh": "Refresh from academic services",
+  "nextCourseWidgetRefreshDescription": "Sign in and refresh your cached calendar, timetable and all widgets.",
+  "nextCourseWidgetUpdated": "Widget updated",
+  "nextCourseWidgetFailed": "Could not update the widget. Try again.",
+  "nextCourseWidgetPrivacy": "Class names, times and locations are visible on the home screen. Signing out of your academic account clears them.",
+  "nextCourseWidgetMissing": "Refresh your calendar and current term timetable first.",
+  "nextCourseWidgetUnsupported": "Home screen widgets are currently available on Android.",
+  "widgetVariantCompact": "2×1",
+  "widgetVariantSquare": "2×2",
+  "widgetVariantTimetable": "Weekly 4×4",
+  "widgetPreview": "Widget preview",
+  "widgetNextClass": "Next class",
+  "widgetInProgress": "In class",
+  "widgetWeeklyTimetable": "This week",
+  "widgetAddVariant": "Add {variant} widget",
+  "@widgetAddVariant": {"placeholders": {"variant": {"type": "String"}}},
+  "widgetSyncEnabled": "Automatic nightly refresh",
+  "widgetSyncDescription": "Sign in daily to update your cached timetable and home screen widgets.",
+  "widgetSyncTime": "Automatic refresh time",
+  "widgetSyncLastSuccess": "Last successful refresh",
+  "widgetSyncNever": "No successful online refresh yet",
+  "widgetSyncNext": "Next automatic refresh",
+  "widgetSyncFailed": "Online refresh failed. Your existing cache is still available; try again."
 }

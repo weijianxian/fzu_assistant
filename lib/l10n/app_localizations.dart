@@ -3325,6 +3325,168 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{received} / {total} · {percent}'**
   String papersDownloadProgress(String received, String total, String percent);
+
+  /// No description provided for @nextCourseWidgetSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'桌面小组件'**
+  String get nextCourseWidgetSettings;
+
+  /// No description provided for @nextCourseWidgetDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'在桌面查看下一节课或本周课表，点击返回课表。'**
+  String get nextCourseWidgetDescription;
+
+  /// No description provided for @nextCourseWidgetAdd.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加到桌面'**
+  String get nextCourseWidgetAdd;
+
+  /// No description provided for @nextCourseWidgetAddDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'由桌面确认添加；也可长按桌面，在小组件中选择福大助手。'**
+  String get nextCourseWidgetAddDescription;
+
+  /// No description provided for @nextCourseWidgetPinUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前桌面不支持直接添加，请长按桌面，从小组件列表添加。'**
+  String get nextCourseWidgetPinUnavailable;
+
+  /// No description provided for @nextCourseWidgetRefresh.
+  ///
+  /// In zh, this message translates to:
+  /// **'立即联网更新'**
+  String get nextCourseWidgetRefresh;
+
+  /// No description provided for @nextCourseWidgetRefreshDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'登录教务处并刷新本地校历、课表和所有小组件。'**
+  String get nextCourseWidgetRefreshDescription;
+
+  /// No description provided for @nextCourseWidgetUpdated.
+  ///
+  /// In zh, this message translates to:
+  /// **'小组件已更新'**
+  String get nextCourseWidgetUpdated;
+
+  /// No description provided for @nextCourseWidgetFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'小组件更新失败，请重试。'**
+  String get nextCourseWidgetFailed;
+
+  /// No description provided for @nextCourseWidgetPrivacy.
+  ///
+  /// In zh, this message translates to:
+  /// **'桌面会显示课程名称、时间和地点，退出教务账号后清空。'**
+  String get nextCourseWidgetPrivacy;
+
+  /// No description provided for @nextCourseWidgetMissing.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先刷新校历和当前学期课表。'**
+  String get nextCourseWidgetMissing;
+
+  /// No description provided for @nextCourseWidgetUnsupported.
+  ///
+  /// In zh, this message translates to:
+  /// **'桌面小组件暂仅支持 Android。'**
+  String get nextCourseWidgetUnsupported;
+
+  /// No description provided for @widgetVariantCompact.
+  ///
+  /// In zh, this message translates to:
+  /// **'2×1'**
+  String get widgetVariantCompact;
+
+  /// No description provided for @widgetVariantSquare.
+  ///
+  /// In zh, this message translates to:
+  /// **'2×2'**
+  String get widgetVariantSquare;
+
+  /// No description provided for @widgetVariantTimetable.
+  ///
+  /// In zh, this message translates to:
+  /// **'周课表 4×4'**
+  String get widgetVariantTimetable;
+
+  /// No description provided for @widgetPreview.
+  ///
+  /// In zh, this message translates to:
+  /// **'小组件预览'**
+  String get widgetPreview;
+
+  /// No description provided for @widgetNextClass.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一节课'**
+  String get widgetNextClass;
+
+  /// No description provided for @widgetInProgress.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在上课'**
+  String get widgetInProgress;
+
+  /// No description provided for @widgetWeeklyTimetable.
+  ///
+  /// In zh, this message translates to:
+  /// **'本周课表'**
+  String get widgetWeeklyTimetable;
+
+  /// No description provided for @widgetAddVariant.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加 {variant} 小组件'**
+  String widgetAddVariant(String variant);
+
+  /// No description provided for @widgetSyncEnabled.
+  ///
+  /// In zh, this message translates to:
+  /// **'夜间自动更新'**
+  String get widgetSyncEnabled;
+
+  /// No description provided for @widgetSyncDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天登录教务处，更新本地课表和桌面小组件。'**
+  String get widgetSyncDescription;
+
+  /// No description provided for @widgetSyncTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'自动更新时间'**
+  String get widgetSyncTime;
+
+  /// No description provided for @widgetSyncLastSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'上次成功更新'**
+  String get widgetSyncLastSuccess;
+
+  /// No description provided for @widgetSyncNever.
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未成功联网更新'**
+  String get widgetSyncNever;
+
+  /// No description provided for @widgetSyncNext.
+  ///
+  /// In zh, this message translates to:
+  /// **'下次自动更新'**
+  String get widgetSyncNext;
+
+  /// No description provided for @widgetSyncFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'联网更新失败，继续使用已有缓存，请重试。'**
+  String get widgetSyncFailed;
 }
 
 class _AppLocalizationsDelegate
