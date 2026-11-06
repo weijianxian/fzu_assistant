@@ -13,6 +13,7 @@ import java.io.File
 class MainActivity : FlutterActivity() {
     private val channelName = "com.weijx.fzu_assistant/update"
     private var notificationPermissionResult: MethodChannel.Result? = null
+    private var calendarPermissionResult: MethodChannel.Result? = null
     private var shortcutBridge: AppShortcutBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -26,6 +27,17 @@ class MainActivity : FlutterActivity() {
                 try {
                     when (call.method) {
                         "list" -> result.success(AppPermissions.list(this))
+                        "requestCalendar" -> {
+                            if (calendarPermissionResult != null) {
+                                result.error("permission_busy", "权限请求正在进行", null)
+                                return@setMethodCallHandler
+                            }
+                            calendarPermissionResult = result
+                            requestPermissions(arrayOf(
+                                android.Manifest.permission.READ_CALENDAR,
+                                android.Manifest.permission.WRITE_CALENDAR,
+                            ), 4204)
+                        }
                         "open" -> { AppPermissions.open(this, call.argument<String>("name")); result.success(null) }
                         else -> result.notImplemented()
                     }
@@ -138,6 +150,11 @@ class MainActivity : FlutterActivity() {
         if (requestCode == 4201) {
             notificationPermissionResult?.success(null)
             notificationPermissionResult = null
+        }
+        if (requestCode == 4204) {
+            calendarPermissionResult?.success(grantResults.isNotEmpty() &&
+                grantResults.all { it == android.content.pm.PackageManager.PERMISSION_GRANTED })
+            calendarPermissionResult = null
         }
     }
 

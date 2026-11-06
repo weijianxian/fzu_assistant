@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
+import 'package:fzu_assistant/model/calendar_sync.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/custom_course.dart';
 import 'package:fzu_assistant/model/next_course_widget.dart';
@@ -60,6 +61,7 @@ class WidgetSyncService {
   Future<void>? _pending;
   bool _running = false;
   bool _suspended = false;
+  bool _calendarEnabled = false;
   int _revision = 0;
   int _sequence = 0;
   int? _loadedCacheVersion;
@@ -93,6 +95,7 @@ class WidgetSyncService {
       if (raw == null) return;
       _alarmId = (raw['alarmId'] as num?)?.toInt();
       enabled.value = raw['enabled'] as bool? ?? true;
+      _calendarEnabled = raw['calendarEnabled'] == true;
       minutes.value = (raw['minutes'] as int? ?? 23 * 60).clamp(0, 1439);
       final permission = await CourseReminderService.instance.permissions();
       final exact = permission['exact'] == true;
@@ -104,7 +107,10 @@ class WidgetSyncService {
         lastSuccess: last == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch(last, isUtc: true),
-        nextAt: enabled.value && exact && raw['generation'] != null
+        nextAt:
+            (enabled.value || _calendarEnabled) &&
+                exact &&
+                raw['generation'] != null
             ? AndroidTaskScheduler.nextWidgetSync(_now(), minutes.value)
             : null,
       );
@@ -171,7 +177,7 @@ class WidgetSyncService {
       if (revision != _revision || account != ApiClient.instance.studentId) {
         return;
       }
-      if (enabled.value && status.value.exactAllowed) {
+      if ((enabled.value || _calendarEnabled) && status.value.exactAllowed) {
         await AndroidTaskScheduler.scheduleWidgetSync(
           generation: _generation!,
           minutes: minutes.value,
@@ -256,7 +262,10 @@ class WidgetSyncService {
   static Future<void> runBackground(String? generation) async {
     if (generation == null) return;
     final state = await channel.invokeMapMethod<String, dynamic>('getState');
-    if (state?['generation'] != generation || state?['enabled'] != true) return;
+    if (state?['generation'] != generation ||
+        (state?['enabled'] != true && state?['calendarEnabled'] != true)) {
+      return;
+    }
     // Schedule tomorrow first, so a network failure cannot stop future updates.
     await AndroidTaskScheduler.scheduleWidgetSync(
       generation: generation,
@@ -297,6 +306,9 @@ Future<bool> refreshWidgetData(
     });
     if (prepared == null) return false;
     final baseline = Map<String, dynamic>.from(prepared['baseline'] as Map);
+    final calendarConfig = Map<String, dynamic>.from(
+      prepared['calendar'] as Map? ?? {},
+    );
     final preferences = await SharedPreferences.getInstance();
     await preferences.reload();
     settings = AppSettings();
@@ -308,6 +320,10 @@ Future<bool> refreshWidgetData(
 
     final account = await (authenticate ?? signIn)();
     if (account == null) throw StateError('教务会话无效');
+    if (calendarConfig['enabled'] == true &&
+        calendarConfig['owner'] != calendarAccountKey(account)) {
+      throw StateError('日历账号已变化，请重新开启同步');
+    }
     final calendar =
         await (fetchCalendar ?? AcademicService().getSchoolCalendar)();
     if (calendar.terms.isEmpty) throw StateError('校历数据无效');
@@ -323,6 +339,7 @@ Future<bool> refreshWidgetData(
               term,
               useCache: false,
               persistCache: false,
+              requireCompleteRows: true,
             );
       caches[term] = {
         'courses': courses.map((course) => course.toJson()).toList(),
@@ -373,9 +390,32 @@ Future<bool> refreshWidgetData(
             SpKeys.cacheCoursesMap: jsonEncode(caches),
           },
           'snapshot': jsonEncode(encoded),
+          if (calendarConfig['enabled'] == true)
+            'calendar': buildCalendarSyncPayload(
+              account: account,
+              terms: calendar.terms
+                  .where((term) => terms.contains(term.term))
+                  .toList(),
+              coursesByTerm: coursesByTerm,
+              customCourses: custom,
+              hiddenSessions: settings.hiddenCourseSessions.value,
+              autoAdjust: settings.autoAdjustCourse.value,
+              includeExams: calendarConfig['includeExams'] != false,
+              reminderMinutes: calendarConfig['reminder'] as int? ?? 15,
+              now: instant,
+            ),
         }) ??
         false;
-  } catch (_) {
+  } catch (error) {
+    if (kDebugMode) {
+      debugPrint(
+        'NightlySync: ${error is StateError
+            ? error.message
+            : error is FormatException
+            ? error.message
+            : error.runtimeType}',
+      );
+    }
     try {
       await channel.invokeMethod<void>('markFailed', {
         'generation': generation,

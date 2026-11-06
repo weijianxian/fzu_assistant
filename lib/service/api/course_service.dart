@@ -274,6 +274,16 @@ class CourseService {
 
       final cells = row.querySelectorAll('td');
       if (cells.length < 12) {
+        // ASP.NET DataList emits empty separator rows between real course rows.
+        // They carry no course data and are distinct from truncated records.
+        if (cells.length == 1 &&
+            (row.attributes['style'] ?? '').isEmpty &&
+            (cells.single.attributes['colspan'] == null ||
+                cells.single.attributes['colspan'] == '12') &&
+            cells.single.text.replaceAll('\u00a0', ' ').trim().isEmpty &&
+            cells.single.querySelector('input, a, table') == null) {
+          continue;
+        }
         if (requireCompleteRows) {
           throw StateError('教务处课表记录不完整，请稍后重试');
         }

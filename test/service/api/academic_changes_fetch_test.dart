@@ -119,4 +119,27 @@ void main() {
     api.usingCachedSession.value = true;
     expect((await academic.getExamRooms('202601')).single.courseName, '高等数学');
   });
+
+  test('官方空白分隔行不使完整课表校验失败', () async {
+    final academic = AcademicService();
+    adapter.page = adapter.page.replaceFirst(
+      '</table>',
+      '<tr><td></td></tr><tr><td colspan="12">&nbsp;</td></tr></table>',
+    );
+    expect(
+      (await academic.getExamRooms(
+        '202601',
+        useCache: false,
+      )).single.courseName,
+      '高等数学',
+    );
+    adapter.page = adapter.page.replaceFirst(
+      '<tr><td></td></tr>',
+      '<tr style="background:white"><td></td></tr>',
+    );
+    await expectLater(
+      academic.getExamRooms('202601', useCache: false),
+      throwsStateError,
+    );
+  });
 }

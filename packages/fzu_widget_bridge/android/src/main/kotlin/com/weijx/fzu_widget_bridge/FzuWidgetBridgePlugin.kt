@@ -14,6 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private lateinit var context: Context
     private lateinit var store: WidgetSyncStore
+    private lateinit var calendar: SystemCalendarSync
     private var channel: MethodChannel? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -21,10 +22,12 @@ class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         fun preferences(name: String) = AndroidWidgetPreferences(
             context.getSharedPreferences(name, Context.MODE_PRIVATE),
         )
+        calendar = SystemCalendarSync(context)
         store = WidgetSyncStore(
             preferences(WidgetSyncStore.FLUTTER_PREFS),
             preferences(WidgetSyncStore.WIDGET_PREFS),
             preferences(WidgetSyncStore.STATE_PREFS),
+            additionalEnabled = { calendar.enabled },
         )
         channel = MethodChannel(
             binding.binaryMessenger, "com.weijx.fzu_assistant/widget_background",
@@ -41,7 +44,32 @@ class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         try {
             when (call.method) {
-                "getState" -> result.success(store.getState())
+                "getState" -> result.success(synchronized(WidgetSyncStore.LOCK) {
+                    store.getState() + ("calendarEnabled" to calendar.enabled)
+                })
+                "calendarState" -> result.success(synchronized(WidgetSyncStore.LOCK) { calendar.state() })
+                "calendarConfigure" -> {
+                    synchronized(WidgetSyncStore.LOCK) {
+                        // Even a failed settings write invalidates prepared work.
+                        store.invalidateInputs()
+                        calendar.configure(mapArgument(call, "settings"))
+                    }
+                    result.success(null)
+                }
+                "calendarDisconnect" -> {
+                    synchronized(WidgetSyncStore.LOCK) {
+                        store.invalidateInputs()
+                        calendar.disconnect()
+                    }
+                    result.success(null)
+                }
+                "calendarClear" -> {
+                    synchronized(WidgetSyncStore.LOCK) {
+                        store.invalidateInputs()
+                        calendar.clearAll()
+                    }
+                    result.success(null)
+                }
                 "configure" -> {
                     synchronized(WidgetSyncStore.LOCK) {
                         try {
@@ -68,7 +96,9 @@ class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     }
                     result.success(null)
                 }
-                "prepare" -> result.success(store.prepare(generation(call), manual(call)))
+                "prepare" -> result.success(synchronized(WidgetSyncStore.LOCK) {
+                    store.prepare(generation(call), manual(call))?.plus("calendar" to calendar.state())
+                })
                 "readInputs" -> result.success(store.readInputs())
                 "writeInputs" -> result.success(store.writeInputs(mapArgument(call, "writes")))
                 "writeCacheTerm" -> result.success(store.writeCacheTerm(
@@ -99,11 +129,27 @@ class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                         },
                         call.argument<String>("snapshot")
                             ?: throw IllegalArgumentException("缺少课程快照"),
+                        onCommitted = {
+                            if (calendar.enabled) {
+                                try {
+                                    calendar.sync(mapArgument(call, "calendar"))
+                                } catch (error: Exception) {
+                                    // Provider failures never undo valid official
+                                    // caches/widgets; the calendar retries nightly.
+                                    calendar.markFailed()
+                                    android.util.Log.w("SystemCalendarSync", "Calendar provider update failed", error)
+                                }
+                            }
+                        },
                     )
                     if (committed) updateWidgets()
                     result.success(committed)
                 }
-                "markFailed" -> result.success(store.markFailed(generation(call), manual(call)))
+                "markFailed" -> result.success(synchronized(WidgetSyncStore.LOCK) {
+                    store.markFailed(generation(call), manual(call)).also {
+                        if (it) calendar.markFailed()
+                    }
+                })
                 "acquireWakeLock" -> result.success(acquireWakeLock(generation(call)))
                 "releaseWakeLock" -> {
                     synchronized(WidgetSyncStore.LOCK) {

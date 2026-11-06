@@ -5,6 +5,23 @@ import org.junit.Test
 import org.json.JSONObject
 
 class WidgetSyncStoreTest {
+    @Test fun calendarKeepsNightlyTaskActiveAndSharesInputFencing() {
+        val f = Fixture()
+        var calendarEnabled = true
+        val store = WidgetSyncStore(f.flutter, f.widget, f.state, f.fence,
+            additionalEnabled = { calendarEnabled }) { f.now }
+        store.configure(false, 1380, "calendar")
+        @Suppress("UNCHECKED_CAST")
+        val baseline = store.prepare("calendar", false)!!["baseline"] as Map<String, Any?>
+        var writes = 0
+        assertTrue(store.commit("calendar", false, baseline, emptyMap(), snapshot) { writes++ })
+        assertEquals(1, writes)
+        assertFalse(store.commit("calendar", false, baseline, emptyMap(), snapshot) { writes++ })
+        assertEquals(1, writes)
+        store.invalidateInputs()
+        calendarEnabled = false
+        assertNull(store.prepare("calendar", false))
+    }
     private val snapshot = """{"version":1,"days":[],"sourceUpdatedAt":123}"""
 
     private class Preferences(initial: Map<String, Any?> = emptyMap()) : WidgetPreferences {

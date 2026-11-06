@@ -41,6 +41,7 @@ abstract final class AppRoutes {
   static const androidPermissions = '/settings/permissions';
   static const accountManagement = '/account-management';
   static const homeSettings = '/settings/home';
+  static const calendarExport = '/settings/calendar-export';
   static const customCourses = '/settings/custom-courses';
   static const hiddenCourses = '/settings/hidden-courses';
   static const customCourseEdit = '/settings/custom-courses/edit';

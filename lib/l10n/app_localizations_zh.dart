@@ -1765,6 +1765,118 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetSyncFailed => '联网更新失败，继续使用已有缓存，请重试。';
 
   @override
+  String get calendarSync => '同步到系统日历';
+
+  @override
+  String get calendarSyncDescription => '将课程与考试写入系统日历，每晚自动更新。';
+
+  @override
+  String get calendarSyncScope => '包含当前学期、自定义课程和调课，仅更新福大助手专属日历。';
+
+  @override
+  String get calendarSyncEnabled => '每晚同步日历';
+
+  @override
+  String get calendarSyncPausedHint => '关闭或退出账号后停止同步，保留已写入的日程。';
+
+  @override
+  String get calendarSyncPermission => '日历权限';
+
+  @override
+  String get calendarSyncPermissionRequired => '请先授予日历读写权限。';
+
+  @override
+  String get calendarSyncTime => '每晚同步时间（与桌面小组件共用）';
+
+  @override
+  String get calendarSyncNow => '立即同步';
+
+  @override
+  String get calendarSyncBusy => '正在同步…';
+
+  @override
+  String get calendarSyncLastSuccess => '最近日历同步';
+
+  @override
+  String get calendarSyncFailed => '日历同步未完成，保留已有日程，请检查权限和网络后重试。';
+
+  @override
+  String calendarSyncResult(int inserted, int updated, int deleted) {
+    return '新增 $inserted · 更新 $updated · 删除 $deleted';
+  }
+
+  @override
+  String get calendarSyncReadPermission => '读取日历';
+
+  @override
+  String get calendarSyncWritePermission => '写入日历';
+
+  @override
+  String get calendarSyncReadPurpose => '比对已同步的课程日程';
+
+  @override
+  String get calendarSyncWritePurpose => '新增、更新和删除专属日历中的课程与考试';
+
+  @override
+  String get calendarSyncClear => '删除本应用全部日程';
+
+  @override
+  String get calendarSyncClearHint =>
+      '删除本机所有账号由福大助手创建的课程和考试，并关闭日历同步。手动添加的独立日程和其他日历不受影响。';
+
+  @override
+  String get calendarSyncCleared => '已删除本应用日程并关闭日历同步。';
+
+  @override
+  String get calendarSyncClearFailed => '日程清理未完成，请检查日历权限后重试。';
+
+  @override
+  String get calendarExport => '导出到日历';
+
+  @override
+  String get calendarExportDescription => '将缓存课程与考试导出为日历文件。';
+
+  @override
+  String get calendarExportSnapshot =>
+      '使用北京时间，包含自定义课程、调课和隐藏记录的处理结果；课表变化后需重新导出。';
+
+  @override
+  String get calendarExportMissingData => '请先在首页刷新校历和课表。';
+
+  @override
+  String get calendarExportIncludeExams => '包含考试';
+
+  @override
+  String get calendarExportReminder => '日程提醒';
+
+  @override
+  String get calendarExportNoReminder => '不提醒';
+
+  @override
+  String calendarExportReminderMinutes(int minutes) {
+    return '提前 $minutes 分钟';
+  }
+
+  @override
+  String calendarExportEventCount(int count) {
+    return '$count 条日程';
+  }
+
+  @override
+  String calendarExportSkippedExams(int count) {
+    return '$count 条考试安排无法解析，已跳过。';
+  }
+
+  @override
+  String get calendarExportSave => '导出日历文件';
+
+  @override
+  String get calendarExportBusy => '正在导出…';
+
+  @override
+  String get calendarExportSaved => '日历文件已导出';
+
+  @override
   String get academicChanges => '学业动态';
 
   @override

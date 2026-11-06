@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/screen/toolbox/academic_changes/academic_changes_page.dart';
+import 'package:fzu_assistant/screen/settings/calendar_export_page.dart';
 import 'package:fzu_assistant/screen/settings/next_course_widget_settings_page.dart';
 import 'package:fzu_assistant/screen/toolbox/academic/lectures_page.dart';
 import 'package:fzu_assistant/screen/toolbox/job_fair/job_fair_page.dart';
@@ -88,6 +89,7 @@ abstract final class AppRouter {
     AppRoutes.accountManagement: (_) => const AccountManagementPage(),
     AppRoutes.homeSettings: (_) => const HomeSettingsPage(),
     AppRoutes.academicChanges: (_) => const AcademicChangesPage(),
+    AppRoutes.calendarExport: (_) => const CalendarExportPage(),
     AppRoutes.customCourses: (_) => const CustomCoursesPage(),
     AppRoutes.hiddenCourses: (_) => const HiddenCoursesPage(),
     AppRoutes.generalSettings: (_) => const GeneralSettingsPage(),

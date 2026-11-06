@@ -1887,6 +1887,129 @@ class AppLocalizationsEn extends AppLocalizations {
       'Online refresh failed. Your existing cache is still available; try again.';
 
   @override
+  String get calendarSync => 'Sync to system calendar';
+
+  @override
+  String get calendarSyncDescription =>
+      'Write courses and exams to your calendar and update them nightly.';
+
+  @override
+  String get calendarSyncScope =>
+      'Includes the current term, custom courses and adjustments; updates only the dedicated FZU Assistant calendar.';
+
+  @override
+  String get calendarSyncEnabled => 'Sync calendar nightly';
+
+  @override
+  String get calendarSyncPausedHint =>
+      'Pausing or signing out stops syncing and keeps events already written.';
+
+  @override
+  String get calendarSyncPermission => 'Calendar access';
+
+  @override
+  String get calendarSyncPermissionRequired =>
+      'Allow calendar read and write access first.';
+
+  @override
+  String get calendarSyncTime => 'Nightly sync time (shared with widgets)';
+
+  @override
+  String get calendarSyncNow => 'Sync now';
+
+  @override
+  String get calendarSyncBusy => 'Syncing…';
+
+  @override
+  String get calendarSyncLastSuccess => 'Last calendar sync';
+
+  @override
+  String get calendarSyncFailed =>
+      'Calendar sync did not finish. Existing events were kept. Check access and connectivity, then retry.';
+
+  @override
+  String calendarSyncResult(int inserted, int updated, int deleted) {
+    return 'Added $inserted · Updated $updated · Deleted $deleted';
+  }
+
+  @override
+  String get calendarSyncReadPermission => 'Read calendar';
+
+  @override
+  String get calendarSyncWritePermission => 'Write calendar';
+
+  @override
+  String get calendarSyncReadPurpose =>
+      'Compare previously synced course events';
+
+  @override
+  String get calendarSyncWritePurpose =>
+      'Add, update and remove courses and exams in the dedicated calendar';
+
+  @override
+  String get calendarSyncClear => 'Delete all app events';
+
+  @override
+  String get calendarSyncClearHint =>
+      'Delete courses and exams created by FZU Assistant for all accounts on this device and turn off calendar sync. Independently added events and other calendars are kept.';
+
+  @override
+  String get calendarSyncCleared =>
+      'App events deleted and calendar sync turned off.';
+
+  @override
+  String get calendarSyncClearFailed =>
+      'Event cleanup did not finish. Check calendar access and retry.';
+
+  @override
+  String get calendarExport => 'Export to calendar';
+
+  @override
+  String get calendarExportDescription =>
+      'Export cached courses and exams as a calendar file.';
+
+  @override
+  String get calendarExportSnapshot =>
+      'Uses Beijing time and includes your custom courses, adjustments and hidden sessions. Export again after timetable changes.';
+
+  @override
+  String get calendarExportMissingData =>
+      'Refresh your calendar and timetable on the Home tab first.';
+
+  @override
+  String get calendarExportIncludeExams => 'Include exams';
+
+  @override
+  String get calendarExportReminder => 'Event reminder';
+
+  @override
+  String get calendarExportNoReminder => 'No reminder';
+
+  @override
+  String calendarExportReminderMinutes(int minutes) {
+    return '$minutes minutes before';
+  }
+
+  @override
+  String calendarExportEventCount(int count) {
+    return '$count events';
+  }
+
+  @override
+  String calendarExportSkippedExams(int count) {
+    return '$count exams could not be parsed and were skipped.';
+  }
+
+  @override
+  String get calendarExportSave => 'Export calendar file';
+
+  @override
+  String get calendarExportBusy => 'Exporting…';
+
+  @override
+  String get calendarExportSaved => 'Calendar file exported';
+
+  @override
   String get academicChanges => 'Academic updates';
 
   @override

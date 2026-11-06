@@ -3488,6 +3488,210 @@ abstract class AppLocalizations {
   /// **'联网更新失败，继续使用已有缓存，请重试。'**
   String get widgetSyncFailed;
 
+  /// No description provided for @calendarSync.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步到系统日历'**
+  String get calendarSync;
+
+  /// No description provided for @calendarSyncDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'将课程与考试写入系统日历，每晚自动更新。'**
+  String get calendarSyncDescription;
+
+  /// No description provided for @calendarSyncScope.
+  ///
+  /// In zh, this message translates to:
+  /// **'包含当前学期、自定义课程和调课，仅更新福大助手专属日历。'**
+  String get calendarSyncScope;
+
+  /// No description provided for @calendarSyncEnabled.
+  ///
+  /// In zh, this message translates to:
+  /// **'每晚同步日历'**
+  String get calendarSyncEnabled;
+
+  /// No description provided for @calendarSyncPausedHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭或退出账号后停止同步，保留已写入的日程。'**
+  String get calendarSyncPausedHint;
+
+  /// No description provided for @calendarSyncPermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'日历权限'**
+  String get calendarSyncPermission;
+
+  /// No description provided for @calendarSyncPermissionRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先授予日历读写权限。'**
+  String get calendarSyncPermissionRequired;
+
+  /// No description provided for @calendarSyncTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'每晚同步时间（与桌面小组件共用）'**
+  String get calendarSyncTime;
+
+  /// No description provided for @calendarSyncNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'立即同步'**
+  String get calendarSyncNow;
+
+  /// No description provided for @calendarSyncBusy.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在同步…'**
+  String get calendarSyncBusy;
+
+  /// No description provided for @calendarSyncLastSuccess.
+  ///
+  /// In zh, this message translates to:
+  /// **'最近日历同步'**
+  String get calendarSyncLastSuccess;
+
+  /// No description provided for @calendarSyncFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'日历同步未完成，保留已有日程，请检查权限和网络后重试。'**
+  String get calendarSyncFailed;
+
+  /// No description provided for @calendarSyncResult.
+  ///
+  /// In zh, this message translates to:
+  /// **'新增 {inserted} · 更新 {updated} · 删除 {deleted}'**
+  String calendarSyncResult(int inserted, int updated, int deleted);
+
+  /// No description provided for @calendarSyncReadPermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取日历'**
+  String get calendarSyncReadPermission;
+
+  /// No description provided for @calendarSyncWritePermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'写入日历'**
+  String get calendarSyncWritePermission;
+
+  /// No description provided for @calendarSyncReadPurpose.
+  ///
+  /// In zh, this message translates to:
+  /// **'比对已同步的课程日程'**
+  String get calendarSyncReadPurpose;
+
+  /// No description provided for @calendarSyncWritePurpose.
+  ///
+  /// In zh, this message translates to:
+  /// **'新增、更新和删除专属日历中的课程与考试'**
+  String get calendarSyncWritePurpose;
+
+  /// No description provided for @calendarSyncClear.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除本应用全部日程'**
+  String get calendarSyncClear;
+
+  /// No description provided for @calendarSyncClearHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除本机所有账号由福大助手创建的课程和考试，并关闭日历同步。手动添加的独立日程和其他日历不受影响。'**
+  String get calendarSyncClearHint;
+
+  /// No description provided for @calendarSyncCleared.
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除本应用日程并关闭日历同步。'**
+  String get calendarSyncCleared;
+
+  /// No description provided for @calendarSyncClearFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'日程清理未完成，请检查日历权限后重试。'**
+  String get calendarSyncClearFailed;
+
+  /// No description provided for @calendarExport.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出到日历'**
+  String get calendarExport;
+
+  /// No description provided for @calendarExportDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'将缓存课程与考试导出为日历文件。'**
+  String get calendarExportDescription;
+
+  /// No description provided for @calendarExportSnapshot.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用北京时间，包含自定义课程、调课和隐藏记录的处理结果；课表变化后需重新导出。'**
+  String get calendarExportSnapshot;
+
+  /// No description provided for @calendarExportMissingData.
+  ///
+  /// In zh, this message translates to:
+  /// **'请先在首页刷新校历和课表。'**
+  String get calendarExportMissingData;
+
+  /// No description provided for @calendarExportIncludeExams.
+  ///
+  /// In zh, this message translates to:
+  /// **'包含考试'**
+  String get calendarExportIncludeExams;
+
+  /// No description provided for @calendarExportReminder.
+  ///
+  /// In zh, this message translates to:
+  /// **'日程提醒'**
+  String get calendarExportReminder;
+
+  /// No description provided for @calendarExportNoReminder.
+  ///
+  /// In zh, this message translates to:
+  /// **'不提醒'**
+  String get calendarExportNoReminder;
+
+  /// No description provided for @calendarExportReminderMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'提前 {minutes} 分钟'**
+  String calendarExportReminderMinutes(int minutes);
+
+  /// No description provided for @calendarExportEventCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 条日程'**
+  String calendarExportEventCount(int count);
+
+  /// No description provided for @calendarExportSkippedExams.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 条考试安排无法解析，已跳过。'**
+  String calendarExportSkippedExams(int count);
+
+  /// No description provided for @calendarExportSave.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出日历文件'**
+  String get calendarExportSave;
+
+  /// No description provided for @calendarExportBusy.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在导出…'**
+  String get calendarExportBusy;
+
+  /// No description provided for @calendarExportSaved.
+  ///
+  /// In zh, this message translates to:
+  /// **'日历文件已导出'**
+  String get calendarExportSaved;
+
   /// No description provided for @academicChanges.
   ///
   /// In zh, this message translates to:

@@ -75,6 +75,10 @@ class AndroidPermissionsPage extends HookWidget {
                   'android.permission.SCHEDULE_EXACT_ALARM' =>
                     l10n.permissionNameAlarms,
                   'android.permission.CAMERA' => l10n.permissionNameCamera,
+                  'android.permission.READ_CALENDAR' =>
+                    l10n.calendarSyncReadPermission,
+                  'android.permission.WRITE_CALENDAR' =>
+                    l10n.calendarSyncWritePermission,
                   'android.permission.REQUEST_INSTALL_PACKAGES' =>
                     l10n.permissionNameInstall,
                   'android.permission.INTERNET' => l10n.permissionNameInternet,
@@ -88,6 +92,8 @@ class AndroidPermissionsPage extends HookWidget {
                     'android.permission.POST_NOTIFICATIONS' => l10n.permissionPurposeNotifications,
                     'android.permission.SCHEDULE_EXACT_ALARM' => l10n.permissionPurposeAlarms,
                     'android.permission.CAMERA' => l10n.permissionPurposeCamera,
+                    'android.permission.READ_CALENDAR' => l10n.calendarSyncReadPurpose,
+                    'android.permission.WRITE_CALENDAR' => l10n.calendarSyncWritePurpose,
                     'android.permission.REQUEST_INSTALL_PACKAGES' => l10n.permissionPurposeInstall,
                     'android.permission.INTERNET' => l10n.permissionPurposeInternet,
                     'android.permission.WAKE_LOCK' => l10n.permissionPurposeWake,

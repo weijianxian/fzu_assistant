@@ -7,6 +7,7 @@ import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
+import 'package:fzu_assistant/service/calendar_sync_service.dart';
 
 class HomeSettingsPage extends HookWidget {
   const HomeSettingsPage({super.key});
@@ -43,6 +44,21 @@ class HomeSettingsPage extends HookWidget {
       body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          ListTile(
+            leading: const Icon(Icons.calendar_month_outlined),
+            title: Text(
+              CalendarSyncService.supported
+                  ? l10n.calendarSync
+                  : l10n.calendarExport,
+            ),
+            subtitle: Text(
+              CalendarSyncService.supported
+                  ? l10n.calendarSyncDescription
+                  : l10n.calendarExportDescription,
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.pushNamed(AppRoutes.calendarExport),
+          ),
           ListTile(
             leading: const Icon(Icons.event_note_outlined),
             title: Text(l10n.customCourseManagement),

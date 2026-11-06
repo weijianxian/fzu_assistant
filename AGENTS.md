@@ -164,6 +164,15 @@ lib/
 
 - `model/custom_course.dart` 和 `service/custom_course_store.dart` 管理本地自定义课程；按稳定学号、学期、ID 隔离，存储键 `custom_courses_v1`，不写教务缓存、退出不删除。`screen/settings/custom_courses_page.dart` 提供新增/编辑/删除、周次单双周/星期/节次、教师地点备注和颜色，参数定义在 app_routes.dart。课表设置并列提供自定义课程管理与不展示课程管理入口，首页右上角加号直接打开创建页，周课表和提醒合并课程并监听修改，缺少正式课表/校历时提醒继续提示未知而不误报无课。
 
+## 日历导出
+
+- Android 课表设置改为 `screen/settings/calendar_sync_settings_page.dart` 直接写入系统日历；`service/calendar_sync_service.dart` 管理默认关闭的夜间同步开关、考试及提前提醒，需日历读写授权，精确闹钟授权后按北京时间每日运行，默认 23:00。复用 WidgetSyncService 的命名精确唤醒任务、登录及完整课表刷新，同次刷新同时更新小组件与日历，不另建原生调度层；日历开启时即使关闭小组件夜间开关仍执行，共用可设置的夜间时间。重新进入前台恢复计划，插件负责重启恢复，联网前先安排次日闹钟。
+- `model/calendar_sync.dart` 与 `model/calendar_export.dart` 共用实际课程计算、UTC 时间和稳定哈希 UID；Android 必须使用系统重复日程，不按常规上课次数展开写入独立事件。同课程的星期、节次和地点合并为有学期截止的每周/隔周 RRULE，停课、单次隐藏及不连续周次使用 EXDATE，单次调课/换教室通过 ORIGINAL_ID / ORIGINAL_SYNC_ID / ORIGINAL_INSTANCE_TIME 关联原重复日程；仅考试和没有原始节次的单次补课使用独立事件。常规重复项使用 DURATION 而非 DTEND。合并当前及临近学期、自定义课程、已授权缓存调休和单次隐藏，考试解析失败保留对应旧日程。后台仅用安全存储教务凭据，不写回前台会话，不请求 SSO/支付或未授权第三方接口。
+- 本地插件 `SystemCalendarSync.kt` 在所有 Flutter 引擎自动注册，通过 Android Calendar Provider 创建按账号哈希隔离的本地专属日历；`CalendarReconcile.kt` 仅对完整刷新学期中有应用标记的事件比对增删改，保留手工日程与其他日历，重复同步不新增重复项。配置、退出及前台输入写入与后台提交共用原生锁和代次基线；失败保留旧数据，提供最近成功时间及新增/更新/删除数量。关闭或教务退出停止日历同步，保留已写入日程，换账号需重新开启。不将同步配置/状态加入 WebDAV。
+- 新重复日程使用 `fzu-v2` UID；成功写入重复项和单次例外后，按完整学期范围迁移清理旧 `fzu-v1` 展开课程，考试保留原 UID。父项先于例外写入，例外先于父项删除，真实 Calendar Provider 的 Instances 必须验证单次排除、调课和恢复。设置页提供“删除本应用全部日程”确认按钮，先在同一原生锁下使在途输入失效并关闭日历同步，再清理本应用所有账号、所有学期带应用 UID 的日程；保留手动添加的独立日程及其他应用/日历，不自动删除手机上的实际日程来测试按钮。清理后保留小组件自身的开关和夜间计划。
+- 非 Android 平台保留 `service/calendar_export_service.dart` 和 `screen/settings/calendar_export_page.dart` 的本地 ICS 导出、打开、分享和复制路径，Linux 保留打开与复制。仅读取当前账号的所选学期缓存；文本转义和 UTF-8 折行遵守 RFC 5545，不上传课表或提供在线订阅。
+- `android/app/src/androidTest/java/com/weijx/fzu_assistant/CalendarSyncInstrumentation.java` 在模拟器真实 Calendar Provider 上使用独立偏好和测试账号验证增删改、去重、提醒及手工/历史日程保留，结束清理测试日历；不改实际课表或登录凭据。
+
 ## WebDAV 同步
 
 - `service/webdav_sync_service.dart` 和 `screen/settings/webdav_settings_page.dart` 提供手动上传/下载、测试连接及默认关闭的“每次打开自动同步”；`common/widget/webdav_auto_sync.dart` 等待设置加载后在启动和后台恢复时触发，不因短暂失焦重复同步。使用配置目录下 `fzu-assistant-sync.json`，白名单同步应用偏好、自定义课程和隐藏课程，不同步凭据、Cookie、缓存、WebDAV 配置、自动开关或同步基线，密码只写 SecureStorage。手动下载验证并预览确认后覆盖，运行时立即应用；自动同步以目录和用户名隔离的内容摘要基线判断单端变化，首次两端不同或两端都修改时保留数据并提示手动选择，现有文件缺少强 ETag 时禁止自动上传。上传使用 ETag / If-None-Match，手动确认和自动同步共用互斥锁，配置变化使在途结果失效；恢复与自定义课程保存同队列并在写前检查本地变化。上传或测试写入遇到 409 时使用 MKCOL 按需递归创建配置目录，201 为新建、405 为已存在，补建后仅重试一次且保留条件请求头，认证失败或重定向不得补建。读取同步文件的 404/409 视为尚无备份，写入仍受 If-None-Match 保护。连接测试使用当前输入和独立随机文件，验证写入、读取及删除，不保存输入、不改同步基线或正式备份；创建失败的 412 不删除已有文件，创建后读取失败仍清理，清理失败或上传结果不明须报告临时文件名。禁止跟随认证请求重定向，文件最大 5 MB，失败回滚本地设置。

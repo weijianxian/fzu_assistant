@@ -31,6 +31,7 @@ internal class WidgetSyncStore(
     private val widget: WidgetPreferences,
     private val state: WidgetPreferences,
     private val fence: WidgetSyncFence = PROCESS_FENCE,
+    private val additionalEnabled: () -> Boolean = { false },
     private val now: () -> Long = System::currentTimeMillis,
 ) {
     companion object {
@@ -125,7 +126,10 @@ internal class WidgetSyncStore(
     private fun valid(values: Map<String, Any?>, generation: String, manual: Boolean): Boolean =
         !fence.blocked && generation !in fence.revoked &&
             generation.isNotBlank() && values["generation"] == generation &&
-            (manual || (values["enabled"] as? Boolean) != false)
+            (manual || (values["enabled"] as? Boolean) != false || additionalEnabled())
+
+    /** Calendar preferences participate in the same in-flight input fence. */
+    fun invalidateInputs() = synchronized(LOCK) { fence.advance() }
 
     fun prepare(generation: String, manual: Boolean): Map<String, Any?>? = synchronized(LOCK) {
         val values = state.read()
@@ -195,6 +199,7 @@ internal class WidgetSyncStore(
         expected: Map<String, Any?>,
         writes: Map<String, String>,
         snapshot: String,
+        onCommitted: (() -> Unit)? = null,
     ): Boolean = synchronized(LOCK) {
         val values = state.read()
         if (!valid(values, generation, manual)) return@synchronized false
@@ -218,6 +223,7 @@ internal class WidgetSyncStore(
                 "failed" to false,
             ),
         ))
+        onCommitted?.invoke()
         true
     }
 

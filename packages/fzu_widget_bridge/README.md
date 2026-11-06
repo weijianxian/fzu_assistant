@@ -1,14 +1,14 @@
 # fzu_widget_bridge
 
-Local Android Flutter plugin for publishing background course caches and widget
-snapshots. It implements `FlutterPlugin`, has no Activity dependency, and declares
+Local Android Flutter plugin for publishing background course caches, widget
+snapshots and system calendar events. It implements `FlutterPlugin`, has no Activity dependency, and declares
 its Android implementation in `pubspec.yaml` so generated engine registration
 also discovers it in `android_alarm_manager_plus`'s headless engine.
 
 The channel is `com.weijx.fzu_assistant/widget_background`.
 This package does not log in, perform network requests, schedule alarms, read
 SecureStorage, or access credential/payment preferences. The host owns those
-operations and must pass only the existing minimal display snapshot. Sync state
+operations and passes display snapshots and, when authorized, course calendar events. Sync state
 is stored separately in `widget_nightly_sync`, without account identity.
 
 ## Channel contract
@@ -47,6 +47,10 @@ allocated ID: the first ID is `1000000`, subsequent IDs increment, and the ID
 following `Int.MAX_VALUE - 1000` wraps to `1000000`. `cancel` removes `alarmId`
 and preserves the counter. Only the host schedules/cancels these alarm IDs;
 this plugin never invokes an alarm manager.
+
+Calendar sync may independently keep the nightly task active when widget sync is
+disabled. `getState` adds `calendarEnabled`; `prepare` also returns a `calendar`
+configuration map, read under the same lock as the baseline.
 
 `manual: true` bypasses only the enabled check on `prepare`, `commit` and
 `markFailed`. It never bypasses generation/baseline checks. A disabled feature
@@ -208,3 +212,59 @@ tasks alone; the platform timeout remains the final bound.
 No extra native scheduling or service is introduced. The manifest merges only
 `WAKE_LOCK`, already used by the host. Nightly scheduling stays in
 `android_alarm_manager_plus`.
+
+## System calendar
+
+`calendarState` returns the independent calendar settings and result counters.
+`calendarConfigure` accepts `{settings: {owner, enabled, includeExams, reminder}}`.
+`owner` is a SHA-256 account digest, never the student ID. The host requests
+READ_CALENDAR and WRITE_CALENDAR from its Activity; this plugin only checks their
+current grants. Calendar settings invalidate the shared baseline. Settings are
+stored in `system_calendar_sync`, outside WebDAV. `calendarDisconnect` disables
+sync, preserving events. Logout revokes the shared task before disconnecting.
+
+When enabled, `commit` additionally accepts `calendar: {owner, terms, events,
+protected}`. Every event has `uid`, `title`, `location`, `description`, UTC epoch
+`start`/`end`, and `reminder` minutes (0 disables). UIDs use `fzu-v1:<term>:<hash>`.
+Weekly/alternate-week series use `fzu-v2:<term>:<hash>` and add `rrule`
+(`FREQ=WEEKLY;INTERVAL=1|2;COUNT=n`) and optional UTC `exdate` values. The
+provider writes series with DTSTART/DURATION, without DTEND. Moved or modified
+single occurrences add `originalUid` and `originalStart`; they are linked using
+ORIGINAL_ID, ORIGINAL_SYNC_ID and ORIGINAL_INSTANCE_TIME. They do not recur.
+The host expands timetable rules only in memory to build this compact plan;
+ordinary occurrences are never stored as individual provider events.
+`occurrenceCount` reports actual visible occurrences rather than provider rows.
+Only freshly fetched complete terms enter `terms`; unparseable exams enter
+`protected` to retain their last valid event. The provider creates a local
+calendar identified by package, owner digest and `fzu-schedule-v1`. It reconciles
+managed UIDs in those terms only, preserving manual events, historical terms
+and other calendars. Repeated identical synchronization preserves provider IDs
+and performs no event writes. Batches insert/update before deleting stale events.
+All provider work remains inside the generation/baseline commit lock.
+Parents are saved before their exceptions, exceptions are deleted before their
+parents, and old expanded v1 course rows are removed only after the v2 plan is
+saved. Exam UIDs remain v1 for migration and malformed-exam protection.
+
+`calendarClear` first invalidates prepared inputs and disables calendar sync,
+then removes managed v1/v2 events across all accounts/terms in this package's
+own local calendars. It keeps manually added independent events and other
+packages' calendars. The host confirms this operation and reconciles the shared
+nightly schedule afterward, preserving the widget switch.
+
+Calendar-provider failures set the separate calendar failure state without
+undoing valid official caches/widgets. Nightly network failures preserve events
+and the last success time. The next exact alarm is scheduled before networking;
+no native scheduler is added.
+
+The host has a dependency-free real-provider instrumentation test, isolated by
+its own preferences and test owner. Grant calendar permissions on the emulator
+first, build `:app:assembleDebugAndroidTest`, install that test APK, then run:
+
+```text
+adb -s emulator-5554 shell am instrument -w com.weijx.fzu_assistant.dev.test/com.weijx.fzu_assistant.CalendarSyncInstrumentation
+```
+
+It verifies insertion, idempotency, updates/deletions, reminders, preservation of
+manual/historical events, malformed-payload rejection, real RRULE/EXDATE Instances,
+linked moved instances, legacy migration, multi-account cleanup and pause. Test calendars
+are removed afterward; the real app calendar is only counted.

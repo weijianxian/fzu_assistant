@@ -12,6 +12,7 @@ import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/academic_changes_service.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
+import 'package:fzu_assistant/service/calendar_sync_service.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
@@ -299,6 +300,7 @@ class ApiClient {
       (Object _) {},
     );
     await WidgetSyncService.instance.cancel();
+    await CalendarSyncService.instance.disconnect();
     await CourseReminderService.instance.cancel();
     usingCachedSession.value = false;
     _studentId = null;

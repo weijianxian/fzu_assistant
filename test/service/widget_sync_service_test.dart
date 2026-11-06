@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
+import 'package:fzu_assistant/model/calendar_sync.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/android_task_scheduler.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
@@ -339,6 +340,77 @@ void main() {
     expect(widgetRefreshTerms(summer, DateTime.utc(2027, 1, 20, 15)), [
       '202601',
       '202602',
+    ]);
+  });
+
+  test('calendar uses the same complete refresh and never includes historical cache terms', () async {
+    messenger.setMockMethodCallHandler(WidgetSyncService.channel, (call) async {
+      calls.add(call);
+      if (call.method == 'prepare') {
+        return {
+          'baseline': {'captured': true},
+          'calendar': {
+            'enabled': true,
+            'owner': calendarAccountKey('account'),
+            'includeExams': false,
+            'reminder': 30,
+          },
+        };
+      }
+      if (call.method == 'commit') {
+        commit = Map<String, dynamic>.from(call.arguments as Map);
+        return true;
+      }
+      return null;
+    });
+    expect(
+      await refreshWidgetData(
+        'generation',
+        now: now,
+        authenticate: () async => 'account',
+        fetchCalendar: () async => calendar,
+        fetchCourses: (_) async => [],
+      ),
+      isTrue,
+    );
+    final payload = commit!['calendar'] as Map;
+    expect(payload['terms'], ['202601']);
+    expect(payload['events'], isEmpty);
+    expect(payload['owner'], calendarAccountKey('account'));
+    expect(payload.toString(), isNot(contains('202501')));
+  });
+
+  test('calendar-only nightly schedule re-arms tomorrow even if refresh cannot prepare', () async {
+    AndroidAlarmManager.setTestOverrides(
+      getCallbackHandle: (_) => CallbackHandle.fromRawHandle(1),
+    );
+    final alarms = <MethodCall>[];
+    messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
+      call,
+    ) async {
+      alarms.add(call);
+      return true;
+    });
+    messenger.setMockMethodCallHandler(WidgetSyncService.channel, (call) async {
+      calls.add(call);
+      return switch (call.method) {
+        'getState' => {
+          'generation': 'calendar',
+          'enabled': false,
+          'calendarEnabled': true,
+          'minutes': 1380,
+        },
+        'acquireWakeLock' => true,
+        _ => null,
+      };
+    });
+    await WidgetSyncService.runBackground('calendar');
+    expect(alarms.map((call) => call.method), contains('Alarm.oneShotAt'));
+    expect(calls.map((call) => call.method), [
+      'getState',
+      'acquireWakeLock',
+      'prepare',
+      'releaseWakeLock',
     ]);
   });
 }
