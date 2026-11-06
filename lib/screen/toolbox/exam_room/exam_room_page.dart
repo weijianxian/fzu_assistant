@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/utils/date_text.dart';
 import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -20,8 +21,20 @@ class ExamRoomPage extends HookWidget {
     final refreshTime = useState<DateTime?>(null);
     final effectiveTerm = useState<String>('');
     final service = useMemoized(() => AcademicService());
+    final requestSerial = useRef(0);
+    final now = useState(DateTime.now());
+
+    useEffect(() {
+      final timer = Timer.periodic(
+        const Duration(minutes: 1),
+        (_) => now.value = DateTime.now(),
+      );
+      return timer.cancel;
+    }, const []);
 
     Future<void> load({bool useCache = true}) async {
+      final request = ++requestSerial.value;
+      bool isLatest() => context.mounted && request == requestSerial.value;
       error.value = null;
       loading.value = true;
       try {
@@ -31,21 +44,16 @@ class ExamRoomPage extends HookWidget {
           selected,
           useCache: useCache,
         );
-        if (!context.mounted) return;
-        data.sort(
-          (a, b) =>
-              DateText.parseChineseDateOrEpoch(b.date)
-                  .compareTo(DateText.parseChineseDateOrEpoch(a.date)),
-        );
+        if (!isLatest()) return;
         rooms.value = data;
         effectiveTerm.value = targetTerm;
         refreshTime.value = DateTime.now();
         error.value = null;
       } catch (e) {
-        if (!context.mounted) return;
+        if (!isLatest()) return;
         error.value = e.toString();
       }
-      if (context.mounted) loading.value = false;
+      if (isLatest()) loading.value = false;
     }
 
     useEffect(() {
@@ -94,22 +102,27 @@ class ExamRoomPage extends HookWidget {
         refreshTime: refreshTime.value,
         hasData: rooms.value.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noExamRoomInfo,
-        slivers: _buildSlivers(context, rooms.value),
+        slivers: _buildSlivers(
+          context,
+          ExamRoomInfo.sorted(rooms.value, now.value),
+          now.value,
+        ),
       ),
     );
   }
 
-  List<Widget> _buildSlivers(BuildContext context, List<ExamRoomInfo> rooms) {
-    final now = DateTime.now();
-
+  List<Widget> _buildSlivers(
+    BuildContext context,
+    List<ExamRoomInfo> rooms,
+    DateTime now,
+  ) {
     return [
       MasonrySliverGrid(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         childCount: rooms.length,
         itemBuilder: (context, i) {
           final r = rooms[i];
-          final examDate = DateText.parseChineseDateOrEpoch(r.date);
-          final past = examDate.isBefore(now) && r.date.isNotEmpty;
+          final past = r.hasFinished(now);
 
           return Card(
             margin: EdgeInsets.zero,
@@ -161,6 +174,8 @@ class ExamRoomPage extends HookWidget {
                           _infoTag(Icons.calendar_today, r.date),
                         if (r.time.isNotEmpty)
                           _infoTag(Icons.access_time, r.time),
+                        if (r.date.isEmpty && r.rawExamTime.isNotEmpty)
+                          _infoTag(Icons.info_outline, r.rawExamTime),
                       ],
                     ),
                     const SizedBox(height: 4),

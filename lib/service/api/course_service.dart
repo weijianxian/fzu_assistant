@@ -220,6 +220,7 @@ class CourseService {
     bool useCache = true,
     bool west2AdjustmentsEnabled = false,
     bool persistCache = true,
+    TermInfo? termInfo,
   }) async {
     // 先尝试缓存
     if (useCache || ApiClient.instance.usingCachedSession.value) {
@@ -238,7 +239,7 @@ class CourseService {
     }
 
     // 获取表单状态（并缓存供页面使用）
-    final termInfo = await getTerms();
+    termInfo ??= await getTerms();
     _cachedTerms = termInfo.terms;
 
     // 网络请求

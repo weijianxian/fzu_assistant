@@ -19,6 +19,7 @@ import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/api/html_helper.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 import 'package:fzu_assistant/service/api/user_service.dart';
@@ -137,8 +138,6 @@ class AcademicService {
       'https://jwcjwxt2.fzu.edu.cn:81/student/glbm/cet/cet_cszt.aspx';
   static const _jsUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/glbm/computer/jsj_cszt.aspx';
-  static const _examRoomUrl =
-      'https://jwcjwxt2.fzu.edu.cn:81/student/xkjg/examination/exam_list.aspx';
   static const _creditUrl =
       'https://jwcjwxt2.fzu.edu.cn:81/student/xyzk/xftj/CreditStatistics.aspx';
   static const _calendarUrl = 'https://jwcjwxt2.fzu.edu.cn:82/xl.asp';
@@ -460,9 +459,7 @@ class AcademicService {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
 
-    final doc = await _fetch(_examRoomUrl);
-
-    final termInfo = HtmlHelper.parseTermInfo(doc);
+    final termInfo = await CourseService().getTerms();
     _cachedExamTerms = termInfo.terms;
     return termInfo;
   }
@@ -492,53 +489,26 @@ class AcademicService {
   ) async {
     if (!termInfo.terms.contains(term)) return [];
 
-    // POST 查询
-    final postDoc = await _post(_examRoomUrl, {
-      '__VIEWSTATE': termInfo.viewState,
-      '__EVENTVALIDATION': termInfo.eventValidation,
-      'ctl00\$ContentPlaceHolder1\$DDL_xnxq': term,
-      'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
-    });
-
-    final table = postDoc.getElementById('ContentPlaceHolder1_DataList_xxk');
-    if (table == null) return [];
-
-    final rows = table.querySelectorAll('tr[onmouseover]');
-    final rooms = <ExamRoomInfo>[];
-    for (final row in rows) {
-      final cells = row.querySelectorAll('td');
-      if (cells.length < 4) continue;
-
-      final raw = cells[3].text.trim();
-      final (date, time, location) = _parseDateAndLocation(raw);
-
-      rooms.add(
-        ExamRoomInfo(
-          courseName: cells[0].text.trim(),
-          credit: cells[1].text.trim(),
-          teacher: cells[2].text.trim(),
-          date: date,
-          time: time,
-          location: location,
-        ),
-      );
+    final account = ApiClient.instance.studentId;
+    final courses = await CourseService().getCourses(
+      term,
+      useCache: false,
+      persistCache: false,
+      termInfo: termInfo,
+    );
+    if (account != ApiClient.instance.studentId) {
+      throw const SessionExpiredException();
     }
+    final rooms = courses.map(ExamRoomInfo.fromCourse).toList();
 
     // 写入缓存
-    CacheHelper.saveForKey(
+    await CacheHelper.saveForKey(
       SpKeys.cacheExamRoomsMap,
       term,
       rooms.map((r) => r.toJson()).toList(),
     );
 
     return rooms;
-  }
-
-  static (String, String, String) _parseDateAndLocation(String raw) {
-    if (raw.isEmpty) return ('', '', '暂无考场数据');
-    final parts = raw.split(RegExp(r'\s+'));
-    if (parts.length < 3) return (raw, '', '');
-    return (parts[0], parts[1], parts[2]);
   }
 
   // ─── 学分统计 ───
