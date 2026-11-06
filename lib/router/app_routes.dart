@@ -6,6 +6,7 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const gpa = '/gpa';
   static const marks = '/marks';
+  static const academicChanges = '/academic-changes';
   static const credit = '/credit';
   static const unifiedExam = '/unified-exam';
   static const examRoom = '/exam-room';

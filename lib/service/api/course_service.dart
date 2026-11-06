@@ -215,11 +215,13 @@ class CourseService {
 
   /// 获取指定学期的课程列表。
   /// [useCache] 为 true 时优先返回缓存数据。
+  /// 考试变化比对要求完整行，避免把无法解析的课程误判为考试撤回。
   Future<List<Course>> getCourses(
     String term, {
     bool useCache = true,
     bool west2AdjustmentsEnabled = false,
     bool persistCache = true,
+    bool requireCompleteRows = false,
     TermInfo? termInfo,
   }) async {
     // 先尝试缓存
@@ -258,15 +260,25 @@ class CourseService {
     if (table == null) throw StateError('教务处未返回有效课表，请稍后重试');
 
     final rows = table.querySelectorAll('tbody > tr');
+    if (requireCompleteRows && rows.length < 2) {
+      throw StateError('教务处课表结构不完整，请稍后重试');
+    }
     if (rows.length <= 2) return [];
 
     final courses = <Course>[];
     for (var i = 2; i < rows.length; i++) {
       final row = rows[i];
-      if ((row.attributes['style'] ?? '').isEmpty) continue;
+      if (!requireCompleteRows && (row.attributes['style'] ?? '').isEmpty) {
+        continue;
+      }
 
       final cells = row.querySelectorAll('td');
-      if (cells.length < 12) continue;
+      if (cells.length < 12) {
+        if (requireCompleteRows) {
+          throw StateError('教务处课表记录不完整，请稍后重试');
+        }
+        continue;
+      }
 
       courses.add(_parseCourse(cells));
     }

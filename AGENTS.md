@@ -172,6 +172,10 @@ lib/
 
 - `AcademicService.getCultivatePlan()` 直接读取教务处，按年级/学院/专业精确匹配，失败时用年级查询回退匹配专业，WebForms 令牌随每次响应更新，不接入 west2 服务。`screen/toolbox/academic/cultivate_plan_page.dart` 为工具箱入口，支持刷新及打开官方页面手动选择。最终链接仅接受教务处培养方案域名和路径，保留当前会话 id。
 
+## 学业动态
+
+- `model/academic_change.dart`、`service/academic_changes_service.dart` 和 `screen/toolbox/academic_changes/academic_changes_page.dart` 提供本地成绩与考试变化记录；工具箱提供入口，成绩和考场页显示可跨启动恢复的未读提示。仅在成功获取最新官方数据后比对，首次建立基线不提示，识别新成绩、分数变化和考试新增/变更/撤回；忽略返回顺序、重复或无法解析记录造成的伪变化，考试查询要求完整课程行且不依赖行样式，截断响应不得清空缓存或记录撤回。保留最近 100 条，支持逐条或全部已读。基线与记录均不参与 WebDAV 同步；退出清除，账号、请求代次和串行写入防止旧响应污染。此阶段不新增轮询、夜间任务或系统推送。
+
 ## 考场查询
 
 - 考试安排复用 `CourseService` 的选课结果，从 `rawExamTime` 提取日期、时间与地点，不再请求独立的 `exam_list.aspx`。`ExamRoomInfo` 按北京时间解释起止时刻，只有结束后标记已考完；待考按开始时间升序、已考按最近优先、未安排或无法解析的记录置后并保留原文。查询失败保留缓存，旧请求不得覆盖新学期选择。

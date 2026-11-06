@@ -1763,4 +1763,50 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get widgetSyncFailed => '联网更新失败，继续使用已有缓存，请重试。';
+
+  @override
+  String get academicChanges => '学业动态';
+
+  @override
+  String get academicChangesSubtitle => '查看查询后发现的成绩和考试变化。';
+
+  @override
+  String get academicChangesDescription =>
+      '首次查询建立基线，后续成功查询时记录成绩与考试变化，保留最近 100 条；点击记录标为已读。';
+
+  @override
+  String get academicChangesEmpty => '暂无变化记录，请先查询成绩或考试。';
+
+  @override
+  String get academicChangesMarkRead => '全部标为已读';
+
+  @override
+  String get academicChangeGradeAdded => '新成绩';
+
+  @override
+  String get academicChangeGradeChanged => '成绩变更';
+
+  @override
+  String get academicChangeExamAdded => '新增考试安排';
+
+  @override
+  String get academicChangeExamChanged => '考试安排变更';
+
+  @override
+  String get academicChangeExamRemoved => '考试安排已撤回';
+
+  @override
+  String academicChangeCount(int count) {
+    return '$count 条未读学业变化';
+  }
+
+  @override
+  String academicChangeFromTo(String before, String after) {
+    return '$before → $after';
+  }
+
+  @override
+  String academicChangeDetectedAt(String time) {
+    return '发现时间（北京时间）：$time';
+  }
 }

@@ -19,6 +19,7 @@ import 'package:fzu_assistant/model/mark.dart';
 import 'package:fzu_assistant/model/notice.dart';
 import 'package:fzu_assistant/model/unified_exam.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/academic_changes_service.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/api/html_helper.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
@@ -335,6 +336,9 @@ class AcademicService {
   Future<List<Mark>> getMarks() async {
     final id = ApiClient.instance.userId;
     if (id == null) throw Exception('未登录');
+    final observation = AcademicChangesService.instance.begin(
+      ApiClient.instance.studentId ?? '',
+    );
 
     final doc = await _fetch(_marksUrl);
 
@@ -345,8 +349,6 @@ class AcademicService {
     if (table == null) throw Exception('未找到成绩表格');
 
     final rows = table.querySelectorAll('tbody > tr');
-    if (rows.length <= 2) return [];
-
     final marks = <Mark>[];
     for (var i = 2; i < rows.length; i++) {
       final row = rows[i];
@@ -371,6 +373,13 @@ class AcademicService {
           examTime: cells[11].text.trim(),
         ),
       );
+    }
+    try {
+      if (observation.account == ApiClient.instance.studentId) {
+        await AcademicChangesService.instance.observeMarks(observation, marks);
+      }
+    } catch (_) {
+      // Local change history must not turn a successful query into a failure.
     }
     return marks;
   }
@@ -421,6 +430,9 @@ class AcademicService {
     String preferredTerm, {
     bool useCache = true,
   }) async {
+    final observation = AcademicChangesService.instance.begin(
+      ApiClient.instance.studentId ?? '',
+    );
     if (ApiClient.instance.usingCachedSession.value) {
       final map = await CacheHelper.loadMap(SpKeys.cacheExamRoomsMap);
       final target = preferredTerm.isNotEmpty
@@ -443,7 +455,7 @@ class AcademicService {
       if (cached != null) return (targetTerm, cached);
     }
 
-    final rooms = await _fetchExamRooms(targetTerm, termInfo);
+    final rooms = await _fetchExamRooms(targetTerm, termInfo, observation);
     return (targetTerm, rooms);
   }
 
@@ -469,6 +481,9 @@ class AcademicService {
     bool useCache = true,
   }) async {
     if (term.isEmpty) return [];
+    final observation = AcademicChangesService.instance.begin(
+      ApiClient.instance.studentId ?? '',
+    );
 
     // 先尝试缓存
     if (useCache || ApiClient.instance.usingCachedSession.value) {
@@ -480,12 +495,13 @@ class AcademicService {
     }
 
     final termInfo = await _fetchExamTermInfo();
-    return _fetchExamRooms(term, termInfo);
+    return _fetchExamRooms(term, termInfo, observation);
   }
 
   Future<List<ExamRoomInfo>> _fetchExamRooms(
     String term,
     TermInfo termInfo,
+    AcademicObservation observation,
   ) async {
     if (!termInfo.terms.contains(term)) return [];
 
@@ -494,9 +510,11 @@ class AcademicService {
       term,
       useCache: false,
       persistCache: false,
+      requireCompleteRows: true,
       termInfo: termInfo,
     );
-    if (account != ApiClient.instance.studentId) {
+    if (account != ApiClient.instance.studentId ||
+        !AcademicChangesService.instance.accepts(observation, 'exams:$term')) {
       throw const SessionExpiredException();
     }
     final rooms = courses.map(ExamRoomInfo.fromCourse).toList();
@@ -507,6 +525,17 @@ class AcademicService {
       term,
       rooms.map((r) => r.toJson()).toList(),
     );
+    try {
+      if (observation.account == ApiClient.instance.studentId) {
+        await AcademicChangesService.instance.observeExams(
+          observation,
+          term,
+          rooms,
+        );
+      }
+    } catch (_) {
+      // Retain the successful official data if local history cannot be saved.
+    }
 
     return rooms;
   }

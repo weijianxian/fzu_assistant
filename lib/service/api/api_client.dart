@@ -10,6 +10,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
+import 'package:fzu_assistant/service/academic_changes_service.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
@@ -294,6 +295,9 @@ class ApiClient {
   ///
   /// 课程/考场缓存只按学期分片、不含账号维度，不清会读到上一个账号的数据。
   Future<void> clearSession() async {
+    final clearChanges = AcademicChangesService.instance.clear().catchError(
+      (Object _) {},
+    );
     await WidgetSyncService.instance.cancel();
     await CourseReminderService.instance.cancel();
     usingCachedSession.value = false;
@@ -303,6 +307,7 @@ class ApiClient {
     await _cookieJar.deleteAll();
     await AuthStorage().clearAcademicSession();
     await CacheHelper.removeAll(SpKeys.userScopedCacheKeys);
+    await clearChanges;
   }
 
   // ─── 供拦截器调用 ───

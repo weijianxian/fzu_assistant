@@ -1166,5 +1166,21 @@
   "widgetSyncLastSuccess": "Last successful refresh",
   "widgetSyncNever": "No successful online refresh yet",
   "widgetSyncNext": "Next automatic refresh",
-  "widgetSyncFailed": "Online refresh failed. Your existing cache is still available; try again."
+  "widgetSyncFailed": "Online refresh failed. Your existing cache is still available; try again.",
+  "academicChanges": "Academic updates",
+  "academicChangesSubtitle": "View grade and exam changes found after queries.",
+  "academicChangesDescription": "Records the latest 100 grade and exam changes after the first query; tap an entry to mark it read.",
+  "academicChangesEmpty": "No changes yet. Query your grades or exams first.",
+  "academicChangesMarkRead": "Mark all as read",
+  "academicChangeGradeAdded": "New grade",
+  "academicChangeGradeChanged": "Grade changed",
+  "academicChangeExamAdded": "Exam scheduled",
+  "academicChangeExamChanged": "Exam arrangement changed",
+  "academicChangeExamRemoved": "Exam arrangement withdrawn",
+  "academicChangeCount": "{count} unread academic updates",
+  "@academicChangeCount": {"placeholders": {"count": {"type": "int"}}},
+  "academicChangeFromTo": "{before} → {after}",
+  "@academicChangeFromTo": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}}},
+  "academicChangeDetectedAt": "Detected at (Beijing time): {time}",
+  "@academicChangeDetectedAt": {"placeholders": {"time": {"type": "String"}}}
 }

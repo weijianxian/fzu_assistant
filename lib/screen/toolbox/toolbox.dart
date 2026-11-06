@@ -25,6 +25,12 @@ class ToolboxPage extends HookWidget {
         l10n.gradesAndCredits,
         [
           (
+            Icons.notifications_active_outlined,
+            l10n.academicChanges,
+            l10n.academicChangesSubtitle,
+            AppRoutes.academicChanges,
+          ),
+          (
             Icons.school_outlined,
             l10n.gpaInfo,
             l10n.gpaInfoSubtitle,

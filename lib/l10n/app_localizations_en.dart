@@ -1885,4 +1885,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get widgetSyncFailed =>
       'Online refresh failed. Your existing cache is still available; try again.';
+
+  @override
+  String get academicChanges => 'Academic updates';
+
+  @override
+  String get academicChangesSubtitle =>
+      'View grade and exam changes found after queries.';
+
+  @override
+  String get academicChangesDescription =>
+      'Records the latest 100 grade and exam changes after the first query; tap an entry to mark it read.';
+
+  @override
+  String get academicChangesEmpty =>
+      'No changes yet. Query your grades or exams first.';
+
+  @override
+  String get academicChangesMarkRead => 'Mark all as read';
+
+  @override
+  String get academicChangeGradeAdded => 'New grade';
+
+  @override
+  String get academicChangeGradeChanged => 'Grade changed';
+
+  @override
+  String get academicChangeExamAdded => 'Exam scheduled';
+
+  @override
+  String get academicChangeExamChanged => 'Exam arrangement changed';
+
+  @override
+  String get academicChangeExamRemoved => 'Exam arrangement withdrawn';
+
+  @override
+  String academicChangeCount(int count) {
+    return '$count unread academic updates';
+  }
+
+  @override
+  String academicChangeFromTo(String before, String after) {
+    return '$before → $after';
+  }
+
+  @override
+  String academicChangeDetectedAt(String time) {
+    return 'Detected at (Beijing time): $time';
+  }
 }

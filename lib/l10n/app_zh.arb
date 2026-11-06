@@ -1166,5 +1166,21 @@
   "widgetSyncLastSuccess": "上次成功更新",
   "widgetSyncNever": "尚未成功联网更新",
   "widgetSyncNext": "下次自动更新",
-  "widgetSyncFailed": "联网更新失败，继续使用已有缓存，请重试。"
+  "widgetSyncFailed": "联网更新失败，继续使用已有缓存，请重试。",
+  "academicChanges": "学业动态",
+  "academicChangesSubtitle": "查看查询后发现的成绩和考试变化。",
+  "academicChangesDescription": "首次查询建立基线，后续成功查询时记录成绩与考试变化，保留最近 100 条；点击记录标为已读。",
+  "academicChangesEmpty": "暂无变化记录，请先查询成绩或考试。",
+  "academicChangesMarkRead": "全部标为已读",
+  "academicChangeGradeAdded": "新成绩",
+  "academicChangeGradeChanged": "成绩变更",
+  "academicChangeExamAdded": "新增考试安排",
+  "academicChangeExamChanged": "考试安排变更",
+  "academicChangeExamRemoved": "考试安排已撤回",
+  "academicChangeCount": "{count} 条未读学业变化",
+  "@academicChangeCount": {"placeholders": {"count": {"type": "int"}}},
+  "academicChangeFromTo": "{before} → {after}",
+  "@academicChangeFromTo": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}}},
+  "academicChangeDetectedAt": "发现时间（北京时间）：{time}",
+  "@academicChangeDetectedAt": {"placeholders": {"time": {"type": "String"}}}
 }

@@ -3487,6 +3487,84 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'联网更新失败，继续使用已有缓存，请重试。'**
   String get widgetSyncFailed;
+
+  /// No description provided for @academicChanges.
+  ///
+  /// In zh, this message translates to:
+  /// **'学业动态'**
+  String get academicChanges;
+
+  /// No description provided for @academicChangesSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看查询后发现的成绩和考试变化。'**
+  String get academicChangesSubtitle;
+
+  /// No description provided for @academicChangesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'首次查询建立基线，后续成功查询时记录成绩与考试变化，保留最近 100 条；点击记录标为已读。'**
+  String get academicChangesDescription;
+
+  /// No description provided for @academicChangesEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无变化记录，请先查询成绩或考试。'**
+  String get academicChangesEmpty;
+
+  /// No description provided for @academicChangesMarkRead.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部标为已读'**
+  String get academicChangesMarkRead;
+
+  /// No description provided for @academicChangeGradeAdded.
+  ///
+  /// In zh, this message translates to:
+  /// **'新成绩'**
+  String get academicChangeGradeAdded;
+
+  /// No description provided for @academicChangeGradeChanged.
+  ///
+  /// In zh, this message translates to:
+  /// **'成绩变更'**
+  String get academicChangeGradeChanged;
+
+  /// No description provided for @academicChangeExamAdded.
+  ///
+  /// In zh, this message translates to:
+  /// **'新增考试安排'**
+  String get academicChangeExamAdded;
+
+  /// No description provided for @academicChangeExamChanged.
+  ///
+  /// In zh, this message translates to:
+  /// **'考试安排变更'**
+  String get academicChangeExamChanged;
+
+  /// No description provided for @academicChangeExamRemoved.
+  ///
+  /// In zh, this message translates to:
+  /// **'考试安排已撤回'**
+  String get academicChangeExamRemoved;
+
+  /// No description provided for @academicChangeCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 条未读学业变化'**
+  String academicChangeCount(int count);
+
+  /// No description provided for @academicChangeFromTo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{before} → {after}'**
+  String academicChangeFromTo(String before, String after);
+
+  /// No description provided for @academicChangeDetectedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'发现时间（北京时间）：{time}'**
+  String academicChangeDetectedAt(String time);
 }
 
 class _AppLocalizationsDelegate

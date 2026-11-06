@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/academic_change_notice.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/common/widgets.dart';
@@ -117,6 +118,7 @@ class ExamRoomPage extends HookWidget {
     DateTime now,
   ) {
     return [
+      const SliverToBoxAdapter(child: AcademicChangeNotice(exams: true)),
       MasonrySliverGrid(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         childCount: rooms.length,
