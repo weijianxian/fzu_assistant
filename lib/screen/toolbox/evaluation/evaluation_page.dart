@@ -15,42 +15,42 @@ class EvaluationPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final tabController = useTabController(initialLength: 2);
     final service = useMemoized(() => AcademicService());
     final oneKeyTrigger = useState(0);
 
-    return AppScaffold(
-      appBar: AppBar(
-        title: Text(l10n.evaluation),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.done_all),
-            tooltip: '一键填写',
-            onPressed: () => oneKeyTrigger.value++,
+    return DefaultTabController(
+      length: 2,
+      child: AppScaffold(
+        appBar: AppBar(
+          title: Text(l10n.evaluation),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.done_all),
+              tooltip: '一键填写',
+              onPressed: () => oneKeyTrigger.value++,
+            ),
+          ],
+          bottom: TabBar(
+            tabs: [
+              Tab(text: l10n.evalTabXqxk),
+              Tab(text: l10n.evalTabScore),
+            ],
           ),
-        ],
-        bottom: TabBar(
-          controller: tabController,
-          tabs: [
-            Tab(text: l10n.evalTabXqxk),
-            Tab(text: l10n.evalTabScore),
+        ),
+        body: TabBarView(
+          children: [
+            _EvaluationTab(
+              type: 'xqxk',
+              service: service,
+              oneKeyTrigger: oneKeyTrigger,
+            ),
+            _EvaluationTab(
+              type: 'score',
+              service: service,
+              oneKeyTrigger: oneKeyTrigger,
+            ),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: tabController,
-        children: [
-          _EvaluationTab(
-            type: 'xqxk',
-            service: service,
-            oneKeyTrigger: oneKeyTrigger,
-          ),
-          _EvaluationTab(
-            type: 'score',
-            service: service,
-            oneKeyTrigger: oneKeyTrigger,
-          ),
-        ],
       ),
     );
   }
