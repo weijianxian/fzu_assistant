@@ -20,6 +20,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate build number
+        id: build-number
+        uses: ./.github/actions/build-number
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -35,7 +41,7 @@ jobs:
         run: flutter pub get
 
       - name: Build universal macOS app
-        run: flutter build macos --release --no-pub
+        run: flutter build macos --release --no-pub --build-number=${{ steps.build-number.outputs.number }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -67,6 +73,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate build number
+        id: build-number
+        uses: ./.github/actions/build-number
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -81,7 +93,7 @@ jobs:
         run: flutter pub get
 
       - name: Build unsigned iOS app
-        run: flutter build ios --release --no-codesign --no-pub
+        run: flutter build ios --release --no-codesign --no-pub --build-number=${{ steps.build-number.outputs.number }}
 
       # --no-codesign produces an .app; wrap it in the IPA's required Payload/.
       - name: Package unsigned IPA

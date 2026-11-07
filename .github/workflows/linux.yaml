@@ -33,6 +33,12 @@ jobs:
           pkg-config --atleast-version=2.50 wpe-webkit-2.0
 
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate build number
+        id: build-number
+        uses: ./.github/actions/build-number
 
       - name: Check Debian packaging script
         run: shellcheck installer/linux/package-deb.sh
@@ -52,7 +58,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Linux
-        run: flutter build linux --release --no-pub
+        run: flutter build linux --release --no-pub --build-number=${{ steps.build-number.outputs.number }}
 
       # Archive the whole bundle to preserve executable permissions and symlinks.
       - name: Verify and package Linux bundle

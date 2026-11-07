@@ -26,6 +26,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate build number
+        id: build-number
+        uses: ./.github/actions/build-number
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -58,7 +64,7 @@ jobs:
           echo "VERSION=${RAW%%+*}" >> "$GITHUB_OUTPUT"
 
       - name: Build split APKs
-        run: flutter build apk --split-per-abi --release
+        run: flutter build apk --split-per-abi --release --build-number=${{ steps.build-number.outputs.number }}
 
       # Upload before the universal build replaces AGP's release output directory.
       - name: Upload Android armeabi-v7a APK
@@ -86,7 +92,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build universal APK
-        run: flutter build apk --release
+        run: flutter build apk --release --build-number=${{ steps.build-number.outputs.number }}
 
       - name: Upload Android universal APK
         uses: actions/upload-artifact@v4

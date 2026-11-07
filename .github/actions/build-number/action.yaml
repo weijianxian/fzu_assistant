@@ -1,0 +1,37 @@
+name: Mainline build number
+description: Count main-branch first-parent commits reachable from the build revision.
+
+outputs:
+  number:
+    description: Build number shared by all platforms.
+    value: ${{ steps.count.outputs.number }}
+
+runs:
+  using: composite
+  steps:
+    - name: Count mainline commits
+      id: count
+      shell: bash
+      run: |
+        # Container jobs run as root while checkout is owned by the host runner.
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        shallow=$(git rev-parse --is-shallow-repository)
+        if [[ "$shallow" == true ]]; then
+          echo "::error::Build numbering requires checkout with fetch-depth: 0."
+          exit 1
+        fi
+
+        main_ref=refs/remotes/origin/main
+        git rev-parse --verify "$main_ref" >/dev/null
+        total=$(git rev-list --first-parent --count "$main_ref")
+        # Subtract later mainline commits so old tags and feature builds keep
+        # their mainline number without counting commits made on side branches.
+        remaining=$(git rev-list --first-parent --count "$main_ref" --not HEAD)
+        number=$((total - remaining))
+        if ((number <= 0)); then
+          echo "::error::The build revision has no history in common with main."
+          exit 1
+        fi
+
+        echo "number=$number" >> "$GITHUB_OUTPUT"
+        echo "::notice::Build number $number from main first-parent history."

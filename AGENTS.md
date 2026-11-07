@@ -326,6 +326,7 @@ flutter gen-l10n               # 重新生成国际化代码
 
 - `.github/workflows/build.yaml` 负责 `main` 分支 push、`v*` tag 和手动触发，调用各平台构建及汇总 Release；不监听 `feat/platform-builds` 测试分支。
 - 平台构建分别位于 `windows.yaml`、`android.yaml`、`apple.yaml` 和 `linux.yaml`，统一仅支持 `workflow_call` 与手动执行，不独立监听 push/PR，避免重复构建；Linux 测试分支的临时 push 触发器已在合并到 `main` 前移除。
+- 各平台完整检出历史（`fetch-depth: 0`），共用 `.github/actions/build-number`，只计算当前构建版本可追溯的 `origin/main` 第一父链提交数，并通过 Flutter `--build-number` 注入。合并提交计一次，不累计侧分支内部提交；历史 tag 和手动构建其他分支沿用其所基于的主线编号。保留本地 pre-commit hook，但 CI 构建号独立计算，不依赖 hook 或 `pubspec.yaml` 中的 build 后缀。
 - `.github/workflows/check.yaml` 独立在 push/PR/手动触发时执行国际化生成、Dart 格式检查、静态分析和单元/组件测试；纯 Markdown 变更跳过自动检查，同一分支的新检查取消旧检查，tag 不主动取消。
 - 主工作流显式向 Android 子工作流传递 `KEY_STORE_PASSWORD`、`KEY_PASSWORD`、`KEY_ALIAS` 和 `KEYSTORE_BASE64` 四项签名 secrets；手动执行 Android 工作流时使用仓库 secrets。
 - fork 和 Dependabot PR 无法获取签名 secrets，主工作流跳过这些 PR 的 Android 签名构建，其他平台及 Check 照常运行。
@@ -421,7 +422,7 @@ Process.start(installerPath, ['/SILENT', '/SUPPRESSMSGBOXES',
   便携 zip 与安装器资产名只差扩展名，裸 `.exe` 兜底会误伤其他附件。
 
 ## Release 发布流程
-1. 在需要发布release时，先切换到 `main` 分支，抬升语义化版本号（`x.y.z`），提交 commit，触发 pre-commit hook 自动递增 build 号
+1. 在需要发布release时，先切换到 `main` 分支，抬升语义化版本号（`x.y.z`），提交 commit，正常执行 pre-commit hook；发布构建号由 Actions 按上述主线规则独立计算并注入
 2. 打上tag，格式为 `v` 加版本号，例如 `v1.2.3`,并 push 到 GitHub，触发 GitHub Actions 构建发布流程
 
 
