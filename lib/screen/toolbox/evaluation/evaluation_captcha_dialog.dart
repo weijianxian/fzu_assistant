@@ -71,6 +71,7 @@ class _CaptchaDialogContent extends HookWidget {
     }, []);
 
     Future<void> doSubmit() async {
+      if (!context.mounted || submitting.value || showSuccess.value) return;
       if (captchaInput.value.isEmpty) {
         submitError.value = l10n.evalCaptchaRequired;
         return;
@@ -88,14 +89,15 @@ class _CaptchaDialogContent extends HookWidget {
             items[i].comment,
             captchaInput.value,
           );
+          if (!context.mounted) return;
 
           if (!ok) {
-            if (!context.mounted) return;
             submitError.value = l10n.evalCaptchaError;
             captchaInput.value = '';
-            currentIndex.value = 0;
             await refreshCaptcha();
+            if (!context.mounted) return;
             submitting.value = false;
+            currentIndex.value = 0;
             return;
           }
 
@@ -315,10 +317,7 @@ class _AnimatedTeacherCardState extends State<_AnimatedTeacherCard>
     final theme = Theme.of(context);
     return SlideTransition(
       position: _slideAnimation,
-      child: Card(
-        elevation: 0,
-        color: theme.colorScheme.surfaceContainerHigh,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: AppSurface(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(

@@ -10,6 +10,54 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get settingsAppSection => 'Application';
+
+  @override
+  String get settingsPlatformSection => 'Platform features';
+
+  @override
+  String get settingsCoursesSection => 'Courses';
+
+  @override
+  String get settingsSemesterSection => 'Semester';
+
+  @override
+  String get settingsDisplaySection => 'Display';
+
+  @override
+  String get settingsGeneralSection => 'General';
+
+  @override
+  String get settingsSyncSection => 'Sync settings';
+
+  @override
+  String get settingsSyncStatusSection => 'Sync status';
+
+  @override
+  String get settingsDataSection => 'Data management';
+
+  @override
+  String get settingsConnectionSection => 'Connection';
+
+  @override
+  String get settingsPermissionsSection => 'System permissions';
+
+  @override
+  String get settingsRefreshSection => 'Timetable updates';
+
+  @override
+  String get settingsAutoSyncSection => 'Automatic sync';
+
+  @override
+  String get settingsManualSyncSection => 'Manual sync';
+
+  @override
+  String get settingsExportSection => 'Export settings';
+
+  @override
+  String get settingsReminderSection => 'Reminder settings';
+
+  @override
   String get hiddenCourseManagement => 'Hidden course management';
 
   @override
@@ -324,6 +372,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeColor => 'Theme Color';
+
+  @override
+  String get interfaceStyle => 'Interface style';
+
+  @override
+  String get interfaceStyleClassic => 'Classic list';
+
+  @override
+  String get interfaceStyleClassicDescription => 'A simple, compact list.';
+
+  @override
+  String get interfaceStyleCards => 'Card groups';
+
+  @override
+  String get interfaceStyleCardsDescription =>
+      'Connected rows with rounded groups and subtle surfaces.';
 
   @override
   String get themeDynamic => 'Dynamic Color';
@@ -1887,22 +1951,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Online refresh failed. Your existing cache is still available; try again.';
 
   @override
-  String get calendarSync => 'Sync to system calendar';
+  String get calendarSync => 'Calendar sync';
 
   @override
   String get calendarSyncDescription =>
-      'Write courses and exams to your calendar and update them nightly.';
+      'Keep your system calendar updated with your timetable each night.';
 
   @override
   String get calendarSyncScope =>
-      'Includes the current term, custom courses and adjustments; updates only the dedicated FZU Assistant calendar.';
+      'Includes current and upcoming terms, custom courses, schedule changes, and optional exams. Hidden sessions are excluded.';
 
   @override
-  String get calendarSyncEnabled => 'Sync calendar nightly';
+  String get calendarSyncEnabled => 'Sync to system calendar';
 
   @override
   String get calendarSyncPausedHint =>
-      'Pausing or signing out stops syncing and keeps events already written.';
+      'Turning this off keeps events already synced.';
 
   @override
   String get calendarSyncPermission => 'Calendar access';
@@ -1912,7 +1976,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow calendar read and write access first.';
 
   @override
-  String get calendarSyncTime => 'Nightly sync time (shared with widgets)';
+  String get calendarSyncTime => 'Daily sync time';
 
   @override
   String get calendarSyncNow => 'Sync now';
@@ -1921,11 +1985,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calendarSyncBusy => 'Syncing…';
 
   @override
-  String get calendarSyncLastSuccess => 'Last calendar sync';
+  String get calendarSyncLastSuccess => 'Last successful sync';
 
   @override
   String get calendarSyncFailed =>
-      'Calendar sync did not finish. Existing events were kept. Check access and connectivity, then retry.';
+      'Sync didn\'t finish. Check your connection and calendar access, then retry.';
 
   @override
   String calendarSyncResult(int inserted, int updated, int deleted) {
@@ -1960,6 +2024,104 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get calendarSyncClearFailed =>
       'Event cleanup did not finish. Check calendar access and retry.';
+
+  @override
+  String get calendarSyncStartHint =>
+      'Update your timetable automatically each night.';
+
+  @override
+  String get calendarSyncNever => 'Not synced yet';
+
+  @override
+  String get calendarSyncOff => 'Sync is off';
+
+  @override
+  String get calendarSyncPending => 'Changes waiting to sync';
+
+  @override
+  String get calendarSyncSaved => 'Saved. Changes apply at the next sync.';
+
+  @override
+  String get calendarSyncSaving => 'Saving settings…';
+
+  @override
+  String get calendarSyncSaveFailed => 'Couldn\'t save settings. Try again.';
+
+  @override
+  String get calendarSyncLoadFailed => 'Couldn\'t read sync status. Try again.';
+
+  @override
+  String get calendarSyncScheduleFailed =>
+      'Automatic sync isn\'t scheduled yet. Try again.';
+
+  @override
+  String calendarSyncOccurrences(int count) {
+    return 'Covers $count class sessions and exams';
+  }
+
+  @override
+  String get calendarSyncNoChanges => 'No changes in this sync';
+
+  @override
+  String get calendarSyncSharedTime => 'Time shared with home screen widgets';
+
+  @override
+  String get calendarSyncPermissions => 'System permissions';
+
+  @override
+  String get calendarSyncPermissionsReady =>
+      'Calendar access and scheduled sync allowed';
+
+  @override
+  String get calendarSyncCalendarNeeded => 'Calendar access needed';
+
+  @override
+  String get calendarSyncAlarmNeeded => 'Scheduled sync needs permission';
+
+  @override
+  String get calendarSyncAlarmHint =>
+      'Allow exact alarms to run automatic sync on time.';
+
+  @override
+  String get calendarSyncGrantCalendar => 'Allow calendar access';
+
+  @override
+  String get calendarSyncGrantAlarm => 'Allow scheduled sync';
+
+  @override
+  String get calendarSyncAllowed => 'Allowed';
+
+  @override
+  String get calendarSyncNotAllowed => 'Not allowed';
+
+  @override
+  String get calendarSyncCalendarPurpose =>
+      'Read and update events created by this app';
+
+  @override
+  String get calendarSyncAlarmPurpose =>
+      'Run automatic sync at the selected time';
+
+  @override
+  String get calendarSyncHelp => 'About calendar sync';
+
+  @override
+  String get calendarSyncRecurrenceHint =>
+      'Regular classes use recurring events. Changes, cancellations, and hidden sessions affect only the relevant occurrence. Syncing again doesn\'t add duplicates.';
+
+  @override
+  String get calendarSyncPauseHelp =>
+      'Turning off sync or signing out stops updates and keeps existing events. Use the action at the bottom of this page to remove all events created by the app.';
+
+  @override
+  String get calendarSyncClearSummary =>
+      'Remove synced events for all accounts and turn off sync';
+
+  @override
+  String get calendarSyncClearConfirm => 'Delete events';
+
+  @override
+  String get calendarSyncClearing => 'Deleting events…';
 
   @override
   String get calendarExport => 'Export to calendar';

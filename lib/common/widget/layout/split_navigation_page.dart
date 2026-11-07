@@ -1,8 +1,9 @@
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/widget/layout/section.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
+import 'package:fzu_assistant/service/app_themes.dart';
 
 class NavigationPaneDestination {
   const NavigationPaneDestination({
@@ -55,6 +56,10 @@ class SplitNavigationPage extends HookWidget {
       [selectedRoute.value],
     );
     final scheme = Theme.of(context).colorScheme;
+    final cards = InterfaceTheme.of(context).style == InterfaceStyle.cards;
+    final navigationSurface = cards
+        ? scheme.surface
+        : scheme.surfaceContainerLow;
     final rtl = Directionality.of(context) == TextDirection.rtl;
 
     void selectDestination(String route) {
@@ -74,38 +79,36 @@ class SplitNavigationPage extends HookWidget {
             removeLeft: rtl,
             removeRight: !rtl,
             child: AppScaffold(
-              backgroundColor: scheme.surfaceContainerLow,
+              backgroundColor: navigationSurface,
               appBar: AppBar(
                 title: Text(title),
                 automaticallyImplyLeading: false,
-                backgroundColor: scheme.surfaceContainerLow,
+                backgroundColor: navigationSurface,
               ),
-              body: AppListView(
-                padding: const EdgeInsets.only(bottom: 16),
-                children: [
+              body: AppCustomScrollView(
+                slivers: [
                   for (final section in sections)
-                    if (section.title != null)
-                      Section(
-                        title: section.title!,
-                        child: _destinations(
-                          section.destinations,
-                          selectedRoute.value,
-                          selectDestination,
-                        ),
-                      )
-                    else
-                      _destinations(
-                        section.destinations,
+                    AppSliverList(
+                      title: section.title,
+                      itemCount: section.destinations.length,
+                      itemBuilder: (context, index) => _destination(
+                        context,
+                        section.destinations[index],
                         selectedRoute.value,
                         selectDestination,
                       ),
-                  if (footer != null) ...[const Divider(), footer!],
+                    ),
+                  if (footer != null)
+                    SliverToBoxAdapter(
+                      child: Column(children: [const AppDivider(), footer!]),
+                    ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
                 ],
               ),
             ),
           ),
         ),
-        const VerticalDivider(width: 1, thickness: 1),
+        const AppVerticalDivider(),
         Expanded(
           flex: 2,
           child: MediaQuery.removePadding(
@@ -142,44 +145,27 @@ class SplitNavigationPage extends HookWidget {
     );
   }
 
-  Widget _destinations(
-    List<NavigationPaneDestination> destinations,
+  Widget _destination(
+    BuildContext context,
+    NavigationPaneDestination destination,
     String selectedRoute,
     ValueChanged<String> onSelected,
-  ) => Column(
-    children: [
-      for (final destination in destinations)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          child: Builder(
-            builder: (context) {
-              final scheme = Theme.of(context).colorScheme;
-              return ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                horizontalTitleGap: 12,
-                selected: selectedRoute == destination.route,
-                selectedTileColor: scheme.secondaryContainer,
-                selectedColor: scheme.onSecondaryContainer,
-                leading: Icon(destination.icon),
-                title: Text(destination.title),
-                subtitle: destination.subtitle == null
-                    ? null
-                    : Text(
-                        destination.subtitle!,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                onTap: () => onSelected(destination.route),
-              );
-            },
-          ),
-        ),
-    ],
-  );
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return ListTile(
+      selected: selectedRoute == destination.route,
+      selectedTileColor: scheme.secondaryContainer,
+      selectedColor: scheme.onSecondaryContainer,
+      leading: Icon(destination.icon),
+      title: Text(destination.title),
+      subtitle: destination.subtitle == null
+          ? null
+          : Text(
+              destination.subtitle!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+      onTap: () => onSelected(destination.route),
+    );
+  }
 }

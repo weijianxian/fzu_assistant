@@ -107,8 +107,9 @@ void main() {
       await tester.tap(find.byType(SwitchListTile));
       await tester.pumpAndSettle();
       expect(find.text(l10n.calendarExportEventCount(2)), findsOneWidget);
-      await tester.ensureVisible(find.byType(DropdownButtonFormField<int>));
-      await tester.tap(find.byType(DropdownButtonFormField<int>));
+      expect(find.text(l10n.calendarExportReminderMinutes(15)), findsOneWidget);
+      await tester.ensureVisible(find.text(l10n.calendarExportReminder));
+      await tester.tap(find.text(l10n.calendarExportReminder));
       await tester.pumpAndSettle();
       await tester.tap(find.text(l10n.calendarExportReminderMinutes(30)).last);
       await tester.pumpAndSettle();

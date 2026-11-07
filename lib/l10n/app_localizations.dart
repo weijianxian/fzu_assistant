@@ -98,6 +98,102 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @settingsAppSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'应用设置'**
+  String get settingsAppSection;
+
+  /// No description provided for @settingsPlatformSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'平台功能'**
+  String get settingsPlatformSection;
+
+  /// No description provided for @settingsCoursesSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程管理'**
+  String get settingsCoursesSection;
+
+  /// No description provided for @settingsSemesterSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'学期'**
+  String get settingsSemesterSection;
+
+  /// No description provided for @settingsDisplaySection.
+  ///
+  /// In zh, this message translates to:
+  /// **'显示设置'**
+  String get settingsDisplaySection;
+
+  /// No description provided for @settingsGeneralSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'通用'**
+  String get settingsGeneralSection;
+
+  /// No description provided for @settingsSyncSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步设置'**
+  String get settingsSyncSection;
+
+  /// No description provided for @settingsSyncStatusSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步状态'**
+  String get settingsSyncStatusSection;
+
+  /// No description provided for @settingsDataSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'数据管理'**
+  String get settingsDataSection;
+
+  /// No description provided for @settingsConnectionSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'连接配置'**
+  String get settingsConnectionSection;
+
+  /// No description provided for @settingsPermissionsSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'系统权限'**
+  String get settingsPermissionsSection;
+
+  /// No description provided for @settingsRefreshSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'课表更新'**
+  String get settingsRefreshSection;
+
+  /// No description provided for @settingsAutoSyncSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'自动同步'**
+  String get settingsAutoSyncSection;
+
+  /// No description provided for @settingsManualSyncSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'手动同步'**
+  String get settingsManualSyncSection;
+
+  /// No description provided for @settingsExportSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出设置'**
+  String get settingsExportSection;
+
+  /// No description provided for @settingsReminderSection.
+  ///
+  /// In zh, this message translates to:
+  /// **'提醒设置'**
+  String get settingsReminderSection;
+
   /// No description provided for @hiddenCourseManagement.
   ///
   /// In zh, this message translates to:
@@ -679,6 +775,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'主题色'**
   String get themeColor;
+
+  /// No description provided for @interfaceStyle.
+  ///
+  /// In zh, this message translates to:
+  /// **'界面风格'**
+  String get interfaceStyle;
+
+  /// No description provided for @interfaceStyleClassic.
+  ///
+  /// In zh, this message translates to:
+  /// **'经典列表'**
+  String get interfaceStyleClassic;
+
+  /// No description provided for @interfaceStyleClassicDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'平铺展示，简洁紧凑。'**
+  String get interfaceStyleClassicDescription;
+
+  /// No description provided for @interfaceStyleCards.
+  ///
+  /// In zh, this message translates to:
+  /// **'卡片分组'**
+  String get interfaceStyleCards;
+
+  /// No description provided for @interfaceStyleCardsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'相关内容连成一组，用圆角和底色区分。'**
+  String get interfaceStyleCardsDescription;
 
   /// themeDynamic
   ///
@@ -3491,31 +3617,31 @@ abstract class AppLocalizations {
   /// No description provided for @calendarSync.
   ///
   /// In zh, this message translates to:
-  /// **'同步到系统日历'**
+  /// **'日历同步'**
   String get calendarSync;
 
   /// No description provided for @calendarSyncDescription.
   ///
   /// In zh, this message translates to:
-  /// **'将课程与考试写入系统日历，每晚自动更新。'**
+  /// **'将课表同步到系统日历，每晚自动更新。'**
   String get calendarSyncDescription;
 
   /// No description provided for @calendarSyncScope.
   ///
   /// In zh, this message translates to:
-  /// **'包含当前学期、自定义课程和调课，仅更新福大助手专属日历。'**
+  /// **'同步当前和临近学期的课程、自定义课程、调课及可选考试。隐藏的课次不会写入日历。'**
   String get calendarSyncScope;
 
   /// No description provided for @calendarSyncEnabled.
   ///
   /// In zh, this message translates to:
-  /// **'每晚同步日历'**
+  /// **'同步到系统日历'**
   String get calendarSyncEnabled;
 
   /// No description provided for @calendarSyncPausedHint.
   ///
   /// In zh, this message translates to:
-  /// **'关闭或退出账号后停止同步，保留已写入的日程。'**
+  /// **'关闭后，已同步的日程会保留。'**
   String get calendarSyncPausedHint;
 
   /// No description provided for @calendarSyncPermission.
@@ -3533,7 +3659,7 @@ abstract class AppLocalizations {
   /// No description provided for @calendarSyncTime.
   ///
   /// In zh, this message translates to:
-  /// **'每晚同步时间（与桌面小组件共用）'**
+  /// **'每日同步时间'**
   String get calendarSyncTime;
 
   /// No description provided for @calendarSyncNow.
@@ -3551,13 +3677,13 @@ abstract class AppLocalizations {
   /// No description provided for @calendarSyncLastSuccess.
   ///
   /// In zh, this message translates to:
-  /// **'最近日历同步'**
+  /// **'上次同步成功'**
   String get calendarSyncLastSuccess;
 
   /// No description provided for @calendarSyncFailed.
   ///
   /// In zh, this message translates to:
-  /// **'日历同步未完成，保留已有日程，请检查权限和网络后重试。'**
+  /// **'同步未完成，请检查网络和日历权限后重试。'**
   String get calendarSyncFailed;
 
   /// No description provided for @calendarSyncResult.
@@ -3613,6 +3739,180 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'日程清理未完成，请检查日历权限后重试。'**
   String get calendarSyncClearFailed;
+
+  /// No description provided for @calendarSyncStartHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'开启后，每晚自动更新课表。'**
+  String get calendarSyncStartHint;
+
+  /// No description provided for @calendarSyncNever.
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未同步'**
+  String get calendarSyncNever;
+
+  /// No description provided for @calendarSyncOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步已关闭'**
+  String get calendarSyncOff;
+
+  /// No description provided for @calendarSyncPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置待同步'**
+  String get calendarSyncPending;
+
+  /// No description provided for @calendarSyncSaved.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置已保存，下次同步时应用。'**
+  String get calendarSyncSaved;
+
+  /// No description provided for @calendarSyncSaving.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在保存设置…'**
+  String get calendarSyncSaving;
+
+  /// No description provided for @calendarSyncSaveFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'设置未能保存，请重试。'**
+  String get calendarSyncSaveFailed;
+
+  /// No description provided for @calendarSyncLoadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂时无法读取同步状态，请重试。'**
+  String get calendarSyncLoadFailed;
+
+  /// No description provided for @calendarSyncScheduleFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'自动同步尚未安排，请重试。'**
+  String get calendarSyncScheduleFailed;
+
+  /// No description provided for @calendarSyncOccurrences.
+  ///
+  /// In zh, this message translates to:
+  /// **'覆盖 {count} 次课程与考试'**
+  String calendarSyncOccurrences(int count);
+
+  /// No description provided for @calendarSyncNoChanges.
+  ///
+  /// In zh, this message translates to:
+  /// **'本次没有变更'**
+  String get calendarSyncNoChanges;
+
+  /// No description provided for @calendarSyncSharedTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'与桌面小组件共用时间'**
+  String get calendarSyncSharedTime;
+
+  /// No description provided for @calendarSyncPermissions.
+  ///
+  /// In zh, this message translates to:
+  /// **'系统权限'**
+  String get calendarSyncPermissions;
+
+  /// No description provided for @calendarSyncPermissionsReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'日历访问与定时同步均已允许'**
+  String get calendarSyncPermissionsReady;
+
+  /// No description provided for @calendarSyncCalendarNeeded.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要日历访问权限'**
+  String get calendarSyncCalendarNeeded;
+
+  /// No description provided for @calendarSyncAlarmNeeded.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要定时同步权限'**
+  String get calendarSyncAlarmNeeded;
+
+  /// No description provided for @calendarSyncAlarmHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'允许精确闹钟后，才能按时自动同步。'**
+  String get calendarSyncAlarmHint;
+
+  /// No description provided for @calendarSyncGrantCalendar.
+  ///
+  /// In zh, this message translates to:
+  /// **'允许日历访问'**
+  String get calendarSyncGrantCalendar;
+
+  /// No description provided for @calendarSyncGrantAlarm.
+  ///
+  /// In zh, this message translates to:
+  /// **'允许定时同步'**
+  String get calendarSyncGrantAlarm;
+
+  /// No description provided for @calendarSyncAllowed.
+  ///
+  /// In zh, this message translates to:
+  /// **'已允许'**
+  String get calendarSyncAllowed;
+
+  /// No description provided for @calendarSyncNotAllowed.
+  ///
+  /// In zh, this message translates to:
+  /// **'未允许'**
+  String get calendarSyncNotAllowed;
+
+  /// No description provided for @calendarSyncCalendarPurpose.
+  ///
+  /// In zh, this message translates to:
+  /// **'用于读写本应用创建的日程'**
+  String get calendarSyncCalendarPurpose;
+
+  /// No description provided for @calendarSyncAlarmPurpose.
+  ///
+  /// In zh, this message translates to:
+  /// **'用于在设定时间自动同步'**
+  String get calendarSyncAlarmPurpose;
+
+  /// No description provided for @calendarSyncHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步说明'**
+  String get calendarSyncHelp;
+
+  /// No description provided for @calendarSyncRecurrenceHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'常规课程使用系统重复日程。调课、停课和隐藏只调整对应课次，重复同步不会重复添加。'**
+  String get calendarSyncRecurrenceHint;
+
+  /// No description provided for @calendarSyncPauseHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭同步或退出账号会停止更新，已经写入的日程保留。可以在本页底部删除本应用创建的全部日程。'**
+  String get calendarSyncPauseHelp;
+
+  /// No description provided for @calendarSyncClearSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除所有账号的已同步日程，并关闭同步'**
+  String get calendarSyncClearSummary;
+
+  /// No description provided for @calendarSyncClearConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除日程'**
+  String get calendarSyncClearConfirm;
+
+  /// No description provided for @calendarSyncClearing.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在删除日程…'**
+  String get calendarSyncClearing;
 
   /// No description provided for @calendarExport.
   ///

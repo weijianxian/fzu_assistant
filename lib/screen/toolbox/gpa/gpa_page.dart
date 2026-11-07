@@ -47,9 +47,8 @@ class GpaPage extends HookWidget {
 
     return AppListView(
       children: [
-        Card(
+        AppSurface(
           margin: const EdgeInsets.all(12),
-          clipBehavior: Clip.antiAlias,
           child: Table(
             columnWidths: {
               for (var i = 0; i < transposed[0].length; i++)

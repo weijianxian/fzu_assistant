@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
+import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/context_ext.dart';
@@ -109,92 +111,113 @@ class LoginPage extends HookWidget {
                 ),
               ),
               const SizedBox(height: 40),
-              TextField(
-                controller: usernameController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.studentId,
-                  prefixIcon: const Icon(Icons.person_outline),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              PasswordField(
-                controller: passwordController,
-                focusNode: passwordFocus,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: captchaController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.captcha,
-                        prefixIcon: const Icon(Icons.verified_outlined),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+              AppSurface(
+                child: Padding(
+                  padding:
+                      InterfaceTheme.of(context).style == InterfaceStyle.cards
+                      ? const EdgeInsets.all(16)
+                      : EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        controller: usernameController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.studentId,
+                          prefixIcon: const Icon(Icons.person_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: refreshCaptcha,
-                    child: Container(
-                      width: 120,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[300]!),
+                      const SizedBox(height: 16),
+                      PasswordField(
+                        controller: passwordController,
+                        focusNode: passwordFocus,
                       ),
-                      clipBehavior: Clip.antiAlias,
-                      child: captchaImage.value != null
-                          ? Image.memory(captchaImage.value!, fit: BoxFit.fill)
-                          : Center(
-                              child: Text(
-                                AppLocalizations.of(context)!.getCaptcha,
-                                style: const TextStyle(fontSize: 12),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: captchaController,
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!
+                                    .captcha,
+                                prefixIcon: const Icon(Icons.verified_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              if (errorMessage.value != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    errorMessage.value!,
-                    style: const TextStyle(color: Colors.red, fontSize: 13),
-                  ),
-                ),
-              const SizedBox(height: 24),
-              SizedBox(
-                height: 48,
-                child: FilledButton(
-                  onPressed: isLoading.value ? null : handleLogin,
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: isLoading.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
                           ),
-                        )
-                      : Text(
-                          AppLocalizations.of(context)!.login,
-                          style: const TextStyle(fontSize: 16),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: refreshCaptcha,
+                            child: Container(
+                              width: 120,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: captchaImage.value != null
+                                  ? Image.memory(
+                                      captchaImage.value!,
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!
+                                            .getCaptcha,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (errorMessage.value != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            errorMessage.value!,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: 48,
+                        child: FilledButton(
+                          onPressed: isLoading.value ? null : handleLogin,
+                          style: FilledButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: isLoading.value
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  AppLocalizations.of(context)!.login,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -215,14 +238,7 @@ class LoginPage extends HookWidget {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 240,
-                  child: VerticalDivider(
-                    width: 1,
-                    thickness: 1,
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                ),
+                const SizedBox(height: 240, child: AppVerticalDivider()),
                 Expanded(child: form),
               ],
             )

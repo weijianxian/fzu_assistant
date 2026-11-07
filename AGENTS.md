@@ -56,6 +56,7 @@ lib/
     widget/              # 通用组件
       layout/app_scaffold.dart # 统一普通页面及导航壳：内容避让系统栏，实际 AppBar/导航绘制系统区
       layout/app_scroll_view.dart # 统一滚动视口保持全屏，底部系统边距放在内容末尾
+      layout/app_section.dart # 全应用风格表面、连接分组、懒加载列表项及自适应分隔；课程表网格不接入
       layout/app_top_banner.dart # 缓存提示条背景延伸至状态栏，内容边距统一处理
       input/password_field.dart # 教务和 SSO 登录共用密码框、显隐按钮及自动填充
       layout/desktop_window_frame.dart # Windows 全局窗口壳（自绘标题栏、提示 Overlay、内容裁剪与顶部缩放）
@@ -65,8 +66,9 @@ lib/
       section.dart       # 区域组件
       term_selector_button.dart # 学期选择按钮
       half_screen_sheet.dart # 横屏右侧占窗口2/3，竖屏底部拖拽，独立滚动并按屏幕外侧避让系统栏
-      sheet/app_bottom_sheet.dart # 普通底部弹层统一处理安全区、键盘及滚动，遮罩保持全屏
+      sheet/app_bottom_sheet.dart # 普通内容的滚动适配入口，复用 showHalfScreenSheet 的横竖屏弹层、安全区及键盘处理
       sheet/sheet_drag_handle.dart # 统一顶部拖动柄，上下各8逻辑像素留白
+      settings/          # MD3 设置分组、开关、单选弹层、状态、权限及操作组合
       update_dialog.dart # 更新对话框
   router/                # 路由
     app_routes.dart      # 路由名、参数对象与命名导航扩展
@@ -118,16 +120,16 @@ lib/
       about/             # 关于页
       calendar/          # 校历
     settings/            # 设置页（首页/一般/主题/高级设置入口）
-      settings_page.dart # 设置页面主页；底部分隔线后直接展示当前平台支持的功能入口或开关，无平台分类页
+      settings_page.dart # 设置页面主页；底部自适应分隔后直接展示当前平台支持的功能入口或开关，无平台分类页
       course_reminder_settings_page.dart # Android 早课提醒：提醒开关、北京时间及通知/精确闹钟授权和通知渠道管理
       android_permissions_page.dart # Android 预期权限固定清单：标题为权限名称，说明为具体用途和授权状态；不扫描权限，不展示 ID/类型，返回应用自动刷新
-      home_settings_page.dart # 课表设置（学期、课表显示、自定义课程管理及不展示课程管理）
+      home_settings_page.dart # 课表设置（学期单选弹层、课表显示、自定义课程及不展示课程；Android 日历同步在平台功能区）
       hidden_courses_page.dart # 独立管理当前账号的隐藏课程并逐项或全部恢复
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
-        theme_section.dart # 主题设置页面（外观模式 + 主题色，含 ThemeTile 组件）
+        theme_section.dart # 主题设置页面（界面风格 + 外观模式 + 竖向排列的主题色卡）
     dev/                 # 开发者工具
-      dev_tool.dart      # 开发者工具主页（英文标题/分隔线原页分组，保留原有导航与操作）
+      dev_tool.dart      # 开发者工具主页（英文标题/自适应分隔原页分组，保留原有导航与操作）
       learning_center_debug_page.dart # 学习中心 API 调试：分组操作按钮、token 显隐、原始参数/spaceId 直传、HTTP 状态和原始响应；无业务校验和确认弹窗
       shared_prefs_page.dart # SharedPreferences 查看/编辑/删除
       secure_storage_page.dart # SecureStorage 查看/编辑
@@ -137,7 +139,7 @@ lib/
     account_service.dart # 当前教务/SSO 会话状态与退出清理；教务退出先清 SSO 再清凭据和账号缓存
     captcha_solver.dart  # 验证码识别
     update_service.dart  # 更新检查服务
-    app_themes.dart      # 主题色列表 + buildTheme()
+    app_themes.dart      # 主题色列表 + buildTheme() + InterfaceTheme（经典列表/卡片分组）
     webview_environment.dart # Windows WebView2 环境初始化
     desktop_window.dart # Windows 窗口初始化、状态监听与统一关闭行为
     course_reminder_service.dart # Android 明日课程提醒计划：缓存校历和课表、北京时间、调课与隐藏课程过滤；预排 180 天
@@ -242,14 +244,14 @@ lib/
 - west2 online 服务按功能独立配置 `FeatureAccess.tip / allow / hide`：默认 tip，入口可见但不得请求服务；allow 才启用请求；hide 隐藏入口，仍可在设置中恢复。原 west2 调课布尔开关迁移到 `west2AdjustmentsAccess`，已允许的用户保持 allow；历年卷使用独立 `papersAccess`。统一设置页为 `screen/settings/third_party_settings_page.dart`，模型为 `model/feature_access.dart`，周课表和后台提醒共同读取同一授权状态。
 - 本轮功能约束：自定义课程按账号和学期保存，并覆盖周课表与提醒；WebDAV 同步应用设置、自定义课程和隐藏课程，提供默认关闭的每次打开自动同步，禁止上传登录凭据、Cookie、支付数据、缓存及 WebDAV 密码，手动下载覆盖前须确认，自动同步冲突须手动选择。WebDAV 密码只放 SecureStorage。校园服务通过域名隔离的 SSO 会话进入，不把教务 Cookie 当作 SSO Cookie。
 
-- 平台功能直接放在设置主列表底部分隔线之后，仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示权限管理和早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
+- 平台功能直接放在设置主列表底部自适应分隔之后（经典列表画分隔线，卡片风格用分组和留白），仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示权限管理和早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
 
 - 教务处成功登录后，将账号绑定的历史 Cookie 与 identifier 保存到 SecureStorage；启动/同账号登录失败且有历史会话时进入缓存模式，保留稳定学号，旧 identifier 不用于业务请求。课表、考场、校历与事件优先展示已有缓存，强制刷新也不得清空缓存；主页提示缓存模式并支持重试登录，退出教务账号同时删除历史会话。
 
 - **每次项目结构或技术栈变更后，必须同步更新本 AGENTS.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
-- 设置的平台功能在主列表最底部用分隔线与通用设置分开，按当前平台显示或隐藏，不增加平台分类菜单。Android 权限管理手动维护预期权限清单（通知、精确闹钟、扫码相机、安装更新、联网、定时唤醒和重启恢复），不扫描安装包或插件权限；页面标题展示国际化权限名称，说明展示具体功能用途和授权状态，不展示权限 ID 或类型；通知、精确闹钟、安装未知应用使用实际系统状态，不仅依据 manifest 的授权标志。开发者工具文案及测试通知统一直接使用英文，不接入国际化；工具保持原有入口与操作，在同一列表中用英文标题和分隔线分组，不为分组新增二级页面。
+- 设置的平台功能在主列表最底部用自适应分隔与通用设置分开，按当前平台显示或隐藏，不增加平台分类菜单。Android 权限管理手动维护预期权限清单（通知、精确闹钟、扫码相机、安装更新、联网、定时唤醒和重启恢复），不扫描安装包或插件权限；页面标题展示国际化权限名称，说明展示具体功能用途和授权状态，不展示权限 ID 或类型；通知、精确闹钟、安装未知应用使用实际系统状态，不仅依据 manifest 的授权标志。开发者工具文案及测试通知统一直接使用英文，不接入国际化；工具保持原有入口与操作，在同一列表中用英文标题和自适应分隔分组，不为分组新增二级页面。
 - 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；教务退出使用 `context.replaceAllNamed(AppRoutes.login)` 清空根导航栈，防止横屏嵌套导航或返回键回到已退出页面。路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
 - 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
 - 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取
@@ -294,7 +296,7 @@ lib/
 - 使用 Flutter 官方 `gen-l10n` 方案，配置文件 `l10n.yaml`
 - ARB 文件：`lib/l10n/app_zh.arb`（中文）、`lib/l10n/app_en.arb`（英文）
 - 添加新语言：新建 `app_XX.arb` → `flutter gen-l10n` → 在 `AppSettings._localeOptions` 注册
-- 语言切换：「我的 → 设置 → 一般设置 → 语言」SegmentedButton 选择，通过 `AppSettings` 持久化到 SharedPreferences
+- 语言切换：「我的 → 设置 → 一般设置 → 语言」原生单选弹层，通过 `AppSettings` 持久化到 SharedPreferences
 - `MaterialApp.locale` 绑定 `AppSettings.currentLocale`，`null` 表示跟随系统
 
 ## Windows 注意事项
@@ -466,6 +468,15 @@ version: 1.1.5+46
 
 ## Review 与界面约定
 
+- Flutter 设置界面沿用紧凑的 Material 3 风格：标题和简短说明建立层级，次要说明放入折叠区域或帮助弹层，危险操作单独放在底部并确认。直接使用 Flutter `material` 的 MD3 组件，优先保留默认间距、圆角、字号、触摸区域与语义色，仅在必要的页面布局处设置留白。常用设置分组、开关、单选弹层、状态、权限及操作组合复用 `lib/common/widget/settings/`，通过 `common/widgets.dart` 导出；页面保留业务状态与回调，不复制整页、不包装无额外职责的组件，不重复实现系统安全区。`SettingSwitchTile` 同时支持 ValueNotifier 和受控回调，普通行用原生 `ListTile`，导航行用已有 `ChevronListTile`。
+- 外观页提供独立的 `InterfaceStyle.classic / cards` 选择，默认经典列表，`interface_style` 持久化并即时更新。`InterfaceTheme` 作为 `ThemeExtension` 注入种子色和动态色的明暗主题；新风格参考用户提供的 Keyguard 截图，`SettingsSection.list` 使用 `Card.filled` 实现连接式分组（首尾大圆角、中间小圆角、组内窄间隔），复合内容用 `SettingsSection` 单卡片。表面使用 MD3 的 `surfaceContainerLow` 语义色，行内控件保留默认样式，卡片风格的开关通过 `SwitchThemeData.thumbIcon` 展示勾/叉。`SettingsChoiceTile` 提供“名称＋当前值”列表和原生单选弹层，两种风格复用页面内容与业务逻辑。设置主列表、课表、一般、高级、外观、WebDAV、第三方、提醒、小组件、权限与日历页面共用此分组。WebDAV 白名单包含该偏好，旧备份仅缺少此新增字段时按经典列表兼容，其他缺失或未知字段仍拒绝。
+
+- 外观模式和界面风格继续使用原生列表与单选弹层；主题色保留三色圆点、名称和小配色预览的旧色卡，竖向排列并随整页滚动，点击直接选择，选中描边并提供无障碍选中状态，不使用横向色卡滚动。色卡预览跟随深浅色，动态配色仅在系统支持或已选中时展示，缺少系统配色时安全回退。
+- 界面风格开关覆盖全应用原生界面，包括工具箱、历年卷、查询结果、个人资料、账号管理、校历、学习中心、登录表单及开发者工具。课程表网格与课程卡片保留现有布局，不为了统一卡片风格改动；二维码保持可扫描的白底，表格与预约时间／座位网格保留各自的数据语义。网页内容不注入此界面偏好。
+- 全应用共用 `AppSurface` / `AppSection`，设置的 `SettingsSection` 复用同一实现；分组标题沿用工具箱的 `SectionHeader`。长列表使用 `AppListView.grouped` / `AppSliverList` 保持懒加载，工具页用 `MasonrySliverGrid.grouped` 在手机连接分组与宽屏多列间自适应，列宽由 `kToolTileMaxWidth` 管理。经典列表的 list item 之间不加分界线，宽屏网格和展开后的明细也不额外添加条目分界线。逻辑分组使用 `AppDivider` / `AppVerticalDivider`（或设置别名）：经典列表在组间显示分隔线，卡片模式只保留间隔，不在卡片内外画分组分隔线；不通过全局透明 Divider 隐藏数据表的必要结构。
+
 - 全应用的描述性文字只用一句简要概述，操作确认保留关键后果，不堆砌实现细节。
+- 全应用业务弹层统一复用 `showHalfScreenSheet`：竖屏为可拖拽的底部半屏，横屏为右侧占窗口 2/3 的带关闭箭头面板。普通内容通过 `showAppBottomSheet` 仅适配同一滚动控制器，不再独立调用 `showModalBottomSheet`；学期、外观与提醒单选、日历说明、试卷下载、评价验证码和开发者工具均使用同一实现，保留原生 Material 对话框及日期／时间选择器。
+- 设置页的每个卡片／列表分组均有简短标题，复用 `SectionHeader`，标题位于分组外。设置主列表底部以“平台功能”命名当前平台的入口区，Android 日历同步与权限、提醒、小组件并列；非 Android 的日历文件导出仍在课表设置。日历同步的日历访问、精确闹钟权限直接列出，不使用折叠。学期选择与其他单选设置共用 `showSettingsChoiceSheet`，选项跟随经典／卡片风格，保留自动学期和缓存之外的当前选择。
 - 第三方服务使用三选按钮，左侧“隐藏”、中间“询问”、右侧“开启”，默认“询问”且不请求服务。
 - review 修改直接 amend / squash 到对应功能的原提交，不创建额外 review 或 fixup 提交。

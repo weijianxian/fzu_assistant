@@ -17,41 +17,36 @@ class GeneralSettingsPage extends HookWidget {
       body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          Section(
-            title: l10n.language,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ValueListenableBuilder(
+          SettingsSection.list(
+            title: l10n.settingsGeneralSection,
+            children: [
+              ValueListenableBuilder(
                 valueListenable: settings.localeKey,
-                builder: (_, key, _) => SegmentedButton<String>(
-                  segments: [
-                    ButtonSegment(
-                      value: 'system',
-                      icon: const Icon(Icons.phone_android),
-                      label: Text(l10n.followSystem),
-                    ),
-                    ButtonSegment(
+                builder: (_, key, _) => SettingsChoiceTile<String>(
+                  leading: const Icon(Icons.language),
+                  title: l10n.language,
+                  choices: [
+                    SettingsChoice(value: 'system', label: l10n.followSystem),
+                    SettingsChoice(
                       value: 'zh',
-                      label: Text(AppSettings.labelOf('zh')),
+                      label: AppSettings.labelOf('zh'),
                     ),
-                    ButtonSegment(
+                    SettingsChoice(
                       value: 'en',
-                      label: Text(AppSettings.labelOf('en')),
+                      label: AppSettings.labelOf('en'),
                     ),
                   ],
-                  selected: {key},
-                  onSelectionChanged: (s) => settings.localeKey.value = s.first,
+                  value: key,
+                  onChanged: (value) => settings.localeKey.value = value,
                 ),
               ),
-            ),
-          ),
-          Section(
-            title: l10n.webEnhancement,
-            child: SettingSwitchTile(
-              notifier: settings.siteInjectionEnabled,
-              title: Text(l10n.siteInjection),
-              subtitle: Text(l10n.siteInjectionDescription),
-            ),
+              SettingSwitchTile(
+                secondary: const Icon(Icons.web_outlined),
+                notifier: settings.siteInjectionEnabled,
+                title: Text(l10n.siteInjection),
+                subtitle: Text(l10n.siteInjectionDescription),
+              ),
+            ],
           ),
           const SizedBox(height: 32),
         ],

@@ -186,7 +186,10 @@ class LearningAvailableSeatsPage extends HookWidget {
                             '${areaTitle(groups[index].area)}'
                             '${groups[index].area == null ? '' : '  ${groups[index].area!.start}–${groups[index].area!.end}'}'
                             '  ${seatType(groups[index].area)}',
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -204,34 +207,40 @@ class LearningAvailableSeatsPage extends HookWidget {
                       ),
                     ),
                   ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverGrid.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: kLearningSeatMaxWidth,
-                            mainAxisExtent: kLearningSeatHeight,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                      itemCount: groups[index].seats.length,
-                      itemBuilder: (context, seatIndex) {
-                        final seat = groups[index].seats[seatIndex];
-                        return OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: seat.available
-                                ? Theme.of(context).colorScheme.primaryContainer
-                                : Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
-                          ),
-                          onPressed:
-                              acting.value || querying.value || seat.id.isEmpty
-                              ? null
-                              : () => selectSeat(seat),
-                          child: Text(seat.name),
-                        );
-                      },
+                  AppSliverSurface(
+                    sliver: SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverGrid.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: kLearningSeatMaxWidth,
+                              mainAxisExtent: kLearningSeatHeight,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                        itemCount: groups[index].seats.length,
+                        itemBuilder: (context, seatIndex) {
+                          final seat = groups[index].seats[seatIndex];
+                          return OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: seat.available
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                  : Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest,
+                            ),
+                            onPressed:
+                                acting.value ||
+                                    querying.value ||
+                                    seat.id.isEmpty
+                                ? null
+                                : () => selectSeat(seat),
+                            child: Text(seat.name),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],

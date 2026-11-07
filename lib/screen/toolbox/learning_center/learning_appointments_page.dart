@@ -155,7 +155,7 @@ class LearningAppointmentsPage extends HookWidget {
             ),
           if (acting.value || (loading.value && records.value.isNotEmpty))
             const SliverToBoxAdapter(child: LinearProgressIndicator()),
-          MasonrySliverGrid(
+          MasonrySliverGrid.grouped(
             padding: const EdgeInsets.all(16),
             childCount: records.value.length,
             itemBuilder: (context, index) {
@@ -168,56 +168,54 @@ class LearningAppointmentsPage extends HookWidget {
                 LearningAppointmentStatus.signedIn => l10n.learningSignOut,
                 _ => null,
               };
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          text: l10n.learningAppointmentTitle(
-                            item.floor,
-                            item.seatName.padLeft(3, '0'),
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text.rich(
+                      TextSpan(
+                        text: l10n.learningAppointmentTitle(
+                          item.floor,
+                          item.seatName.padLeft(3, '0'),
+                        ),
+                        children: [
+                          TextSpan(
+                            text: ' #${item.id}',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
                           ),
-                          children: [
-                            TextSpan(
-                              text: ' #${item.id}',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        style: Theme.of(context).textTheme.titleMedium,
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${item.date} ${item.beginTime}–${item.endTime}',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${item.date} ${item.beginTime}–${item.endTime}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      statusText(status),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    if (action != null) ...[
+                      const SizedBox(height: 8),
+                      FilledButton(
+                        onPressed: acting.value || loading.value
+                            ? null
+                            : () => act(item, status),
+                        child: Text(action),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        statusText(status),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      if (action != null) ...[
-                        const SizedBox(height: 8),
-                        FilledButton(
-                          onPressed: acting.value || loading.value
-                              ? null
-                              : () => act(item, status),
-                          child: Text(action),
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
               );
             },

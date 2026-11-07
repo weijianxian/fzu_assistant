@@ -174,23 +174,20 @@ class ToolboxPage extends HookWidget {
           for (final section in sections)
             Section.sliver(
               title: section.$1,
-              child: MasonrySliverGrid(
+              child: MasonrySliverGrid.grouped(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 childCount: section.$2.length,
                 itemBuilder: (context, i) {
                   final tile = section.$2[i];
-                  return Card(
-                    margin: EdgeInsets.zero,
-                    child: ListTile(
-                      leading: Icon(tile.$1, size: 28),
-                      title: Text(
-                        tile.$2,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: Text(tile.$3),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => context.pushNamed(tile.$4),
+                  return ListTile(
+                    leading: Icon(tile.$1, size: 28),
+                    title: Text(
+                      tile.$2,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
+                    subtitle: Text(tile.$3),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.pushNamed(tile.$4),
                   );
                 },
               ),

@@ -1,4 +1,5 @@
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widget/input/password_field.dart';
@@ -63,47 +64,59 @@ class SsoLoginPage extends HookWidget {
             constraints: const BoxConstraints(maxWidth: 480),
             child: AppListView(
               shrinkWrap: true,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                Text(l10n.ssoLoginDescription),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: account,
-                  enabled: !busy.value,
-                  autofillHints: const [AutofillHints.username],
-                  decoration: InputDecoration(
-                    labelText: l10n.studentId,
-                    prefixIcon: const Icon(Icons.person_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                AppSection(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(l10n.ssoLoginDescription),
+                        const SizedBox(height: 24),
+                        TextField(
+                          controller: account,
+                          enabled: !busy.value,
+                          autofillHints: const [AutofillHints.username],
+                          decoration: InputDecoration(
+                            labelText: l10n.studentId,
+                            prefixIcon: const Icon(Icons.person_outline),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        PasswordField(
+                          controller: password,
+                          enabled: !busy.value,
+                          onSubmitted: (_) => login(),
+                        ),
+                        if (error.value != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              error.value!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 24),
+                        FilledButton(
+                          onPressed: busy.value ? null : login,
+                          child: busy.value
+                              ? const SizedBox.square(
+                                  dimension: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(l10n.login),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                PasswordField(
-                  controller: password,
-                  enabled: !busy.value,
-                  onSubmitted: (_) => login(),
-                ),
-                if (error.value != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      error.value!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: busy.value ? null : login,
-                  child: busy.value
-                      ? const SizedBox.square(
-                          dimension: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.login),
                 ),
               ],
             ),

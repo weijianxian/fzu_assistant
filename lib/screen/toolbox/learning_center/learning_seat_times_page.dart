@@ -51,69 +51,79 @@ class LearningSeatTimesPage extends HookWidget {
           if (!querying.value) await data.refresh();
         },
         child: AppListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
-            Text(
-              l10n.learningSeatLabel(floor, seatName),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(date, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 12),
-            if (querying.value) const LinearProgressIndicator(),
-            if (data.error != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(data.error!),
-              ),
-            LayoutBuilder(
-              builder: (context, constraints) => Wrap(
-                children: [
-                  for (final slot in data.data ?? <LearningTimeSlot>[])
-                    SizedBox(
-                      width: constraints.maxWidth / 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Material(
-                          color: slot.available
-                              ? colors.primaryContainer
-                              : colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 12,
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  slot.text,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: slot.available
-                                        ? colors.onPrimaryContainer
-                                        : colors.onSurfaceVariant,
+            AppSection(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.learningSeatLabel(floor, seatName),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(date, style: Theme.of(context).textTheme.bodyMedium),
+                    const SizedBox(height: 12),
+                    if (querying.value) const LinearProgressIndicator(),
+                    if (data.error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(data.error!),
+                      ),
+                    LayoutBuilder(
+                      builder: (context, constraints) => Wrap(
+                        children: [
+                          for (final slot in data.data ?? <LearningTimeSlot>[])
+                            SizedBox(
+                              width: constraints.maxWidth / 4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4),
+                                child: Material(
+                                  color: slot.available
+                                      ? colors.primaryContainer
+                                      : colors.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 12,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          slot.text,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: slot.available
+                                                ? colors.onPrimaryContainer
+                                                : colors.onSurfaceVariant,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          slot.available
+                                              ? l10n.learningAvailable
+                                              : l10n.learningOccupied,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: slot.available
+                                                ? colors.onPrimaryContainer
+                                                : colors.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  slot.available
-                                      ? l10n.learningAvailable
-                                      : l10n.learningOccupied,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: slot.available
-                                        ? colors.onPrimaryContainer
-                                        : colors.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                        ],
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

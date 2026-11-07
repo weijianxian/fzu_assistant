@@ -33,7 +33,7 @@ class CreditPage extends HookWidget {
   }
 
   Widget _buildList(List<CreditStatistics> credits) {
-    return AppListView.builder(
+    return AppListView.grouped(
       itemCount: credits.length,
       itemBuilder: (context, i) {
         final c = credits[i];
@@ -41,47 +41,42 @@ class CreditPage extends HookWidget {
         final total = double.tryParse(c.total) ?? 1;
         final progress = (total > 0) ? (gain / total).clamp(0.0, 1.0) : 0.0;
 
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        c.type,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      c.type,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Text(
-                      '${c.gain} / ${c.total}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: progress >= 1.0
-                            ? Colors.green
-                            : Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: Colors.grey.withValues(alpha: 0.15),
                   ),
+                  Text(
+                    '${c.gain} / ${c.total}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: progress >= 1.0 ? Colors.green : Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 6,
+                  backgroundColor: Colors.grey.withValues(alpha: 0.15),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

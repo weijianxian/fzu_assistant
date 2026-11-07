@@ -7,6 +7,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/service/webdav_sync_service.dart';
+import 'package:fzu_assistant/service/app_themes.dart';
+import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _Adapter implements HttpClientAdapter {
@@ -48,6 +50,41 @@ void main() {
     service = WebDavSyncService(dio: Dio()..httpClientAdapter = adapter);
   });
   tearDown(() => service.dio.close(force: true));
+
+  test(
+    'interface style restores immediately; legacy backups remain valid',
+    () async {
+      final settings = AppSettings();
+      await settings.load();
+      addTearDown(settings.dispose);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(SpKeys.interfaceStyle, 'cards');
+      final cards = await service.exportSnapshot();
+      await service.restore(
+        cards,
+        apply: (snapshot) => applyWebDavSettings(settings, snapshot),
+      );
+      expect(settings.interfaceStyle.value, InterfaceStyle.cards);
+      expect(prefs.getString(SpKeys.interfaceStyle), 'cards');
+
+      final legacy = cards.toJson();
+      legacy['values'] = {...cards.values}..remove(SpKeys.interfaceStyle);
+      final restored = WebDavSnapshot.fromJson(legacy);
+      expect(restored.values[SpKeys.interfaceStyle], 'classic');
+      await service.restore(
+        restored,
+        apply: (snapshot) => applyWebDavSettings(settings, snapshot),
+      );
+      expect(settings.interfaceStyle.value, InterfaceStyle.classic);
+      expect(prefs.getString(SpKeys.interfaceStyle), 'classic');
+      for (final value in ['unknown', null, 1]) {
+        legacy['values'] = {...cards.values, SpKeys.interfaceStyle: value};
+        expect(() => WebDavSnapshot.fromJson(legacy), throwsFormatException);
+      }
+      legacy['values'] = {...cards.values}..remove(SpKeys.themeKey);
+      expect(() => WebDavSnapshot.fromJson(legacy), throwsFormatException);
+    },
+  );
 
   test(
     'snapshot whitelist excludes login data, caches and WebDAV credentials',

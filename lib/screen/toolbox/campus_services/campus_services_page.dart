@@ -41,35 +41,27 @@ class CampusServicesPage extends HookWidget {
             childCount: sections.length,
             itemBuilder: (context, index) {
               final section = sections.entries.elementAt(index);
-              return Section(
+              return AppSection.list(
                 title: section.key.title(l10n),
-                child: Column(
-                  children: [
-                    for (final service in section.value)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          child: ListTile(
-                            key: ValueKey(service),
-                            leading: Icon(service.icon),
-                            title: Text(service.title(l10n)),
-                            subtitle: Text(service.description(l10n)),
-                            trailing: const Icon(Icons.open_in_new),
-                            onTap: () => context.pushNamed(
-                              AppRoutes.webview,
-                              arguments: WebViewArgs(
-                                url: service.url,
-                                title: service.title(l10n),
-                                injectCookies: false,
-                                injectSsoCookies: service.requiresSso,
-                              ),
-                            ),
-                          ),
+                children: [
+                  for (final service in section.value)
+                    ListTile(
+                      key: ValueKey(service),
+                      leading: Icon(service.icon),
+                      title: Text(service.title(l10n)),
+                      subtitle: Text(service.description(l10n)),
+                      trailing: const Icon(Icons.open_in_new),
+                      onTap: () => context.pushNamed(
+                        AppRoutes.webview,
+                        arguments: WebViewArgs(
+                          url: service.url,
+                          title: service.title(l10n),
+                          injectCookies: false,
+                          injectSsoCookies: service.requiresSso,
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               );
             },
           ),

@@ -1,4 +1,5 @@
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -119,34 +120,20 @@ class ProfilePage extends HookWidget {
           ),
         ),
         const SizedBox(height: 24),
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              children: [
-                _infoRow(l10n.college, info.college),
-                _infoRow(l10n.major, info.major),
-                _infoRow(l10n.grade, info.grade),
-              ],
-            ),
-          ),
+        AppSection.list(
+          children: [
+            _infoRow(l10n.college, info.college),
+            _infoRow(l10n.major, info.major),
+            _infoRow(l10n.grade, info.grade),
+          ],
         ),
         ?footer,
       ],
     );
   }
 
-  Widget _infoRow(String label, String value) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-    child: Row(
-      children: [
-        SizedBox(
-          width: 80,
-          child: Text(label, style: const TextStyle(color: Colors.grey)),
-        ),
-        Expanded(child: Text(value.isNotEmpty ? value : '-')),
-      ],
-    ),
+  Widget _infoRow(String label, String value) => ListTile(
+    title: Text(label),
+    subtitle: Text(value.isNotEmpty ? value : '-'),
   );
 }

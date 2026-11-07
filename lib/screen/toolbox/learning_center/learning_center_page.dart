@@ -52,25 +52,28 @@ class LearningCenterPage extends HookWidget {
               ),
             if (session.data == null)
               LearningLoginPrompt(onLogin: login)
-            else ...[
-              ChevronListTile(
-                leading: const Icon(Icons.event_seat_outlined),
-                title: Text(l10n.learningReserve),
-                subtitle: Text(l10n.learningReserveSubtitle),
-                onTap: () async {
-                  await context.pushNamed(AppRoutes.learningSeats);
-                  if (context.mounted) await session.refresh();
-                },
+            else
+              AppSection.list(
+                children: [
+                  ChevronListTile(
+                    leading: const Icon(Icons.event_seat_outlined),
+                    title: Text(l10n.learningReserve),
+                    subtitle: Text(l10n.learningReserveSubtitle),
+                    onTap: () async {
+                      await context.pushNamed(AppRoutes.learningSeats);
+                      if (context.mounted) await session.refresh();
+                    },
+                  ),
+                  ChevronListTile(
+                    leading: const Icon(Icons.history),
+                    title: Text(l10n.learningAppointments),
+                    onTap: () async {
+                      await context.pushNamed(AppRoutes.learningAppointments);
+                      if (context.mounted) await session.refresh();
+                    },
+                  ),
+                ],
               ),
-              ChevronListTile(
-                leading: const Icon(Icons.history),
-                title: Text(l10n.learningAppointments),
-                onTap: () async {
-                  await context.pushNamed(AppRoutes.learningAppointments);
-                  if (context.mounted) await session.refresh();
-                },
-              ),
-            ],
             Padding(
               padding: const EdgeInsets.all(24),
               child: Text(l10n.learningInstructions),

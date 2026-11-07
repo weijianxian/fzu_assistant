@@ -1,10 +1,9 @@
-import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
-import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class ThirdPartySettingsPage extends HookWidget {
   const ThirdPartySettingsPage({super.key});
@@ -20,15 +19,19 @@ class ThirdPartySettingsPage extends HookWidget {
             padding: const EdgeInsets.all(16),
             child: Text(l10n.thirdPartyDescription),
           ),
-          FeatureAccessTile(
+          SettingsSection(
             title: l10n.west2AdjustmentsEnabled,
-            description: l10n.west2AdjustmentsDescription,
-            notifier: settings.west2AdjustmentsAccess,
+            child: FeatureAccessTile(
+              description: l10n.west2AdjustmentsDescription,
+              notifier: settings.west2AdjustmentsAccess,
+            ),
           ),
-          FeatureAccessTile(
+          SettingsSection(
             title: l10n.pastPapers,
-            description: l10n.pastPapersDescription,
-            notifier: settings.papersAccess,
+            child: FeatureAccessTile(
+              description: l10n.pastPapersDescription,
+              notifier: settings.papersAccess,
+            ),
           ),
         ],
       ),
@@ -39,11 +42,10 @@ class ThirdPartySettingsPage extends HookWidget {
 class FeatureAccessTile extends HookWidget {
   const FeatureAccessTile({
     super.key,
-    required this.title,
     required this.description,
     required this.notifier,
   });
-  final String title, description;
+  final String description;
   final ValueNotifier<FeatureAccess> notifier;
   @override
   Widget build(BuildContext context) {
@@ -54,18 +56,11 @@ class FeatureAccessTile extends HookWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
           Text(description),
           const SizedBox(height: 12),
           SegmentedButton<FeatureAccess>(
             expandedInsets: EdgeInsets.zero,
             showSelectedIcon: false,
-            style: const ButtonStyle(
-              padding: WidgetStatePropertyAll(
-                EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              ),
-            ),
             segments: [
               ButtonSegment(
                 value: FeatureAccess.hide,

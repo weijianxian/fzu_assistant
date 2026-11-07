@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 
 /// Consumes system insets for scroll content without shrinking its viewport.
 class AppScrollInsets extends StatelessWidget {
@@ -113,6 +114,26 @@ class AppListView extends StatelessWidget {
            keyboardDismissBehavior: keyboardDismissBehavior,
          ),
          key: key,
+       );
+
+  AppListView.grouped({
+    Key? key,
+    ScrollController? controller,
+    ScrollPhysics? physics,
+    EdgeInsetsGeometry? padding,
+    required int itemCount,
+    required IndexedWidgetBuilder itemBuilder,
+  }) : this.builder(
+         key: key,
+         controller: controller,
+         physics: physics,
+         padding: padding,
+         itemCount: itemCount,
+         itemBuilder: (context, index) => AppListItem(
+           index: index,
+           itemCount: itemCount,
+           child: itemBuilder(context, index),
+         ),
        );
 
   const AppListView.fromListView(

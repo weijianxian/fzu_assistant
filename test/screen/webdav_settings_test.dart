@@ -120,6 +120,7 @@ void main() {
     await tester.enterText(find.byType(TextField).at(2), 'new-password');
     final button = find.widgetWithText(OutlinedButton, '测试连接');
     await tester.ensureVisible(button);
+    await tester.pumpAndSettle();
     await tester.tap(button);
     await tester.pump();
     expect(service.connectionTests, 1);
@@ -166,6 +167,7 @@ void main() {
     await tester.pumpAndSettle();
     final button = find.widgetWithText(OutlinedButton, '测试连接');
     await tester.ensureVisible(button);
+    await tester.pumpAndSettle();
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(find.textContaining('测试连接失败'), findsOneWidget);
@@ -332,6 +334,7 @@ void main() {
       await tester.ensureVisible(
         find.widgetWithText(FilledButton, '上传到 WebDAV'),
       );
+      await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, '上传到 WebDAV'));
       // The page deliberately keeps its progress indicator animated while the
       // confirmation awaits a decision. Advance only the dialog transition.
@@ -348,6 +351,7 @@ void main() {
       await tester.ensureVisible(
         find.widgetWithText(OutlinedButton, '下载并覆盖本地'),
       );
+      await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(OutlinedButton, '下载并覆盖本地'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));

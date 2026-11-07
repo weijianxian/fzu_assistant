@@ -107,30 +107,34 @@ class UtilityPaymentPage extends HookWidget {
               ),
             ),
             if (mobile)
-              for (final campus in UtilityCampus.values)
-                ListTile(
-                  leading: const Icon(Icons.location_city_outlined),
-                  title: Text(name(campus)),
-                  trailing: busy.value == campus
-                      ? const SizedBox.square(
-                          dimension: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.open_in_new),
-                  onTap: busy.value != null
-                      ? null
-                      : () async {
-                          busy.value = campus;
-                          try {
-                            final success = await open(campus.paymentUri);
-                            if (!success && context.mounted) {
-                              await showMissingApp(campus);
-                            }
-                          } finally {
-                            if (context.mounted) busy.value = null;
-                          }
-                        },
-                ),
+              AppSection.list(
+                children: [
+                  for (final campus in UtilityCampus.values)
+                    ListTile(
+                      leading: const Icon(Icons.location_city_outlined),
+                      title: Text(name(campus)),
+                      trailing: busy.value == campus
+                          ? const SizedBox.square(
+                              dimension: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.open_in_new),
+                      onTap: busy.value != null
+                          ? null
+                          : () async {
+                              busy.value = campus;
+                              try {
+                                final success = await open(campus.paymentUri);
+                                if (!success && context.mounted) {
+                                  await showMissingApp(campus);
+                                }
+                              } finally {
+                                if (context.mounted) busy.value = null;
+                              }
+                            },
+                    ),
+                ],
+              ),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'package:fzu_assistant/constants/breakpoints.dart';
@@ -168,7 +169,7 @@ class LearningCenterDebugPage extends HookWidget {
               ),
             ],
           ),
-          const Divider(),
+          const AppDivider(),
           field(floor, 'Floor'),
           field(date, 'Date'),
           field(begin, 'Start time'),
@@ -197,7 +198,7 @@ class LearningCenterDebugPage extends HookWidget {
               ),
             ],
           ),
-          const Divider(),
+          const AppDivider(),
           field(appointmentId, 'Appointment ID'),
           _DebugButtonGroup(
             children: [
@@ -256,7 +257,6 @@ class _DebugButtonGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Align(
       alignment: Alignment.centerLeft,
       child: ConstrainedBox(
@@ -266,13 +266,7 @@ class _DebugButtonGroup extends StatelessWidget {
             final columns = constraints.maxWidth >= kDevButtonGroupWideWidth
                 ? children.length
                 : 2;
-            return Material(
-              color: colors.surfaceContainerLow,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: colors.outlineVariant),
-              ),
-              clipBehavior: Clip.antiAlias,
+            return AppSurface(
               child: OutlinedButtonTheme(
                 data: OutlinedButtonThemeData(
                   style: OutlinedButton.styleFrom(
@@ -294,18 +288,13 @@ class _DebugButtonGroup extends StatelessWidget {
                       start < children.length;
                       start += columns
                     ) ...[
-                      if (start > 0)
-                        Divider(height: 1, color: colors.outlineVariant),
+                      if (start > 0) const AppDivider(height: 1, spacing: 4),
                       IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             for (var i = 0; i < columns; i++) ...[
-                              if (i > 0)
-                                VerticalDivider(
-                                  width: 1,
-                                  color: colors.outlineVariant,
-                                ),
+                              if (i > 0) const AppVerticalDivider(spacing: 4),
                               Expanded(
                                 child: start + i < children.length
                                     ? children[start + i]

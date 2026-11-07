@@ -19,7 +19,7 @@ void main() {
   }
 
   testWidgets(
-    'bottom sheet consumes system edges and keeps the scrim full screen',
+    'ordinary content reuses the landscape side panel and full-screen scrim',
     (tester) async {
       viewport(
         tester,
@@ -35,9 +35,10 @@ void main() {
                 builder: (context) => TextButton(
                   onPressed: () => showAppBottomSheet<void>(
                     context: context,
+                    backgroundColor: Colors.amber,
                     builder: (_) => const SizedBox(
                       key: contentKey,
-                      height: 100,
+                      height: 1000,
                       width: double.infinity,
                     ),
                   ),
@@ -54,12 +55,21 @@ void main() {
         tester.getRect(find.byType(ModalBarrier).last),
         const Rect.fromLTWH(0, 0, 1200, 600),
       );
+      final scroll = tester.state<ScrollableState>(find.byType(Scrollable));
+      scroll.position.jumpTo(scroll.position.maxScrollExtent);
+      await tester.pumpAndSettle();
       final content = tester.getRect(find.byKey(contentKey));
-      expect(content.left, greaterThanOrEqualTo(48));
-      expect(content.right, lessThanOrEqualTo(1168));
+      final surface = find
+          .ancestor(of: find.byKey(contentKey), matching: find.byType(Material))
+          .first;
+      expect(tester.getRect(surface), const Rect.fromLTWH(400, 0, 800, 600));
+      expect(tester.widget<Material>(surface).color, Colors.amber);
+      expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+      expect(find.byType(SheetDragHandle), findsNothing);
+      expect(content.left, 448);
+      expect(content.right, 1168);
       expect(content.bottom, 566);
       expect(tester.getRect(find.byType(Scrollable)).bottom, 600);
-      expect(tester.getRect(find.byType(BottomSheet)).bottom, 600);
       expect(tester.takeException(), isNull);
     },
   );
@@ -97,7 +107,7 @@ void main() {
                                     builder: (_) => const SizedBox(
                                       key: contentKey,
                                       width: double.infinity,
-                                      height: 100,
+                                      height: 1000,
                                     ),
                                   ),
                                   child: const Text('Open nested'),
@@ -122,6 +132,13 @@ void main() {
       tester.getRect(find.byType(ModalBarrier).last),
       const Rect.fromLTWH(0, 0, 1200, 600),
     );
+    final scroll = tester.state<ScrollableState>(find.byType(Scrollable));
+    scroll.position.jumpTo(scroll.position.maxScrollExtent);
+    await tester.pumpAndSettle();
+    final surface = find
+        .ancestor(of: find.byKey(contentKey), matching: find.byType(Material))
+        .first;
+    expect(tester.getRect(surface), const Rect.fromLTWH(400, 0, 800, 600));
     expect(tester.getRect(find.byKey(contentKey)).bottom, 566);
     expect(tester.takeException(), isNull);
   });
@@ -387,12 +404,20 @@ void main() {
           ),
         );
         final close = tester.getRect(
-          find
-              .ancestor(
-                of: find.byIcon(Icons.chevron_right),
-                matching: find.byType(GestureDetector),
+          find.widgetWithIcon(IconButton, Icons.chevron_right),
+        );
+        expect(close.width, greaterThanOrEqualTo(48));
+        expect(
+          tester
+              .widget<IconButton>(
+                find.widgetWithIcon(IconButton, Icons.chevron_right),
               )
-              .first,
+              .tooltip,
+          MaterialLocalizations.of(
+            tester.element(
+              find.widgetWithIcon(IconButton, Icons.chevron_right),
+            ),
+          ).closeButtonTooltip,
         );
         final list = tester.getRect(find.byType(ListView));
         final body = tester.getRect(find.byKey(bodyKey));
@@ -483,11 +508,7 @@ void main() {
         expect(handle.bottom - bar.bottom, 8);
         expect(bar.center.dx, handle.center.dx);
         expect(tester.getRect(find.byKey(contentKey)).top, handle.bottom);
-        final surface = tester.getRect(
-          half
-              ? find.byType(DraggableScrollableSheet)
-              : find.byType(BottomSheet),
-        );
+        final surface = tester.getRect(find.byType(DraggableScrollableSheet));
         expect(handle.top, surface.top);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());

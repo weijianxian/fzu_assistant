@@ -1,4 +1,5 @@
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/semester_utils.dart';
@@ -57,30 +58,34 @@ class HiddenCoursesPage extends HookWidget {
                     child: Text(l10n.restoreAllCourseSessions),
                   ),
           ),
-          if (hidden.isEmpty)
-            ListTile(title: Text(l10n.noHiddenCourseSessions)),
-          for (final session in hidden)
-            ListTile(
-              title: Text(session.name),
-              subtitle: Text(
-                [
-                  SemesterUtils.formatSemester(session.term),
-                  '${l10n.weekN(session.week)} · ${weekdays[session.weekday - 1]} · ${l10n.classPeriodRange(session.startClass, session.endClass)}',
-                  if (session.teacher.isNotEmpty) session.teacher,
-                  if (session.location.isNotEmpty) session.location,
-                ].join('\n'),
-              ),
-              isThreeLine: true,
-              trailing: IconButton(
-                icon: const Icon(Icons.visibility_outlined),
-                tooltip: l10n.restoreCourseSession,
-                onPressed: () {
-                  if (account == ApiClient.instance.studentId) {
-                    settings.restoreCourseSession(session);
-                  }
-                },
-              ),
-            ),
+          AppSection.list(
+            children: [
+              if (hidden.isEmpty)
+                ListTile(title: Text(l10n.noHiddenCourseSessions)),
+              for (final session in hidden)
+                ListTile(
+                  title: Text(session.name),
+                  subtitle: Text(
+                    [
+                      SemesterUtils.formatSemester(session.term),
+                      '${l10n.weekN(session.week)} · ${weekdays[session.weekday - 1]} · ${l10n.classPeriodRange(session.startClass, session.endClass)}',
+                      if (session.teacher.isNotEmpty) session.teacher,
+                      if (session.location.isNotEmpty) session.location,
+                    ].join('\n'),
+                  ),
+                  isThreeLine: true,
+                  trailing: IconButton(
+                    icon: const Icon(Icons.visibility_outlined),
+                    tooltip: l10n.restoreCourseSession,
+                    onPressed: () {
+                      if (account == ApiClient.instance.studentId) {
+                        settings.restoreCourseSession(session);
+                      }
+                    },
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );

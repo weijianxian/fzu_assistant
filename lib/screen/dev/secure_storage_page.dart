@@ -31,7 +31,7 @@ class SecureStoragePage extends HookWidget {
           ? const Center(
               child: Text('(empty)', style: TextStyle(color: Colors.grey)),
             )
-          : AppListView.builder(
+          : AppListView.grouped(
               itemCount: data.value.length,
               itemBuilder: (_, i) {
                 final e = data.value.entries.elementAt(i);

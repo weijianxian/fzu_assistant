@@ -1,4 +1,5 @@
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_async_data.dart';
@@ -146,56 +147,63 @@ class CustomCoursesPage extends HookWidget {
                     child: AppListView(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       children: [
-                        if (status.error != null)
-                          ListTile(
-                            title: Text(status.error!),
-                            trailing: TextButton(
-                              onPressed: status.refresh,
-                              child: Text(l10n.retry),
-                            ),
-                          ),
-                        if (account == null)
-                          ListTile(title: Text(l10n.customCourseLoginRequired))
-                        else if (visible.isEmpty)
-                          ListTile(title: Text(l10n.customCoursesEmpty)),
-                        for (final course in visible)
-                          ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Color(course.color),
-                              child: const Icon(
-                                Icons.event_note,
-                                color: Colors.black87,
+                        AppSection.list(
+                          children: [
+                            if (status.error != null)
+                              ListTile(
+                                title: Text(status.error!),
+                                trailing: TextButton(
+                                  onPressed: status.refresh,
+                                  child: Text(l10n.retry),
+                                ),
                               ),
-                            ),
-                            title: Text(course.name),
-                            subtitle: Text(
-                              [
-                                '${weekdays[course.weekday - 1]} · ${l10n.classPeriodRange(course.startClass, course.endClass)}',
-                                '${l10n.weekN(course.startWeek)} – ${l10n.weekN(course.endWeek)} · ${course.single && course.double
-                                    ? l10n.customCourseEveryWeek
-                                    : course.single
-                                    ? l10n.customCourseOddWeeks
-                                    : l10n.customCourseEvenWeeks}',
-                                if (course.location.isNotEmpty) course.location,
-                              ].join('\n'),
-                            ),
-                            onTap: busy.value
-                                ? null
-                                : () => context.pushNamed(
-                                    AppRoutes.customCourseEdit,
-                                    arguments: CustomCourseEditArgs(
-                                      course: course,
-                                      term: course.term,
-                                    ),
+                            if (account == null)
+                              ListTile(
+                                title: Text(l10n.customCourseLoginRequired),
+                              )
+                            else if (visible.isEmpty)
+                              ListTile(title: Text(l10n.customCoursesEmpty)),
+                            for (final course in visible)
+                              ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Color(course.color),
+                                  child: const Icon(
+                                    Icons.event_note,
+                                    color: Colors.black87,
                                   ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete_outline),
-                              tooltip: l10n.customCourseDelete,
-                              onPressed: busy.value
-                                  ? null
-                                  : () => remove(course),
-                            ),
-                          ),
+                                ),
+                                title: Text(course.name),
+                                subtitle: Text(
+                                  [
+                                    '${weekdays[course.weekday - 1]} · ${l10n.classPeriodRange(course.startClass, course.endClass)}',
+                                    '${l10n.weekN(course.startWeek)} – ${l10n.weekN(course.endWeek)} · ${course.single && course.double
+                                        ? l10n.customCourseEveryWeek
+                                        : course.single
+                                        ? l10n.customCourseOddWeeks
+                                        : l10n.customCourseEvenWeeks}',
+                                    if (course.location.isNotEmpty)
+                                      course.location,
+                                  ].join('\n'),
+                                ),
+                                onTap: busy.value
+                                    ? null
+                                    : () => context.pushNamed(
+                                        AppRoutes.customCourseEdit,
+                                        arguments: CustomCourseEditArgs(
+                                          course: course,
+                                          term: course.term,
+                                        ),
+                                      ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete_outline),
+                                  tooltip: l10n.customCourseDelete,
+                                  onPressed: busy.value
+                                      ? null
+                                      : () => remove(course),
+                                ),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -327,151 +335,184 @@ class CustomCourseEditPage extends HookWidget {
         body: Form(
           key: form,
           child: AppListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              TextFormField(
-                controller: name,
-                enabled: !busy.value,
-                maxLength: 60,
-                decoration: InputDecoration(labelText: l10n.customCourseName),
-                validator: (value) => value == null || value.trim().isEmpty
-                    ? l10n.customCourseNameRequired
-                    : null,
-              ),
-              TextFormField(
-                controller: term,
-                enabled: !busy.value,
-                maxLength: 6,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: l10n.selectSemester,
-                  helperText: l10n.customCourseTermHint,
-                ),
-                validator: (value) =>
-                    !RegExp(r'^\d{6}$').hasMatch(value?.trim() ?? '')
-                    ? l10n.customCourseTermInvalid
-                    : null,
-              ),
-              TextFormField(
-                controller: teacher,
-                enabled: !busy.value,
-                maxLength: 100,
-                decoration: InputDecoration(
-                  labelText: l10n.customCourseTeacher,
-                ),
-              ),
-              TextFormField(
-                controller: location,
-                enabled: !busy.value,
-                maxLength: 200,
-                decoration: InputDecoration(
-                  labelText: l10n.customCourseLocation,
-                ),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<int>(
-                initialValue: weekday.value,
-                decoration: InputDecoration(
-                  labelText: l10n.customCourseWeekday,
-                ),
-                items: [
-                  for (var i = 1; i <= 7; i++)
-                    DropdownMenuItem(value: i, child: Text(weekdays[i - 1])),
-                ],
-                onChanged: busy.value
-                    ? null
-                    : (value) {
-                        if (value != null) weekday.value = value;
-                      },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  number(
-                    l10n.customCourseStartWeek,
-                    startWeek,
-                    CustomCourse.maxWeek,
-                  ),
-                  const SizedBox(width: 16),
-                  number(
-                    l10n.customCourseEndWeek,
-                    endWeek,
-                    CustomCourse.maxWeek,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                initialValue: parity.value,
-                decoration: InputDecoration(labelText: l10n.customCourseRepeat),
-                items: [
-                  DropdownMenuItem(
-                    value: 0,
-                    child: Text(l10n.customCourseEveryWeek),
-                  ),
-                  DropdownMenuItem(
-                    value: 1,
-                    child: Text(l10n.customCourseOddWeeks),
-                  ),
-                  DropdownMenuItem(
-                    value: 2,
-                    child: Text(l10n.customCourseEvenWeeks),
-                  ),
-                ],
-                onChanged: busy.value
-                    ? null
-                    : (value) {
-                        if (value != null) parity.value = value;
-                      },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  number(l10n.startPeriod, startClass, CustomCourse.maxPeriod),
-                  const SizedBox(width: 16),
-                  number(l10n.endPeriod, endClass, CustomCourse.maxPeriod),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Text(l10n.customCourseColor),
-              Wrap(
-                spacing: 8,
-                children: [
-                  for (final option in {..._courseColors, color.value})
-                    IconButton(
-                      tooltip:
-                          '${l10n.customCourseColor} ${option.toRadixString(16).substring(2)}',
-                      onPressed: busy.value ? null : () => color.value = option,
-                      icon: Icon(
-                        color.value == option
-                            ? Icons.check_circle
-                            : Icons.circle,
-                        color: Color(option),
-                        size: 36,
+              AppSection(
+                title: l10n.customCourses,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: name,
+                        enabled: !busy.value,
+                        maxLength: 60,
+                        decoration: InputDecoration(
+                          labelText: l10n.customCourseName,
+                        ),
+                        validator: (value) =>
+                            value == null || value.trim().isEmpty
+                            ? l10n.customCourseNameRequired
+                            : null,
                       ),
-                    ),
-                ],
+                      TextFormField(
+                        controller: term,
+                        enabled: !busy.value,
+                        maxLength: 6,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: l10n.selectSemester,
+                          helperText: l10n.customCourseTermHint,
+                        ),
+                        validator: (value) =>
+                            !RegExp(r'^\d{6}$').hasMatch(value?.trim() ?? '')
+                            ? l10n.customCourseTermInvalid
+                            : null,
+                      ),
+                      TextFormField(
+                        controller: teacher,
+                        enabled: !busy.value,
+                        maxLength: 100,
+                        decoration: InputDecoration(
+                          labelText: l10n.customCourseTeacher,
+                        ),
+                      ),
+                      TextFormField(
+                        controller: location,
+                        enabled: !busy.value,
+                        maxLength: 200,
+                        decoration: InputDecoration(
+                          labelText: l10n.customCourseLocation,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        initialValue: weekday.value,
+                        decoration: InputDecoration(
+                          labelText: l10n.customCourseWeekday,
+                        ),
+                        items: [
+                          for (var i = 1; i <= 7; i++)
+                            DropdownMenuItem(
+                              value: i,
+                              child: Text(weekdays[i - 1]),
+                            ),
+                        ],
+                        onChanged: busy.value
+                            ? null
+                            : (value) {
+                                if (value != null) weekday.value = value;
+                              },
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          number(
+                            l10n.customCourseStartWeek,
+                            startWeek,
+                            CustomCourse.maxWeek,
+                          ),
+                          const SizedBox(width: 16),
+                          number(
+                            l10n.customCourseEndWeek,
+                            endWeek,
+                            CustomCourse.maxWeek,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<int>(
+                        initialValue: parity.value,
+                        decoration: InputDecoration(
+                          labelText: l10n.customCourseRepeat,
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 0,
+                            child: Text(l10n.customCourseEveryWeek),
+                          ),
+                          DropdownMenuItem(
+                            value: 1,
+                            child: Text(l10n.customCourseOddWeeks),
+                          ),
+                          DropdownMenuItem(
+                            value: 2,
+                            child: Text(l10n.customCourseEvenWeeks),
+                          ),
+                        ],
+                        onChanged: busy.value
+                            ? null
+                            : (value) {
+                                if (value != null) parity.value = value;
+                              },
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          number(
+                            l10n.startPeriod,
+                            startClass,
+                            CustomCourse.maxPeriod,
+                          ),
+                          const SizedBox(width: 16),
+                          number(
+                            l10n.endPeriod,
+                            endClass,
+                            CustomCourse.maxPeriod,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(l10n.customCourseColor),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          for (final option in {..._courseColors, color.value})
+                            IconButton(
+                              tooltip:
+                                  '${l10n.customCourseColor} ${option.toRadixString(16).substring(2)}',
+                              onPressed: busy.value
+                                  ? null
+                                  : () => color.value = option,
+                              icon: Icon(
+                                color.value == option
+                                    ? Icons.check_circle
+                                    : Icons.circle,
+                                color: Color(option),
+                                size: 36,
+                              ),
+                            ),
+                        ],
+                      ),
+                      TextFormField(
+                        controller: remark,
+                        enabled: !busy.value,
+                        maxLength: 1000,
+                        minLines: 2,
+                        maxLines: 5,
+                        decoration: InputDecoration(
+                          labelText: l10n.customCourseRemark,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: busy.value ? null : save,
+                        icon: busy.value
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.save_outlined),
+                        label: Text(l10n.customCourseSave),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
               ),
-              TextFormField(
-                controller: remark,
-                enabled: !busy.value,
-                maxLength: 1000,
-                minLines: 2,
-                maxLines: 5,
-                decoration: InputDecoration(labelText: l10n.customCourseRemark),
-              ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: busy.value ? null : save,
-                icon: busy.value
-                    ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.save_outlined),
-                label: Text(l10n.customCourseSave),
-              ),
-              const SizedBox(height: 24),
             ],
           ),
         ),

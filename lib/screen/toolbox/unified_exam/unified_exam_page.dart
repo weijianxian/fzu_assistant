@@ -40,14 +40,14 @@ class UnifiedExamPage extends HookWidget {
     return AppListView(
       children: [
         if (cet.isNotEmpty)
-          Section(
+          AppSection.list(
             title: AppLocalizations.of(context)!.cetScores,
-            child: Column(children: [for (final e in cet) _buildTile(e)]),
+            children: [for (final e in cet) _buildTile(e)],
           ),
         if (js.isNotEmpty)
-          Section(
+          AppSection.list(
             title: AppLocalizations.of(context)!.provincialComputerScores,
-            child: Column(children: [for (final e in js) _buildTile(e)]),
+            children: [for (final e in js) _buildTile(e)],
           ),
         const SizedBox(height: 16),
       ],
@@ -55,18 +55,12 @@ class UnifiedExamPage extends HookWidget {
   }
 
   Widget _buildTile(UnifiedExam e) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: ListTile(
-        title: Text(
-          e.name,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: e.term.isNotEmpty ? Text(e.term) : null,
-        trailing: Text(
-          e.score,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+    return ListTile(
+      title: Text(e.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: e.term.isNotEmpty ? Text(e.term) : null,
+      trailing: Text(
+        e.score,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }

@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
-import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
-import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/next_course_widget.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
@@ -118,142 +117,146 @@ class NextCourseWidgetSettingsPage extends HookWidget {
           if (!NextCourseWidgetService.supported)
             ListTile(title: Text(l10n.nextCourseWidgetUnsupported))
           else ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final choice in NextCourseWidgetVariant.values)
-                    ChoiceChip(
-                      key: ValueKey('widget-variant-${choice.name}'),
-                      label: Text(_variantTitle(choice, l10n)),
-                      selected: variant.value == choice,
-                      showCheckmark: false,
-                      onSelected: working
-                          ? null
-                          : (_) => variant.value = choice,
+            SettingsSection.list(
+              title: l10n.nextCourseWidgetAdd,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final choice in NextCourseWidgetVariant.values)
+                        ChoiceChip(
+                          key: ValueKey('widget-variant-${choice.name}'),
+                          label: Text(_variantTitle(choice, l10n)),
+                          selected: variant.value == choice,
+                          showCheckmark: false,
+                          onSelected: working
+                              ? null
+                              : (_) => variant.value = choice,
+                        ),
+                    ],
+                  ),
+                ),
+                _WidgetPreview(
+                  variant: variant.value,
+                  snapshot: snapshot,
+                  selection: selection,
+                ),
+                ListTile(
+                  leading: const Icon(Icons.add_to_home_screen_outlined),
+                  title: Text(
+                    l10n.widgetAddVariant(_variantTitle(variant.value, l10n)),
+                  ),
+                  subtitle: Text(l10n.nextCourseWidgetAddDescription),
+                  trailing: const Icon(Icons.add),
+                  onTap: working ? null : () => update(pin: true),
+                ),
+              ],
+            ),
+            const SettingsDivider(),
+            SettingsSection.list(
+              title: l10n.settingsRefreshSection,
+              children: [
+                SettingsActionTile(
+                  icon: Icons.refresh,
+                  title: l10n.nextCourseWidgetRefresh,
+                  subtitle: l10n.nextCourseWidgetRefreshDescription,
+                  busy: working,
+                  onTap: working ? null : update,
+                ),
+                if (missing)
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: Text(l10n.nextCourseWidgetMissing),
+                  ),
+                if (failed)
+                  ListTile(
+                    title: Text(l10n.nextCourseWidgetFailed),
+                    trailing: TextButton(
+                      onPressed: working ? null : update,
+                      child: Text(l10n.retry),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-            _WidgetPreview(
-              variant: variant.value,
-              snapshot: snapshot,
-              selection: selection,
-            ),
-            ListTile(
-              leading: const Icon(Icons.add_to_home_screen_outlined),
-              title: Text(
-                l10n.widgetAddVariant(_variantTitle(variant.value, l10n)),
-              ),
-              subtitle: Text(l10n.nextCourseWidgetAddDescription),
-              trailing: const Icon(Icons.add),
-              onTap: working ? null : () => update(pin: true),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.refresh),
-              title: Text(l10n.nextCourseWidgetRefresh),
-              subtitle: Text(l10n.nextCourseWidgetRefreshDescription),
-              trailing: working
-                  ? const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : null,
-              onTap: working ? null : update,
-            ),
-            if (missing)
-              ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: Text(l10n.nextCourseWidgetMissing),
-              ),
-            if (failed)
-              ListTile(
-                title: Text(l10n.nextCourseWidgetFailed),
-                trailing: TextButton(
-                  onPressed: working ? null : update,
-                  child: Text(l10n.retry),
+            const SettingsDivider(),
+            SettingsSection.list(
+              title: l10n.settingsAutoSyncSection,
+              children: [
+                SettingSwitchTile.controlled(
+                  title: Text(l10n.widgetSyncEnabled),
+                  subtitle: Text(l10n.widgetSyncDescription),
+                  value: syncEnabled,
+                  onChanged: !loaded.value || working
+                      ? null
+                      : (value) =>
+                            run(() => syncService.configure(enabled: value)),
                 ),
-              ),
-            const Divider(),
-            SwitchListTile(
-              title: Text(l10n.widgetSyncEnabled),
-              subtitle: Text(l10n.widgetSyncDescription),
-              value: syncEnabled,
-              onChanged: !loaded.value || working
-                  ? null
-                  : (value) => run(() => syncService.configure(enabled: value)),
-            ),
-            ListTile(
-              title: Text(l10n.widgetSyncTime),
-              subtitle: Text(
-                l10n.reminderBeijingTime(
-                  TimeOfDay(
-                    hour: syncMinutes ~/ 60,
-                    minute: syncMinutes % 60,
-                  ).format(context),
+                ListTile(
+                  title: Text(l10n.widgetSyncTime),
+                  subtitle: Text(
+                    l10n.reminderBeijingTime(
+                      TimeOfDay(
+                        hour: syncMinutes ~/ 60,
+                        minute: syncMinutes % 60,
+                      ).format(context),
+                    ),
+                  ),
+                  trailing: const Icon(Icons.schedule),
+                  onTap: !loaded.value || working || !syncEnabled
+                      ? null
+                      : () async {
+                          final time = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                              hour: syncMinutes ~/ 60,
+                              minute: syncMinutes % 60,
+                            ),
+                          );
+                          if (time == null || !context.mounted) return;
+                          await run(
+                            () => syncService.configure(
+                              minutes: time.hour * 60 + time.minute,
+                            ),
+                          );
+                        },
                 ),
-              ),
-              trailing: const Icon(Icons.schedule),
-              onTap: !loaded.value || working || !syncEnabled
-                  ? null
-                  : () async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay(
-                          hour: syncMinutes ~/ 60,
-                          minute: syncMinutes % 60,
-                        ),
-                      );
-                      if (time == null || !context.mounted) return;
-                      await run(
-                        () => syncService.configure(
-                          minutes: time.hour * 60 + time.minute,
-                        ),
-                      );
-                    },
-            ),
-            ListTile(
-              title: Text(l10n.reminderExactPermission),
-              subtitle: Text(
-                !loaded.value
-                    ? l10n.reminderPermissionLoading
-                    : syncStatus.exactAllowed
-                    ? l10n.reminderPermissionGranted
-                    : l10n.reminderPermissionDenied,
-              ),
-              trailing: const Icon(Icons.open_in_new),
-              onTap: working
-                  ? null
-                  : () => run(() async {
-                      await syncService.requestExactPermission();
-                      await reload();
-                    }),
-            ),
-            ListTile(
-              title: Text(l10n.widgetSyncLastSuccess),
-              subtitle: Text(
-                syncStatus.lastSuccess == null
-                    ? l10n.widgetSyncNever
-                    : beijingDateTime(syncStatus.lastSuccess!),
-              ),
-            ),
-            if (syncEnabled && syncStatus.nextAt != null)
-              ListTile(
-                title: Text(l10n.widgetSyncNext),
-                subtitle: Text(beijingDateTime(syncStatus.nextAt!)),
-              ),
-            if (syncStatus.failed || operationFailed.value)
-              ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: Text(l10n.widgetSyncFailed),
-                trailing: TextButton(
-                  onPressed: working ? null : update,
-                  child: Text(l10n.retry),
+                SettingsPermissionTile(
+                  title: l10n.reminderExactPermission,
+                  granted: loaded.value ? syncStatus.exactAllowed : null,
+                  onTap: working
+                      ? null
+                      : () => run(() async {
+                          await syncService.requestExactPermission();
+                          await reload();
+                        }),
                 ),
-              ),
+                ListTile(
+                  title: Text(l10n.widgetSyncLastSuccess),
+                  subtitle: Text(
+                    syncStatus.lastSuccess == null
+                        ? l10n.widgetSyncNever
+                        : beijingDateTime(syncStatus.lastSuccess!),
+                  ),
+                ),
+                if (syncEnabled && syncStatus.nextAt != null)
+                  ListTile(
+                    title: Text(l10n.widgetSyncNext),
+                    subtitle: Text(beijingDateTime(syncStatus.nextAt!)),
+                  ),
+                if (syncStatus.failed || operationFailed.value)
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: Text(l10n.widgetSyncFailed),
+                    trailing: TextButton(
+                      onPressed: working ? null : update,
+                      child: Text(l10n.retry),
+                    ),
+                  ),
+              ],
+            ),
           ],
         ],
       ),

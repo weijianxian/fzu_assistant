@@ -13,17 +13,7 @@ class Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final header = Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-    );
+    final header = SectionHeader(title: title);
 
     if (_sliver) {
       return SliverMainAxisGroup(
@@ -39,4 +29,20 @@ class Section extends StatelessWidget {
       children: [header, child],
     );
   }
+}
+
+class SectionHeader extends StatelessWidget {
+  const SectionHeader({super.key, required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+    child: Text(
+      title,
+      style: Theme.of(context).textTheme.labelLarge
+          ?.copyWith(color: Theme.of(context).colorScheme.primary),
+    ),
+  );
 }

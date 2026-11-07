@@ -98,73 +98,82 @@ class CalendarExportPage extends HookWidget {
               subtitle: Text(l10n.calendarExportSnapshot),
             ),
             if (data != null && result != null) ...[
-              ListTile(
-                title: Text(termLabel),
-                subtitle: Text(
-                  l10n.calendarExportEventCount(result.eventCount),
-                ),
-              ),
-              SwitchListTile(
-                title: Text(l10n.calendarExportIncludeExams),
-                value: includeExams.value,
-                onChanged: busy.value
-                    ? null
-                    : (value) {
-                        includeExams.value = value;
-                        file.value = null;
-                      },
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: DropdownButtonFormField<int>(
-                  isExpanded: true,
-                  initialValue: reminder.value,
-                  decoration: InputDecoration(
-                    labelText: l10n.calendarExportReminder,
-                  ),
-                  items: [
-                    for (final minutes in [0, 5, 15, 30])
-                      DropdownMenuItem(
-                        value: minutes,
-                        child: Text(
-                          minutes == 0
-                              ? l10n.calendarExportNoReminder
-                              : l10n.calendarExportReminderMinutes(minutes),
+              SettingsSection(
+                title: l10n.settingsExportSection,
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(termLabel),
+                      subtitle: Text(
+                        l10n.calendarExportEventCount(result.eventCount),
+                      ),
+                    ),
+                    SettingSwitchTile.controlled(
+                      title: Text(l10n.calendarExportIncludeExams),
+                      value: includeExams.value,
+                      onChanged: busy.value
+                          ? null
+                          : (value) {
+                              includeExams.value = value;
+                              file.value = null;
+                            },
+                    ),
+                    ChevronListTile(
+                      title: Text(l10n.calendarExportReminder),
+                      subtitle: Text(
+                        reminder.value == 0
+                            ? l10n.calendarExportNoReminder
+                            : l10n.calendarExportReminderMinutes(
+                                reminder.value,
+                              ),
+                      ),
+                      onTap: busy.value
+                          ? null
+                          : () async {
+                              final value = await showSettingsChoiceSheet<int>(
+                                context: context,
+                                title: l10n.calendarExportReminder,
+                                selected: reminder.value,
+                                choices: [
+                                  for (final minutes in [0, 5, 15, 30])
+                                    SettingsChoice(
+                                      value: minutes,
+                                      label: minutes == 0
+                                          ? l10n.calendarExportNoReminder
+                                          : l10n.calendarExportReminderMinutes(
+                                              minutes,
+                                            ),
+                                    ),
+                                ],
+                              );
+                              if (value == null || !context.mounted) return;
+                              reminder.value = value;
+                              file.value = null;
+                            },
+                    ),
+                    if (result.skippedExams > 0)
+                      ListTile(
+                        subtitle: Text(
+                          l10n.calendarExportSkippedExams(result.skippedExams),
                         ),
                       ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SettingsActionButton(
+                        busy: busy.value,
+                        onPressed: busy.value || result.eventCount == 0
+                            ? null
+                            : () => action(() async {
+                                final saved = await service.save(result!, data);
+                                if (context.mounted) file.value = saved;
+                              }),
+                        icon: Icons.calendar_month_outlined,
+                        label: busy.value
+                            ? l10n.calendarExportBusy
+                            : l10n.calendarExportSave,
+                      ),
+                    ),
                   ],
-                  onChanged: busy.value
-                      ? null
-                      : (value) {
-                          if (value != null) reminder.value = value;
-                          file.value = null;
-                        },
-                ),
-              ),
-              if (result.skippedExams > 0)
-                ListTile(
-                  subtitle: Text(
-                    l10n.calendarExportSkippedExams(result.skippedExams),
-                  ),
-                ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: FilledButton.icon(
-                  onPressed: busy.value || result.eventCount == 0
-                      ? null
-                      : () => action(() async {
-                          final saved = await service.save(result!, data);
-                          if (context.mounted) file.value = saved;
-                        }),
-                  icon: const Icon(Icons.calendar_month_outlined),
-                  label: Text(
-                    busy.value
-                        ? l10n.calendarExportBusy
-                        : l10n.calendarExportSave,
-                  ),
                 ),
               ),
             ],

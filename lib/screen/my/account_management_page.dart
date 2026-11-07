@@ -1,4 +1,5 @@
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_async_data.dart';
@@ -73,43 +74,49 @@ class AccountManagementPage extends HookWidget {
                 child: AppListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
-                    if (status.error != null)
-                      ListTile(
-                        title: Text(status.error!),
-                        trailing: TextButton(
-                          onPressed: status.refresh,
-                          child: Text(l10n.retry),
+                    AppSection.list(
+                      children: [
+                        if (status.error != null)
+                          ListTile(
+                            title: Text(status.error!),
+                            trailing: TextButton(
+                              onPressed: status.refresh,
+                              child: Text(l10n.retry),
+                            ),
+                          ),
+                        ListTile(
+                          leading: const Icon(Icons.school_outlined),
+                          title: Text(l10n.accountAcademic),
+                          subtitle: Text(
+                            status.data?.academicAccount ??
+                                l10n.accountSignedOut,
+                          ),
+                          trailing: TextButton(
+                            onPressed:
+                                busy.value ||
+                                    status.data?.academicAccount == null
+                                ? null
+                                : () => logout(true),
+                            child: Text(l10n.logout),
+                          ),
                         ),
-                      ),
-                    ListTile(
-                      leading: const Icon(Icons.school_outlined),
-                      title: Text(l10n.accountAcademic),
-                      subtitle: Text(
-                        status.data?.academicAccount ?? l10n.accountSignedOut,
-                      ),
-                      trailing: TextButton(
-                        onPressed:
-                            busy.value || status.data?.academicAccount == null
-                            ? null
-                            : () => logout(true),
-                        child: Text(l10n.logout),
-                      ),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.account_circle_outlined),
-                      title: Text(l10n.accountSso),
-                      subtitle: Text(
-                        status.data?.ssoSignedIn == true
-                            ? l10n.accountSsoDescription
-                            : l10n.accountSignedOut,
-                      ),
-                      trailing: TextButton(
-                        onPressed:
-                            busy.value || status.data?.ssoSignedIn != true
-                            ? null
-                            : () => logout(false),
-                        child: Text(l10n.logout),
-                      ),
+                        ListTile(
+                          leading: const Icon(Icons.account_circle_outlined),
+                          title: Text(l10n.accountSso),
+                          subtitle: Text(
+                            status.data?.ssoSignedIn == true
+                                ? l10n.accountSsoDescription
+                                : l10n.accountSignedOut,
+                          ),
+                          trailing: TextButton(
+                            onPressed:
+                                busy.value || status.data?.ssoSignedIn != true
+                                ? null
+                                : () => logout(false),
+                            child: Text(l10n.logout),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -67,47 +67,40 @@ class MarksPage extends HookWidget {
 
     return [
       const SliverToBoxAdapter(child: AcademicChangeNotice(exams: false)),
-      MasonrySliverGrid(
+      MasonrySliverGrid.grouped(
         childCount: semesters.length,
         itemBuilder: (context, i) {
           final sem = semesters[i];
           final items = grouped[sem]!;
           final summary = SemesterSummary.fromMarks(items);
-          return Card(
-            margin: EdgeInsets.zero,
-            child: ExpansionTile(
-              key: ValueKey(sem),
-              initiallyExpanded: expandedKeys.value.contains(sem),
-              onExpansionChanged: (expanded) {
-                final next = Set<String>.of(expandedKeys.value);
-                if (expanded) {
-                  next.add(sem);
-                } else {
-                  next.remove(sem);
-                }
-                expandedKeys.value = next;
-              },
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-              childrenPadding: EdgeInsets.zero,
-              shape: const Border(),
-              collapsedShape: const Border(),
-              title: Text(
-                sem,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                AppLocalizations.of(context)!.courseCount(summary.courseCount),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              children: [
-                SemesterSummaryCard(summary: summary),
-                for (var j = 0; j < items.length; j++) ...[
-                  _buildMarkTile(context, items[j]),
-                  if (j < items.length - 1)
-                    const Divider(height: 1, indent: 16, endIndent: 16),
-                ],
-              ],
+          return ExpansionTile(
+            key: ValueKey(sem),
+            initiallyExpanded: expandedKeys.value.contains(sem),
+            onExpansionChanged: (expanded) {
+              final next = Set<String>.of(expandedKeys.value);
+              if (expanded) {
+                next.add(sem);
+              } else {
+                next.remove(sem);
+              }
+              expandedKeys.value = next;
+            },
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+            childrenPadding: EdgeInsets.zero,
+            shape: const Border(),
+            collapsedShape: const Border(),
+            title: Text(
+              sem,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
+            subtitle: Text(
+              AppLocalizations.of(context)!.courseCount(summary.courseCount),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            children: [
+              SemesterSummaryCard(summary: summary),
+              for (final mark in items) _buildMarkTile(context, mark),
+            ],
           );
         },
       ),

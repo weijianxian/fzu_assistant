@@ -60,35 +60,32 @@ class AcademicShortcutsPage extends HookWidget {
           for (final section in sections)
             Section.sliver(
               title: section.$1,
-              child: MasonrySliverGrid(
+              child: MasonrySliverGrid.grouped(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 childCount: section.$2.length,
                 itemBuilder: (context, index) {
                   final entry = section.$2[index];
-                  return Card(
-                    margin: EdgeInsets.zero,
-                    child: ListTile(
-                      title: Text(entry.$1),
-                      trailing: Icon(
-                        entry.$2 == 'glbm/lecture/jxjt_cszt.aspx'
-                            ? Icons.chevron_right
-                            : Icons.open_in_new,
-                      ),
-                      onTap: () {
-                        if (entry.$2 == 'glbm/lecture/jxjt_cszt.aspx') {
-                          context.pushNamed(AppRoutes.lectures);
-                          return;
-                        }
-                        context.pushNamed(
-                          AppRoutes.webview,
-                          arguments: WebViewArgs(
-                            url:
-                                'https://jwcjwxt2.fzu.edu.cn:81/student/${entry.$2}',
-                            title: entry.$1,
-                          ),
-                        );
-                      },
+                  return ListTile(
+                    title: Text(entry.$1),
+                    trailing: Icon(
+                      entry.$2 == 'glbm/lecture/jxjt_cszt.aspx'
+                          ? Icons.chevron_right
+                          : Icons.open_in_new,
                     ),
+                    onTap: () {
+                      if (entry.$2 == 'glbm/lecture/jxjt_cszt.aspx') {
+                        context.pushNamed(AppRoutes.lectures);
+                        return;
+                      }
+                      context.pushNamed(
+                        AppRoutes.webview,
+                        arguments: WebViewArgs(
+                          url:
+                              'https://jwcjwxt2.fzu.edu.cn:81/student/${entry.$2}',
+                          title: entry.$1,
+                        ),
+                      );
+                    },
                   );
                 },
               ),

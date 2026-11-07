@@ -6,14 +6,19 @@ import 'package:fzu_assistant/common/widget/sheet/sheet_drag_handle.dart';
 Future<T?> showHalfScreenSheet<T>(
   BuildContext context, {
   required Widget Function(ScrollController controller) builder,
+  Color? backgroundColor,
 }) => showGeneralDialog<T>(
   context: context,
+  useRootNavigator: true,
   barrierDismissible: true,
   barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
   barrierColor: Colors.black54,
   transitionDuration: const Duration(milliseconds: 250),
   pageBuilder: (context, animation, secondaryAnimation) =>
-      _AdaptiveHalfScreenSheet(builder: builder),
+      _AdaptiveHalfScreenSheet(
+        builder: builder,
+        backgroundColor: backgroundColor,
+      ),
   transitionBuilder: (context, animation, secondaryAnimation, child) =>
       SlideTransition(
         position:
@@ -30,8 +35,9 @@ Future<T?> showHalfScreenSheet<T>(
 );
 
 class _AdaptiveHalfScreenSheet extends HookWidget {
-  const _AdaptiveHalfScreenSheet({required this.builder});
+  const _AdaptiveHalfScreenSheet({required this.builder, this.backgroundColor});
   final Widget Function(ScrollController controller) builder;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +60,7 @@ class _AdaptiveHalfScreenSheet extends HookWidget {
                 return Align(
                   alignment: Alignment.centerRight,
                   child: Material(
+                    color: backgroundColor,
                     elevation: 8,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.horizontal(
@@ -72,16 +79,11 @@ class _AdaptiveHalfScreenSheet extends HookWidget {
                           bottom: false,
                           child: Row(
                             children: [
-                              GestureDetector(
-                                onTap: () => Navigator.pop(context),
-                                behavior: HitTestBehavior.opaque,
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 16,
-                                  ),
-                                  child: Icon(Icons.chevron_right),
-                                ),
+                              IconButton(
+                                tooltip: MaterialLocalizations.of(context)
+                                    .closeButtonTooltip,
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(Icons.chevron_right),
                               ),
                               Expanded(child: builder(sideController)),
                             ],
@@ -95,6 +97,7 @@ class _AdaptiveHalfScreenSheet extends HookWidget {
               return Align(
                 alignment: Alignment.bottomCenter,
                 child: Material(
+                  color: backgroundColor,
                   elevation: 8,
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(

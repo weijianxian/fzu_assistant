@@ -40,11 +40,15 @@ class CultivatePlanPage extends HookWidget {
             ? const SizedBox.shrink()
             : AppListView(
                 children: [
-                  ListTile(
-                    title: Text(l10n.cultivatePlan),
-                    subtitle: Text(l10n.cultivatePlanDescription),
-                    trailing: const Icon(Icons.open_in_new),
-                    onTap: () => open(data.data!),
+                  AppSection.list(
+                    children: [
+                      ListTile(
+                        title: Text(l10n.cultivatePlan),
+                        subtitle: Text(l10n.cultivatePlanDescription),
+                        trailing: const Icon(Icons.open_in_new),
+                        onTap: () => open(data.data!),
+                      ),
+                    ],
                   ),
                 ],
               ),

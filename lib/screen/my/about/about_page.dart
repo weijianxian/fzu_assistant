@@ -1,4 +1,5 @@
 import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
@@ -156,8 +157,7 @@ class _AboutPageState extends State<AboutPage> {
               ),
             ),
           const SizedBox(height: 24),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          AppSection(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
@@ -166,88 +166,64 @@ class _AboutPageState extends State<AboutPage> {
               ),
             ),
           ),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.code),
-                  title: Text(AppLocalizations.of(context)!.openSourceUrl),
-                  subtitle: const Text('github.com/weijianxian/fzu_assistant'),
-                  trailing: const Icon(Icons.open_in_new, size: 20),
-                  onTap: () => launchUrl(
-                    Uri.parse('https://github.com/weijianxian/fzu_assistant'),
-                    mode: LaunchMode.externalApplication,
-                  ),
+          AppSection.list(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.code),
+                title: Text(AppLocalizations.of(context)!.openSourceUrl),
+                subtitle: const Text('github.com/weijianxian/fzu_assistant'),
+                trailing: const Icon(Icons.open_in_new, size: 20),
+                onTap: () => launchUrl(
+                  Uri.parse('https://github.com/weijianxian/fzu_assistant'),
+                  mode: LaunchMode.externalApplication,
                 ),
-              ],
-            ),
-          ),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.system_update),
-                  title: Text(AppLocalizations.of(context)!.checkForUpdates),
-                  trailing: _isChecking
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.chevron_right),
-                  onTap: _isChecking ? null : () => _checkForUpdate(),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-            child: Text(
-              AppLocalizations.of(context)!.contributors,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
               ),
-            ),
-          ),
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: _contributors.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(
-                      child: SizedBox(
+              ListTile(
+                leading: const Icon(Icons.system_update),
+                title: Text(AppLocalizations.of(context)!.checkForUpdates),
+                trailing: _isChecking
+                    ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
+                      )
+                    : const Icon(Icons.chevron_right),
+                onTap: _isChecking ? null : () => _checkForUpdate(),
+              ),
+            ],
+          ),
+          AppSection.list(
+            title: AppLocalizations.of(context)!.contributors,
+            children: [
+              if (_contributors.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                  )
-                : Column(
-                    children: _contributors
-                        .map(
-                          (c) => ListTile(
-                            leading: CircleAvatar(
-                              radius: 16,
-                              backgroundImage: NetworkImage(c.avatar),
-                            ),
-                            title: Text(c.name),
-                            subtitle: Text(
-                              AppLocalizations.of(context)!
-                                  .commitCount(c.contributions),
-                            ),
-                            onTap: () => launchUrl(
-                              Uri.parse('https://github.com/${c.name}'),
-                              mode: LaunchMode.externalApplication,
-                            ),
-                          ),
-                        )
-                        .toList(),
                   ),
+                )
+              else
+                for (final c in _contributors)
+                  ListTile(
+                    leading: CircleAvatar(
+                      radius: 16,
+                      backgroundImage: NetworkImage(c.avatar),
+                    ),
+                    title: Text(c.name),
+                    subtitle: Text(
+                      AppLocalizations.of(context)!
+                          .commitCount(c.contributions),
+                    ),
+                    onTap: () => launchUrl(
+                      Uri.parse('https://github.com/${c.name}'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                  ),
+            ],
           ),
         ],
       ),

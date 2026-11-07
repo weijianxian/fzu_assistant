@@ -3,6 +3,7 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
+import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 
 Future<void> showLearningSeatGuide(BuildContext context) => showDialog<void>(
   context: context,
@@ -75,18 +76,20 @@ class LearningLoginPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          Text(l10n.ssoLoginDescription),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: onLogin,
-            icon: const Icon(Icons.login),
-            label: Text(l10n.ssoLogin),
-          ),
-        ],
+    return AppSection(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Text(l10n.ssoLoginDescription),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onLogin,
+              icon: const Icon(Icons.login),
+              label: Text(l10n.ssoLogin),
+            ),
+          ],
+        ),
       ),
     );
   }

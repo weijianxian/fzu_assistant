@@ -86,7 +86,7 @@ class AcademicChangesPage extends HookWidget {
             SliverToBoxAdapter(
               child: ListTile(title: Text(l10n.academicChangesEmpty)),
             ),
-          SliverList.builder(
+          AppSliverList(
             itemCount: changes.length,
             itemBuilder: (context, index) {
               final item = changes[index];

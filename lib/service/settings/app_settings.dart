@@ -22,6 +22,7 @@ class AppSettings {
 
   final themeKey = ValueNotifier<String>('deep_purple');
   final themeModeKey = ValueNotifier<String>('system');
+  final interfaceStyle = ValueNotifier<InterfaceStyle>(InterfaceStyle.classic);
   final localeKey = ValueNotifier<String>('system');
   final courseReminderEnabled = ValueNotifier<bool>(false);
   final courseReminderMinutes = ValueNotifier<int>(21 * 60);
@@ -84,6 +85,13 @@ class AppSettings {
     final savedMode = sp.getString(SpKeys.themeMode) ?? 'system';
     final validMode = _modeMap.containsKey(savedMode);
     themeModeKey.value = validMode ? savedMode : 'system';
+    interfaceStyle.value = InterfaceStyle.parse(
+      sp.getString(SpKeys.interfaceStyle),
+    );
+    _persist(
+      interfaceStyle,
+      (value) => sp.setString(SpKeys.interfaceStyle, value.name),
+    );
 
     final savedLocale = sp.getString(SpKeys.localeKey) ?? 'system';
     final validLocale = _localeOptions.any((o) => o.$1 == savedLocale);
@@ -265,11 +273,15 @@ class AppSettings {
   ThemeData _buildTheme(Brightness brightness) {
     final scheme = systemColorScheme(brightness);
     if (themeKey.value == 'dynamic' && scheme != null) {
-      return buildThemeFromScheme(scheme);
+      return buildThemeFromScheme(scheme, interfaceStyle: interfaceStyle.value);
     }
     final match = appThemes.where((t) => t.key == themeKey.value);
     final color = match.isNotEmpty ? match.first.color : appThemes.first.color;
-    return buildTheme(color, brightness: brightness);
+    return buildTheme(
+      color,
+      brightness: brightness,
+      interfaceStyle: interfaceStyle.value,
+    );
   }
 
   ThemeMode get currentThemeMode =>
@@ -285,6 +297,7 @@ class AppSettings {
     courseReminderMinutes.dispose();
     themeKey.dispose();
     themeModeKey.dispose();
+    interfaceStyle.dispose();
     localeKey.dispose();
     selectedSemesterKey.dispose();
     termsKey.dispose();

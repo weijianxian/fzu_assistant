@@ -100,13 +100,19 @@ class WebDavSnapshot {
     final createdAt = DateTime.tryParse(source['createdAt'] as String);
     if (createdAt == null) throw const FormatException('WebDAV 同步文件时间无效');
     final raw = source['values'] as Map;
-    if (raw.length != WebDavSyncService.defaults.length ||
-        raw.keys.any((key) => !WebDavSyncService.defaults.containsKey(key))) {
+    if (raw.keys.any((key) => !WebDavSyncService.defaults.containsKey(key)) ||
+        WebDavSyncService.defaults.keys.any(
+          (key) => key != SpKeys.interfaceStyle && !raw.containsKey(key),
+        )) {
       throw const FormatException('WebDAV 同步文件设置不完整或含有非同步字段');
     }
     final values = <String, Object>{};
     for (final entry in WebDavSyncService.defaults.entries) {
-      final value = raw[entry.key];
+      // Backups created before interface styles still restore as classic.
+      final value =
+          entry.key == SpKeys.interfaceStyle && !raw.containsKey(entry.key)
+          ? entry.value
+          : raw[entry.key];
       if ((entry.value is String && value is! String) ||
           (entry.value is bool && value is! bool) ||
           (entry.value is int && value is! int)) {
@@ -117,6 +123,9 @@ class WebDavSnapshot {
     if (!(values[SpKeys.themeKey] == 'dynamic' ||
             appThemes.any((theme) => theme.key == values[SpKeys.themeKey])) ||
         !{'system', 'light', 'dark'}.contains(values[SpKeys.themeMode]) ||
+        !InterfaceStyle.values.any(
+          (style) => style.name == values[SpKeys.interfaceStyle],
+        ) ||
         !{'system', 'zh', 'en'}.contains(values[SpKeys.localeKey]) ||
         (values[SpKeys.courseReminderMinutes] as int) < 0 ||
         (values[SpKeys.courseReminderMinutes] as int) > 1439 ||
@@ -214,6 +223,7 @@ class WebDavSyncService {
   static const defaults = <String, Object>{
     SpKeys.themeKey: 'deep_purple',
     SpKeys.themeMode: 'system',
+    SpKeys.interfaceStyle: 'classic',
     SpKeys.localeKey: 'system',
     SpKeys.selectedSemester: '',
     SpKeys.siteInjectionEnabled: true,
@@ -652,6 +662,9 @@ void applyWebDavSettings(AppSettings settings, WebDavSnapshot snapshot) {
   );
   settings.themeKey.value = values[SpKeys.themeKey] as String;
   settings.themeModeKey.value = values[SpKeys.themeMode] as String;
+  settings.interfaceStyle.value = InterfaceStyle.parse(
+    values[SpKeys.interfaceStyle] as String,
+  );
   settings.localeKey.value = values[SpKeys.localeKey] as String;
   settings.selectedSemesterKey.value =
       values[SpKeys.selectedSemester] as String;

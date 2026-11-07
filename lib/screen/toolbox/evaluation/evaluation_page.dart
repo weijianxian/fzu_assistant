@@ -188,8 +188,8 @@ class _EvaluationTab extends HookWidget {
                   ],
                 ),
               )
-            : AppListView.builder(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+            : AppListView.grouped(
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: teachers.value.length,
                 itemBuilder: (context, i) => EvaluationTeacherCard(
                   teacher: teachers.value[i],
@@ -217,24 +217,26 @@ class _EvaluationTab extends HookWidget {
       ),
       bottomNavigationBar: teachers.value.isNotEmpty
           ? AppBottomBar(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const AppDivider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: FilledButton.icon(
+                      onPressed: submitAll,
+                      icon: const Icon(Icons.send),
+                      label: Text(l10n.evalSubmitAll),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                    ),
                   ),
-                ),
-                child: FilledButton.icon(
-                  onPressed: submitAll,
-                  icon: const Icon(Icons.send),
-                  label: Text(l10n.evalSubmitAll),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                  ),
-                ),
+                ],
               ),
             )
           : null,

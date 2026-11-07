@@ -87,6 +87,7 @@ class MyApp extends HookWidget {
       animation: Listenable.merge([
         settings.themeKey,
         settings.themeModeKey,
+        settings.interfaceStyle,
         settings.localeKey,
         settings.selectedSemesterKey,
         settings.termsKey,

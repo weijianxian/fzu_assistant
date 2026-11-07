@@ -289,7 +289,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final lists = find.byType(ListView);
+      final lists = find.byType(Scrollable);
       expect(lists, findsNWidgets(2));
       final leftViewport = tester.getRect(lists.at(0));
       final rightViewport = tester.getRect(lists.at(1));
@@ -298,16 +298,16 @@ void main() {
       expect(leftViewport.left, 48);
       expect(rightViewport.left, greaterThanOrEqualTo(leftViewport.right));
       expect(rightViewport.right, 1168);
-      for (final list in lists.evaluate()) {
-        final scroll = tester.state<ScrollableState>(
-          find.descendant(
-            of: find.byWidget(list.widget),
-            matching: find.byType(Scrollable),
-          ),
-        );
-        scroll.position.jumpTo(scroll.position.maxScrollExtent);
+      // Lazy delegates refine the final extent as the last rows are laid out.
+      for (var pass = 0; pass < 3; pass++) {
+        for (final list in lists.evaluate()) {
+          final scroll = tester.state<ScrollableState>(
+            find.byWidget(list.widget),
+          );
+          scroll.position.jumpTo(scroll.position.maxScrollExtent);
+        }
+        await tester.pumpAndSettle();
       }
-      await tester.pumpAndSettle();
       expect(tester.getRect(find.byKey(const Key('left-last'))).bottom, 550);
       expect(tester.getRect(find.byKey(_lastActionKey)).bottom, 566);
       expect(tester.takeException(), isNull);

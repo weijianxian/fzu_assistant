@@ -307,7 +307,7 @@ class _UpdateSheetContentState extends State<_UpdateSheetContent> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Divider(height: 1),
+            const AppDivider(height: 1),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               child: Column(

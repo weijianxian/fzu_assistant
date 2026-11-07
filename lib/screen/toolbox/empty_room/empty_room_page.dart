@@ -85,7 +85,7 @@ class EmptyRoomPage extends HookWidget {
           SliverToBoxAdapter(
             child:
                 // 查询条件卡片
-                Card(
+                AppSurface(
                   margin: const EdgeInsets.all(12),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -255,16 +255,13 @@ class EmptyRoomPage extends HookWidget {
               ),
             )
           else
-            MasonrySliverGrid(
+            MasonrySliverGrid.grouped(
               childCount: rooms.value.length,
               itemBuilder: (context, i) {
                 final room = rooms.value[i];
-                return Card(
-                  margin: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: const Icon(Icons.meeting_room_outlined),
-                    title: Text(room.name),
-                  ),
+                return ListTile(
+                  leading: const Icon(Icons.meeting_room_outlined),
+                  title: Text(room.name),
                 );
               },
             ),

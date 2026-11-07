@@ -77,7 +77,7 @@ void main() {
           continuous: true,
         );
         final second = find.descendant(
-          of: find.widgetWithText(FeatureAccessTile, l10n.pastPapers),
+          of: find.byType(FeatureAccessTile).last,
           matching: choices,
         );
         expect(tester.widget<SegmentedButton<FeatureAccess>>(second).selected, {

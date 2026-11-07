@@ -69,7 +69,7 @@ class CalendarPage extends HookWidget {
     ValueNotifier<Map<String, bool>> loadingMap,
     ValueNotifier<Map<String, String>> errorMap,
   ) {
-    return AppListView.builder(
+    return AppListView.grouped(
       itemCount: cal.terms.length,
       itemBuilder: (context, i) {
         final t = cal.terms[i];
@@ -118,89 +118,85 @@ class _TermCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      clipBehavior: Clip.antiAlias,
-      child: ExpansionTile(
-        key: ValueKey(term.termId),
-        initiallyExpanded: expanded,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        onExpansionChanged: onExpansionChanged,
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                AppLocalizations.of(context)!.academicYearTerm(
-                  term.schoolYear,
-                  '${int.parse(term.schoolYear) + 1}',
-                  term.term.substring(4, 6),
-                ),
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
-                ),
+    return ExpansionTile(
+      key: ValueKey(term.termId),
+      initiallyExpanded: expanded,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      onExpansionChanged: onExpansionChanged,
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context)!.academicYearTerm(
+                term.schoolYear,
+                '${int.parse(term.schoolYear) + 1}',
+                term.term.substring(4, 6),
+              ),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
               ),
             ),
-            if (isCurrent)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  AppLocalizations.of(context)!.current,
-                  style: const TextStyle(fontSize: 11, color: Colors.green),
-                ),
-              ),
-          ],
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Row(
-            children: [
-              const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
-              const SizedBox(width: 6),
-              Text(
-                '${term.startDate} ～ ${term.endDate}',
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-            ],
           ),
-        ),
-        children: [
-          if (eventsLoading)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+          if (isCurrent)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
               ),
-            )
-          else if (eventsError != null)
-            Padding(
-              padding: const EdgeInsets.all(16),
               child: Text(
-                AppLocalizations.of(context)!.loadingFailed(eventsError ?? ''),
-                style: const TextStyle(color: Colors.red, fontSize: 13),
-              ),
-            )
-          else if (events != null && events!.events.isNotEmpty)
-            _EventsTable(events: events!.events)
-          else
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                AppLocalizations.of(context)!.noScheduleEvents,
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
+                AppLocalizations.of(context)!.current,
+                style: const TextStyle(fontSize: 11, color: Colors.green),
               ),
             ),
         ],
       ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+            const SizedBox(width: 6),
+            Text(
+              '${term.startDate} ～ ${term.endDate}',
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+      children: [
+        if (eventsLoading)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          )
+        else if (eventsError != null)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              AppLocalizations.of(context)!.loadingFailed(eventsError ?? ''),
+              style: const TextStyle(color: Colors.red, fontSize: 13),
+            ),
+          )
+        else if (events != null && events!.events.isNotEmpty)
+          _EventsTable(events: events!.events)
+        else
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              AppLocalizations.of(context)!.noScheduleEvents,
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -18,8 +18,14 @@ class HomeSettingsPage extends HookWidget {
     final l10n = AppLocalizations.of(context)!;
     final autoAdjustCourse = useValueListenable(settings.autoAdjustCourse);
     final access = useValueListenable(settings.west2AdjustmentsAccess);
+    final cachedTerms = useValueListenable(settings.termsKey);
+    final selected = useValueListenable(settings.selectedSemesterKey);
     final termsLoading = useState(false);
     final termsError = useState<String?>(null);
+    final terms = <String>{
+      ...cachedTerms,
+      if (selected.isNotEmpty) selected,
+    }.toList()..sort((a, b) => b.compareTo(a));
 
     Future<void> loadTerms() async {
       if (settings.termsKey.value.isNotEmpty) return;
@@ -27,10 +33,13 @@ class HomeSettingsPage extends HookWidget {
       termsError.value = null;
       try {
         final termInfo = await CourseService().getTerms();
+        if (!context.mounted) return;
         settings.termsKey.value = termInfo.terms;
       } catch (e) {
+        if (!context.mounted) return;
         termsError.value = e.toString();
       }
+      if (!context.mounted) return;
       termsLoading.value = false;
     }
 
@@ -44,129 +53,100 @@ class HomeSettingsPage extends HookWidget {
       body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          ListTile(
-            leading: const Icon(Icons.calendar_month_outlined),
-            title: Text(
-              CalendarSyncService.supported
-                  ? l10n.calendarSync
-                  : l10n.calendarExport,
-            ),
-            subtitle: Text(
-              CalendarSyncService.supported
-                  ? l10n.calendarSyncDescription
-                  : l10n.calendarExportDescription,
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.pushNamed(AppRoutes.calendarExport),
-          ),
-          ListTile(
-            leading: const Icon(Icons.event_note_outlined),
-            title: Text(l10n.customCourseManagement),
-            subtitle: Text(l10n.customCoursesDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.pushNamed(AppRoutes.customCourses),
-          ),
-          ListTile(
-            leading: const Icon(Icons.visibility_off_outlined),
-            title: Text(l10n.hiddenCourseManagement),
-            subtitle: Text(l10n.hiddenCourseSessionsDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.pushNamed(AppRoutes.hiddenCourses),
-          ),
-          Section(
-            title: l10n.selectSemester,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ValueListenableBuilder(
-                valueListenable: settings.selectedSemesterKey,
-                builder: (_, selected, _) {
-                  final terms = <String>{
-                    ...settings.termsKey.value,
-                    if (selected.isNotEmpty) selected,
-                  }.toList()..sort((a, b) => b.compareTo(a));
-
-                  if (termsLoading.value) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Center(
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                    );
-                  }
-
-                  if (termsError.value != null) {
-                    return ListTile(
-                      title: Text(termsError.value!),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: () {
-                          termsError.value = null;
-                          loadTerms();
-                        },
-                      ),
-                    );
-                  }
-
-                  return DropdownButton<String>(
-                    value: selected.isEmpty ? '' : selected,
-                    isExpanded: true,
-                    items: [
-                      DropdownMenuItem(
-                        value: '',
-                        child: Text(l10n.autoSemester),
-                      ),
-                      for (final term in terms)
-                        DropdownMenuItem(
-                          value: term,
-                          child: Text(SemesterUtils.formatSemester(term)),
-                        ),
-                    ],
-                    onChanged: (v) {
-                      settings.selectedSemesterKey.value = v ?? '';
-                    },
-                  );
-                },
+          SettingsSection.list(
+            title: l10n.settingsCoursesSection,
+            children: [
+              if (!CalendarSyncService.supported)
+                ChevronListTile(
+                  leading: const Icon(Icons.calendar_month_outlined),
+                  title: Text(l10n.calendarExport),
+                  subtitle: Text(l10n.calendarExportDescription),
+                  onTap: () => context.pushNamed(AppRoutes.calendarExport),
+                ),
+              ChevronListTile(
+                leading: const Icon(Icons.event_note_outlined),
+                title: Text(l10n.customCourseManagement),
+                subtitle: Text(l10n.customCoursesDescription),
+                onTap: () => context.pushNamed(AppRoutes.customCourses),
               ),
-            ),
+              ChevronListTile(
+                leading: const Icon(Icons.visibility_off_outlined),
+                title: Text(l10n.hiddenCourseManagement),
+                subtitle: Text(l10n.hiddenCourseSessionsDescription),
+                onTap: () => context.pushNamed(AppRoutes.hiddenCourses),
+              ),
+            ],
+          ),
+          SettingsSection.list(
+            title: l10n.settingsSemesterSection,
+            children: [
+              if (termsLoading.value)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              else if (termsError.value != null)
+                ListTile(
+                  title: Text(termsError.value!),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: loadTerms,
+                  ),
+                )
+              else
+                SettingsChoiceTile<String>(
+                  leading: const Icon(Icons.calendar_month_outlined),
+                  title: l10n.selectSemester,
+                  value: selected,
+                  choices: [
+                    SettingsChoice(value: '', label: l10n.autoSemester),
+                    for (final term in terms)
+                      SettingsChoice(
+                        value: term,
+                        label: SemesterUtils.formatSemester(term),
+                      ),
+                  ],
+                  onChanged: (value) =>
+                      settings.selectedSemesterKey.value = value,
+                ),
+            ],
           ),
           const SizedBox(height: 16),
-          Section(
+          SettingsSection.list(
             title: l10n.navSchedule,
-            child: Column(
-              children: [
-                SettingSwitchTile(
-                  notifier: settings.showNonCurrentWeekCourses,
-                  title: Text(l10n.showNonCurrentWeekCourses),
-                  subtitle: Text(l10n.showNonCurrentWeekCoursesDescription),
-                ),
-                SettingSwitchTile(
-                  notifier: settings.showExamOnSchedule,
-                  title: Text(l10n.showExamOnSchedule),
-                  subtitle: Text(l10n.showExamOnScheduleDescription),
-                ),
-                SettingSwitchTile(
-                  notifier: settings.autoAdjustCourse,
-                  title: Text(l10n.autoAdjustCourse),
-                  subtitle: Text(l10n.autoAdjustCourseDescription),
-                ),
-                if (autoAdjustCourse && access != FeatureAccess.hide)
-                  ListTile(
-                    title: Text(l10n.west2AdjustmentsEnabled),
-                    subtitle: Text(
-                      access == FeatureAccess.allow
-                          ? l10n.west2AdjustmentsDescription
-                          : l10n.thirdPartyDisabled,
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () =>
-                        context.pushNamed(AppRoutes.thirdPartySettings),
+            children: [
+              SettingSwitchTile(
+                notifier: settings.showNonCurrentWeekCourses,
+                title: Text(l10n.showNonCurrentWeekCourses),
+                subtitle: Text(l10n.showNonCurrentWeekCoursesDescription),
+              ),
+              SettingSwitchTile(
+                notifier: settings.showExamOnSchedule,
+                title: Text(l10n.showExamOnSchedule),
+                subtitle: Text(l10n.showExamOnScheduleDescription),
+              ),
+              SettingSwitchTile(
+                notifier: settings.autoAdjustCourse,
+                title: Text(l10n.autoAdjustCourse),
+                subtitle: Text(l10n.autoAdjustCourseDescription),
+              ),
+              if (autoAdjustCourse && access != FeatureAccess.hide)
+                ChevronListTile(
+                  title: Text(l10n.west2AdjustmentsEnabled),
+                  subtitle: Text(
+                    access == FeatureAccess.allow
+                        ? l10n.west2AdjustmentsDescription
+                        : l10n.thirdPartyDisabled,
                   ),
-              ],
-            ),
+                  onTap: () => context.pushNamed(AppRoutes.thirdPartySettings),
+                ),
+            ],
           ),
           const SizedBox(height: 32),
         ],

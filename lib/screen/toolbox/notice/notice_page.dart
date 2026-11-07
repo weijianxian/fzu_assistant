@@ -70,38 +70,35 @@ class NoticePage extends HookWidget {
                     ),
                   )
                 else
-                  MasonrySliverGrid(
+                  MasonrySliverGrid.grouped(
                     childCount: notices.value.length,
                     itemBuilder: (context, i) {
                       final notice = notices.value[i];
-                      return Card(
-                        margin: EdgeInsets.zero,
-                        child: ListTile(
-                          title: Text(
-                            notice.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            notice.department.isNotEmpty
-                                ? '${notice.department} · ${notice.date}'
-                                : notice.date,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            context.pushNamed(
-                              AppRoutes.webview,
-                              arguments: WebViewArgs(
-                                url: notice.url,
-                                title: notice.title,
-                              ),
-                            );
-                          },
+                      return ListTile(
+                        title: Text(
+                          notice.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        subtitle: Text(
+                          notice.department.isNotEmpty
+                              ? '${notice.department} · ${notice.date}'
+                              : notice.date,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          context.pushNamed(
+                            AppRoutes.webview,
+                            arguments: WebViewArgs(
+                              url: notice.url,
+                              title: notice.title,
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -109,32 +106,36 @@ class NoticePage extends HookWidget {
             ),
           ),
           // 分页控件
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          AppBottomBar(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  onPressed: currentPage.value > 1 && !loading.value
-                      ? () => load(currentPage.value - 1)
-                      : null,
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                Text(
-                  '${currentPage.value} / ${totalPages.value}',
-                  style: const TextStyle(fontSize: 14),
-                ),
-                IconButton(
-                  onPressed:
-                      currentPage.value < totalPages.value && !loading.value
-                      ? () => load(currentPage.value + 1)
-                      : null,
-                  icon: const Icon(Icons.chevron_right),
+                const AppDivider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: currentPage.value > 1 && !loading.value
+                            ? () => load(currentPage.value - 1)
+                            : null,
+                        icon: const Icon(Icons.chevron_left),
+                      ),
+                      Text(
+                        '${currentPage.value} / ${totalPages.value}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      IconButton(
+                        onPressed:
+                            currentPage.value < totalPages.value &&
+                                !loading.value
+                            ? () => load(currentPage.value + 1)
+                            : null,
+                        icon: const Icon(Icons.chevron_right),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

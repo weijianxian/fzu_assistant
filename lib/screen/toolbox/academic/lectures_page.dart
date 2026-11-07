@@ -74,8 +74,7 @@ class LecturesPage extends HookWidget {
               onRefresh: refresh,
               refreshTime: result.updatedAt,
               emptyText: l10n.lecturesEmpty,
-              child: AppListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: AppListView.grouped(
                 itemCount: result.data?.length ?? 0,
                 itemBuilder: (context, index) =>
                     _LectureDetails(lecture: result.data![index]),
@@ -127,7 +126,7 @@ class _LectureDetails extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

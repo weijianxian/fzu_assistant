@@ -9,6 +9,7 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/toolbox/paper/papers_page.dart';
 import 'package:fzu_assistant/service/api/paper_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/app_themes.dart';
 
 class _Service extends PaperService {
   _Service(AppSettings settings)
@@ -43,19 +44,58 @@ Widget _app(
   void Function(RouteSettings)? onRoute,
 }) => AppSettingsProvider(
   settings: settings,
-  child: MaterialApp(
-    locale: const Locale('zh'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: PapersPage(service: service),
-    onGenerateRoute: (route) {
-      onRoute?.call(route);
-      return MaterialPageRoute<void>(builder: (_) => const Scaffold());
-    },
+  child: AnimatedBuilder(
+    animation: settings.interfaceStyle,
+    builder: (_, _) => MaterialApp(
+      theme: settings.lightTheme,
+      locale: const Locale('zh'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: PapersPage(service: service),
+      onGenerateRoute: (route) {
+        onRoute?.call(route);
+        return MaterialPageRoute<void>(builder: (_) => const Scaffold());
+      },
+    ),
   ),
 );
 
 void main() {
+  testWidgets(
+    'style changes preserve directory search without another request',
+    (tester) async {
+      final settings = AppSettings()..papersAccess.value = FeatureAccess.allow;
+      final service = _Service(settings);
+      addTearDown(settings.dispose);
+      addTearDown(service.close);
+      await tester.pumpWidget(_app(settings, service));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '数学');
+      await tester.pumpAndSettle();
+      for (final style in [
+        InterfaceStyle.cards,
+        InterfaceStyle.classic,
+        InterfaceStyle.cards,
+      ]) {
+        settings.interfaceStyle.value = style;
+        await tester.pumpAndSettle();
+        expect(service.requests, 1);
+        expect(find.text('2025数学.pdf'), findsOneWidget);
+        expect(find.text('2024物理.pdf'), findsNothing);
+        expect(
+          tester.widget<TextField>(find.byType(TextField)).controller!.text,
+          '数学',
+        );
+        expect(
+          find.byType(Card),
+          style == InterfaceStyle.cards ? findsWidgets : findsNothing,
+        );
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
   testWidgets('tip and hidden direct routes never initialize a paper query', (
     tester,
   ) async {

@@ -279,7 +279,7 @@ class JobFairPage extends HookWidget {
             ),
           ),
         ),
-        SliverList.builder(
+        AppSliverList(
           itemCount: entry.value.length,
           itemBuilder: (context, index) =>
               _JobFairTile(event: entry.value[index]),

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -19,9 +20,11 @@ void main() {
     expect(settings.selectedSemesterKey.value, '202501');
     expect(settings.termsKey.value, ['202501']);
     expect(settings.themeKey.value, 'deep_purple');
+    expect(settings.interfaceStyle.value, InterfaceStyle.classic);
 
     settings.localeKey.value = 'en';
     settings.themeModeKey.value = 'dark';
+    settings.interfaceStyle.value = InterfaceStyle.cards;
     settings.selectedSemesterKey.value = '202601';
     settings.termsKey.value = ['202601', '202501'];
     settings.showExamOnSchedule.value = false;
@@ -38,6 +41,15 @@ void main() {
     await reloaded.load();
     expect(reloaded.currentLocale, const Locale('en'));
     expect(reloaded.currentThemeMode, ThemeMode.dark);
+    expect(reloaded.interfaceStyle.value, InterfaceStyle.cards);
+    expect(
+      reloaded.lightTheme.extension<InterfaceTheme>()!.style,
+      InterfaceStyle.cards,
+    );
+    expect(
+      reloaded.darkTheme.extension<InterfaceTheme>()!.style,
+      InterfaceStyle.cards,
+    );
     expect(reloaded.lightTheme.brightness, Brightness.light);
     expect(reloaded.darkTheme.brightness, Brightness.dark);
     expect(reloaded.selectedSemesterKey.value, '202601');
@@ -51,5 +63,29 @@ void main() {
     expect(reloaded.githubProxyBaseUrl.value, 'https://proxy.example.com/');
     settings.dispose();
     reloaded.dispose();
+  });
+
+  test('unknown interface style falls back to classic', () async {
+    SharedPreferences.setMockInitialValues({SpKeys.interfaceStyle: 'future'});
+    final settings = AppSettings();
+    await settings.load();
+    expect(settings.interfaceStyle.value, InterfaceStyle.classic);
+    settings.dispose();
+  });
+
+  test('custom and system color schemes retain the independent style', () {
+    for (final brightness in Brightness.values) {
+      for (final style in InterfaceStyle.values) {
+        final scheme = ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: brightness,
+        );
+        final theme = buildThemeFromScheme(scheme, interfaceStyle: style);
+        expect(theme.colorScheme, scheme);
+        expect(theme.brightness, brightness);
+        expect(theme.extension<InterfaceTheme>()!.style, style);
+        expect(theme.useMaterial3, isTrue);
+      }
+    }
   });
 }

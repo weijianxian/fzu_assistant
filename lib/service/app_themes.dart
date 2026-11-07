@@ -1,6 +1,32 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+enum InterfaceStyle {
+  classic,
+  cards;
+
+  static InterfaceStyle parse(String? value) =>
+      values.where((style) => style.name == value).firstOrNull ?? classic;
+}
+
+/// Layout preference shared by seeded and system colors, independent of mode.
+class InterfaceTheme extends ThemeExtension<InterfaceTheme> {
+  const InterfaceTheme({this.style = InterfaceStyle.classic});
+
+  final InterfaceStyle style;
+
+  static InterfaceTheme of(BuildContext context) =>
+      Theme.of(context).extension<InterfaceTheme>() ?? const InterfaceTheme();
+
+  @override
+  InterfaceTheme copyWith({InterfaceStyle? style}) =>
+      InterfaceTheme(style: style ?? this.style);
+
+  @override
+  InterfaceTheme lerp(covariant InterfaceTheme? other, double t) =>
+      other == null || t < 0.5 ? this : other;
+}
+
 class ThemeConfig {
   final String key;
   final String name;
@@ -23,20 +49,46 @@ const appThemes = [
 ThemeData buildTheme(
   Color seedColor, {
   Brightness brightness = Brightness.light,
+  InterfaceStyle interfaceStyle = InterfaceStyle.classic,
 }) {
   return buildThemeFromScheme(
     ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness),
+    interfaceStyle: interfaceStyle,
   );
 }
 
 /// 所有配色共用主题入口，保证系统配色也使用相同的桌面排版。
-ThemeData buildThemeFromScheme(ColorScheme colorScheme) {
+ThemeData buildThemeFromScheme(
+  ColorScheme colorScheme, {
+  InterfaceStyle interfaceStyle = InterfaceStyle.classic,
+}) {
   final isWindows = !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
   final textTheme = isWindows ? _windowsTextTheme : null;
   return ThemeData(
     useMaterial3: true,
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,
+    extensions: [InterfaceTheme(style: interfaceStyle)],
+    cardTheme: CardThemeData(
+      elevation: 0,
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          interfaceStyle == InterfaceStyle.cards ? 24 : 0,
+        ),
+      ),
+    ),
+    switchTheme: interfaceStyle == InterfaceStyle.cards
+        ? SwitchThemeData(
+            thumbIcon: WidgetStateProperty.resolveWith(
+              (states) => Icon(
+                states.contains(WidgetState.selected)
+                    ? Icons.check
+                    : Icons.close,
+              ),
+            ),
+          )
+        : null,
     // 拉丁字形使用 Segoe UI；中文明确回退到微软雅黑 UI。
     fontFamily: isWindows ? 'Segoe UI' : null,
     fontFamilyFallback: isWindows

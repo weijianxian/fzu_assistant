@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
+import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
 import 'package:fzu_assistant/common/widget/layout/app_top_banner.dart';
 import 'package:fzu_assistant/common/widget/layout/split_navigation_page.dart';
 
@@ -206,7 +207,12 @@ void main() {
             matching: find.byType(AppBar),
           ),
         );
-        final menuList = tester.getRect(find.byType(ListView));
+        final menuList = tester.getRect(
+          find.descendant(
+            of: find.byType(AppCustomScrollView),
+            matching: find.byType(Scrollable),
+          ),
+        );
         expect(detailBar.top, 0);
         expect(detailBar.height, 80);
         expect(body.top, 80);

@@ -29,31 +29,33 @@ class PapersPage extends HookWidget {
         loading: false,
         emptyText: l10n.noData,
         onRefresh: () async {},
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Icon(
-                access == FeatureAccess.hide
-                    ? Icons.visibility_off_outlined
-                    : Icons.info_outline,
-                size: 48,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                access == FeatureAccess.hide
-                    ? l10n.papersHidden
-                    : l10n.pastPapersDescription,
-              ),
-              const SizedBox(height: 12),
-              Text(l10n.thirdPartyDisabled),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () =>
-                    context.pushNamed(AppRoutes.thirdPartySettings),
-                child: Text(l10n.thirdPartyServices),
-              ),
-            ],
+        child: AppSection(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Icon(
+                  access == FeatureAccess.hide
+                      ? Icons.visibility_off_outlined
+                      : Icons.info_outline,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  access == FeatureAccess.hide
+                      ? l10n.papersHidden
+                      : l10n.pastPapersDescription,
+                ),
+                const SizedBox(height: 12),
+                Text(l10n.thirdPartyDisabled),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () =>
+                      context.pushNamed(AppRoutes.thirdPartySettings),
+                  child: Text(l10n.thirdPartyServices),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -144,16 +146,24 @@ class _AllowedPapersPage extends HookWidget {
               ),
             ),
           ),
-          ListTile(
-            leading: Icon(path == '/' ? Icons.folder_open : Icons.arrow_upward),
-            title: Text(path == '/' ? l10n.papersRoot : path),
-            subtitle: path == '/' ? null : Text(l10n.papersParent),
-            onTap: path == '/' || state.data == null
-                ? null
-                : () => context.pushReplacementNamed(
-                    AppRoutes.papers,
-                    arguments: PapersArgs(path: PaperService.parentPath(path)),
-                  ),
+          AppSection.list(
+            children: [
+              ListTile(
+                leading: Icon(
+                  path == '/' ? Icons.folder_open : Icons.arrow_upward,
+                ),
+                title: Text(path == '/' ? l10n.papersRoot : path),
+                subtitle: path == '/' ? null : Text(l10n.papersParent),
+                onTap: path == '/' || state.data == null
+                    ? null
+                    : () => context.pushReplacementNamed(
+                        AppRoutes.papers,
+                        arguments: PapersArgs(
+                          path: PaperService.parentPath(path),
+                        ),
+                      ),
+              ),
+            ],
           ),
           if (state.error != null)
             ListTile(
@@ -171,41 +181,44 @@ class _AllowedPapersPage extends HookWidget {
               refreshTime: state.updatedAt,
               emptyText: l10n.papersEmpty,
               onRefresh: state.refresh,
-              child: AppListView(
-                children: [
-                  if (entries.isEmpty) ListTile(title: Text(l10n.papersEmpty)),
-                  for (final entry in entries)
-                    ListTile(
-                      leading: Icon(
-                        entry.isFolder
-                            ? Icons.folder_outlined
-                            : Icons.description_outlined,
-                      ),
-                      title: Text(entry.name),
-                      trailing: Icon(
-                        entry.isFolder
-                            ? Icons.chevron_right
-                            : Icons.download_outlined,
-                      ),
-                      onTap: busy.value
-                          ? null
-                          : () {
-                              if (entry.isFolder) {
-                                context.pushNamed(
-                                  AppRoutes.papers,
-                                  arguments: PapersArgs(
-                                    path: PaperService.childPath(
-                                      path,
-                                      entry.name,
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                file(entry);
-                              }
-                            },
+              child: AppListView.grouped(
+                itemCount: entries.isEmpty ? 1 : entries.length,
+                itemBuilder: (context, index) {
+                  if (entries.isEmpty) {
+                    return ListTile(title: Text(l10n.papersEmpty));
+                  }
+                  final entry = entries[index];
+                  return ListTile(
+                    leading: Icon(
+                      entry.isFolder
+                          ? Icons.folder_outlined
+                          : Icons.description_outlined,
                     ),
-                ],
+                    title: Text(entry.name),
+                    trailing: Icon(
+                      entry.isFolder
+                          ? Icons.chevron_right
+                          : Icons.download_outlined,
+                    ),
+                    onTap: busy.value
+                        ? null
+                        : () {
+                            if (entry.isFolder) {
+                              context.pushNamed(
+                                AppRoutes.papers,
+                                arguments: PapersArgs(
+                                  path: PaperService.childPath(
+                                    path,
+                                    entry.name,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              file(entry);
+                            }
+                          },
+                  );
+                },
               ),
             ),
           ),

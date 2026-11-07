@@ -10,6 +10,54 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get settingsAppSection => '应用设置';
+
+  @override
+  String get settingsPlatformSection => '平台功能';
+
+  @override
+  String get settingsCoursesSection => '课程管理';
+
+  @override
+  String get settingsSemesterSection => '学期';
+
+  @override
+  String get settingsDisplaySection => '显示设置';
+
+  @override
+  String get settingsGeneralSection => '通用';
+
+  @override
+  String get settingsSyncSection => '同步设置';
+
+  @override
+  String get settingsSyncStatusSection => '同步状态';
+
+  @override
+  String get settingsDataSection => '数据管理';
+
+  @override
+  String get settingsConnectionSection => '连接配置';
+
+  @override
+  String get settingsPermissionsSection => '系统权限';
+
+  @override
+  String get settingsRefreshSection => '课表更新';
+
+  @override
+  String get settingsAutoSyncSection => '自动同步';
+
+  @override
+  String get settingsManualSyncSection => '手动同步';
+
+  @override
+  String get settingsExportSection => '导出设置';
+
+  @override
+  String get settingsReminderSection => '提醒设置';
+
+  @override
   String get hiddenCourseManagement => '不展示课程管理';
 
   @override
@@ -317,6 +365,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get themeColor => '主题色';
+
+  @override
+  String get interfaceStyle => '界面风格';
+
+  @override
+  String get interfaceStyleClassic => '经典列表';
+
+  @override
+  String get interfaceStyleClassicDescription => '平铺展示，简洁紧凑。';
+
+  @override
+  String get interfaceStyleCards => '卡片分组';
+
+  @override
+  String get interfaceStyleCardsDescription => '相关内容连成一组，用圆角和底色区分。';
 
   @override
   String get themeDynamic => '动态取色';
@@ -1765,19 +1828,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetSyncFailed => '联网更新失败，继续使用已有缓存，请重试。';
 
   @override
-  String get calendarSync => '同步到系统日历';
+  String get calendarSync => '日历同步';
 
   @override
-  String get calendarSyncDescription => '将课程与考试写入系统日历，每晚自动更新。';
+  String get calendarSyncDescription => '将课表同步到系统日历，每晚自动更新。';
 
   @override
-  String get calendarSyncScope => '包含当前学期、自定义课程和调课，仅更新福大助手专属日历。';
+  String get calendarSyncScope => '同步当前和临近学期的课程、自定义课程、调课及可选考试。隐藏的课次不会写入日历。';
 
   @override
-  String get calendarSyncEnabled => '每晚同步日历';
+  String get calendarSyncEnabled => '同步到系统日历';
 
   @override
-  String get calendarSyncPausedHint => '关闭或退出账号后停止同步，保留已写入的日程。';
+  String get calendarSyncPausedHint => '关闭后，已同步的日程会保留。';
 
   @override
   String get calendarSyncPermission => '日历权限';
@@ -1786,7 +1849,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendarSyncPermissionRequired => '请先授予日历读写权限。';
 
   @override
-  String get calendarSyncTime => '每晚同步时间（与桌面小组件共用）';
+  String get calendarSyncTime => '每日同步时间';
 
   @override
   String get calendarSyncNow => '立即同步';
@@ -1795,10 +1858,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendarSyncBusy => '正在同步…';
 
   @override
-  String get calendarSyncLastSuccess => '最近日历同步';
+  String get calendarSyncLastSuccess => '上次同步成功';
 
   @override
-  String get calendarSyncFailed => '日历同步未完成，保留已有日程，请检查权限和网络后重试。';
+  String get calendarSyncFailed => '同步未完成，请检查网络和日历权限后重试。';
 
   @override
   String calendarSyncResult(int inserted, int updated, int deleted) {
@@ -1829,6 +1892,97 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get calendarSyncClearFailed => '日程清理未完成，请检查日历权限后重试。';
+
+  @override
+  String get calendarSyncStartHint => '开启后，每晚自动更新课表。';
+
+  @override
+  String get calendarSyncNever => '尚未同步';
+
+  @override
+  String get calendarSyncOff => '同步已关闭';
+
+  @override
+  String get calendarSyncPending => '设置待同步';
+
+  @override
+  String get calendarSyncSaved => '设置已保存，下次同步时应用。';
+
+  @override
+  String get calendarSyncSaving => '正在保存设置…';
+
+  @override
+  String get calendarSyncSaveFailed => '设置未能保存，请重试。';
+
+  @override
+  String get calendarSyncLoadFailed => '暂时无法读取同步状态，请重试。';
+
+  @override
+  String get calendarSyncScheduleFailed => '自动同步尚未安排，请重试。';
+
+  @override
+  String calendarSyncOccurrences(int count) {
+    return '覆盖 $count 次课程与考试';
+  }
+
+  @override
+  String get calendarSyncNoChanges => '本次没有变更';
+
+  @override
+  String get calendarSyncSharedTime => '与桌面小组件共用时间';
+
+  @override
+  String get calendarSyncPermissions => '系统权限';
+
+  @override
+  String get calendarSyncPermissionsReady => '日历访问与定时同步均已允许';
+
+  @override
+  String get calendarSyncCalendarNeeded => '需要日历访问权限';
+
+  @override
+  String get calendarSyncAlarmNeeded => '需要定时同步权限';
+
+  @override
+  String get calendarSyncAlarmHint => '允许精确闹钟后，才能按时自动同步。';
+
+  @override
+  String get calendarSyncGrantCalendar => '允许日历访问';
+
+  @override
+  String get calendarSyncGrantAlarm => '允许定时同步';
+
+  @override
+  String get calendarSyncAllowed => '已允许';
+
+  @override
+  String get calendarSyncNotAllowed => '未允许';
+
+  @override
+  String get calendarSyncCalendarPurpose => '用于读写本应用创建的日程';
+
+  @override
+  String get calendarSyncAlarmPurpose => '用于在设定时间自动同步';
+
+  @override
+  String get calendarSyncHelp => '同步说明';
+
+  @override
+  String get calendarSyncRecurrenceHint =>
+      '常规课程使用系统重复日程。调课、停课和隐藏只调整对应课次，重复同步不会重复添加。';
+
+  @override
+  String get calendarSyncPauseHelp =>
+      '关闭同步或退出账号会停止更新，已经写入的日程保留。可以在本页底部删除本应用创建的全部日程。';
+
+  @override
+  String get calendarSyncClearSummary => '删除所有账号的已同步日程，并关闭同步';
+
+  @override
+  String get calendarSyncClearConfirm => '删除日程';
+
+  @override
+  String get calendarSyncClearing => '正在删除日程…';
 
   @override
   String get calendarExport => '导出到日历';

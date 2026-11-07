@@ -1,4 +1,4 @@
-import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widget/input/password_field.dart';
@@ -6,7 +6,6 @@ import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webdav_sync_service.dart';
 import 'package:intl/intl.dart';
-import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class WebDavSettingsPage extends HookWidget {
   const WebDavSettingsPage({super.key, this.service});
@@ -124,54 +123,67 @@ class WebDavSettingsPage extends HookWidget {
     return AppScaffold(
       appBar: AppBar(title: Text(l10n.webdavSync)),
       body: AppListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          Text(l10n.webdavDescription),
-          const SizedBox(height: 20),
-          TextField(
-            controller: directory,
-            enabled: !busy.value,
-            keyboardType: TextInputType.url,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: l10n.webdavDirectory,
-              prefixIcon: const Icon(Icons.link_outlined),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+          SettingsSection(
+            title: l10n.settingsConnectionSection,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(l10n.webdavDescription),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: directory,
+                    enabled: !busy.value,
+                    keyboardType: TextInputType.url,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: l10n.webdavDirectory,
+                      prefixIcon: const Icon(Icons.link_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      helperText: l10n.webdavDirectoryHint,
+                      helperMaxLines: 3,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: username,
+                    enabled: !busy.value,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: l10n.webdavUsername,
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  PasswordField(controller: password, enabled: !busy.value),
+                  const SizedBox(height: 16),
+                  Text(l10n.webdavTestDescription),
+                ],
               ),
-              helperText: l10n.webdavDirectoryHint,
-              helperMaxLines: 3,
             ),
           ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: username,
-            enabled: !busy.value,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: l10n.webdavUsername,
-              prefixIcon: const Icon(Icons.person_outline),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+          SettingsSection(
+            title: l10n.settingsAutoSyncSection,
+            child: SettingSwitchTile.controlled(
+              title: Text(l10n.webdavAutoSync),
+              subtitle: Text(l10n.webdavAutoSyncDescription),
+              value: automatic.value,
+              onChanged: busy.value
+                  ? null
+                  : (enabled) => perform((_) async {
+                      await api.setAutoSyncEnabled(enabled);
+                      if (context.mounted) automatic.value = enabled;
+                      return null;
+                    }, saveConfiguration: enabled),
             ),
-          ),
-          const SizedBox(height: 16),
-          PasswordField(controller: password, enabled: !busy.value),
-          const SizedBox(height: 16),
-          Text(l10n.webdavTestDescription),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.webdavAutoSync),
-            subtitle: Text(l10n.webdavAutoSyncDescription),
-            value: automatic.value,
-            onChanged: busy.value
-                ? null
-                : (enabled) => perform((_) async {
-                    await api.setAutoSyncEnabled(enabled);
-                    if (context.mounted) automatic.value = enabled;
-                    return null;
-                  }, saveConfiguration: enabled),
           ),
           if (busy.value) const LinearProgressIndicator(),
           if (error.value != null)
@@ -182,79 +194,85 @@ class WebDavSettingsPage extends HookWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              OutlinedButton.icon(
-                onPressed: busy.value
-                    ? null
-                    : () => perform((_) async => l10n.webdavSaved),
-                icon: const Icon(Icons.save_outlined),
-                label: Text(l10n.webdavSave),
+          SettingsSection(
+            title: l10n.settingsManualSyncSection,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: busy.value
+                        ? null
+                        : () => perform((_) async => l10n.webdavSaved),
+                    icon: const Icon(Icons.save_outlined),
+                    label: Text(l10n.webdavSave),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: busy.value
+                        ? null
+                        : () => perform((current) async {
+                            await api.testConnection(current);
+                            return l10n.webdavConnectionValid;
+                          }, saveConfiguration: false),
+                    icon: const Icon(Icons.network_check),
+                    label: Text(l10n.webdavTestConnection),
+                  ),
+                  FilledButton.icon(
+                    onPressed: busy.value
+                        ? null
+                        : () => perform((current) async {
+                            final local = await api.exportSnapshot();
+                            final remote = await api.readRemote(current);
+                            if (!context.mounted) return null;
+                            if (!await confirm(
+                              l10n.webdavUpload,
+                              remote.snapshot == null
+                                  ? l10n.webdavCreateDescription
+                                  : l10n.webdavUploadDescription,
+                              remote.snapshot ?? local,
+                            )) {
+                              return null;
+                            }
+                            await api.upload(current, local, remote);
+                            await api.rememberSynced(current, local);
+                            return l10n.webdavUploaded;
+                          }),
+                    icon: const Icon(Icons.cloud_upload_outlined),
+                    label: Text(l10n.webdavUpload),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: busy.value
+                        ? null
+                        : () => perform((current) async {
+                            final remote = await api.readRemote(current);
+                            final snapshot = remote.snapshot;
+                            if (snapshot == null) {
+                              throw Exception(l10n.webdavNotFound);
+                            }
+                            if (!context.mounted) return null;
+                            if (!await confirm(
+                              l10n.webdavDownload,
+                              l10n.webdavDownloadDescription,
+                              snapshot,
+                            )) {
+                              return null;
+                            }
+                            await api.restore(
+                              snapshot,
+                              apply: (value) =>
+                                  applyWebDavSettings(settings, value),
+                            );
+                            await api.rememberSynced(current, snapshot);
+                            return l10n.webdavDownloaded;
+                          }),
+                    icon: const Icon(Icons.cloud_download_outlined),
+                    label: Text(l10n.webdavDownload),
+                  ),
+                ],
               ),
-              OutlinedButton.icon(
-                onPressed: busy.value
-                    ? null
-                    : () => perform((current) async {
-                        await api.testConnection(current);
-                        return l10n.webdavConnectionValid;
-                      }, saveConfiguration: false),
-                icon: const Icon(Icons.network_check),
-                label: Text(l10n.webdavTestConnection),
-              ),
-              FilledButton.icon(
-                onPressed: busy.value
-                    ? null
-                    : () => perform((current) async {
-                        final local = await api.exportSnapshot();
-                        final remote = await api.readRemote(current);
-                        if (!context.mounted) return null;
-                        if (!await confirm(
-                          l10n.webdavUpload,
-                          remote.snapshot == null
-                              ? l10n.webdavCreateDescription
-                              : l10n.webdavUploadDescription,
-                          remote.snapshot ?? local,
-                        )) {
-                          return null;
-                        }
-                        await api.upload(current, local, remote);
-                        await api.rememberSynced(current, local);
-                        return l10n.webdavUploaded;
-                      }),
-                icon: const Icon(Icons.cloud_upload_outlined),
-                label: Text(l10n.webdavUpload),
-              ),
-              OutlinedButton.icon(
-                onPressed: busy.value
-                    ? null
-                    : () => perform((current) async {
-                        final remote = await api.readRemote(current);
-                        final snapshot = remote.snapshot;
-                        if (snapshot == null) {
-                          throw Exception(l10n.webdavNotFound);
-                        }
-                        if (!context.mounted) return null;
-                        if (!await confirm(
-                          l10n.webdavDownload,
-                          l10n.webdavDownloadDescription,
-                          snapshot,
-                        )) {
-                          return null;
-                        }
-                        await api.restore(
-                          snapshot,
-                          apply: (value) =>
-                              applyWebDavSettings(settings, value),
-                        );
-                        await api.rememberSynced(current, snapshot);
-                        return l10n.webdavDownloaded;
-                      }),
-                icon: const Icon(Icons.cloud_download_outlined),
-                label: Text(l10n.webdavDownload),
-              ),
-            ],
+            ),
           ),
         ],
       ),

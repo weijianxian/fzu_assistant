@@ -60,13 +60,17 @@ class MyPage extends HookWidget {
         showAppBar: false,
         footer: Column(
           children: [
-            const Divider(),
-            for (final destination in destinations.skip(1))
-              ChevronListTile(
-                leading: Icon(destination.icon),
-                title: Text(destination.title),
-                onTap: () => context.pushNamed(destination.route),
-              ),
+            const AppDivider(),
+            AppSection.list(
+              children: [
+                for (final destination in destinations.skip(1))
+                  ChevronListTile(
+                    leading: Icon(destination.icon),
+                    title: Text(destination.title),
+                    onTap: () => context.pushNamed(destination.route),
+                  ),
+              ],
+            ),
           ],
         ),
       ),

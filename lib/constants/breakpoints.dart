@@ -14,3 +14,6 @@ const kUpdateTableColumnWidth = 160.0;
 const kLearningSeatMaxWidth = 100.0;
 const kLearningSeatHeight = 40.0;
 const kLearningAreaNavigationWidth = 72.0;
+
+/// 工具页单列连接分组／多列瀑布流的最大列宽。
+const kToolTileMaxWidth = 600.0;

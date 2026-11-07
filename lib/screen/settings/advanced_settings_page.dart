@@ -38,48 +38,46 @@ class AdvancedSettingsPage extends HookWidget {
       body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          Section(
+          SettingsSection.list(
             title: l10n.githubProxy,
-            child: Column(
-              children: [
-                SettingSwitchTile(
-                  notifier: settings.githubProxyEnabled,
-                  title: Text(l10n.githubProxyEnabled),
-                  subtitle: Text(l10n.githubProxyDescription),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: ValueListenableBuilder(
-                    valueListenable: settings.githubProxyEnabled,
-                    builder: (_, enabled, _) => TextField(
-                      controller: controller,
-                      enabled: enabled,
-                      decoration: InputDecoration(
-                        labelText: l10n.githubProxyBaseUrl,
-                        helperText: l10n.githubProxyBaseUrlDescription,
-                        hintText: GitHubProxy.defaultBaseUrl,
-                        suffixIcon: IconButton(
-                          tooltip: l10n.reset,
-                          icon: const Icon(Icons.restore),
-                          onPressed: enabled
-                              ? () {
-                                  controller.text = GitHubProxy.defaultBaseUrl;
-                                  settings.githubProxyBaseUrl.value =
-                                      GitHubProxy.defaultBaseUrl;
-                                }
-                              : null,
-                        ),
+            children: [
+              SettingSwitchTile(
+                notifier: settings.githubProxyEnabled,
+                title: Text(l10n.githubProxyEnabled),
+                subtitle: Text(l10n.githubProxyDescription),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: ValueListenableBuilder(
+                  valueListenable: settings.githubProxyEnabled,
+                  builder: (_, enabled, _) => TextField(
+                    controller: controller,
+                    enabled: enabled,
+                    decoration: InputDecoration(
+                      labelText: l10n.githubProxyBaseUrl,
+                      helperText: l10n.githubProxyBaseUrlDescription,
+                      hintText: GitHubProxy.defaultBaseUrl,
+                      suffixIcon: IconButton(
+                        tooltip: l10n.reset,
+                        icon: const Icon(Icons.restore),
+                        onPressed: enabled
+                            ? () {
+                                controller.text = GitHubProxy.defaultBaseUrl;
+                                settings.githubProxyBaseUrl.value =
+                                    GitHubProxy.defaultBaseUrl;
+                              }
+                            : null,
                       ),
-                      keyboardType: TextInputType.url,
-                      textInputAction: TextInputAction.done,
-                      onChanged: (v) => settings.githubProxyBaseUrl.value = v,
-                      onSubmitted: (_) => normalizeProxyUrl(),
-                      onEditingComplete: normalizeProxyUrl,
                     ),
+                    keyboardType: TextInputType.url,
+                    textInputAction: TextInputAction.done,
+                    onChanged: (v) => settings.githubProxyBaseUrl.value = v,
+                    onSubmitted: (_) => normalizeProxyUrl(),
+                    onEditingComplete: normalizeProxyUrl,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           const SizedBox(height: 32),
         ],
