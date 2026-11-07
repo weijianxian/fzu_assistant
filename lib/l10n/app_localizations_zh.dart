@@ -1051,6 +1051,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get permissionPurposeCamera => '扫描学习中心签到二维码';
 
   @override
+  String get permissionPurposeLocation => '向晚点名网页提供当前位置以校验签到范围';
+
+  @override
+  String get permissionNameCoarseLocation => '大致位置';
+
+  @override
+  String get permissionNameFineLocation => '精确位置';
+
+  @override
   String get permissionPurposeInstall => '安装应用更新';
 
   @override

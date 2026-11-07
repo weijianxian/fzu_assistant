@@ -18,6 +18,7 @@
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
 - window_manager（Windows 自绘标题栏、窗口操作与状态监听）
 - pointycastle（统一身份认证 AES-ECB / PKCS#7 加密）、mobile_scanner（Android / iOS / macOS 学习中心现场扫码签到）
+- geolocator（晚点名网页的前台定位、系统权限和原生定位协议回调）
 - barcode_widget（支持原始字节的消费二维码及入馆 Code128 条形码）、asn1lib（解析一卡通 RSA 私钥）、screen_brightness（手机展示码时临时提高应用亮度）
 
 ## 项目结构
@@ -162,6 +163,7 @@ lib/
 ## 校园服务
 
 - `model/campus_service.dart` 定义 31 项官方校园服务，`screen/toolbox/campus_services/campus_services_page.dart` 按生活住宿、空间预约、学习活动、信息办事、地图校园网分组；保留原有公寓报修等入口，补齐邮箱、可信电子文档、统一支付、智慧学工、地图和网络服务。所有入口禁用教务 Cookie，公开地图、通知文件、网络指南与讲座报告不要求 SSO，其余复用统一认证；不预请求、不重复列出同地址的校园／校友活动。`WebViewArgs.injectSsoCookies` 区分统一认证与教务会话，SSO 登录复用不申请学习中心 token 的页面。WebView 为 HookWidget，SOURCEID_TGC 仅注入 SSO HTTPS host；退出清理原生 Cookie，挂载页面按会话代次销毁旧内容。外部 App 协议仅在用户点击时打开。
+- `service/webview_campus_bridge.dart` 参考 FUU 兼容晚点名 `kysk-fdxy-app` 的定位与权限回调，仅允许 `https://yzsxg.fzu.edu.cn` 的晚点名主文档；HTML5 定位同样验证来源。通过 geolocator 请求系统前台权限和当前坐标，不保存位置、不申请后台定位、不请求第三方地址反解；拒绝或失败回传空结果，导航、退出或换号使在途回调失效。Android WebView 使用系统 UA 追加校园 App 标识，SSO 登录请求使用相同 UA，学习中心 token 请求保留独立 UA。
 
 ## 自定义课程
 

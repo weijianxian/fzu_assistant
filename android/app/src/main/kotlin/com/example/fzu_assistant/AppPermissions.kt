@@ -25,6 +25,8 @@ object AppPermissions {
             Manifest.permission.POST_NOTIFICATIONS,
             Manifest.permission.SCHEDULE_EXACT_ALARM,
             Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_CALENDAR,
             Manifest.permission.WRITE_CALENDAR,
             Manifest.permission.REQUEST_INSTALL_PACKAGES,

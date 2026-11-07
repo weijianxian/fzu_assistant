@@ -1095,6 +1095,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Scan learning center check-in QR codes';
 
   @override
+  String get permissionPurposeLocation =>
+      'Provide your current location to verify the attendance area';
+
+  @override
+  String get permissionNameCoarseLocation => 'Approximate location';
+
+  @override
+  String get permissionNameFineLocation => 'Precise location';
+
+  @override
   String get permissionPurposeInstall => 'Install app updates';
 
   @override

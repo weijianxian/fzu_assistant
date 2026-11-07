@@ -2078,6 +2078,24 @@ abstract class AppLocalizations {
   /// **'扫描学习中心签到二维码'**
   String get permissionPurposeCamera;
 
+  /// No description provided for @permissionPurposeLocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'向晚点名网页提供当前位置以校验签到范围'**
+  String get permissionPurposeLocation;
+
+  /// No description provided for @permissionNameCoarseLocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'大致位置'**
+  String get permissionNameCoarseLocation;
+
+  /// No description provided for @permissionNameFineLocation.
+  ///
+  /// In zh, this message translates to:
+  /// **'精确位置'**
+  String get permissionNameFineLocation;
+
   /// No description provided for @permissionPurposeInstall.
   ///
   /// In zh, this message translates to:

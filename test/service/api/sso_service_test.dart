@@ -15,6 +15,8 @@ class _SsoAdapter implements HttpClientAdapter {
   bool expire = false;
   bool foreignRedirect = false;
   Completer<void>? pause;
+  Completer<void>? pauseLogin;
+  final loginPaused = Completer<void>();
   final paused = Completer<void>();
   final requests = <RequestOptions>[];
   final bodies = <RequestOptions, String>{};
@@ -69,6 +71,10 @@ class _SsoAdapter implements HttpClientAdapter {
       );
     }
     if (path == '/login' && options.method == 'POST') {
+      if (pauseLogin != null) {
+        loginPaused.complete();
+        await pauseLogin!.future;
+      }
       final body = Uri.splitQueryString(bodies[options]!);
       if (reject) return response('<div id="msg">账号或密码错误</div>');
       if (sms && body['type'] != 'smsLogin') {
@@ -169,6 +175,62 @@ void main() {
       'R4lDIBO/32oRLZSjtsPrGQ==',
     );
   });
+  test(
+    'general SSO login publishes a reusable ticket without business tokens',
+    () async {
+      final revision = service.sessionRevision.value;
+      await service.login(
+        'sso-user',
+        'password',
+        loadStudyToken: false,
+        onSmsRequired: (_, _, _) async => null,
+      );
+      expect(service.sessionRevision.value, greaterThan(revision));
+      expect(await service.hasSession(), isTrue);
+      expect(await service.loadWebViewCookie(), 'fake-ticket');
+      expect(await service.loadStudyToken(), isNull);
+      expect(await service.loadCampusToken(), isNull);
+      expect(adapter.requests, hasLength(2));
+      expect(
+        adapter.requests.every(
+          (request) => request.headers['User-Agent'] == SsoService.userAgent,
+        ),
+        isTrue,
+      );
+      await service.logout();
+      await expectLater(
+        service.loadWebViewCookie(),
+        throwsA(isA<SsoLoginRequired>()),
+      );
+    },
+  );
+  for (final logout in [true, false]) {
+    test(
+      'a late SSO login cannot restore a ${logout ? 'logged out' : 'different account'} session',
+      () async {
+        adapter.pauseLogin = Completer<void>();
+        final pending = service.login(
+          'sso-user',
+          'password',
+          loadStudyToken: false,
+          onSmsRequired: (_, _, _) async => null,
+        );
+        final rejected = expectLater(pending, throwsA(isA<SsoLoginRequired>()));
+        await adapter.loginPaused.future;
+        if (logout) {
+          await service.logout();
+        } else {
+          await AuthStorage().saveCredentials('academic-b', 'password-b');
+        }
+        adapter.pauseLogin!.complete();
+        await rejected;
+        await expectLater(
+          service.loadWebViewCookie(),
+          throwsA(isA<SsoLoginRequired>()),
+        );
+      },
+    );
+  }
   test('campus login skips learning center and isolates CAS cookies and account tokens', () async {
     await service.login(
       'sso-user',

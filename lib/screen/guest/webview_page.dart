@@ -12,6 +12,7 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/sso_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
+import 'package:fzu_assistant/service/webview_campus_bridge.dart';
 import 'package:fzu_assistant/service/webview_session.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
@@ -53,6 +54,8 @@ class WebViewPage extends HookWidget {
     final revision = useValueListenable(sso.sessionRevision);
     final retry = useState(0);
     final controller = useRef<InAppWebViewController?>(null);
+    final navigationRevision = useRef(0);
+    final campusBridge = useMemoized(CampusWebViewBridge.new);
     final sourceUrl = useMemoized(
       () => injectSsoCookies ? url : _ensureUserId(url),
       [url, injectSsoCookies],
@@ -70,6 +73,19 @@ class WebViewPage extends HookWidget {
       injectSsoCookies ? revision : 0,
       retry.value,
     );
+    bool currentBrowser(InAppWebViewController web) =>
+        context.mounted &&
+        controller.value?.platform == web.platform &&
+        (!injectSsoCookies || sso.sessionRevision.value == preparationKey.$4);
+    Future<Uri?> browserDocument(InAppWebViewController web) async {
+      if (!currentBrowser(web)) return null;
+      try {
+        return await web.getUrl();
+      } catch (_) {
+        return null;
+      }
+    }
+
     useEffect(() {
       if (!injectSsoCookies) return null;
       return registerSsoBrowser(() async {
@@ -124,14 +140,28 @@ class WebViewPage extends HookWidget {
               if (injectSsoCookies) {
                 if (!current()) return;
                 // Omitting domain keeps this a secure host-only SSO ticket.
-                await manager.setCookie(
+                final saved = await manager.setCookie(
                   url: WebUri(SsoService.loginUrl),
                   name: 'SOURCEID_TGC',
                   value: ssoCookie!,
                   path: '/',
                   isSecure: true,
                   isHttpOnly: true,
+                  sameSite: HTTPCookieSameSitePolicy.NONE,
                 );
+                if (!saved) {
+                  throw StateError('无法设置统一认证登录状态，请重试');
+                }
+                final browserCookies = await manager.getCookies(
+                  url: WebUri(SsoService.loginUrl),
+                );
+                if (!browserCookies.any(
+                  (cookie) =>
+                      cookie.name == 'SOURCEID_TGC' &&
+                      cookie.value == ssoCookie,
+                )) {
+                  throw StateError('无法设置统一认证登录状态，请重试');
+                }
                 if (!current()) {
                   await manager.deleteCookie(
                     url: WebUri(SsoService.loginUrl),
@@ -214,8 +244,17 @@ class WebViewPage extends HookWidget {
               Text(l10n.ssoLoginDescription),
               const SizedBox(height: 16),
               FilledButton.icon(
-                onPressed: () =>
-                    context.pushNamed(AppRoutes.campusServicesLogin),
+                onPressed: () async {
+                  final beforeLogin = sso.sessionRevision.value;
+                  final signedIn = await context.pushNamed(
+                    AppRoutes.campusServicesLogin,
+                  );
+                  if (context.mounted &&
+                      signedIn == true &&
+                      beforeLogin == sso.sessionRevision.value) {
+                    retry.value++;
+                  }
+                },
                 icon: const Icon(Icons.login),
                 label: Text(l10n.ssoLogin),
               ),
@@ -257,12 +296,44 @@ class WebViewPage extends HookWidget {
                 useHybridComposition: !Platform.isAndroid,
                 algorithmicDarkeningAllowed: true,
                 useShouldOverrideUrlLoading: true,
-                userAgent: injectSsoCookies ? SsoService.userAgent : null,
+                userAgent: injectSsoCookies && !Platform.isAndroid
+                    ? SsoService.userAgent
+                    : null,
+                applicationNameForUserAgent:
+                    injectSsoCookies && Platform.isAndroid
+                    ? SsoService.appUserAgent
+                    : null,
+                thirdPartyCookiesEnabled: true,
+                geolocationEnabled: true,
                 mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
               ),
               onWebViewCreated: (web) => controller.value = web,
               shouldOverrideUrlLoading: (web, action) async {
+                if (!currentBrowser(web)) return NavigationActionPolicy.CANCEL;
                 final uri = action.request.url;
+                if (uri?.scheme == 'kysk-fdxy-app') {
+                  if (!injectSsoCookies || !action.isForMainFrame) {
+                    return NavigationActionPolicy.CANCEL;
+                  }
+                  final navigation = navigationRevision.value;
+                  final document = await browserDocument(web);
+                  bool current() =>
+                      currentBrowser(web) &&
+                      navigationRevision.value == navigation;
+                  if (document != null && current()) {
+                    await campusBridge.handle(
+                      request: uri!,
+                      document: document,
+                      isCurrent: current,
+                      evaluateJavascript: (source) async {
+                        if (current()) {
+                          await web.evaluateJavascript(source: source);
+                        }
+                      },
+                    );
+                  }
+                  return NavigationActionPolicy.CANCEL;
+                }
                 if (uri == null ||
                     {
                       'http',
@@ -282,14 +353,44 @@ class WebViewPage extends HookWidget {
                 }
                 return NavigationActionPolicy.CANCEL;
               },
+              onGeolocationPermissionsShowPrompt: (web, origin) async {
+                final navigation = navigationRevision.value;
+                bool current() =>
+                    currentBrowser(web) &&
+                    navigationRevision.value == navigation;
+                final document = await browserDocument(web);
+                final requestingOrigin = Uri.tryParse(origin);
+                final trusted =
+                    injectSsoCookies &&
+                    current() &&
+                    document != null &&
+                    CampusWebViewBridge.isTrustedDocument(document) &&
+                    requestingOrigin?.scheme == 'https' &&
+                    requestingOrigin?.host == document.host &&
+                    requestingOrigin?.port == document.port &&
+                    requestingOrigin!.origin == document.origin;
+                final allowed =
+                    trusted &&
+                    await campusBridge.locationPermission(
+                      request: true,
+                      isCurrent: current,
+                    );
+                return GeolocationPermissionShowPromptResponse(
+                  origin: origin,
+                  allow: allowed && current(),
+                  retain: false,
+                );
+              },
               onLoadStart: (web, uri) {
-                if (context.mounted) currentUrl.value = uri?.toString() ?? '';
+                if (!currentBrowser(web)) return;
+                navigationRevision.value++;
+                currentUrl.value = uri?.toString() ?? '';
               },
               onTitleChanged: (web, value) {
-                if (context.mounted) pageTitle.value = value ?? '';
+                if (currentBrowser(web)) pageTitle.value = value ?? '';
               },
               onProgressChanged: (web, value) {
-                if (context.mounted) progress.value = value / 100;
+                if (currentBrowser(web)) progress.value = value / 100;
               },
               onReceivedServerTrustAuthRequest: (web, challenge) async {
                 if (context.mounted) {
@@ -297,16 +398,41 @@ class WebViewPage extends HookWidget {
                       .showSnackBar(SnackBar(content: Text(l10n.sslWarning)));
                 }
                 return ServerTrustAuthResponse(
-                  action: injectSsoCookies
-                      ? ServerTrustAuthResponseAction.CANCEL
-                      : ServerTrustAuthResponseAction.PROCEED,
+                  action: ServerTrustAuthResponseAction.CANCEL,
                 );
               },
               onLoadStop: (web, uri) async {
+                if (!currentBrowser(web)) return;
                 if (injectSsoCookies &&
+                    uri?.scheme == 'https' &&
                     uri?.host == 'sso.fzu.edu.cn' &&
                     uri?.path == '/login') {
-                  if (context.mounted) needsLogin.value = true;
+                  // A redirect can finish after the next page has started.
+                  // Inspect the current document, rather than treating every
+                  // /login callback as proof that the SSO ticket was rejected.
+                  Object? loginFormVisible;
+                  try {
+                    loginFormVisible = await web.evaluateJavascript(
+                      source: '''
+(() => {
+  if (location.origin !== 'https://sso.fzu.edu.cn' ||
+      location.pathname !== '/login') return false;
+  return !!(
+    document.getElementById('login-page-flowkey') ||
+    document.getElementById('current-login-type') ||
+    document.querySelector('form input[type="password"]')
+  );
+})()
+''',
+                    );
+                  } catch (_) {
+                    // A replaced document or disposed native view cannot
+                    // establish that the current session needs a new login.
+                    return;
+                  }
+                  if (currentBrowser(web) && loginFormVisible == true) {
+                    needsLogin.value = true;
+                  }
                   return;
                 }
                 await injectForDomain(web, uri);

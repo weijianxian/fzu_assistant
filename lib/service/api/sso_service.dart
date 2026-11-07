@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cookie_jar/cookie_jar.dart';
@@ -7,6 +8,8 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart'
+    show InAppWebViewController;
 import 'package:fzu_assistant/service/auth_storage.dart';
 import 'package:fzu_assistant/service/webview_session.dart';
 import 'package:html/parser.dart' as html;
@@ -29,6 +32,8 @@ class SsoService {
       ..connectTimeout = const Duration(seconds: 20)
       ..receiveTimeout = const Duration(seconds: 30)
       ..validateStatus = (status) => status != null && status < 500;
+    // Login and the native browser must present the same client identity.
+    this.dio.options.headers['User-Agent'] = userAgent;
     this.dio.interceptors.add(CookieManager(_cookies));
   }
 
@@ -36,8 +41,15 @@ class SsoService {
   static const loginUrl = 'https://sso.fzu.edu.cn/login';
   static const studyAuthorizeUrl =
       'https://sso.fzu.edu.cn/oauth2.0/authorize?response_type=code&client_id=wlwxt&redirect_uri=http://aiot.fzu.edu.cn/api/admin/sso/getIbsToken';
+  static const appUserAgent =
+      'appId/cn.edu.fzu.fdxypa appScheme/kysk-fdxy-app hengfeng/fdxyappzs appType/2 ruijie-facecamera';
   static const userAgent =
-      'Mozilla/5.0 (iPad; CPU OS 18_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 appId/cn.edu.fzu.fdxypa appScheme/kysk-fdxy-app hengfeng/fdxyappzs appType/2 ruijie-facecamera';
+      'Mozilla/5.0 (iPad; CPU OS 18_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 $appUserAgent';
+
+  static Future<String> browserUserAgent() async => Platform.isAndroid
+      ? '${await InAppWebViewController.getDefaultUserAgent()} $appUserAgent'
+      : userAgent;
+
   final Dio dio;
   final _cookies = CookieJar();
   final sessionRevision = ValueNotifier(0);
@@ -160,7 +172,9 @@ class SsoService {
     if (username.trim().isEmpty || password.isEmpty) {
       throw Exception('账号密码不能为空');
     }
-    _sessionGeneration++;
+    final generation = ++_sessionGeneration;
+    final cookieKey = await _key('cookie');
+    dio.options.headers['User-Agent'] = await browserUserAgent();
     await _cookies.deleteAll();
     final page = await dio.get<String>(loginUrl);
     final document = html.parse(page.data);
@@ -254,7 +268,12 @@ class SsoService {
         message?.isNotEmpty == true ? message : '登录失败，请检查统一认证账号密码或验证码',
       );
     }
-    await _storage.write(key: await _key('cookie'), value: ticket.value);
+    if (_loggingOut ||
+        generation != _sessionGeneration ||
+        cookieKey != await _key('cookie')) {
+      throw const SsoLoginRequired();
+    }
+    await _storage.write(key: cookieKey, value: ticket.value);
     await clearStudyToken();
     await clearCampusToken();
     if (loadStudyToken) await getStudyToken();

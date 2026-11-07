@@ -4,6 +4,8 @@
 <dict>
     <key>NSCameraUsageDescription</key>
     <string>扫描学习中心现场二维码以完成预约签到</string>
+    <key>NSLocationUsageDescription</key>
+    <string>向晚点名网页提供当前位置以校验签到范围</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
