@@ -1,17 +1,23 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widget/layout/theme_page_transitions.dart';
+import 'package:fzu_assistant/service/theme_visuals.dart';
 
 enum InterfaceStyle {
   classic,
-  cards;
+  cards,
+  continuousCards;
+
+  bool get isCard => this != classic;
 
   static InterfaceStyle parse(String? value) =>
-      values.where((style) => style.name == value).firstOrNull ?? classic;
+      values.where((style) => style.name == value).firstOrNull ?? cards;
 }
 
 /// Layout preference shared by seeded and system colors, independent of mode.
 class InterfaceTheme extends ThemeExtension<InterfaceTheme> {
-  const InterfaceTheme({this.style = InterfaceStyle.classic});
+  const InterfaceTheme({this.style = InterfaceStyle.cards});
 
   final InterfaceStyle style;
 
@@ -49,36 +55,84 @@ const appThemes = [
 ThemeData buildTheme(
   Color seedColor, {
   Brightness brightness = Brightness.light,
-  InterfaceStyle interfaceStyle = InterfaceStyle.classic,
+  InterfaceStyle interfaceStyle = InterfaceStyle.cards,
+  ThemeVisuals? visuals,
 }) {
   return buildThemeFromScheme(
     ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness),
     interfaceStyle: interfaceStyle,
+    visuals: visuals,
   );
 }
 
 /// 所有配色共用主题入口，保证系统配色也使用相同的桌面排版。
 ThemeData buildThemeFromScheme(
   ColorScheme colorScheme, {
-  InterfaceStyle interfaceStyle = InterfaceStyle.classic,
+  InterfaceStyle interfaceStyle = InterfaceStyle.cards,
+  ThemeVisuals? visuals,
 }) {
+  colorScheme = ThemeColors.apply(colorScheme, visuals?.colors ?? const {});
   final isWindows = !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
   final textTheme = isWindows ? _windowsTextTheme : null;
+  final hasBackground = visuals?.hasBackground == true;
+  final cardSurface = colorScheme.brightness == Brightness.dark
+      ? colorScheme.surfaceContainerHigh
+      : colorScheme.surfaceContainerLow;
   return ThemeData(
     useMaterial3: true,
     brightness: colorScheme.brightness,
     colorScheme: colorScheme,
-    extensions: [InterfaceTheme(style: interfaceStyle)],
+    highlightColor: visuals?.color('highlight'),
+    extensions: [
+      InterfaceTheme(style: interfaceStyle),
+      ?visuals,
+    ],
+    scaffoldBackgroundColor: hasBackground
+        ? Colors.transparent
+        : colorScheme.surface,
+    inputDecorationTheme: InputDecorationThemeData(
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      filled: hasBackground,
+      fillColor: colorScheme.surface,
+    ),
+    pageTransitionsTheme: hasBackground ? _wallpaperPageTransitions : null,
+    navigationBarTheme: hasBackground
+        ? NavigationBarThemeData(
+            backgroundColor: colorScheme.surfaceContainer.withValues(
+              alpha: visuals!.surfaceOpacity,
+            ),
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+          )
+        : null,
+    navigationRailTheme: hasBackground
+        ? NavigationRailThemeData(
+            backgroundColor: colorScheme.surface.withValues(
+              alpha: visuals!.surfaceOpacity,
+            ),
+            elevation: 0,
+          )
+        : null,
+    dividerTheme: visuals == null
+        ? null
+        : DividerThemeData(
+            color: visuals.dividerWidth == 0
+                ? Colors.transparent
+                : visuals.color('divider') ?? colorScheme.outlineVariant,
+            thickness: visuals.dividerWidth,
+          ),
     cardTheme: CardThemeData(
       elevation: 0,
-      color: colorScheme.surfaceContainerLow,
+      color: hasBackground
+          ? cardSurface.withValues(alpha: visuals!.surfaceOpacity)
+          : cardSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(
-          interfaceStyle == InterfaceStyle.cards ? 24 : 0,
+          interfaceStyle.isCard ? visuals?.cardRadius ?? 24 : 0,
         ),
       ),
     ),
-    switchTheme: interfaceStyle == InterfaceStyle.cards
+    switchTheme: interfaceStyle.isCard
         ? SwitchThemeData(
             thumbIcon: WidgetStateProperty.resolveWith(
               (states) => Icon(
@@ -97,9 +151,39 @@ ThemeData buildThemeFromScheme(
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     splashFactory: NoSplash.splashFactory,
-    appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
+    appBarTheme: AppBarTheme(
+      scrolledUnderElevation: 0,
+      backgroundColor: hasBackground
+          ? colorScheme.surface.withValues(alpha: visuals!.surfaceOpacity)
+          : null,
+    ),
   );
 }
+
+const _wallpaperPageTransitions = PageTransitionsTheme(
+  builders: {
+    TargetPlatform.android: ThemeBackgroundPageTransitionsBuilder(
+      delegate: PredictiveBackPageTransitionsBuilder(
+        fallbackColor: Colors.transparent,
+      ),
+    ),
+    TargetPlatform.iOS: ThemeBackgroundPageTransitionsBuilder(
+      delegate: CupertinoPageTransitionsBuilder(),
+    ),
+    TargetPlatform.macOS: ThemeBackgroundPageTransitionsBuilder(
+      delegate: CupertinoPageTransitionsBuilder(),
+    ),
+    TargetPlatform.windows: ThemeBackgroundPageTransitionsBuilder(
+      delegate: ZoomPageTransitionsBuilder(backgroundColor: Colors.transparent),
+    ),
+    TargetPlatform.linux: ThemeBackgroundPageTransitionsBuilder(
+      delegate: ZoomPageTransitionsBuilder(backgroundColor: Colors.transparent),
+    ),
+    TargetPlatform.fuchsia: ThemeBackgroundPageTransitionsBuilder(
+      delegate: ZoomPageTransitionsBuilder(backgroundColor: Colors.transparent),
+    ),
+  },
+);
 
 TextStyle _windowsTextStyle(
   double size, {

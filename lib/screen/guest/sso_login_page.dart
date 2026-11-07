@@ -81,9 +81,6 @@ class SsoLoginPage extends HookWidget {
                           decoration: InputDecoration(
                             labelText: l10n.studentId,
                             prefixIcon: const Icon(Icons.person_outline),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
                           ),
                         ),
                         const SizedBox(height: 16),

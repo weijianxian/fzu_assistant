@@ -71,7 +71,7 @@ void main() {
               of: find.byType(RadioGroup<String>),
               matching: find.byType(Card),
             ),
-            style == InterfaceStyle.cards ? findsNWidgets(3) : findsNothing,
+            style.isCard ? findsNWidgets(3) : findsNothing,
           );
           expect(
             find.descendant(

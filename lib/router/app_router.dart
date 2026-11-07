@@ -41,6 +41,7 @@ import 'package:fzu_assistant/screen/settings/general_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/home_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
+import 'package:fzu_assistant/screen/settings/theme/theme_editor_page.dart';
 import 'package:fzu_assistant/screen/toolbox/credit/credit_page.dart';
 import 'package:fzu_assistant/screen/toolbox/academic/academic_shortcuts_page.dart';
 import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
@@ -110,6 +111,12 @@ abstract final class AppRouter {
     }
 
     return switch (settings.name) {
+      AppRoutes.themeEdit => MaterialPageRoute(
+        settings: settings,
+        builder: (_) => ThemeEditorPage(
+          profile: (settings.arguments as ThemeEditArgs).profile,
+        ),
+      ),
       AppRoutes.papers => MaterialPageRoute(
         settings: settings,
         builder: (_) =>

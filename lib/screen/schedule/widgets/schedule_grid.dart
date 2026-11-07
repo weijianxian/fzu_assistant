@@ -18,6 +18,7 @@ import 'package:fzu_assistant/screen/schedule/widgets/horizontal_schedule_grid.d
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/theme_visuals.dart';
 
 const _headerHeight = 48.0;
 const _labelWidth = 44.0;
@@ -40,6 +41,7 @@ class ScheduleGrid extends HookWidget {
   final int week;
   final DateTime? firstMonday;
   final Future<void> Function() onRefresh;
+  final DateTime? now;
 
   const ScheduleGrid({
     super.key,
@@ -49,6 +51,7 @@ class ScheduleGrid extends HookWidget {
     required this.week,
     required this.firstMonday,
     required this.onRefresh,
+    this.now,
   });
 
   @override
@@ -60,12 +63,27 @@ class ScheduleGrid extends HookWidget {
     final isLandscape = context.isLandscape;
     final minuteTick = useState(0);
     useEffect(() {
-      if (!isLandscape) return null;
-      final timer = Timer.periodic(const Duration(minutes: 1), (_) {
-        minuteTick.value += 1;
-      });
-      return timer.cancel;
-    }, [isLandscape]);
+      if (now != null) return null;
+      Timer? timer;
+      void scheduleMinute() {
+        final time = DateTime.now();
+        final nextMinute = DateTime(
+          time.year,
+          time.month,
+          time.day,
+          time.hour,
+          time.minute + 1,
+        );
+        timer = Timer(nextMinute.difference(time), () {
+          minuteTick.value += 1;
+          scheduleMinute();
+        });
+      }
+
+      scheduleMinute();
+      return () => timer?.cancel();
+    }, [now]);
+    final displayTime = now ?? DateTime.now();
 
     final weekDates = <DateTime>[];
     if (firstMonday != null) {
@@ -80,7 +98,7 @@ class ScheduleGrid extends HookWidget {
         week: week,
         weekdays: weekdays,
         weekDates: weekDates,
-        now: DateTime.now(),
+        now: displayTime,
         onRefresh: onRefresh,
         cardBuilder: (weekday, metrics) => _buildCards(
           context,
@@ -112,9 +130,29 @@ class ScheduleGrid extends HookWidget {
             : minCellHeight;
         final gridHeight = maxCoursePeriod * cellHeight;
 
-        final now = DateTime.now();
-        final today = DateTime(now.year, now.month, now.day);
-        final nowMinutes = now.hour * 60 + now.minute;
+        final todayIndex = weekDates.indexWhere(
+          (date) => DateUtils.isSameDay(date, displayTime),
+        );
+        final nowMinutes = displayTime.hour * 60 + displayTime.minute;
+        // 竖屏没有午休分组留白，复用横屏映射并将间隔压到节次边界。
+        final metrics = HorizontalScheduleMetrics(
+          periodWidth: cellHeight,
+          groupGap: 0,
+        );
+        final nowOffset = todayIndex < 0
+            ? null
+            : metrics.timeOffset(nowMinutes);
+        final scheme = Theme.of(context).colorScheme;
+        final visuals = Theme.of(context).extension<ThemeVisuals>();
+        final todayColor =
+            visuals?.color('todayHighlight') ??
+            scheme.primary.withValues(alpha: 0.07);
+        final todayBackground = visuals?.hasBackground == true
+            ? todayColor.withValues(
+                alpha: todayColor.a * visuals!.surfaceOpacity,
+              )
+            : todayColor;
+        final dayWidth = (constraints.maxWidth - labelWidth) / 7;
 
         final content = Column(
           children: [
@@ -132,7 +170,7 @@ class ScheduleGrid extends HookWidget {
                                 context,
                                 weekdays[i],
                                 weekDates[i],
-                                weekDates[i] == today,
+                                i == todayIndex,
                               )
                             : Text(
                                 weekdays[i],
@@ -151,6 +189,19 @@ class ScheduleGrid extends HookWidget {
               height: gridHeight,
               child: Stack(
                 children: [
+                  if (todayIndex >= 0)
+                    Positioned(
+                      left: labelWidth + todayIndex * dayWidth,
+                      width: dayWidth,
+                      top: 0,
+                      bottom: 0,
+                      child: IgnorePointer(
+                        child: ColoredBox(
+                          key: const ValueKey('portrait-schedule-today-column'),
+                          color: todayBackground,
+                        ),
+                      ),
+                    ),
                   // 左侧节次索引
                   Positioned(
                     left: 0,
@@ -165,7 +216,7 @@ class ScheduleGrid extends HookWidget {
                             p,
                             cellHeight,
                             labelWidth,
-                            nowMinutes,
+                            todayIndex < 0 ? -1 : nowMinutes,
                           ),
                       ],
                     ),
@@ -198,6 +249,21 @@ class ScheduleGrid extends HookWidget {
                       ],
                     ),
                   ),
+                  if (nowOffset != null)
+                    Positioned(
+                      left: labelWidth,
+                      right: 0,
+                      top: nowOffset.clamp(0.0, gridHeight - 2),
+                      height: 2,
+                      child: IgnorePointer(
+                        child: ColoredBox(
+                          key: const ValueKey('portrait-schedule-current-time'),
+                          color:
+                              visuals?.color('todayHighlight') ??
+                              scheme.primary.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -226,14 +292,21 @@ class ScheduleGrid extends HookWidget {
   ) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final visuals = theme.extension<ThemeVisuals>();
+    final todayText =
+        visuals?.color('onTodayHighlight') ?? scheme.onPrimaryContainer;
     final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     return Container(
       width: double.infinity,
+      height: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 2),
       decoration: isToday
           ? BoxDecoration(
-              color: scheme.primaryContainer,
-              borderRadius: BorderRadius.circular(12),
+              color:
+                  visuals?.color('todayHighlight') ?? scheme.primaryContainer,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
             )
           : null,
       child: Column(
@@ -245,7 +318,7 @@ class ScheduleGrid extends HookWidget {
               fontSize: isWindows ? 13 : 12,
               height: 1.2,
               fontWeight: isWindows ? FontWeight.w600 : FontWeight.bold,
-              color: isToday ? scheme.onPrimaryContainer : null,
+              color: isToday ? todayText : null,
             ),
           ),
           Text(
@@ -253,7 +326,7 @@ class ScheduleGrid extends HookWidget {
             style: TextStyle(
               fontSize: isWindows ? 11 : 10,
               height: 1.2,
-              color: isToday ? scheme.onPrimaryContainer : Colors.grey,
+              color: isToday ? todayText : Colors.grey,
             ),
           ),
         ],
@@ -270,6 +343,9 @@ class ScheduleGrid extends HookWidget {
   ) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final visuals = theme.extension<ThemeVisuals>();
+    final currentText =
+        visuals?.color('onTodayHighlight') ?? scheme.onPrimaryContainer;
     final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     final slot = coursePeriodTimes[index];
     final startParts = slot.$1.split(':');
@@ -284,7 +360,8 @@ class ScheduleGrid extends HookWidget {
       child: Container(
         decoration: isCurrent
             ? BoxDecoration(
-                color: scheme.primaryContainer,
+                color:
+                    visuals?.color('todayHighlight') ?? scheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
               )
             : null,
@@ -296,7 +373,7 @@ class ScheduleGrid extends HookWidget {
               style: TextStyle(
                 fontSize: isWindows ? 12 : 11,
                 fontWeight: FontWeight.w600,
-                color: isCurrent ? scheme.onPrimaryContainer : null,
+                color: isCurrent ? currentText : null,
               ),
             ),
             Text(
@@ -305,7 +382,7 @@ class ScheduleGrid extends HookWidget {
               style: TextStyle(
                 fontSize: isWindows ? 10 : 7.5,
                 height: 1.2,
-                color: isCurrent ? scheme.onPrimaryContainer : scheme.outline,
+                color: isCurrent ? currentText : scheme.outline,
               ),
             ),
           ],

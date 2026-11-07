@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/common/widget/layout/section.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
+import 'package:fzu_assistant/service/theme_visuals.dart';
 
 /// A content surface that follows the app's list/card preference.
 class AppSurface extends StatelessWidget {
@@ -17,15 +18,15 @@ class AppSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (InterfaceTheme.of(context).style == InterfaceStyle.classic) {
+    if (!InterfaceTheme.of(context).style.isCard) {
       return Padding(padding: margin, child: child);
     }
+    final visuals = ThemeVisuals.of(context);
     return Card.filled(
       margin: margin,
-      color: Theme.of(context).colorScheme.surfaceContainerLow,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: borderRadius ?? BorderRadius.circular(24),
+        borderRadius: borderRadius ?? BorderRadius.circular(visuals.cardRadius),
       ),
       child: child,
     );
@@ -57,7 +58,7 @@ class AppSection extends StatelessWidget {
         if (title != null) SectionHeader(title: title!),
         if (child != null)
           AppSurface(
-            margin: InterfaceTheme.of(context).style == InterfaceStyle.cards
+            margin: InterfaceTheme.of(context).style.isCard
                 ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
                 : EdgeInsets.zero,
             child: child!,
@@ -90,18 +91,21 @@ class AppListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cards = InterfaceTheme.of(context).style == InterfaceStyle.cards;
-    if (!cards) return child;
+    final style = InterfaceTheme.of(context).style;
+    if (!style.isCard) return child;
+    final continuous = style == InterfaceStyle.continuousCards;
+    final radius = ThemeVisuals.of(context).cardRadius;
+    final innerRadius = continuous ? 0.0 : radius.clamp(0.0, 4.0);
     return AppSurface(
       margin: EdgeInsets.fromLTRB(
         16,
         index == 0 ? 8 : 0,
         16,
-        index == itemCount - 1 ? 8 : 4,
+        index == itemCount - 1 ? 8 : (continuous ? 0 : 4),
       ),
       borderRadius: BorderRadius.vertical(
-        top: Radius.circular(index == 0 ? 24 : 4),
-        bottom: Radius.circular(index == itemCount - 1 ? 24 : 4),
+        top: Radius.circular(index == 0 ? radius : innerRadius),
+        bottom: Radius.circular(index == itemCount - 1 ? radius : innerRadius),
       ),
       child: child,
     );
@@ -146,15 +150,19 @@ class AppSliverSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (InterfaceTheme.of(context).style == InterfaceStyle.classic) {
+    if (!InterfaceTheme.of(context).style.isCard) {
       return sliver;
     }
+    final visuals = ThemeVisuals.of(context);
+    final surface =
+        CardTheme.of(context).color ??
+        Theme.of(context).colorScheme.surfaceContainerLow;
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       sliver: DecoratedSliver(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(24),
+          color: surface,
+          borderRadius: BorderRadius.circular(visuals.cardRadius),
         ),
         sliver: SliverPadding(
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -181,8 +189,7 @@ class AppDivider extends StatelessWidget {
   final double spacing;
 
   @override
-  Widget build(BuildContext context) =>
-      InterfaceTheme.of(context).style == InterfaceStyle.cards
+  Widget build(BuildContext context) => InterfaceTheme.of(context).style.isCard
       ? SizedBox(height: spacing)
       : Divider(height: height, indent: indent, endIndent: endIndent);
 }
@@ -194,8 +201,7 @@ class AppVerticalDivider extends StatelessWidget {
   final double spacing;
 
   @override
-  Widget build(BuildContext context) =>
-      InterfaceTheme.of(context).style == InterfaceStyle.cards
+  Widget build(BuildContext context) => InterfaceTheme.of(context).style.isCard
       ? SizedBox(width: spacing)
-      : VerticalDivider(width: width, thickness: 1);
+      : VerticalDivider(width: width);
 }

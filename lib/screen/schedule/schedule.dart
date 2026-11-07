@@ -260,7 +260,7 @@ class SchedulePage extends HookWidget {
             ),
       body: isLandscape
           ? ColoredBox(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: ClipRect(
                 child: Stack(
                   fit: StackFit.expand,

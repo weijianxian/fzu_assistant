@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/constants/breakpoints.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/service/theme_visuals.dart';
 
 /// 课程、表头和时间线共用的横向节次坐标，午休与晚饭前留出分组间隔。
 class HorizontalScheduleMetrics {
@@ -75,6 +76,11 @@ class HorizontalScheduleGrid extends HookWidget {
     final verticalController = useScrollController();
     final datesController = useScrollController();
     final scheme = Theme.of(context).colorScheme;
+    final visuals = Theme.of(context).extension<ThemeVisuals>();
+    final surface = scheme.surfaceContainerLow;
+    final surfaceColor = visuals?.hasBackground == true
+        ? surface.withValues(alpha: surface.a * visuals!.surfaceOpacity)
+        : surface;
     final showScrollbars = switch (Theme.of(context).platform) {
       TargetPlatform.windows ||
       TargetPlatform.macOS ||
@@ -142,7 +148,9 @@ class HorizontalScheduleGrid extends HookWidget {
     );
 
     return ColoredBox(
-      color: scheme.surface,
+      color: visuals?.hasBackground == true
+          ? Colors.transparent
+          : scheme.surface,
       child: ClipRect(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -233,7 +241,7 @@ class HorizontalScheduleGrid extends HookWidget {
                           Container(
                             key: const ValueKey('schedule-week-header'),
                             width: dateWidth,
-                            color: scheme.surfaceContainerLow,
+                            color: surfaceColor,
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(8),
                             child: Text(
@@ -387,36 +395,43 @@ class _TimeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final visuals = theme.extension<ThemeVisuals>();
     final l10n = AppLocalizations.of(context)!;
-    return Stack(
-      children: [
-        for (final group in [
-          (0, 3, l10n.scheduleMorning),
-          (4, 7, l10n.scheduleAfternoon),
-          (8, maxCoursePeriod - 1, l10n.scheduleEvening),
-        ])
-          Positioned(
-            left: metrics.start(group.$1),
-            width: metrics.end(group.$2) - metrics.start(group.$1),
-            height: groupHeight,
-            child: Center(
-              child: Text(
-                group.$3,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+    final surface = theme.colorScheme.surface;
+    return ColoredBox(
+      color: visuals?.hasBackground == true
+          ? surface.withValues(alpha: surface.a * visuals!.surfaceOpacity)
+          : Colors.transparent,
+      child: Stack(
+        children: [
+          for (final group in [
+            (0, 3, l10n.scheduleMorning),
+            (4, 7, l10n.scheduleAfternoon),
+            (8, maxCoursePeriod - 1, l10n.scheduleEvening),
+          ])
+            Positioned(
+              left: metrics.start(group.$1),
+              width: metrics.end(group.$2) - metrics.start(group.$1),
+              height: groupHeight,
+              child: Center(
+                child: Text(
+                  group.$3,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
-          ),
-        for (var p = 0; p < maxCoursePeriod; p++)
-          Positioned(
-            left: metrics.start(p),
-            width: metrics.periodWidth,
-            top: groupHeight,
-            bottom: 0,
-            child: _PeriodHeader(index: p),
-          ),
-      ],
+          for (var p = 0; p < maxCoursePeriod; p++)
+            Positioned(
+              left: metrics.start(p),
+              width: metrics.periodWidth,
+              top: groupHeight,
+              bottom: 0,
+              child: _PeriodHeader(index: p),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -439,6 +454,13 @@ class _TimeBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final visuals = Theme.of(context).extension<ThemeVisuals>();
+    final dividerWidth = visuals?.dividerWidth ?? 1;
+    final dividerColor = visuals?.color('divider');
+    final surface = scheme.surfaceContainerLow;
+    final surfaceColor = visuals?.hasBackground == true
+        ? surface.withValues(alpha: surface.a * visuals!.surfaceOpacity)
+        : surface;
     return Stack(
       children: [
         for (var day = 0; day < 7; day++)
@@ -453,12 +475,18 @@ class _TimeBody extends StatelessWidget {
                   : null,
               decoration: BoxDecoration(
                 color: day == todayIndex
-                    ? scheme.primary.withValues(alpha: 0.07)
+                    ? visuals?.color('todayHighlight') ??
+                          scheme.primary.withValues(alpha: 0.07)
                     : null,
                 border: Border(
-                  top: BorderSide(
-                    color: scheme.outlineVariant.withValues(alpha: 0.35),
-                  ),
+                  top: dividerWidth == 0
+                      ? BorderSide.none
+                      : BorderSide(
+                          color:
+                              dividerColor ??
+                              scheme.outlineVariant.withValues(alpha: 0.35),
+                          width: dividerWidth,
+                        ),
                 ),
               ),
             ),
@@ -469,18 +497,21 @@ class _TimeBody extends StatelessWidget {
             top: 0,
             bottom: 0,
             width: metrics.groupGap,
-            child: ColoredBox(color: scheme.surfaceContainerLow),
+            child: ColoredBox(color: surfaceColor),
           ),
-        for (var p = 0; p < maxCoursePeriod; p++)
-          Positioned(
-            left: metrics.start(p),
-            top: 0,
-            bottom: 0,
-            width: 1,
-            child: ColoredBox(
-              color: scheme.outlineVariant.withValues(alpha: 0.25),
+        if (dividerWidth > 0)
+          for (var p = 0; p < maxCoursePeriod; p++)
+            Positioned(
+              left: metrics.start(p),
+              top: 0,
+              bottom: 0,
+              width: dividerWidth,
+              child: ColoredBox(
+                color:
+                    dividerColor ??
+                    scheme.outlineVariant.withValues(alpha: 0.25),
+              ),
             ),
-          ),
         for (var day = 0; day < 7; day++)
           Positioned(
             top: day * dayHeight,
@@ -498,7 +529,9 @@ class _TimeBody extends StatelessWidget {
             child: IgnorePointer(
               child: ColoredBox(
                 key: const ValueKey('schedule-current-time'),
-                color: scheme.primary.withValues(alpha: 0.7),
+                color:
+                    visuals?.color('todayHighlight') ??
+                    scheme.primary.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -522,13 +555,30 @@ class _DayLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final visuals = Theme.of(context).extension<ThemeVisuals>();
+    final surface = scheme.surfaceContainerLow;
+    final surfaceColor = visuals?.hasBackground == true
+        ? surface.withValues(alpha: surface.a * visuals!.surfaceOpacity)
+        : surface;
+    final todayText =
+        visuals?.color('onTodayHighlight') ?? scheme.onPrimaryContainer;
+    final dividerWidth = visuals?.dividerWidth ?? 1;
     return Container(
       height: height,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isToday ? scheme.primaryContainer : scheme.surfaceContainerLow,
+        color: isToday
+            ? visuals?.color('todayHighlight') ?? scheme.primaryContainer
+            : surfaceColor,
         border: Border(
-          top: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.35)),
+          top: dividerWidth == 0
+              ? BorderSide.none
+              : BorderSide(
+                  color:
+                      visuals?.color('divider') ??
+                      scheme.outlineVariant.withValues(alpha: 0.35),
+                  width: dividerWidth,
+                ),
         ),
       ),
       child: Column(
@@ -538,7 +588,7 @@ class _DayLabel extends StatelessWidget {
             weekday,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: isToday ? scheme.onPrimaryContainer : scheme.onSurface,
+              color: isToday ? todayText : scheme.onSurface,
             ),
           ),
           if (date != null) ...[
@@ -546,9 +596,7 @@ class _DayLabel extends StatelessWidget {
             Text(
               '${date!.month}/${date!.day}',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: isToday
-                    ? scheme.onPrimaryContainer
-                    : scheme.onSurfaceVariant,
+                color: isToday ? todayText : scheme.onSurfaceVariant,
               ),
             ),
           ],

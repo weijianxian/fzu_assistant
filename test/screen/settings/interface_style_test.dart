@@ -6,9 +6,18 @@ import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/theme_customization_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../fixtures/reminder_channel.dart';
+import '../../fixtures/reveal_widget.dart';
+
+class _EmptyThemeStore extends ThemeCustomizationService {
+  @override
+  Future<List<ThemeProfile>> loadAll() async => const [];
+}
+
+AppSettings _settings() => AppSettings(themeStore: _EmptyThemeStore());
 
 Widget app(
   AppSettings settings,
@@ -54,7 +63,7 @@ void main() {
         tester.view.physicalSize = const Size(390, 950);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        final settings = AppSettings();
+        final settings = _settings();
         await settings.load();
         addTearDown(settings.dispose);
         await tester.pumpWidget(app(settings, language));
@@ -62,7 +71,30 @@ void main() {
         final l10n = AppLocalizations.of(
           tester.element(find.byType(SettingsPage)),
         )!;
+        expect(settings.interfaceStyle.value, InterfaceStyle.cards);
+        expect(find.byType(Card), findsWidgets);
+        await revealWidget(tester, find.text(l10n.themeSettings));
+        await tester.tap(find.text(l10n.themeSettings));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.interfaceStyle));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.interfaceStyleClassic));
+        await tester.pumpAndSettle();
+        expect(settings.interfaceStyle.value, InterfaceStyle.classic);
         expect(find.byType(Card), findsNothing);
+        expect(settings.themeKey.value, 'deep_purple');
+        expect(settings.themeModeKey.value, 'system');
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(Card), findsNothing);
+        expect(find.text(l10n.homeSettings), findsOneWidget);
+        await tester.runAsync(() async {
+          final reloaded = _settings();
+          await reloaded.load();
+          expect(reloaded.interfaceStyle.value, InterfaceStyle.classic);
+          reloaded.dispose();
+        });
+        await revealWidget(tester, find.text(l10n.themeSettings));
         await tester.tap(find.text(l10n.themeSettings));
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.interfaceStyle));
@@ -71,25 +103,47 @@ void main() {
         await tester.pumpAndSettle();
         expect(settings.interfaceStyle.value, InterfaceStyle.cards);
         expect(find.byType(Card), findsWidgets);
-        expect(settings.themeKey.value, 'deep_purple');
-        expect(settings.themeModeKey.value, 'system');
-        await tester.tap(find.byType(BackButton));
-        await tester.pumpAndSettle();
-        expect(find.byType(Card), findsWidgets);
-        expect(find.text(l10n.homeSettings), findsOneWidget);
         await tester.runAsync(() async {
-          final reloaded = AppSettings();
+          final reloaded = _settings();
           await reloaded.load();
           expect(reloaded.interfaceStyle.value, InterfaceStyle.cards);
           reloaded.dispose();
         });
-        await tester.tap(find.text(l10n.themeSettings));
-        await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.interfaceStyle));
         await tester.pumpAndSettle();
-        await tester.tap(find.text(l10n.interfaceStyleClassic));
+        final continuousChoice = find.widgetWithText(
+          RadioListTile<InterfaceStyle>,
+          l10n.interfaceStyleContinuousCards,
+        );
+        expect(
+          tester.getTopLeft(continuousChoice).dy,
+          greaterThan(
+            tester
+                .getTopLeft(
+                  find.widgetWithText(
+                    RadioListTile<InterfaceStyle>,
+                    l10n.interfaceStyleCards,
+                  ),
+                )
+                .dy,
+          ),
+        );
+        await tester.ensureVisible(continuousChoice);
         await tester.pumpAndSettle();
-        expect(find.byType(Card), findsNothing);
+        expect(continuousChoice.hitTestable(), findsOneWidget);
+        await tester.tap(continuousChoice);
+        await tester.pumpAndSettle();
+        expect(settings.interfaceStyle.value, InterfaceStyle.continuousCards);
+        expect(find.byType(Card), findsWidgets);
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(Card), findsWidgets);
+        await tester.runAsync(() async {
+          final reloaded = _settings();
+          await reloaded.load();
+          expect(reloaded.interfaceStyle.value, InterfaceStyle.continuousCards);
+          reloaded.dispose();
+        });
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
       },
@@ -102,7 +156,7 @@ void main() {
           tester.view.physicalSize = const Size(320, 920);
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.reset);
-          final settings = AppSettings();
+          final settings = _settings();
           await settings.load();
           settings.interfaceStyle.value = style;
           settings.themeModeKey.value = 'dark';
@@ -128,7 +182,7 @@ void main() {
             find.byType(Scrollable).first,
           );
           expect(find.text(l10n.themeBrown).hitTestable(), findsNothing);
-          await tester.ensureVisible(find.text(l10n.themeBrown));
+          await revealWidget(tester, find.text(l10n.themeBrown));
           await tester.pumpAndSettle();
           await tester.tap(find.text(l10n.themeBrown));
           await tester.pumpAndSettle();
@@ -145,7 +199,7 @@ void main() {
             ),
           );
           await tester.runAsync(() async {
-            final reloaded = AppSettings();
+            final reloaded = _settings();
             await reloaded.load();
             expect(reloaded.themeKey.value, 'brown');
             expect(reloaded.interfaceStyle.value, style);
@@ -158,7 +212,7 @@ void main() {
           await tester.pumpAndSettle();
           await tester.tap(find.text(l10n.themeSettings));
           await tester.pumpAndSettle();
-          await tester.ensureVisible(find.text(l10n.themeBrown));
+          await revealWidget(tester, find.text(l10n.themeBrown));
           await tester.pumpAndSettle();
           expect(find.text(l10n.themeBrown).hitTestable(), findsOneWidget);
           expect(tester.takeException(), isNull);
@@ -171,7 +225,7 @@ void main() {
         (tester) async {
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.reset);
-          final settings = AppSettings()
+          final settings = _settings()
             ..interfaceStyle.value = style
             ..themeModeKey.value = 'dark';
           addTearDown(settings.dispose);
@@ -237,13 +291,14 @@ void main() {
     final dynamicSupported = AppSettings.dynamicColorSupported;
     AppSettings.dynamicColorSupported = false;
     addTearDown(() => AppSettings.dynamicColorSupported = dynamicSupported);
-    final settings = AppSettings()..themeKey.value = 'dynamic';
+    final settings = _settings()..themeKey.value = 'dynamic';
     addTearDown(settings.dispose);
     await tester.pumpWidget(app(settings, 'zh', home: const ThemeSection()));
     await tester.pumpAndSettle();
     final l10n = AppLocalizations.of(
       tester.element(find.byType(ThemeSection)),
     )!;
+    await revealWidget(tester, find.text(l10n.themeDynamic));
     expect(find.text(l10n.themeDynamic).hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.ensureVisible(find.text(l10n.themeBlue));

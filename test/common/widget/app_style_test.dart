@@ -27,92 +27,167 @@ Widget app(ValueNotifier<InterfaceStyle> style, Widget child) =>
 
 void main() {
   for (final size in [const Size(360, 800), const Size(1000, 600)]) {
-    for (final grid in [false, true]) {
-      testWidgets(
-        '${grid ? 'adaptive grid' : 'grouped list'} stays lazy and scrollable across styles at $size',
-        (tester) async {
-          tester.view.devicePixelRatio = 1;
-          tester.view.physicalSize = size;
-          tester.view.padding = const FakeViewPadding(top: 24, bottom: 34);
-          tester.view.viewPadding = const FakeViewPadding(top: 24, bottom: 34);
-          addTearDown(tester.view.reset);
-          final style = ValueNotifier(InterfaceStyle.classic);
-          final controller = ScrollController();
-          addTearDown(style.dispose);
-          addTearDown(controller.dispose);
-          final built = <int>{};
-          Widget item(BuildContext context, int index) {
-            built.add(index);
-            return ListTile(
-              title: Text('Row $index'),
-              subtitle: const Text('Course results'),
-            );
-          }
+    for (final layout in ['grouped list', 'sliver list', 'adaptive grid']) {
+      testWidgets('$layout stays lazy and scrollable across styles at $size', (
+        tester,
+      ) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = size;
+        tester.view.padding = const FakeViewPadding(top: 24, bottom: 34);
+        tester.view.viewPadding = const FakeViewPadding(top: 24, bottom: 34);
+        addTearDown(tester.view.reset);
+        final style = ValueNotifier(InterfaceStyle.classic);
+        final controller = ScrollController();
+        addTearDown(style.dispose);
+        addTearDown(controller.dispose);
+        final built = <int>{};
+        Widget item(BuildContext context, int index) {
+          built.add(index);
+          return ListTile(
+            title: Text('Row $index'),
+            subtitle: const Text('Course results'),
+          );
+        }
 
-          await tester.pumpWidget(
-            app(
-              style,
-              AppScaffold(
-                appBar: AppBar(title: const Text('Results')),
-                body: ToolPageWrapper(
-                  loading: false,
-                  emptyText: 'Empty',
-                  onRefresh: () async {},
-                  scrollController: controller,
-                  slivers: grid
-                      ? [
+        await tester.pumpWidget(
+          app(
+            style,
+            AppScaffold(
+              appBar: AppBar(title: const Text('Results')),
+              body: ToolPageWrapper(
+                loading: false,
+                emptyText: 'Empty',
+                onRefresh: () async {},
+                scrollController: controller,
+                slivers: layout != 'grouped list'
+                    ? [
+                        if (layout == 'adaptive grid')
                           MasonrySliverGrid.grouped(
                             childCount: 80,
                             itemBuilder: item,
-                          ),
-                        ]
-                      : null,
-                  child: grid
-                      ? null
-                      : AppListView.grouped(itemCount: 80, itemBuilder: item),
-                ),
+                          )
+                        else
+                          AppSliverList(itemCount: 80, itemBuilder: item),
+                      ]
+                    : null,
+                child: layout == 'grouped list'
+                    ? AppListView.grouped(itemCount: 80, itemBuilder: item)
+                    : null,
               ),
             ),
-          );
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(built.length, lessThan(80));
+        expect(tester.takeException(), isNull);
+        controller.jumpTo(300);
+        await tester.pumpAndSettle();
+        for (final next in [
+          InterfaceStyle.cards,
+          InterfaceStyle.continuousCards,
+          InterfaceStyle.classic,
+          InterfaceStyle.cards,
+        ]) {
+          final before = controller.offset;
+          built.clear();
+          style.value = next;
           await tester.pumpAndSettle();
+          expect(controller.offset, before);
           expect(built.length, lessThan(80));
+          expect(find.byType(Card), next.isCard ? findsWidgets : findsNothing);
+          expect(find.byType(Divider), findsNothing);
           expect(tester.takeException(), isNull);
-          controller.jumpTo(300);
-          await tester.pumpAndSettle();
-          for (final next in [
-            InterfaceStyle.cards,
-            InterfaceStyle.classic,
-            InterfaceStyle.cards,
-          ]) {
-            final before = controller.offset;
-            style.value = next;
-            await tester.pumpAndSettle();
-            expect(controller.offset, before);
-            expect(
-              find.byType(Card),
-              next == InterfaceStyle.cards ? findsWidgets : findsNothing,
-            );
-            expect(find.byType(Divider), findsNothing);
-            expect(tester.takeException(), isNull);
-          }
-          await tester.scrollUntilVisible(
-            find.text('Row 79'),
-            500,
-            maxScrolls: 60,
-          );
-          await tester.pumpAndSettle();
-          controller.jumpTo(controller.position.maxScrollExtent);
-          await tester.pumpAndSettle();
-          expect(find.text('Row 79').hitTestable(), findsOneWidget);
-          expect(
-            tester.getRect(find.text('Row 79')).bottom,
-            lessThanOrEqualTo(size.height - 34),
-          );
-          expect(tester.takeException(), isNull);
-          await tester.pumpWidget(const SizedBox());
-        },
-      );
+        }
+        await tester.scrollUntilVisible(
+          find.text('Row 79'),
+          500,
+          maxScrolls: 60,
+        );
+        await tester.pumpAndSettle();
+        controller.jumpTo(controller.position.maxScrollExtent);
+        await tester.pumpAndSettle();
+        expect(find.text('Row 79').hitTestable(), findsOneWidget);
+        expect(
+          tester.getRect(find.text('Row 79')).bottom,
+          lessThanOrEqualTo(size.height - 34),
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox());
+      });
     }
+  }
+
+  for (final style in InterfaceStyle.values) {
+    testWidgets('$style keeps group gaps and corners in every list', (
+      tester,
+    ) async {
+      final notifier = ValueNotifier(style);
+      addTearDown(notifier.dispose);
+      final rows = List.generate(
+        3,
+        (index) => SizedBox(
+          key: ValueKey('row-$index'),
+          height: 48,
+          child: Text('Row $index'),
+        ),
+      );
+      for (final content in [
+        AppSection.list(children: rows),
+        AppListView.grouped(
+          itemCount: rows.length,
+          itemBuilder: (_, index) => rows[index],
+        ),
+        AppCustomScrollView(
+          slivers: [
+            AppSliverList(
+              itemCount: rows.length,
+              itemBuilder: (_, index) => rows[index],
+            ),
+          ],
+        ),
+      ]) {
+        await tester.pumpWidget(app(notifier, Scaffold(body: content)));
+        await tester.pumpAndSettle();
+        final bounds = [
+          for (var index = 0; index < rows.length; index++)
+            tester.getRect(find.byKey(ValueKey('row-$index'))),
+        ];
+        final gap = style == InterfaceStyle.cards ? 4.0 : 0.0;
+        expect(bounds[1].top - bounds[0].bottom, gap);
+        expect(bounds[2].top - bounds[1].bottom, gap);
+        expect(bounds[0].left, style.isCard ? 16 : 0);
+        expect(find.byType(Divider), findsNothing);
+        expect(find.byType(VerticalDivider), findsNothing);
+        if (style.isCard) {
+          final cards = tester.widgetList<Card>(find.byType(Card)).toList();
+          expect(cards, hasLength(3));
+          final radii = [
+            for (final card in cards)
+              (card.shape! as RoundedRectangleBorder).borderRadius.resolve(
+                TextDirection.ltr,
+              ),
+          ];
+          final inner = style == InterfaceStyle.cards
+              ? const Radius.circular(4)
+              : Radius.zero;
+          expect(radii, [
+            BorderRadius.vertical(
+              top: const Radius.circular(24),
+              bottom: inner,
+            ),
+            BorderRadius.all(inner),
+            BorderRadius.vertical(
+              top: inner,
+              bottom: const Radius.circular(24),
+            ),
+          ]);
+        } else {
+          expect(find.byType(Card), findsNothing);
+        }
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(const SizedBox());
+    });
   }
 
   testWidgets('toolbox sections share the switch and keep named navigation', (
@@ -143,6 +218,10 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
+    expect(settings.interfaceStyle.value, InterfaceStyle.cards);
+    expect(find.byType(Card), findsWidgets);
+    settings.interfaceStyle.value = InterfaceStyle.classic;
     await tester.pumpAndSettle();
     expect(find.byType(Card), findsNothing);
     settings.interfaceStyle.value = InterfaceStyle.cards;

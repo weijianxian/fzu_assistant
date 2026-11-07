@@ -142,9 +142,6 @@ class WebDavSettingsPage extends HookWidget {
                     decoration: InputDecoration(
                       labelText: l10n.webdavDirectory,
                       prefixIcon: const Icon(Icons.link_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
                       helperText: l10n.webdavDirectoryHint,
                       helperMaxLines: 3,
                     ),
@@ -157,9 +154,6 @@ class WebDavSettingsPage extends HookWidget {
                     decoration: InputDecoration(
                       labelText: l10n.webdavUsername,
                       prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

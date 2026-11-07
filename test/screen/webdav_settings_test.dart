@@ -262,7 +262,7 @@ void main() {
   );
 
   testWidgets(
-    'WebDAV fields share the password field outline and input height',
+    'WebDAV fields inherit the shared login outline and input height',
     (tester) async {
       tester.view.physicalSize = const Size(360, 740);
       tester.view.devicePixelRatio = 1;
@@ -275,6 +275,7 @@ void main() {
         AppSettingsProvider(
           settings: settings,
           child: MaterialApp(
+            theme: settings.lightTheme,
             locale: const Locale('zh'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -287,14 +288,22 @@ void main() {
           .widgetList<TextField>(find.byType(TextField))
           .toList();
       expect(fields, hasLength(3));
-      final passwordDecoration = fields.last.decoration!;
+      final decorations = tester
+          .widgetList<InputDecorator>(find.byType(InputDecorator))
+          .map((decorator) => decorator.decoration)
+          .toList();
+      expect(decorations, hasLength(3));
+      final passwordDecoration = decorations.last;
       expect(passwordDecoration.border, isA<OutlineInputBorder>());
+      expect(
+        (passwordDecoration.border! as OutlineInputBorder).borderRadius,
+        BorderRadius.circular(12),
+      );
+      for (final decoration in decorations) {
+        expect(decoration.border, passwordDecoration.border);
+        expect(decoration.contentPadding, passwordDecoration.contentPadding);
+      }
       for (final field in fields) {
-        expect(field.decoration!.border, passwordDecoration.border);
-        expect(
-          field.decoration!.contentPadding,
-          passwordDecoration.contentPadding,
-        );
         expect(field.decoration!.prefixIcon, isNotNull);
       }
       final heights = find

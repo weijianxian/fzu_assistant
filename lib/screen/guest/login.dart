@@ -113,8 +113,7 @@ class LoginPage extends HookWidget {
               const SizedBox(height: 40),
               AppSurface(
                 child: Padding(
-                  padding:
-                      InterfaceTheme.of(context).style == InterfaceStyle.cards
+                  padding: InterfaceTheme.of(context).style.isCard
                       ? const EdgeInsets.all(16)
                       : EdgeInsets.zero,
                   child: Column(
@@ -126,9 +125,6 @@ class LoginPage extends HookWidget {
                         decoration: InputDecoration(
                           labelText: AppLocalizations.of(context)!.studentId,
                           prefixIcon: const Icon(Icons.person_outline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -146,9 +142,6 @@ class LoginPage extends HookWidget {
                                 labelText: AppLocalizations.of(context)!
                                     .captcha,
                                 prefixIcon: const Icon(Icons.verified_outlined),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
                               ),
                             ),
                           ),

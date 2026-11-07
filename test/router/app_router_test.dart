@@ -5,6 +5,7 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/guest/editor_page.dart';
 import 'package:fzu_assistant/screen/guest/webview_page.dart';
 import 'package:fzu_assistant/screen/home/home_screen.dart';
+import 'package:fzu_assistant/service/app_themes.dart';
 
 const _argumentFreeRoutes = [
   AppRoutes.login,
@@ -38,53 +39,61 @@ const _argumentFreeRoutes = [
 ];
 
 void main() {
-  testWidgets(
-    'page shell consumes cutout padding while backgrounds and barriers stay full screen',
-    (tester) async {
-      tester.view.physicalSize = const Size(1200, 600);
-      tester.view.devicePixelRatio = 1;
-      tester.view.padding = const FakeViewPadding(
-        left: 48,
-        top: 24,
-        right: 32,
-        bottom: 34,
-      );
-      tester.view.viewPadding = tester.view.padding;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPadding);
-      addTearDown(tester.view.resetViewPadding);
-      await tester.pumpWidget(
-        MaterialApp(
-          initialRoute: AppRoutes.dev,
-          onGenerateRoute: AppRouter.onGenerateRoute,
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(tester.getRect(find.byType(Scaffold)).left, 0);
-      expect(tester.getRect(find.byType(Scaffold)).width, 1200);
-      expect(tester.getRect(find.byType(AppBar)).left, 0);
-      expect(tester.getRect(find.byType(AppBar)).width, 1200);
-      expect(tester.getRect(find.byType(ListView)).bottom, 600);
-      expect(tester.getTopLeft(find.byIcon(Icons.science_outlined)).dx, 64);
-      await tester.scrollUntilVisible(
-        find.text('Native BottomSheet'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('Native BottomSheet'));
-      await tester.pumpAndSettle();
-      final barrier = find.byType(ModalBarrier).last;
-      expect(tester.getRect(barrier).left, 0);
-      expect(tester.getRect(barrier).width, 1200);
-      tester.view.physicalSize = const Size(600, 1200);
-      tester.view.padding = const FakeViewPadding(top: 48);
-      tester.view.viewPadding = const FakeViewPadding(top: 48);
-      await tester.pumpAndSettle();
-      expect(find.byType(DraggableScrollableSheet), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
+  for (final style in InterfaceStyle.values) {
+    testWidgets(
+      '$style page shell consumes cutout padding while backgrounds and barriers stay full screen',
+      (tester) async {
+        tester.view.physicalSize = const Size(1200, 600);
+        tester.view.devicePixelRatio = 1;
+        tester.view.padding = const FakeViewPadding(
+          left: 48,
+          top: 24,
+          right: 32,
+          bottom: 34,
+        );
+        tester.view.viewPadding = tester.view.padding;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.view.resetPadding);
+        addTearDown(tester.view.resetViewPadding);
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: buildTheme(Colors.blue, interfaceStyle: style),
+            initialRoute: AppRoutes.dev,
+            onGenerateRoute: AppRouter.onGenerateRoute,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byType(Scaffold)).left, 0);
+        expect(tester.getRect(find.byType(Scaffold)).width, 1200);
+        expect(tester.getRect(find.byType(AppBar)).left, 0);
+        expect(tester.getRect(find.byType(AppBar)).width, 1200);
+        expect(tester.getRect(find.byType(ListView)).bottom, 600);
+        expect(
+          tester.getTopLeft(find.byIcon(Icons.science_outlined)).dx,
+          48 + 16 + (style.isCard ? 16 : 0),
+        );
+        await tester.scrollUntilVisible(
+          find.text('Native BottomSheet'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Native BottomSheet').hitTestable(), findsOneWidget);
+        await tester.tap(find.text('Native BottomSheet'));
+        await tester.pumpAndSettle();
+        final barrier = find.byType(ModalBarrier).last;
+        expect(tester.getRect(barrier).left, 0);
+        expect(tester.getRect(barrier).width, 1200);
+        tester.view.physicalSize = const Size(600, 1200);
+        tester.view.padding = const FakeViewPadding(top: 48);
+        tester.view.viewPadding = const FakeViewPadding(top: 48);
+        await tester.pumpAndSettle();
+        expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   test('resolves every argument-free route', () {
     for (final name in _argumentFreeRoutes) {

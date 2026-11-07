@@ -17,6 +17,7 @@ import 'package:fzu_assistant/service/desktop_window.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
+import 'package:fzu_assistant/common/widget/layout/app_theme_background.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,6 +87,8 @@ class MyApp extends HookWidget {
     return AnimatedBuilder(
       animation: Listenable.merge([
         settings.themeKey,
+        settings.activeCustomTheme,
+        settings.systemColorRevision,
         settings.themeModeKey,
         settings.interfaceStyle,
         settings.localeKey,
@@ -123,7 +126,7 @@ class MyApp extends HookWidget {
                   ready: settingsReady,
                   navigatorKey: navigatorKey,
                   messengerKey: messengerKey,
-                  child: ColoredBox(color: scheme.surface, child: child!),
+                  child: AppThemeBackground(child: child!),
                 ),
               ),
             );

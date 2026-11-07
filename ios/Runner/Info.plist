@@ -4,6 +4,8 @@
 <dict>
     <key>NSCameraUsageDescription</key>
     <string>扫描学习中心现场二维码以完成预约签到</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>选择照片作为应用主题的背景图片</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>向晚点名网页提供当前位置以校验签到范围</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

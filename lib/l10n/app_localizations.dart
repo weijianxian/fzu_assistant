@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleSyncDescription.
   ///
   /// In zh, this message translates to:
-  /// **'统一更新本地课表、桌面小组件和已开启同步的系统日历。'**
+  /// **'更新课表、桌面小组件和已开启同步的系统日历'**
   String get scheduleSyncDescription;
 
   /// No description provided for @scheduleSyncLinkDescription.
@@ -215,7 +215,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleSyncAutomaticDescription.
   ///
   /// In zh, this message translates to:
-  /// **'每天定时更新，关闭后仍可手动同步。'**
+  /// **'每天定时更新课表、小组件与已开启同步的日历'**
   String get scheduleSyncAutomaticDescription;
 
   /// No description provided for @scheduleSyncAlarmPurpose.
@@ -521,7 +521,7 @@ abstract class AppLocalizations {
   /// homeSettingsSubtitle
   ///
   /// In zh, this message translates to:
-  /// **'管理学期、课表显示与自定义课程。'**
+  /// **'管理学期、课表显示与自定义课程'**
   String get homeSettingsSubtitle;
 
   /// generalSettings
@@ -545,7 +545,7 @@ abstract class AppLocalizations {
   /// advancedSettingsSubtitle
   ///
   /// In zh, this message translates to:
-  /// **'网络代理等进阶选项'**
+  /// **'GitHub 下载代理配置'**
   String get advancedSettingsSubtitle;
 
   /// githubProxy
@@ -833,7 +833,7 @@ abstract class AppLocalizations {
   /// No description provided for @interfaceStyleClassicDescription.
   ///
   /// In zh, this message translates to:
-  /// **'平铺展示，简洁紧凑。'**
+  /// **'平铺展示，简洁紧凑'**
   String get interfaceStyleClassicDescription;
 
   /// No description provided for @interfaceStyleCards.
@@ -845,8 +845,20 @@ abstract class AppLocalizations {
   /// No description provided for @interfaceStyleCardsDescription.
   ///
   /// In zh, this message translates to:
-  /// **'相关内容连成一组，用圆角和底色区分。'**
+  /// **'相关设置分组，行间保留间隙'**
   String get interfaceStyleCardsDescription;
+
+  /// No description provided for @interfaceStyleContinuousCards.
+  ///
+  /// In zh, this message translates to:
+  /// **'连续卡片'**
+  String get interfaceStyleContinuousCards;
+
+  /// No description provided for @interfaceStyleContinuousCardsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'同组设置连成完整卡片，内部无分隔'**
+  String get interfaceStyleContinuousCardsDescription;
 
   /// themeDynamic
   ///
@@ -1199,7 +1211,7 @@ abstract class AppLocalizations {
   /// No description provided for @west2AdjustmentsDescription.
   ///
   /// In zh, this message translates to:
-  /// **'从西二在线补充全校调休安排，数据请以教务通知为准。'**
+  /// **'从西二在线补充全校调休安排，数据请以教务通知为准'**
   String get west2AdjustmentsDescription;
 
   /// autoAdjustCourse
@@ -1211,7 +1223,7 @@ abstract class AppLocalizations {
   /// autoAdjustCourseDescription
   ///
   /// In zh, this message translates to:
-  /// **'根据教务系统的调课记录调整课表。'**
+  /// **'根据教务系统的调课记录调整课表'**
   String get autoAdjustCourseDescription;
 
   /// evaluation
@@ -1433,7 +1445,7 @@ abstract class AppLocalizations {
   /// No description provided for @showNonCurrentWeekCoursesDescription.
   ///
   /// In zh, this message translates to:
-  /// **'在课表的空闲时段淡化显示非本周课程。'**
+  /// **'在课表的空闲时段淡化显示非本周课程'**
   String get showNonCurrentWeekCoursesDescription;
 
   /// No description provided for @nonCurrentWeekMark.
@@ -1559,7 +1571,7 @@ abstract class AppLocalizations {
   /// No description provided for @hiddenCourseSessionsDescription.
   ///
   /// In zh, this message translates to:
-  /// **'恢复课表中已隐藏的单次课程。'**
+  /// **'恢复课表中已隐藏的单次课程'**
   String get hiddenCourseSessionsDescription;
 
   /// No description provided for @noHiddenCourseSessions.
@@ -1907,7 +1919,7 @@ abstract class AppLocalizations {
   /// No description provided for @courseReminderDescription.
   ///
   /// In zh, this message translates to:
-  /// **'每天提醒明天最早的课程，无课时提醒休息。'**
+  /// **'每天提醒明天最早的课程，无课时提醒休息'**
   String get courseReminderDescription;
 
   /// No description provided for @courseReminderUnknown.
@@ -1997,7 +2009,7 @@ abstract class AppLocalizations {
   /// No description provided for @permissionManagementDescription.
   ///
   /// In zh, this message translates to:
-  /// **'查看权限用途与授权状态，点击进入系统管理。'**
+  /// **'查看权限用途、授权状态并管理应用权限'**
   String get permissionManagementDescription;
 
   /// No description provided for @appPermissionSettings.
@@ -2057,7 +2069,7 @@ abstract class AppLocalizations {
   /// No description provided for @reminderNotificationStyleDescription.
   ///
   /// In zh, this message translates to:
-  /// **'管理课程提醒的锁屏显示、声音与横幅。'**
+  /// **'管理课程提醒的锁屏显示、声音与横幅'**
   String get reminderNotificationStyleDescription;
 
   /// No description provided for @permissionPurposeNotifications.
@@ -2183,7 +2195,7 @@ abstract class AppLocalizations {
   /// No description provided for @thirdPartyDescription.
   ///
   /// In zh, this message translates to:
-  /// **'按功能选择隐藏、询问或开启西二在线服务。'**
+  /// **'管理西二在线调休补充与历年卷服务'**
   String get thirdPartyDescription;
 
   /// No description provided for @thirdPartyDisabled.
@@ -2219,7 +2231,7 @@ abstract class AppLocalizations {
   /// No description provided for @pastPapersDescription.
   ///
   /// In zh, this message translates to:
-  /// **'从西二在线获取历年试卷目录与下载链接。'**
+  /// **'从西二在线获取历年试卷目录与下载链接'**
   String get pastPapersDescription;
 
   /// No description provided for @campusServices.
@@ -2291,7 +2303,7 @@ abstract class AppLocalizations {
   /// No description provided for @customCoursesDescription.
   ///
   /// In zh, this message translates to:
-  /// **'管理当前账号各学期的自定义课程。'**
+  /// **'管理当前账号各学期的自定义课程'**
   String get customCoursesDescription;
 
   /// No description provided for @customCoursesEmpty.
@@ -2435,7 +2447,7 @@ abstract class AppLocalizations {
   /// No description provided for @webdavAutoSyncDescription.
   ///
   /// In zh, this message translates to:
-  /// **'开启后在启动或返回应用时同步，两端都有改动时请手动选择。'**
+  /// **'在启动或返回应用时自动同步，两端都有改动时请手动选择'**
   String get webdavAutoSyncDescription;
 
   /// No description provided for @webdavAutoSyncConflict.
@@ -2483,7 +2495,7 @@ abstract class AppLocalizations {
   /// No description provided for @webdavDescription.
   ///
   /// In zh, this message translates to:
-  /// **'通过 WebDAV 同步设置及课程记录，不含登录信息与缓存。'**
+  /// **'通过 WebDAV 同步设置及课程记录，不含登录信息与缓存'**
   String get webdavDescription;
 
   /// No description provided for @webdavDirectory.
@@ -3521,7 +3533,7 @@ abstract class AppLocalizations {
   /// No description provided for @nextCourseWidgetDescription.
   ///
   /// In zh, this message translates to:
-  /// **'在桌面查看下一节课或本周课表，点击返回课表。'**
+  /// **'在桌面查看下一节课或本周课表'**
   String get nextCourseWidgetDescription;
 
   /// No description provided for @nextCourseWidgetAdd.
@@ -3533,7 +3545,7 @@ abstract class AppLocalizations {
   /// No description provided for @nextCourseWidgetAddDescription.
   ///
   /// In zh, this message translates to:
-  /// **'由桌面确认添加；也可长按桌面，在小组件中选择福大助手。'**
+  /// **'将所选课程小组件添加到桌面'**
   String get nextCourseWidgetAddDescription;
 
   /// No description provided for @nextCourseWidgetPinUnavailable.
@@ -3683,7 +3695,7 @@ abstract class AppLocalizations {
   /// No description provided for @calendarSyncDescription.
   ///
   /// In zh, this message translates to:
-  /// **'将课表写入系统日历。'**
+  /// **'将课表写入系统日历'**
   String get calendarSyncDescription;
 
   /// No description provided for @calendarSyncScope.
@@ -3983,7 +3995,7 @@ abstract class AppLocalizations {
   /// No description provided for @calendarExportDescription.
   ///
   /// In zh, this message translates to:
-  /// **'将缓存课程与考试导出为日历文件。'**
+  /// **'将缓存课程与考试导出为日历文件'**
   String get calendarExportDescription;
 
   /// No description provided for @calendarExportSnapshot.
@@ -4123,6 +4135,378 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{before} → {after}'**
   String academicChangeFromTo(String before, String after);
+
+  /// No description provided for @themeMyThemes.
+  ///
+  /// In zh, this message translates to:
+  /// **'我的主题'**
+  String get themeMyThemes;
+
+  /// No description provided for @themeCreate.
+  ///
+  /// In zh, this message translates to:
+  /// **'创建主题'**
+  String get themeCreate;
+
+  /// No description provided for @themeImport.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入主题'**
+  String get themeImport;
+
+  /// No description provided for @themeExport.
+  ///
+  /// In zh, this message translates to:
+  /// **'导出主题'**
+  String get themeExport;
+
+  /// No description provided for @themeShare.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享主题'**
+  String get themeShare;
+
+  /// No description provided for @themeDuplicate.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制主题'**
+  String get themeDuplicate;
+
+  /// No description provided for @themeCopy.
+  ///
+  /// In zh, this message translates to:
+  /// **'副本'**
+  String get themeCopy;
+
+  /// No description provided for @themeDelete.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除主题'**
+  String get themeDelete;
+
+  /// No description provided for @themeDeleteMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除后将移除此主题；当前正在使用时恢复默认色卡。'**
+  String get themeDeleteMessage;
+
+  /// No description provided for @themeUntitled.
+  ///
+  /// In zh, this message translates to:
+  /// **'新主题'**
+  String get themeUntitled;
+
+  /// No description provided for @themeEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'创建自己的配色，或导入他人分享的主题。'**
+  String get themeEmpty;
+
+  /// No description provided for @themeImportHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入包含背景图片的主题包或主题 JSON 文件'**
+  String get themeImportHelp;
+
+  /// No description provided for @themeImported.
+  ///
+  /// In zh, this message translates to:
+  /// **'主题已导入，点击即可应用。'**
+  String get themeImported;
+
+  /// No description provided for @themeExported.
+  ///
+  /// In zh, this message translates to:
+  /// **'主题包已导出'**
+  String get themeExported;
+
+  /// No description provided for @themePackageHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'主题包包含亮暗配色、样式和背景图片'**
+  String get themePackageHelp;
+
+  /// No description provided for @themeEdit.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑主题'**
+  String get themeEdit;
+
+  /// No description provided for @themeBasicInfo.
+  ///
+  /// In zh, this message translates to:
+  /// **'基础信息'**
+  String get themeBasicInfo;
+
+  /// No description provided for @themeName.
+  ///
+  /// In zh, this message translates to:
+  /// **'主题名称'**
+  String get themeName;
+
+  /// No description provided for @themeBasePalette.
+  ///
+  /// In zh, this message translates to:
+  /// **'基础色卡'**
+  String get themeBasePalette;
+
+  /// No description provided for @themeCustomPalette.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义'**
+  String get themeCustomPalette;
+
+  /// No description provided for @themeColorSource.
+  ///
+  /// In zh, this message translates to:
+  /// **'主题色'**
+  String get themeColorSource;
+
+  /// No description provided for @themeSourceSystem.
+  ///
+  /// In zh, this message translates to:
+  /// **'手机壁纸取色'**
+  String get themeSourceSystem;
+
+  /// No description provided for @themeSourceSystemHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用系统提供的动态配色'**
+  String get themeSourceSystemHelp;
+
+  /// No description provided for @themeSourceSystemUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前系统不支持动态配色'**
+  String get themeSourceSystemUnavailable;
+
+  /// No description provided for @themeSourceImage.
+  ///
+  /// In zh, this message translates to:
+  /// **'App 壁纸取色'**
+  String get themeSourceImage;
+
+  /// No description provided for @themeSourceSeed.
+  ///
+  /// In zh, this message translates to:
+  /// **'自选主题色'**
+  String get themeSourceSeed;
+
+  /// No description provided for @themeCustomSeed.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义颜色'**
+  String get themeCustomSeed;
+
+  /// No description provided for @themeReplacePalette.
+  ///
+  /// In zh, this message translates to:
+  /// **'重新生成配色？'**
+  String get themeReplacePalette;
+
+  /// No description provided for @themeReplacePaletteMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'将替换{appearance}的主题配色，保留背景与课表样式'**
+  String themeReplacePaletteMessage(String appearance);
+
+  /// No description provided for @themeBackground.
+  ///
+  /// In zh, this message translates to:
+  /// **'背景图片'**
+  String get themeBackground;
+
+  /// No description provided for @themeChooseImage.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择图片'**
+  String get themeChooseImage;
+
+  /// No description provided for @themeRemoveImage.
+  ///
+  /// In zh, this message translates to:
+  /// **'移除图片'**
+  String get themeRemoveImage;
+
+  /// No description provided for @themeBackgroundDim.
+  ///
+  /// In zh, this message translates to:
+  /// **'背景压暗'**
+  String get themeBackgroundDim;
+
+  /// No description provided for @themeBackgroundBlur.
+  ///
+  /// In zh, this message translates to:
+  /// **'背景模糊'**
+  String get themeBackgroundBlur;
+
+  /// No description provided for @themeSurfaceOpacity.
+  ///
+  /// In zh, this message translates to:
+  /// **'面板不透明度'**
+  String get themeSurfaceOpacity;
+
+  /// No description provided for @themeCourseStyle.
+  ///
+  /// In zh, this message translates to:
+  /// **'课表与卡片'**
+  String get themeCourseStyle;
+
+  /// No description provided for @themeCoursePalette.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程卡片色卡'**
+  String get themeCoursePalette;
+
+  /// No description provided for @themeCoursePaletteCustom.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义'**
+  String get themeCoursePaletteCustom;
+
+  /// No description provided for @themeCoursePaletteEdit.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑色卡'**
+  String get themeCoursePaletteEdit;
+
+  /// No description provided for @themeCoursePaletteAdd.
+  ///
+  /// In zh, this message translates to:
+  /// **'新增颜色'**
+  String get themeCoursePaletteAdd;
+
+  /// No description provided for @themeCoursePaletteFromWallpaper.
+  ///
+  /// In zh, this message translates to:
+  /// **'从壁纸生成'**
+  String get themeCoursePaletteFromWallpaper;
+
+  /// No description provided for @themeCoursePaletteRemove.
+  ///
+  /// In zh, this message translates to:
+  /// **'移除颜色 {index}'**
+  String themeCoursePaletteRemove(int index);
+
+  /// No description provided for @themeCoursePaletteCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 色'**
+  String themeCoursePaletteCount(int count);
+
+  /// No description provided for @themeCoursePaletteColor.
+  ///
+  /// In zh, this message translates to:
+  /// **'颜色 {index}'**
+  String themeCoursePaletteColor(int index);
+
+  /// No description provided for @themeCourseOpacity.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程卡片不透明度'**
+  String get themeCourseOpacity;
+
+  /// No description provided for @themeCardRadius.
+  ///
+  /// In zh, this message translates to:
+  /// **'界面卡片圆角'**
+  String get themeCardRadius;
+
+  /// No description provided for @themeCourseRadius.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程卡片圆角'**
+  String get themeCourseRadius;
+
+  /// No description provided for @themeDividerWidth.
+  ///
+  /// In zh, this message translates to:
+  /// **'分割线宽度'**
+  String get themeDividerWidth;
+
+  /// No description provided for @themeScheduleColors.
+  ///
+  /// In zh, this message translates to:
+  /// **'课表颜色'**
+  String get themeScheduleColors;
+
+  /// No description provided for @themeResetColor.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复默认'**
+  String get themeResetColor;
+
+  /// No description provided for @themeColorHex.
+  ///
+  /// In zh, this message translates to:
+  /// **'颜色值'**
+  String get themeColorHex;
+
+  /// No description provided for @themeColorHexHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'支持 #RRGGBB 或 #AARRGGBB'**
+  String get themeColorHexHelp;
+
+  /// No description provided for @themePreview.
+  ///
+  /// In zh, this message translates to:
+  /// **'预览'**
+  String get themePreview;
+
+  /// No description provided for @themeSaveApply.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存并应用'**
+  String get themeSaveApply;
+
+  /// No description provided for @themeUnsavedTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'放弃修改？'**
+  String get themeUnsavedTitle;
+
+  /// No description provided for @themeUnsavedMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'未保存的主题修改将丢失。'**
+  String get themeUnsavedMessage;
+
+  /// No description provided for @themeDiscard.
+  ///
+  /// In zh, this message translates to:
+  /// **'放弃修改'**
+  String get themeDiscard;
+
+  /// No description provided for @themeKeepEditing.
+  ///
+  /// In zh, this message translates to:
+  /// **'继续编辑'**
+  String get themeKeepEditing;
+
+  /// No description provided for @themeSaved.
+  ///
+  /// In zh, this message translates to:
+  /// **'主题已保存并应用'**
+  String get themeSaved;
+
+  /// No description provided for @themeNameRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入 1 至 80 个字符的主题名称'**
+  String get themeNameRequired;
+
+  /// No description provided for @themeColorInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入有效的十六进制颜色'**
+  String get themeColorInvalid;
+
+  /// No description provided for @themeImageHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'分别设置浅色和深色背景图片'**
+  String get themeImageHelp;
 
   /// No description provided for @academicChangeDetectedAt.
   ///

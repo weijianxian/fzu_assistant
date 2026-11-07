@@ -121,8 +121,6 @@ class EmptyRoomPage extends HookWidget {
                                 initialValue: startPeriod.value,
                                 decoration: InputDecoration(
                                   labelText: l10n.startPeriod,
-                                  border: const OutlineInputBorder(),
-                                  isDense: true,
                                 ),
                                 items: List.generate(
                                   11,
@@ -142,8 +140,6 @@ class EmptyRoomPage extends HookWidget {
                                 initialValue: endPeriod.value,
                                 decoration: InputDecoration(
                                   labelText: l10n.endPeriod,
-                                  border: const OutlineInputBorder(),
-                                  isDense: true,
                                 ),
                                 items: List.generate(
                                   11,
@@ -198,8 +194,6 @@ class EmptyRoomPage extends HookWidget {
                                 : null,
                             decoration: InputDecoration(
                               labelText: l10n.selectCampus,
-                              border: const OutlineInputBorder(),
-                              isDense: true,
                             ),
                             items: campuses.value
                                 .map(

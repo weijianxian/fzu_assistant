@@ -56,7 +56,7 @@ class SplitNavigationPage extends HookWidget {
       [selectedRoute.value],
     );
     final scheme = Theme.of(context).colorScheme;
-    final cards = InterfaceTheme.of(context).style == InterfaceStyle.cards;
+    final cards = InterfaceTheme.of(context).style.isCard;
     final navigationSurface = cards
         ? scheme.surface
         : scheme.surfaceContainerLow;

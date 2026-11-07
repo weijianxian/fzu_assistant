@@ -67,6 +67,16 @@ void main() {
       expect(settings.interfaceStyle.value, InterfaceStyle.cards);
       expect(prefs.getString(SpKeys.interfaceStyle), 'cards');
 
+      await prefs.setString(SpKeys.interfaceStyle, 'continuousCards');
+      final continuous = await service.exportSnapshot();
+      final decoded = WebDavSnapshot.fromJson(continuous.toJson());
+      await service.restore(
+        decoded,
+        apply: (snapshot) => applyWebDavSettings(settings, snapshot),
+      );
+      expect(settings.interfaceStyle.value, InterfaceStyle.continuousCards);
+      expect(prefs.getString(SpKeys.interfaceStyle), 'continuousCards');
+
       final legacy = cards.toJson();
       legacy['values'] = {...cards.values}..remove(SpKeys.interfaceStyle);
       final restored = WebDavSnapshot.fromJson(legacy);

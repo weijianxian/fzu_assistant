@@ -93,11 +93,7 @@ class LearningCenterDebugPage extends HookWidget {
         controller: controller,
         enabled: !busy.value,
         obscureText: secret,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          suffixIcon: suffixIcon,
-        ),
+        decoration: InputDecoration(labelText: label, suffixIcon: suffixIcon),
       ),
     );
     Widget button(String label, Future<Object?> Function() action) =>

@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/service/course_color_palettes.dart';
 import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/service/theme_visuals.dart';
 
 class CourseCard extends StatelessWidget {
   final Course course;
@@ -9,54 +11,6 @@ class CourseCard extends StatelessWidget {
   final String? displayName;
   final VoidCallback? onTap;
   final bool isHorizontal;
-
-  // Tailwind CSS 300 级浅色
-  static const _lightColors = [
-    Color(0xFF7DD3FC), // sky
-    Color(0xFF93C5FD), // blue
-    Color(0xFFA5B4FC), // indigo
-    Color(0xFFC4B5FD), // violet
-    Color(0xFFD8B4FE), // purple
-    Color(0xFFF0ABFC), // fuchsia
-    Color(0xFFF9A8D4), // pink
-    Color(0xFFFDA4AF), // rose
-    Color(0xFFFDBA74), // orange
-    Color(0xFFFCD34D), // amber
-    Color(0xFFFDE047), // yellow
-    Color(0xFFBEF264), // lime
-    Color(0xFF86EFAC), // green
-    Color(0xFF6EE7B7), // emerald
-    Color(0xFF5EEAD4), // teal
-    Color(0xFF67E8F9), // cyan
-    Color(0xFFCBD5E1), // slate
-    Color(0xFFD1D5DB), // gray
-    Color(0xFFD6D3D1), // stone
-    Color(0xFFFCA5A5), // red
-  ];
-
-  // Tailwind CSS 800 级深色
-  static const _darkColors = [
-    Color(0xFF075985), // sky
-    Color(0xFF1E40AF), // blue
-    Color(0xFF3730A3), // indigo
-    Color(0xFF5B21B6), // violet
-    Color(0xFF6B21A8), // purple
-    Color(0xFF86198F), // fuchsia
-    Color(0xFF9D174D), // pink
-    Color(0xFF9F1239), // rose
-    Color(0xFF9A3412), // orange
-    Color(0xFF92400E), // amber
-    Color(0xFF854D0E), // yellow
-    Color(0xFF3F6212), // lime
-    Color(0xFF166534), // green
-    Color(0xFF065F46), // emerald
-    Color(0xFF115E59), // teal
-    Color(0xFF155E75), // cyan
-    Color(0xFF1E293B), // slate
-    Color(0xFF1F2937), // gray
-    Color(0xFF292524), // stone
-    Color(0xFF991B1B), // red
-  ];
 
   const CourseCard({
     super.key,
@@ -67,28 +21,46 @@ class CourseCard extends StatelessWidget {
     this.isHorizontal = false,
   });
 
+  Color _paletteColor(ThemeVisuals? visuals, {required bool dark}) {
+    final diy = visuals?.coursePalette;
+    if (diy != null && diy.isNotEmpty) {
+      return diy[course.name.hashCode.abs() % diy.length];
+    }
+    final colors = CourseColorPalettes.colors(
+      visuals?.coursePaletteKey ?? CourseColorPalettes.tailwind,
+      dark: dark,
+    );
+    return Color(colors[course.name.hashCode.abs() % colors.length]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final visuals = theme.extension<ThemeVisuals>();
     final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     if (isHorizontal) return _buildHorizontal(context);
-    final colors = isDark ? _darkColors : _lightColors;
     final customColor = CustomCourseStore.instance.colorForCourse(course);
-    final bg = Color(
-      customColor ??
-          colors[course.name.hashCode.abs() % colors.length].toARGB32(),
+    final background = customColor != null
+        ? Color(customColor)
+        : visuals?.color('courseCard') ??
+              _paletteColor(visuals, dark: theme.brightness == Brightness.dark);
+    final bg = background.withValues(
+      alpha: background.a * (visuals?.courseCardOpacity ?? 1),
     );
-    final darkBackground = customColor == null
-        ? isDark
-        : ThemeData.estimateBrightnessForColor(bg) == Brightness.dark;
+    final darkBackground =
+        ThemeData.estimateBrightnessForColor(
+          Color.alphaBlend(bg, theme.colorScheme.surface),
+        ) ==
+        Brightness.dark;
     final title = Text(
       displayName ?? course.name,
       style: TextStyle(
         fontSize: isWindows ? 13 : 11,
         fontWeight: FontWeight.w600,
         height: isWindows ? 1.3 : null,
-        color: darkBackground ? Colors.white : Colors.black87,
+        color:
+            visuals?.color('courseCardText') ??
+            (darkBackground ? Colors.white : Colors.black87),
       ),
       textAlign: TextAlign.center,
       maxLines: 3,
@@ -99,7 +71,9 @@ class CourseCard extends StatelessWidget {
       style: TextStyle(
         fontSize: isWindows ? 11 : 9,
         height: isWindows ? 1.3 : null,
-        color: darkBackground ? Colors.white70 : Colors.black54,
+        color:
+            visuals?.color('courseCardSecondaryText') ??
+            (darkBackground ? Colors.white70 : Colors.black54),
       ),
       textAlign: TextAlign.center,
       maxLines: 3,
@@ -113,20 +87,17 @@ class CourseCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(visuals?.courseCardRadius ?? 8),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 单节课程高度有限，桌面放大字号后按可用高度截断。
-            if (isWindows) Flexible(flex: 3, child: title) else title,
+            // 单节课程在窄屏及大字体下同样按可用高度截断。
+            Flexible(flex: 3, child: title),
             if (location.isNotEmpty) ...[
               const SizedBox(height: 2),
-              if (isWindows)
-                Flexible(flex: 2, child: locationText)
-              else
-                locationText,
+              Flexible(flex: 2, child: locationText),
             ],
           ],
         ),
@@ -136,28 +107,61 @@ class CourseCard extends StatelessWidget {
 
   Widget _buildHorizontal(BuildContext context) {
     final theme = Theme.of(context);
+    final visuals = theme.extension<ThemeVisuals>();
     final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final index = course.name.hashCode.abs() % _lightColors.length;
-    final accent = Color(
-      CustomCourseStore.instance.colorForCourse(course) ??
-          (isDark ? _lightColors[index] : _darkColors[index]).toARGB32(),
+    final useTailwindAccent =
+        (visuals?.coursePalette.isEmpty ?? true) &&
+        (visuals?.coursePaletteKey ?? CourseColorPalettes.tailwind) ==
+            CourseColorPalettes.tailwind;
+    final customColor = CustomCourseStore.instance.colorForCourse(course);
+    // A course's own color keeps its accent and tint when a theme is selected.
+    final accent = customColor != null
+        ? Color(customColor)
+        : visuals?.color('courseAccent') ??
+              _paletteColor(
+                visuals,
+                dark: useTailwindAccent ? !isDark : isDark,
+              );
+    final themedBackground = customColor == null
+        ? visuals?.color('courseCard')
+        : null;
+    final background =
+        themedBackground ??
+        Color.alphaBlend(
+          accent.withValues(alpha: accent.a * (isDark ? 0.12 : 0.08)),
+          scheme.surfaceContainerLow,
+        );
+    final bg = background.withValues(
+      alpha: background.a * (visuals?.courseCardOpacity ?? 1),
     );
-    final background = Color.alphaBlend(
-      accent.withValues(alpha: isDark ? 0.12 : 0.08),
-      scheme.surfaceContainerLow,
-    );
+    final darkBackground =
+        ThemeData.estimateBrightnessForColor(
+          Color.alphaBlend(bg, scheme.surface),
+        ) ==
+        Brightness.dark;
+    final needsContrast = darkBackground != isDark;
+    final titleColor =
+        visuals?.color('courseCardText') ??
+        (needsContrast
+            ? (darkBackground ? Colors.white : Colors.black87)
+            : scheme.onSurface);
+    final locationColor =
+        visuals?.color('courseCardSecondaryText') ??
+        (needsContrast
+            ? (darkBackground ? Colors.white70 : Colors.black54)
+            : scheme.onSurfaceVariant);
 
     return Material(
-      color: background,
+      color: bg,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: accent.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(visuals?.courseCardRadius ?? 10),
+        side: BorderSide(color: accent.withValues(alpha: accent.a * 0.2)),
       ),
       child: InkWell(
         onTap: onTap,
-        hoverColor: accent.withValues(alpha: 0.08),
+        hoverColor: accent.withValues(alpha: accent.a * 0.08),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -179,7 +183,7 @@ class CourseCard extends StatelessWidget {
                         style: theme.textTheme.labelLarge?.copyWith(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: scheme.onSurface,
+                          color: titleColor,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -192,7 +196,7 @@ class CourseCard extends StatelessWidget {
                         child: Text(
                           location,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
+                            color: locationColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

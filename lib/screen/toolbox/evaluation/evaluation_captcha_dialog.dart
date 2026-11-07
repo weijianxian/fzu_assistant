@@ -177,16 +177,7 @@ class _CaptchaDialogContent extends HookWidget {
               autofocus: true,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 18, letterSpacing: 8),
-              decoration: InputDecoration(
-                hintText: l10n.captcha,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
+              decoration: InputDecoration(hintText: l10n.captcha),
               onChanged: (v) => captchaInput.value = v,
               onSubmitted: (_) => doSubmit(),
             ),

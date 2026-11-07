@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/model/custom_course.dart';
+import 'package:fzu_assistant/service/theme_customization_service.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
@@ -49,6 +50,7 @@ abstract final class AppRoutes {
   static const generalSettings = '/settings/general';
   static const advancedSettings = '/settings/advanced';
   static const themeSettings = '/settings/theme';
+  static const themeEdit = '/settings/theme/edit';
   static const about = '/about';
   static const dev = '/dev';
   static const devSharedPrefs = '/dev/shared-prefs';
@@ -134,4 +136,9 @@ class CustomCourseEditArgs {
 class PapersArgs {
   const PapersArgs({this.path = '/'});
   final String path;
+}
+
+class ThemeEditArgs {
+  const ThemeEditArgs({required this.profile});
+  final ThemeProfile profile;
 }

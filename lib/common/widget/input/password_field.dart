@@ -32,7 +32,6 @@ class PasswordField extends HookWidget {
           icon: Icon(obscure.value ? Icons.visibility_off : Icons.visibility),
           onPressed: enabled ? () => obscure.value = !obscure.value : null,
         ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

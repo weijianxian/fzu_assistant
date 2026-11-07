@@ -61,13 +61,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scheduleSync => '课表同步';
 
   @override
-  String get scheduleSyncDescription => '统一更新本地课表、桌面小组件和已开启同步的系统日历。';
+  String get scheduleSyncDescription => '更新课表、桌面小组件和已开启同步的系统日历';
 
   @override
   String get scheduleSyncLinkDescription => '手动同步、自动更新时间与相关权限';
 
   @override
-  String get scheduleSyncAutomaticDescription => '每天定时更新，关闭后仍可手动同步。';
+  String get scheduleSyncAutomaticDescription => '每天定时更新课表、小组件与已开启同步的日历';
 
   @override
   String get scheduleSyncAlarmPurpose => '自动同步需要此权限，手动同步不受影响';
@@ -229,7 +229,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeSettings => '课表设置';
 
   @override
-  String get homeSettingsSubtitle => '管理学期、课表显示与自定义课程。';
+  String get homeSettingsSubtitle => '管理学期、课表显示与自定义课程';
 
   @override
   String get generalSettings => '一般设置';
@@ -241,7 +241,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advancedSettings => '高级设置';
 
   @override
-  String get advancedSettingsSubtitle => '网络代理等进阶选项';
+  String get advancedSettingsSubtitle => 'GitHub 下载代理配置';
 
   @override
   String get githubProxy => 'GitHub 代理';
@@ -394,13 +394,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get interfaceStyleClassic => '经典列表';
 
   @override
-  String get interfaceStyleClassicDescription => '平铺展示，简洁紧凑。';
+  String get interfaceStyleClassicDescription => '平铺展示，简洁紧凑';
 
   @override
   String get interfaceStyleCards => '卡片分组';
 
   @override
-  String get interfaceStyleCardsDescription => '相关内容连成一组，用圆角和底色区分。';
+  String get interfaceStyleCardsDescription => '相关设置分组，行间保留间隙';
+
+  @override
+  String get interfaceStyleContinuousCards => '连续卡片';
+
+  @override
+  String get interfaceStyleContinuousCardsDescription => '同组设置连成完整卡片，内部无分隔';
 
   @override
   String get themeDynamic => '动态取色';
@@ -585,13 +591,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get west2AdjustmentsEnabled => '从 west2 获取调课数据';
 
   @override
-  String get west2AdjustmentsDescription => '从西二在线补充全校调休安排，数据请以教务通知为准。';
+  String get west2AdjustmentsDescription => '从西二在线补充全校调休安排，数据请以教务通知为准';
 
   @override
   String get autoAdjustCourse => '自动调课';
 
   @override
-  String get autoAdjustCourseDescription => '根据教务系统的调课记录调整课表。';
+  String get autoAdjustCourseDescription => '根据教务系统的调课记录调整课表';
 
   @override
   String get evaluation => '一键评议';
@@ -712,7 +718,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showNonCurrentWeekCourses => '显示非本周课程';
 
   @override
-  String get showNonCurrentWeekCoursesDescription => '在课表的空闲时段淡化显示非本周课程。';
+  String get showNonCurrentWeekCoursesDescription => '在课表的空闲时段淡化显示非本周课程';
 
   @override
   String get nonCurrentWeekMark => '[非本周]';
@@ -775,7 +781,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hiddenCourseSessions => '不展示的课';
 
   @override
-  String get hiddenCourseSessionsDescription => '恢复课表中已隐藏的单次课程。';
+  String get hiddenCourseSessionsDescription => '恢复课表中已隐藏的单次课程';
 
   @override
   String get noHiddenCourseSessions => '暂无不展示的课';
@@ -960,7 +966,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get courseReminderTitle => '明日课程提醒';
 
   @override
-  String get courseReminderDescription => '每天提醒明天最早的课程，无课时提醒休息。';
+  String get courseReminderDescription => '每天提醒明天最早的课程，无课时提醒休息';
 
   @override
   String get courseReminderUnknown => '暂时无法确认明天的课程，请打开应用刷新课表和校历。';
@@ -1009,7 +1015,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get permissionManagementSubtitle => '查看应用需要的权限和授权状态';
 
   @override
-  String get permissionManagementDescription => '查看权限用途与授权状态，点击进入系统管理。';
+  String get permissionManagementDescription => '查看权限用途、授权状态并管理应用权限';
 
   @override
   String get appPermissionSettings => '应用系统设置';
@@ -1039,7 +1045,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reminderNotificationStyle => '锁屏与通知样式';
 
   @override
-  String get reminderNotificationStyleDescription => '管理课程提醒的锁屏显示、声音与横幅。';
+  String get reminderNotificationStyleDescription => '管理课程提醒的锁屏显示、声音与横幅';
 
   @override
   String get permissionPurposeNotifications => '发送课程与定时任务通知';
@@ -1102,7 +1108,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get thirdPartyServices => '第三方服务';
 
   @override
-  String get thirdPartyDescription => '按功能选择隐藏、询问或开启西二在线服务。';
+  String get thirdPartyDescription => '管理西二在线调休补充与历年卷服务';
 
   @override
   String get thirdPartyDisabled => '尚未启用，请前往第三方服务设置';
@@ -1120,7 +1126,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pastPapers => '历年卷';
 
   @override
-  String get pastPapersDescription => '从西二在线获取历年试卷目录与下载链接。';
+  String get pastPapersDescription => '从西二在线获取历年试卷目录与下载链接';
 
   @override
   String get campusServices => '校园服务';
@@ -1156,7 +1162,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customCourses => '自定义课程';
 
   @override
-  String get customCoursesDescription => '管理当前账号各学期的自定义课程。';
+  String get customCoursesDescription => '管理当前账号各学期的自定义课程';
 
   @override
   String get customCoursesEmpty => '当前学期暂无自定义课程';
@@ -1228,7 +1234,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get webdavAutoSync => '每次打开自动同步';
 
   @override
-  String get webdavAutoSyncDescription => '开启后在启动或返回应用时同步，两端都有改动时请手动选择。';
+  String get webdavAutoSyncDescription => '在启动或返回应用时自动同步，两端都有改动时请手动选择';
 
   @override
   String get webdavAutoSyncConflict => '两端数据不同，请前往 WebDAV 手动上传或下载。';
@@ -1252,7 +1258,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get webdavSync => 'WebDAV 同步';
 
   @override
-  String get webdavDescription => '通过 WebDAV 同步设置及课程记录，不含登录信息与缓存。';
+  String get webdavDescription => '通过 WebDAV 同步设置及课程记录，不含登录信息与缓存';
 
   @override
   String get webdavDirectory => 'WebDAV 目录地址';
@@ -1778,13 +1784,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nextCourseWidgetSettings => '桌面小组件';
 
   @override
-  String get nextCourseWidgetDescription => '在桌面查看下一节课或本周课表，点击返回课表。';
+  String get nextCourseWidgetDescription => '在桌面查看下一节课或本周课表';
 
   @override
   String get nextCourseWidgetAdd => '添加到桌面';
 
   @override
-  String get nextCourseWidgetAddDescription => '由桌面确认添加；也可长按桌面，在小组件中选择福大助手。';
+  String get nextCourseWidgetAddDescription => '将所选课程小组件添加到桌面';
 
   @override
   String get nextCourseWidgetPinUnavailable => '当前桌面不支持直接添加，请长按桌面，从小组件列表添加。';
@@ -1861,7 +1867,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendarSync => '日历同步';
 
   @override
-  String get calendarSyncDescription => '将课表写入系统日历。';
+  String get calendarSyncDescription => '将课表写入系统日历';
 
   @override
   String get calendarSyncScope => '同步当前和临近学期的课程、自定义课程、调课及可选考试。隐藏的课次不会写入日历。';
@@ -2018,7 +2024,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendarExport => '导出到日历';
 
   @override
-  String get calendarExportDescription => '将缓存课程与考试导出为日历文件。';
+  String get calendarExportDescription => '将缓存课程与考试导出为日历文件';
 
   @override
   String get calendarExportSnapshot =>
@@ -2100,6 +2106,200 @@ class AppLocalizationsZh extends AppLocalizations {
   String academicChangeFromTo(String before, String after) {
     return '$before → $after';
   }
+
+  @override
+  String get themeMyThemes => '我的主题';
+
+  @override
+  String get themeCreate => '创建主题';
+
+  @override
+  String get themeImport => '导入主题';
+
+  @override
+  String get themeExport => '导出主题';
+
+  @override
+  String get themeShare => '分享主题';
+
+  @override
+  String get themeDuplicate => '复制主题';
+
+  @override
+  String get themeCopy => '副本';
+
+  @override
+  String get themeDelete => '删除主题';
+
+  @override
+  String get themeDeleteMessage => '删除后将移除此主题；当前正在使用时恢复默认色卡。';
+
+  @override
+  String get themeUntitled => '新主题';
+
+  @override
+  String get themeEmpty => '创建自己的配色，或导入他人分享的主题。';
+
+  @override
+  String get themeImportHelp => '导入包含背景图片的主题包或主题 JSON 文件';
+
+  @override
+  String get themeImported => '主题已导入，点击即可应用。';
+
+  @override
+  String get themeExported => '主题包已导出';
+
+  @override
+  String get themePackageHelp => '主题包包含亮暗配色、样式和背景图片';
+
+  @override
+  String get themeEdit => '编辑主题';
+
+  @override
+  String get themeBasicInfo => '基础信息';
+
+  @override
+  String get themeName => '主题名称';
+
+  @override
+  String get themeBasePalette => '基础色卡';
+
+  @override
+  String get themeCustomPalette => '自定义';
+
+  @override
+  String get themeColorSource => '主题色';
+
+  @override
+  String get themeSourceSystem => '手机壁纸取色';
+
+  @override
+  String get themeSourceSystemHelp => '使用系统提供的动态配色';
+
+  @override
+  String get themeSourceSystemUnavailable => '当前系统不支持动态配色';
+
+  @override
+  String get themeSourceImage => 'App 壁纸取色';
+
+  @override
+  String get themeSourceSeed => '自选主题色';
+
+  @override
+  String get themeCustomSeed => '自定义颜色';
+
+  @override
+  String get themeReplacePalette => '重新生成配色？';
+
+  @override
+  String themeReplacePaletteMessage(String appearance) {
+    return '将替换$appearance的主题配色，保留背景与课表样式';
+  }
+
+  @override
+  String get themeBackground => '背景图片';
+
+  @override
+  String get themeChooseImage => '选择图片';
+
+  @override
+  String get themeRemoveImage => '移除图片';
+
+  @override
+  String get themeBackgroundDim => '背景压暗';
+
+  @override
+  String get themeBackgroundBlur => '背景模糊';
+
+  @override
+  String get themeSurfaceOpacity => '面板不透明度';
+
+  @override
+  String get themeCourseStyle => '课表与卡片';
+
+  @override
+  String get themeCoursePalette => '课程卡片色卡';
+
+  @override
+  String get themeCoursePaletteCustom => '自定义';
+
+  @override
+  String get themeCoursePaletteEdit => '编辑色卡';
+
+  @override
+  String get themeCoursePaletteAdd => '新增颜色';
+
+  @override
+  String get themeCoursePaletteFromWallpaper => '从壁纸生成';
+
+  @override
+  String themeCoursePaletteRemove(int index) {
+    return '移除颜色 $index';
+  }
+
+  @override
+  String themeCoursePaletteCount(int count) {
+    return '$count 色';
+  }
+
+  @override
+  String themeCoursePaletteColor(int index) {
+    return '颜色 $index';
+  }
+
+  @override
+  String get themeCourseOpacity => '课程卡片不透明度';
+
+  @override
+  String get themeCardRadius => '界面卡片圆角';
+
+  @override
+  String get themeCourseRadius => '课程卡片圆角';
+
+  @override
+  String get themeDividerWidth => '分割线宽度';
+
+  @override
+  String get themeScheduleColors => '课表颜色';
+
+  @override
+  String get themeResetColor => '恢复默认';
+
+  @override
+  String get themeColorHex => '颜色值';
+
+  @override
+  String get themeColorHexHelp => '支持 #RRGGBB 或 #AARRGGBB';
+
+  @override
+  String get themePreview => '预览';
+
+  @override
+  String get themeSaveApply => '保存并应用';
+
+  @override
+  String get themeUnsavedTitle => '放弃修改？';
+
+  @override
+  String get themeUnsavedMessage => '未保存的主题修改将丢失。';
+
+  @override
+  String get themeDiscard => '放弃修改';
+
+  @override
+  String get themeKeepEditing => '继续编辑';
+
+  @override
+  String get themeSaved => '主题已保存并应用';
+
+  @override
+  String get themeNameRequired => '请输入 1 至 80 个字符的主题名称';
+
+  @override
+  String get themeColorInvalid => '请输入有效的十六进制颜色';
+
+  @override
+  String get themeImageHelp => '分别设置浅色和深色背景图片';
 
   @override
   String academicChangeDetectedAt(String time) {

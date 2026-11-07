@@ -111,7 +111,7 @@ class WebDavSnapshot {
       // Backups created before interface styles still restore as classic.
       final value =
           entry.key == SpKeys.interfaceStyle && !raw.containsKey(entry.key)
-          ? entry.value
+          ? InterfaceStyle.classic.name
           : raw[entry.key];
       if ((entry.value is String && value is! String) ||
           (entry.value is bool && value is! bool) ||
@@ -223,7 +223,7 @@ class WebDavSyncService {
   static const defaults = <String, Object>{
     SpKeys.themeKey: 'deep_purple',
     SpKeys.themeMode: 'system',
-    SpKeys.interfaceStyle: 'classic',
+    SpKeys.interfaceStyle: 'cards',
     SpKeys.localeKey: 'system',
     SpKeys.selectedSemester: '',
     SpKeys.siteInjectionEnabled: true,
@@ -660,7 +660,7 @@ void applyWebDavSettings(AppSettings settings, WebDavSnapshot snapshot) {
   settings.papersAccess.value = FeatureAccess.parse(
     values[SpKeys.papersAccess] as String,
   );
-  settings.themeKey.value = values[SpKeys.themeKey] as String;
+  settings.selectPresetTheme(values[SpKeys.themeKey] as String);
   settings.themeModeKey.value = values[SpKeys.themeMode] as String;
   settings.interfaceStyle.value = InterfaceStyle.parse(
     values[SpKeys.interfaceStyle] as String,

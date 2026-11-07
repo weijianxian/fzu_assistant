@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:fzu_assistant/model/feature_access.dart';
 
@@ -11,8 +12,23 @@ import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/model/hidden_course_session.dart';
 import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
+import 'package:fzu_assistant/service/theme_customization_service.dart';
+import 'package:fzu_assistant/service/theme_visuals.dart';
 
 class AppSettings {
+  AppSettings({ThemeCustomizationService? themeStore})
+    : themeStore = themeStore ?? ThemeCustomizationService.instance;
+
+  final ThemeCustomizationService themeStore;
+  final customThemes = ValueNotifier<List<ThemeProfile>>([]);
+  final activeCustomTheme = ValueNotifier<ThemeProfile?>(null);
+  final customThemeError = ValueNotifier<String?>(null);
+  final systemColorRevision = ValueNotifier<int>(0);
+  Future<void>? _themesLoading;
+  bool _disposed = false;
+  int _themeSelectionRevision = 0;
+  int _themeLibraryRevision = 0;
+
   static ColorScheme? _systemLightScheme;
   static ColorScheme? _systemDarkScheme;
   static bool dynamicColorSupported = false;
@@ -22,7 +38,7 @@ class AppSettings {
 
   final themeKey = ValueNotifier<String>('deep_purple');
   final themeModeKey = ValueNotifier<String>('system');
-  final interfaceStyle = ValueNotifier<InterfaceStyle>(InterfaceStyle.classic);
+  final interfaceStyle = ValueNotifier<InterfaceStyle>(InterfaceStyle.cards);
   final localeKey = ValueNotifier<String>('system');
   final courseReminderEnabled = ValueNotifier<bool>(false);
   final courseReminderMinutes = ValueNotifier<int>(21 * 60);
@@ -71,7 +87,9 @@ class AppSettings {
       .$3;
 
   Future<void> load() async {
+    final selectionRevision = _themeSelectionRevision;
     final sp = await SharedPreferences.getInstance();
+    if (_disposed) return;
     courseReminderEnabled.value =
         sp.getBool(SpKeys.courseReminderEnabled) ?? false;
     courseReminderMinutes.value =
@@ -81,6 +99,25 @@ class AppSettings {
     final validTheme =
         savedTheme == 'dynamic' || appThemes.any((t) => t.key == savedTheme);
     themeKey.value = validTheme ? savedTheme : 'deep_purple';
+    final customId = sp.getString(SpKeys.activeCustomTheme);
+    if (customId?.isNotEmpty == true) {
+      try {
+        final loaded = await themeStore.load(customId!);
+        if (_disposed) return;
+        if (_themeSelectionRevision == selectionRevision) {
+          activeCustomTheme.value = loaded;
+        }
+      } catch (error) {
+        if (_disposed) return;
+        customThemeError.value = error.toString();
+      }
+    }
+    _persist(
+      activeCustomTheme,
+      (value) => value == null
+          ? sp.remove(SpKeys.activeCustomTheme)
+          : sp.setString(SpKeys.activeCustomTheme, value.id),
+    );
 
     final savedMode = sp.getString(SpKeys.themeMode) ?? 'system';
     final validMode = _modeMap.containsKey(savedMode);
@@ -219,20 +256,103 @@ class AppSettings {
     notifier.addListener(() => unawaited(write(notifier.value)));
   }
 
+  Future<void> loadCustomThemes() {
+    return _themesLoading ??= _loadCustomThemes().whenComplete(
+      () => _themesLoading = null,
+    );
+  }
+
+  Future<void> _loadCustomThemes() async {
+    final libraryRevision = _themeLibraryRevision;
+    try {
+      final profiles = await themeStore.loadAll();
+      if (_disposed) return;
+      if (_themeLibraryRevision == libraryRevision) {
+        customThemes.value = profiles;
+      }
+      customThemeError.value = null;
+    } catch (error) {
+      if (!_disposed) customThemeError.value = error.toString();
+    }
+  }
+
+  /// Preset keys stay portable; local images and custom IDs never enter WebDAV.
+  void selectPresetTheme(String key) {
+    _themeSelectionRevision++;
+    activeCustomTheme.value = null;
+    themeKey.value = key;
+  }
+
+  void activateCustomTheme(ThemeProfile profile) {
+    _themeSelectionRevision++;
+    activeCustomTheme.value = profile;
+  }
+
+  void _updateCustomTheme(ThemeProfile profile) {
+    _themeLibraryRevision++;
+    final profiles = [
+      for (final entry in customThemes.value)
+        if (entry.id != profile.id) entry,
+      profile,
+    ]..sort((a, b) => a.name.compareTo(b.name));
+    customThemes.value = List.unmodifiable(profiles);
+  }
+
+  Future<ThemeProfile> saveCustomTheme(
+    ThemeProfile profile, {
+    bool apply = true,
+  }) async {
+    final shouldApply = apply || activeCustomTheme.value?.id == profile.id;
+    final selectionRevision = shouldApply
+        ? ++_themeSelectionRevision
+        : _themeSelectionRevision;
+    final saved = await themeStore.save(profile);
+    if (!_disposed) {
+      _updateCustomTheme(saved);
+      if (shouldApply && _themeSelectionRevision == selectionRevision) {
+        activeCustomTheme.value = saved;
+      }
+    }
+    return saved;
+  }
+
+  Future<ThemeProfile> importCustomTheme(File source) async {
+    final saved = await themeStore.importTheme(source);
+    if (!_disposed) _updateCustomTheme(saved);
+    return saved;
+  }
+
+  Future<void> deleteCustomTheme(String id) async {
+    await themeStore.delete(id);
+    if (_disposed) return;
+    _themeLibraryRevision++;
+    if (activeCustomTheme.value?.id == id) {
+      _themeSelectionRevision++;
+      activeCustomTheme.value = null;
+    }
+    customThemes.value = List.unmodifiable(
+      customThemes.value.where((profile) => profile.id != id),
+    );
+  }
+
   Future<void> initDynamicColor() async {
     try {
       final corePalette = await DynamicColorPlugin.getCorePalette();
+      if (_disposed) return;
       if (corePalette != null) {
         _systemLightScheme = corePalette.toColorScheme();
         _systemDarkScheme = corePalette.toColorScheme(
           brightness: Brightness.dark,
         );
         dynamicColorSupported = true;
+        systemColorRevision.value++;
         return;
       }
     } catch (_) {}
+    if (_disposed) return;
     try {
       final accentColor = await DynamicColorPlugin.getAccentColor();
+      if (_disposed) return;
       if (accentColor != null) {
         _systemLightScheme = ColorScheme.fromSeed(
           seedColor: accentColor,
@@ -243,10 +363,15 @@ class AppSettings {
           brightness: Brightness.dark,
         );
         dynamicColorSupported = true;
+        systemColorRevision.value++;
         return;
       }
     } catch (_) {}
+    if (_disposed) return;
+    _systemLightScheme = null;
+    _systemDarkScheme = null;
     dynamicColorSupported = false;
+    systemColorRevision.value++;
     if (themeKey.value == 'dynamic') themeKey.value = 'deep_purple';
   }
 
@@ -271,6 +396,8 @@ class AppSettings {
   ThemeData get darkTheme => _buildTheme(Brightness.dark);
 
   ThemeData _buildTheme(Brightness brightness) {
+    final profile = activeCustomTheme.value;
+    if (profile != null) return buildProfileTheme(profile, brightness);
     final scheme = systemColorScheme(brightness);
     if (themeKey.value == 'dynamic' && scheme != null) {
       return buildThemeFromScheme(scheme, interfaceStyle: interfaceStyle.value);
@@ -284,6 +411,45 @@ class AppSettings {
     );
   }
 
+  ThemeData buildProfileTheme(ThemeProfile profile, Brightness brightness) {
+    final variant = brightness == Brightness.dark
+        ? profile.dark
+        : profile.light;
+    final base = appThemes
+        .where((theme) => theme.key == profile.baseThemeKey)
+        .firstOrNull;
+    final source =
+        variant.colorSource ??
+        (profile.baseThemeKey == 'dynamic' ? 'system' : 'seed');
+    final scheme = source == 'system' ? systemColorScheme(brightness) : null;
+    final visuals = ThemeVisuals(
+      colors: variant.colors.map((key, argb) => MapEntry(key, Color(argb))),
+      coursePaletteKey: variant.coursePaletteKey,
+      coursePalette: variant.coursePalette
+          .map(Color.new)
+          .toList(growable: false),
+      backgroundImage: variant.backgroundImagePath,
+      backgroundDim: variant.backgroundDim,
+      backgroundBlur: variant.backgroundBlur,
+      surfaceOpacity: variant.surfaceOpacity,
+      courseCardOpacity: variant.courseCardOpacity,
+      cardRadius: variant.cardRadius,
+      courseCardRadius: variant.courseCardRadius,
+      dividerWidth: variant.dividerWidth,
+    );
+    return buildThemeFromScheme(
+      scheme ??
+          ColorScheme.fromSeed(
+            seedColor: variant.seedColor != null
+                ? Color(variant.seedColor!)
+                : base?.color ?? appThemes.first.color,
+            brightness: brightness,
+          ),
+      interfaceStyle: interfaceStyle.value,
+      visuals: visuals,
+    );
+  }
+
   ThemeMode get currentThemeMode =>
       _modeMap[themeModeKey.value] ?? ThemeMode.system;
 
@@ -293,6 +459,11 @@ class AppSettings {
   }
 
   void dispose() {
+    _disposed = true;
+    customThemes.dispose();
+    activeCustomTheme.dispose();
+    customThemeError.dispose();
+    systemColorRevision.dispose();
     courseReminderEnabled.dispose();
     courseReminderMinutes.dispose();
     themeKey.dispose();

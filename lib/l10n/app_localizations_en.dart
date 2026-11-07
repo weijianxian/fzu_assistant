@@ -62,7 +62,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduleSyncDescription =>
-      'Update your cached timetable, home screen widgets, and system calendar when calendar sync is on.';
+      'Update your timetable, home screen widgets and system calendar when calendar sync is on';
 
   @override
   String get scheduleSyncLinkDescription =>
@@ -70,7 +70,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scheduleSyncAutomaticDescription =>
-      'Update daily at the selected time. Manual sync is always available.';
+      'Update your timetable and widgets daily, plus the calendar if sync is enabled';
 
   @override
   String get scheduleSyncAlarmPurpose =>
@@ -240,7 +240,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSettingsSubtitle =>
-      'Manage semesters, timetable display and custom courses.';
+      'Manage semesters, timetable display and custom courses';
 
   @override
   String get generalSettings => 'General Settings';
@@ -252,7 +252,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advancedSettings => 'Advanced Settings';
 
   @override
-  String get advancedSettingsSubtitle => 'Network proxy and advanced options';
+  String get advancedSettingsSubtitle => 'GitHub download proxy settings';
 
   @override
   String get githubProxy => 'GitHub Proxy';
@@ -407,14 +407,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interfaceStyleClassic => 'Classic list';
 
   @override
-  String get interfaceStyleClassicDescription => 'A simple, compact list.';
+  String get interfaceStyleClassicDescription => 'A simple, compact list';
 
   @override
   String get interfaceStyleCards => 'Card groups';
 
   @override
   String get interfaceStyleCardsDescription =>
-      'Connected rows with rounded groups and subtle surfaces.';
+      'Related settings grouped with small gaps between rows';
+
+  @override
+  String get interfaceStyleContinuousCards => 'Continuous cards';
+
+  @override
+  String get interfaceStyleContinuousCardsDescription =>
+      'One card per group, with no gaps or dividers between rows';
 
   @override
   String get themeDynamic => 'Dynamic Color';
@@ -605,14 +612,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get west2AdjustmentsDescription =>
-      'Get university-wide adjustments from west2 online and confirm them against official notices.';
+      'Get university-wide adjustments from west2 online and confirm them against official notices';
 
   @override
   String get autoAdjustCourse => 'Auto adjust courses';
 
   @override
   String get autoAdjustCourseDescription =>
-      'Adjust the timetable using official course change records.';
+      'Adjust the timetable using official course change records';
 
   @override
   String get evaluation => 'One-Key Evaluation';
@@ -734,7 +741,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showNonCurrentWeekCoursesDescription =>
-      'Show faded courses from other weeks in free timetable slots.';
+      'Show faded courses from other weeks in free timetable slots';
 
   @override
   String get nonCurrentWeekMark => '[Other week]';
@@ -800,7 +807,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hiddenCourseSessionsDescription =>
-      'Restore individual sessions hidden from the timetable.';
+      'Restore individual sessions hidden from the timetable';
 
   @override
   String get noHiddenCourseSessions => 'No hidden classes';
@@ -993,7 +1000,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courseReminderDescription =>
-      'Daily reminder of tomorrow’s first class or a day off. ';
+      'Daily reminder of tomorrow’s first class or a day off';
 
   @override
   String get courseReminderUnknown =>
@@ -1049,7 +1056,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissionManagementDescription =>
-      'View permission purposes and access status, then tap to manage them in system settings.';
+      'View permission purposes and status, and manage app access';
 
   @override
   String get appPermissionSettings => 'App system settings';
@@ -1080,7 +1087,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderNotificationStyleDescription =>
-      'Manage lock-screen visibility, sounds and banners for course reminders.';
+      'Manage lock-screen visibility, sounds and banners for course reminders';
 
   @override
   String get permissionPurposeNotifications =>
@@ -1152,7 +1159,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get thirdPartyDescription =>
-      'Choose whether to hide, ask about or enable each west2 online service.';
+      'Manage west2 online schedule adjustments and past-paper access';
 
   @override
   String get thirdPartyDisabled =>
@@ -1172,7 +1179,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pastPapersDescription =>
-      'Get past-paper listings and download links from west2 online.';
+      'Get past-paper listings and download links from west2 online';
 
   @override
   String get campusServices => 'Campus services';
@@ -1210,7 +1217,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customCoursesDescription =>
-      'Manage custom courses for each term of the current account.';
+      'Manage custom courses for each term of the current account';
 
   @override
   String get customCoursesEmpty => 'No custom courses for this term';
@@ -1285,7 +1292,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webdavAutoSyncDescription =>
-      'Sync on launch or return to the app, with manual selection when both sides change.';
+      'Sync automatically on launch or return to the app, with manual selection when both sides change';
 
   @override
   String get webdavAutoSyncConflict =>
@@ -1315,7 +1322,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webdavDescription =>
-      'Sync settings and course records through WebDAV without login details or caches.';
+      'Sync settings and course records through WebDAV without login details or caches';
 
   @override
   String get webdavDirectory => 'WebDAV directory URL';
@@ -1899,14 +1906,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nextCourseWidgetDescription =>
-      'See your next class or weekly timetable on the home screen; tap to open your timetable.';
+      'See your next class or weekly timetable on the home screen';
 
   @override
   String get nextCourseWidgetAdd => 'Add to home screen';
 
   @override
   String get nextCourseWidgetAddDescription =>
-      'Confirm with your launcher, or long-press the home screen and select FZU Assistant under Widgets.';
+      'Add the selected course widget to your home screen';
 
   @override
   String get nextCourseWidgetPinUnavailable =>
@@ -1992,7 +1999,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarSyncDescription =>
-      'Write your timetable to the system calendar.';
+      'Write your timetable to the system calendar';
 
   @override
   String get calendarSyncScope =>
@@ -2165,7 +2172,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarExportDescription =>
-      'Export cached courses and exams as a calendar file.';
+      'Export cached courses and exams as a calendar file';
 
   @override
   String get calendarExportSnapshot =>
@@ -2250,6 +2257,206 @@ class AppLocalizationsEn extends AppLocalizations {
   String academicChangeFromTo(String before, String after) {
     return '$before → $after';
   }
+
+  @override
+  String get themeMyThemes => 'My themes';
+
+  @override
+  String get themeCreate => 'Create theme';
+
+  @override
+  String get themeImport => 'Import theme';
+
+  @override
+  String get themeExport => 'Export theme';
+
+  @override
+  String get themeShare => 'Share theme';
+
+  @override
+  String get themeDuplicate => 'Duplicate theme';
+
+  @override
+  String get themeCopy => 'Copy';
+
+  @override
+  String get themeDelete => 'Delete theme';
+
+  @override
+  String get themeDeleteMessage =>
+      'This theme will be removed. If it is active, the preset palette will be restored.';
+
+  @override
+  String get themeUntitled => 'New theme';
+
+  @override
+  String get themeEmpty => 'Create your own palette or import a shared theme.';
+
+  @override
+  String get themeImportHelp =>
+      'Import theme packages with background images or theme JSON files';
+
+  @override
+  String get themeImported => 'Theme imported. Tap it to apply.';
+
+  @override
+  String get themeExported => 'Theme package exported';
+
+  @override
+  String get themePackageHelp =>
+      'The package contains both palettes, styles and background images';
+
+  @override
+  String get themeEdit => 'Edit theme';
+
+  @override
+  String get themeBasicInfo => 'Basic information';
+
+  @override
+  String get themeName => 'Theme name';
+
+  @override
+  String get themeBasePalette => 'Base palette';
+
+  @override
+  String get themeCustomPalette => 'Custom';
+
+  @override
+  String get themeColorSource => 'Theme colors';
+
+  @override
+  String get themeSourceSystem => 'Phone wallpaper colors';
+
+  @override
+  String get themeSourceSystemHelp =>
+      'Use dynamic colors provided by the system';
+
+  @override
+  String get themeSourceSystemUnavailable =>
+      'Dynamic colors are unavailable on this system';
+
+  @override
+  String get themeSourceImage => 'App wallpaper colors';
+
+  @override
+  String get themeSourceSeed => 'Choose theme color';
+
+  @override
+  String get themeCustomSeed => 'Custom color';
+
+  @override
+  String get themeReplacePalette => 'Regenerate colors?';
+
+  @override
+  String themeReplacePaletteMessage(String appearance) {
+    return 'Replace the $appearance theme colors and keep the background and timetable styles';
+  }
+
+  @override
+  String get themeBackground => 'Background image';
+
+  @override
+  String get themeChooseImage => 'Choose image';
+
+  @override
+  String get themeRemoveImage => 'Remove image';
+
+  @override
+  String get themeBackgroundDim => 'Background dimming';
+
+  @override
+  String get themeBackgroundBlur => 'Background blur';
+
+  @override
+  String get themeSurfaceOpacity => 'Panel opacity';
+
+  @override
+  String get themeCourseStyle => 'Timetable and cards';
+
+  @override
+  String get themeCoursePalette => 'Course card palette';
+
+  @override
+  String get themeCoursePaletteCustom => 'Custom';
+
+  @override
+  String get themeCoursePaletteEdit => 'Edit palette';
+
+  @override
+  String get themeCoursePaletteAdd => 'Add color';
+
+  @override
+  String get themeCoursePaletteFromWallpaper => 'Generate from wallpaper';
+
+  @override
+  String themeCoursePaletteRemove(int index) {
+    return 'Remove color $index';
+  }
+
+  @override
+  String themeCoursePaletteCount(int count) {
+    return '$count colors';
+  }
+
+  @override
+  String themeCoursePaletteColor(int index) {
+    return 'Color $index';
+  }
+
+  @override
+  String get themeCourseOpacity => 'Course card opacity';
+
+  @override
+  String get themeCardRadius => 'Interface card radius';
+
+  @override
+  String get themeCourseRadius => 'Course card radius';
+
+  @override
+  String get themeDividerWidth => 'Divider width';
+
+  @override
+  String get themeScheduleColors => 'Timetable colors';
+
+  @override
+  String get themeResetColor => 'Reset to default';
+
+  @override
+  String get themeColorHex => 'Color value';
+
+  @override
+  String get themeColorHexHelp => 'Enter #RRGGBB or #AARRGGBB';
+
+  @override
+  String get themePreview => 'Preview';
+
+  @override
+  String get themeSaveApply => 'Save and apply';
+
+  @override
+  String get themeUnsavedTitle => 'Discard changes?';
+
+  @override
+  String get themeUnsavedMessage => 'Your unsaved theme changes will be lost.';
+
+  @override
+  String get themeDiscard => 'Discard changes';
+
+  @override
+  String get themeKeepEditing => 'Keep editing';
+
+  @override
+  String get themeSaved => 'Theme saved and applied';
+
+  @override
+  String get themeNameRequired => 'Enter a theme name of 1–80 characters';
+
+  @override
+  String get themeColorInvalid => 'Enter a valid hexadecimal color';
+
+  @override
+  String get themeImageHelp =>
+      'Set separate background images for light and dark modes';
 
   @override
   String academicChangeDetectedAt(String time) {

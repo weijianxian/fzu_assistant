@@ -19,7 +19,7 @@ Future<T?> showSettingsChoiceSheet<T>({
   required List<SettingsChoice<T>> choices,
 }) => showAppBottomSheet<T>(
   context: context,
-  backgroundColor: InterfaceTheme.of(context).style == InterfaceStyle.cards
+  backgroundColor: InterfaceTheme.of(context).style.isCard
       ? Theme.of(context).colorScheme.surface
       : null,
   builder: (sheetContext) => RadioGroup<T>(

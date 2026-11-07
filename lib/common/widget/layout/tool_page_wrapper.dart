@@ -83,17 +83,19 @@ class ToolPageWrapper extends StatelessWidget {
   }
 
   Widget _footer(BuildContext context) {
+    final text = Text(
+      refreshTime != null
+          ? AppLocalizations.of(context)!
+                .dataUpdatedAt(_formatTime(refreshTime!))
+          : '',
+      style: TextStyle(
+        fontSize: 12,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      ),
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Center(
-        child: Text(
-          refreshTime != null
-              ? AppLocalizations.of(context)!
-                    .dataUpdatedAt(_formatTime(refreshTime!))
-              : '',
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
-      ),
+      child: Center(child: text),
     );
   }
 

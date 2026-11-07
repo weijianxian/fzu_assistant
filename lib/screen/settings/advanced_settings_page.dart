@@ -47,7 +47,10 @@ class AdvancedSettingsPage extends HookWidget {
                 subtitle: Text(l10n.githubProxyDescription),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: ValueListenableBuilder(
                   valueListenable: settings.githubProxyEnabled,
                   builder: (_, enabled, _) => TextField(
@@ -55,8 +58,6 @@ class AdvancedSettingsPage extends HookWidget {
                     enabled: enabled,
                     decoration: InputDecoration(
                       labelText: l10n.githubProxyBaseUrl,
-                      helperText: l10n.githubProxyBaseUrlDescription,
-                      hintText: GitHubProxy.defaultBaseUrl,
                       suffixIcon: IconButton(
                         tooltip: l10n.reset,
                         icon: const Icon(Icons.restore),

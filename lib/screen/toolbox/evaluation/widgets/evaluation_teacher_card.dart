@@ -88,14 +88,6 @@ class EvaluationTeacherCard extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     counterText: '',
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 10,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                   ),
                   onChanged: (text) {
                     final numeric = text.replaceAll(RegExp(r'[^0-9]'), '');
@@ -154,14 +146,7 @@ class EvaluationTeacherCard extends StatelessWidget {
                     offset: customComment.length,
                   ),
                 maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: l10n.evalCustomHint,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.all(12),
-                ),
+                decoration: InputDecoration(hintText: l10n.evalCustomHint),
                 onChanged: onCustomCommentChanged,
               ),
             ),

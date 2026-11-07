@@ -20,11 +20,11 @@ void main() {
     expect(settings.selectedSemesterKey.value, '202501');
     expect(settings.termsKey.value, ['202501']);
     expect(settings.themeKey.value, 'deep_purple');
-    expect(settings.interfaceStyle.value, InterfaceStyle.classic);
+    expect(settings.interfaceStyle.value, InterfaceStyle.cards);
 
     settings.localeKey.value = 'en';
     settings.themeModeKey.value = 'dark';
-    settings.interfaceStyle.value = InterfaceStyle.cards;
+    settings.interfaceStyle.value = InterfaceStyle.classic;
     settings.selectedSemesterKey.value = '202601';
     settings.termsKey.value = ['202601', '202501'];
     settings.showExamOnSchedule.value = false;
@@ -41,14 +41,14 @@ void main() {
     await reloaded.load();
     expect(reloaded.currentLocale, const Locale('en'));
     expect(reloaded.currentThemeMode, ThemeMode.dark);
-    expect(reloaded.interfaceStyle.value, InterfaceStyle.cards);
+    expect(reloaded.interfaceStyle.value, InterfaceStyle.classic);
     expect(
       reloaded.lightTheme.extension<InterfaceTheme>()!.style,
-      InterfaceStyle.cards,
+      InterfaceStyle.classic,
     );
     expect(
       reloaded.darkTheme.extension<InterfaceTheme>()!.style,
-      InterfaceStyle.cards,
+      InterfaceStyle.classic,
     );
     expect(reloaded.lightTheme.brightness, Brightness.light);
     expect(reloaded.darkTheme.brightness, Brightness.dark);
@@ -65,12 +65,33 @@ void main() {
     reloaded.dispose();
   });
 
-  test('unknown interface style falls back to classic', () async {
+  test('unknown interface style falls back to cards', () async {
     SharedPreferences.setMockInitialValues({SpKeys.interfaceStyle: 'future'});
     final settings = AppSettings();
     await settings.load();
-    expect(settings.interfaceStyle.value, InterfaceStyle.classic);
+    expect(settings.interfaceStyle.value, InterfaceStyle.cards);
     settings.dispose();
+  });
+
+  test('continuous cards persists and reloads in both theme modes', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = AppSettings();
+    addTearDown(settings.dispose);
+    await settings.load();
+    settings.interfaceStyle.value = InterfaceStyle.continuousCards;
+    await Future<void>.delayed(Duration.zero);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString(SpKeys.interfaceStyle), 'continuousCards');
+    final reloaded = AppSettings();
+    addTearDown(reloaded.dispose);
+    await reloaded.load();
+    expect(reloaded.interfaceStyle.value, InterfaceStyle.continuousCards);
+    for (final theme in [reloaded.lightTheme, reloaded.darkTheme]) {
+      expect(
+        theme.extension<InterfaceTheme>()!.style,
+        InterfaceStyle.continuousCards,
+      );
+    }
   });
 
   test('custom and system color schemes retain the independent style', () {
@@ -85,6 +106,14 @@ void main() {
         expect(theme.brightness, brightness);
         expect(theme.extension<InterfaceTheme>()!.style, style);
         expect(theme.useMaterial3, isTrue);
+        expect(
+          theme.switchTheme.thumbIcon?.resolve({WidgetState.selected})?.icon,
+          style.isCard ? Icons.check : null,
+        );
+        expect(
+          theme.switchTheme.thumbIcon?.resolve({})?.icon,
+          style.isCard ? Icons.close : null,
+        );
       }
     }
   });

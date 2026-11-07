@@ -3,6 +3,7 @@ abstract final class SpKeys {
   static const courseReminderEnabled = 'course_reminder_enabled';
   static const courseReminderMinutes = 'course_reminder_minutes';
   static const themeKey = 'theme_key';
+  static const activeCustomTheme = 'active_custom_theme';
   static const themeMode = 'theme_mode';
   static const interfaceStyle = 'interface_style';
   static const localeKey = 'locale_key';
