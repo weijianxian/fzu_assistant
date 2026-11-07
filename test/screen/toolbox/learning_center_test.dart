@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -109,60 +110,123 @@ void main() {
     LearningCenterService.instance.dio.httpClientAdapter = original;
   });
 
-  testWidgets(
-    'seat areas keep scroll extent stable and support area navigation',
-    (tester) async {
-      tester.view.physicalSize = const Size(1000, 650);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      adapter.seatRows = [
-        for (var number = 1; number <= 919; number++)
-          {
-            'id': number,
-            'spaceName': '$number',
-            'floor': 5,
-            'spaceStatus': number % 2,
-          },
-      ];
-      await tester.pumpWidget(
-        _app(
-          LearningAvailableSeatsPage(
-            date: learningDate(
-              learningBeijingTime(DateTime.now()).add(const Duration(days: 1)),
+  for (final size in [
+    const Size(1000, 650),
+    const Size(390, 844),
+    const Size(844, 390),
+  ]) {
+    testWidgets(
+      'seat areas support compact navigation, scroll tracking and touch scrubbing at $size',
+      (tester) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        adapter.seatRows = [
+          for (var number = 1; number <= 919; number++)
+            {
+              'id': number,
+              'spaceName': '$number',
+              'floor': 5,
+              'spaceStatus': number % 2,
+            },
+        ];
+        await tester.pumpWidget(
+          _app(
+            LearningAvailableSeatsPage(
+              date: learningDate(
+                learningBeijingTime(DateTime.now())
+                    .add(const Duration(days: 1)),
+              ),
+              begin: '08:00',
+              end: '10:00',
+              floor: '5',
             ),
-            begin: '08:00',
-            end: '10:00',
-            floor: '5',
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final scrollView = tester.widget<CustomScrollView>(
-        find.byType(CustomScrollView),
-      );
-      final position = scrollView.controller!.position;
-      final originalExtent = position.maxScrollExtent;
-      expect(originalExtent, greaterThan(1000));
-      for (final fraction in [0.1, 0.5, 0.9]) {
-        position.jumpTo(originalExtent * fraction);
+        );
+        await tester.pumpAndSettle();
+        final scrollView = tester.widget<CustomScrollView>(
+          find.byType(CustomScrollView),
+        );
+        final position = scrollView.controller!.position;
+        final indexRail = find.byKey(const ValueKey('learning-area-index'));
+        expect(tester.getSize(indexRail).width, 32);
+        Finder area(String code) => find.byKey(ValueKey('learning-area-$code'));
+        void expectSelected(String code) {
+          final semantics = tester.widgetList<Semantics>(
+            find.ancestor(of: area(code), matching: find.byType(Semantics)),
+          );
+          expect(
+            semantics.any((node) => node.properties.selected == true),
+            isTrue,
+            reason: '$code should indicate the current area',
+          );
+        }
+
+        expectSelected('J');
+        expect(tester.getSize(area('J')).width, 32);
+        final originalExtent = position.maxScrollExtent;
+        expect(originalExtent, greaterThan(1000));
+        for (final fraction in [0.1, 0.5, 0.9]) {
+          position.jumpTo(originalExtent * fraction);
+          await tester.pumpAndSettle();
+          expect(position.maxScrollExtent, closeTo(originalExtent, 0.1));
+        }
+        final lastArea = area('M');
+        await tester.ensureVisible(lastArea);
+        await tester.tap(lastArea);
+        await tester.pumpAndSettle();
+        expect(find.text('871').hitTestable(), findsOneWidget);
+        expectSelected('M');
+        final firstArea = area('J');
+        await tester.ensureVisible(firstArea);
+        await tester.tap(firstArea);
+        await tester.pumpAndSettle();
+        expect(find.text('1').hitTestable(), findsOneWidget);
+        expectSelected('J');
+        position.jumpTo(position.maxScrollExtent);
+        await tester.pumpAndSettle();
+        expectSelected('M');
+        position.jumpTo(0);
+        await tester.pumpAndSettle();
+        expectSelected('J');
+        await tester.tap(area('A'));
+        await tester.pumpAndSettle();
+        expectSelected('A');
+        final areaAOffset = position.pixels;
+        position.jumpTo(0);
+        await tester.pumpAndSettle();
+        expectSelected('J');
+        position.jumpTo(areaAOffset + 40);
+        await tester.pumpAndSettle();
+        expectSelected('A');
+        position.jumpTo(0);
+        await tester.pumpAndSettle();
+
+        final touch = await tester.startGesture(
+          tester.getCenter(firstArea),
+          kind: PointerDeviceKind.touch,
+        );
+        await tester.pump();
+        await touch.moveTo(tester.getCenter(area('F')));
+        await tester.pumpAndSettle();
+        expectSelected('F');
+        expect(position.pixels, greaterThan(0));
+        await touch.moveTo(tester.getCenter(lastArea) + const Offset(0, 40));
+        await tester.pumpAndSettle();
+        expectSelected('M');
+        expect(find.text('871').hitTestable(), findsOneWidget);
+        await touch.moveTo(tester.getCenter(firstArea) - const Offset(0, 40));
+        await tester.pumpAndSettle();
+        expectSelected('J');
+        expect(find.text('1').hitTestable(), findsOneWidget);
+        await touch.up();
         await tester.pumpAndSettle();
         expect(position.maxScrollExtent, closeTo(originalExtent, 0.1));
-      }
-      final lastArea = find.widgetWithText(TextButton, 'M');
-      await tester.ensureVisible(lastArea);
-      await tester.tap(lastArea);
-      await tester.pumpAndSettle();
-      expect(find.text('919').hitTestable(), findsOneWidget);
-      final firstArea = find.widgetWithText(TextButton, 'J');
-      await tester.ensureVisible(firstArea);
-      await tester.tap(firstArea);
-      await tester.pumpAndSettle();
-      expect(find.text('1').hitTestable(), findsOneWidget);
-      expect(position.maxScrollExtent, closeTo(originalExtent, 0.1));
-      expect(tester.takeException(), isNull);
-    },
-  );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets(
     'unsupported scanner opens and closes without calling native camera',
@@ -269,6 +333,8 @@ void main() {
       await tester.tap(find.text('10:00'));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('查询'));
+      await tester.pumpAndSettle();
+      expect(find.text('查询').hitTestable(), findsOneWidget);
       await tester.tap(find.text('查询'));
       await tester.pumpAndSettle();
       expect(find.byType(LearningAvailableSeatsPage), findsOneWidget);
