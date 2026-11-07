@@ -7,15 +7,16 @@ import 'package:window_manager/window_manager.dart';
 
 /// 放在 Navigator 外层，页面和弹窗都位于标题栏下方。
 class DesktopWindowFrame extends StatelessWidget {
-  const DesktopWindowFrame({super.key, required this.child});
+  const DesktopWindowFrame({super.key, required this.child, this.window});
 
   final Widget child;
+  final DesktopWindow? window;
 
   @override
   Widget build(BuildContext context) {
     if (!DesktopWindow.isWindows) return child;
 
-    final window = DesktopWindow.instance;
+    final window = this.window ?? DesktopWindow.instance;
     // 标题栏位于 Navigator 之外，需要单独的 Overlay 承载窗口按钮提示。
     return Overlay.wrap(
       child: ListenableBuilder(
@@ -23,6 +24,7 @@ class DesktopWindowFrame extends StatelessWidget {
         builder: (context, _) {
           if (window.isFullScreen) return child;
           return DragToResizeArea(
+            window: window.nativeWindow,
             // 隐藏系统标题栏后补上顶部缩放区，侧边和底部仍由 Windows 处理。
             enableResizeEdges: window.isMaximized
                 ? const []
@@ -88,34 +90,32 @@ class _TitleBar extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: GestureDetector(
-                  onSecondaryTap: windowManager.popUpWindowMenu,
-                  child: DragToMoveArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          ExcludeSemantics(
-                            child: Image.asset(
-                              'assets/icon/icon_windows.png',
-                              width: 22,
-                              height: 22,
+                child: DragToMoveArea(
+                  window: window.nativeWindow,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        ExcludeSemantics(
+                          child: Image.asset(
+                            'assets/icon/icon_windows.png',
+                            width: 22,
+                            height: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.appName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: foreground,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              l10n.appName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: foreground,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -125,7 +125,7 @@ class _TitleBar extends StatelessWidget {
                 icon: Icons.remove,
                 height: height,
                 foreground: foreground,
-                onPressed: windowManager.minimize,
+                onPressed: window.nativeWindow.minimize,
               ),
               _WindowButton(
                 tooltip: window.isMaximized
@@ -144,7 +144,7 @@ class _TitleBar extends StatelessWidget {
                 height: height,
                 foreground: foreground,
                 isClose: true,
-                onPressed: windowManager.close,
+                onPressed: window.nativeWindow.close,
               ),
             ],
           ),

@@ -15,7 +15,8 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.weijx.fzu_assistant"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications 23 requires API 37.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
