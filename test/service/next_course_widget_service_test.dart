@@ -9,6 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
+import 'package:fzu_assistant/model/calendar_sync.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/custom_course.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
@@ -144,6 +145,272 @@ void main() {
       expect(service.error.value, isFalse);
     },
   );
+
+  test('a foreground course cache write refreshes the bound widget without fetching', () async {
+    final unbind = service.bind(settings);
+    addTearDown(unbind);
+    await service.sync(settings);
+    calls.clear();
+    final updated = Completer<void>();
+    void changed() {
+      if (service.snapshot.value?.select(now).courses.single.name == '前台刷新课程') {
+        if (!updated.isCompleted) updated.complete();
+      }
+    }
+
+    service.snapshot.addListener(changed);
+    addTearDown(() => service.snapshot.removeListener(changed));
+    final cache = Map<String, dynamic>.from(
+      jsonDecode(jsonEncode(courses)) as Map,
+    );
+    ((cache['202601'] as Map)['courses'] as List).single['name'] = '前台刷新课程';
+    await CacheHelper.saveMap(SpKeys.cacheCoursesMap, cache);
+    await updated.future.timeout(const Duration(seconds: 5));
+    expect(calls.map((call) => call.method), ['setSnapshot']);
+    expect(service.snapshot.value!.select(now).courses.single.name, '前台刷新课程');
+  });
+
+  group('local calendar publication', () {
+    Map<String, Object> calendarConfig({
+      bool enabled = true,
+      bool granted = true,
+      String account = 'student',
+    }) => {
+      'enabled': enabled,
+      'granted': granted,
+      'owner': calendarAccountKey(account),
+      'includeExams': false,
+      'reminder': 30,
+    };
+
+    final publications = <Map<String, dynamic>>[];
+    late Map<String, Object> config;
+    final nativeCalls = <String>[];
+
+    setUp(() {
+      publications.clear();
+      nativeCalls.clear();
+      config = calendarConfig();
+      messenger.setMockMethodCallHandler(
+        NextCourseWidgetService.backgroundChannel,
+        (call) async {
+          nativeCalls.add(call.method);
+          if (call.method == 'readInputs') {
+            return {
+              'baseline': {'revision': 'captured'},
+              'calendar': config,
+            };
+          }
+          if (call.method == 'publishSnapshot') {
+            publications.add(Map<String, dynamic>.from(call.arguments as Map));
+            return true;
+          }
+          throw StateError('Local publication must not use ${call.method}');
+        },
+      );
+    });
+
+    test(
+      'enabled calendar uses the widget cache and captured settings',
+      () async {
+        await service.sync(settings);
+        final publication = publications.single;
+        final payload = publication['calendar'] as Map;
+        expect(
+          publication.keys,
+          unorderedEquals(['baseline', 'snapshot', 'calendar']),
+        );
+        expect(publication['baseline'], {'revision': 'captured'});
+        expect(payload['owner'], calendarAccountKey('student'));
+        expect(payload['terms'], ['202601']);
+        final events = payload['events'] as List;
+        expect(events, isNotEmpty);
+        expect(events.every((event) => event['title'] == '高数'), isTrue);
+        expect(events.every((event) => event['reminder'] == 30), isTrue);
+        expect(events.every((event) => event['rrule'] != null), isTrue);
+        expect(service.snapshot.value!.select(now).courses.single.name, '高数');
+        expect(nativeCalls, ['readInputs', 'publishSnapshot']);
+        expect(calls, isEmpty);
+      },
+    );
+
+    for (final scenario in ['default', 'disabled', 'denied', 'other account']) {
+      test('$scenario never supplies a calendar write', () async {
+        config = switch (scenario) {
+          'default' => {},
+          'disabled' => calendarConfig(enabled: false),
+          'denied' => calendarConfig(granted: false),
+          _ => calendarConfig(account: 'another-student'),
+        };
+        await service.sync(settings);
+        expect(publications.single.containsKey('calendar'), isFalse);
+        expect(service.snapshot.value!.select(now).courses.single.name, '高数');
+        expect(nativeCalls, ['readInputs', 'publishSnapshot']);
+      });
+    }
+
+    test(
+      'a foreground course cache change updates both local payloads',
+      () async {
+        final unbind = service.bind(settings);
+        addTearDown(unbind);
+        await service.sync(settings);
+        publications.clear();
+        final updated = Completer<void>();
+        void changed() {
+          if (service.snapshot.value?.select(now).courses.single.name ==
+                  '本地更新课程' &&
+              !updated.isCompleted) {
+            updated.complete();
+          }
+        }
+
+        service.snapshot.addListener(changed);
+        addTearDown(() => service.snapshot.removeListener(changed));
+        final cache = Map<String, dynamic>.from(
+          jsonDecode(jsonEncode(courses)) as Map,
+        );
+        ((cache['202601'] as Map)['courses'] as List).single['name'] = '本地更新课程';
+        await CacheHelper.saveMap(SpKeys.cacheCoursesMap, cache);
+        await updated.future.timeout(const Duration(seconds: 5));
+        expect(publications, hasLength(1));
+        final publication = publications.single;
+        expect(publication['snapshot'], contains('本地更新课程'));
+        expect(jsonEncode(publication['calendar']), contains('本地更新课程'));
+        expect(
+          nativeCalls,
+          everyElement(isIn(['readInputs', 'publishSnapshot'])),
+        );
+      },
+    );
+
+    test(
+      'disable during a build rejects the old payload and rebuilds without it',
+      () async {
+        var reads = 0;
+        messenger.setMockMethodCallHandler(
+          NextCourseWidgetService.backgroundChannel,
+          (call) async {
+            if (call.method == 'readInputs') {
+              return {
+                'baseline': {'revision': ++reads},
+                'calendar': config,
+              };
+            }
+            if (call.method == 'publishSnapshot') {
+              publications.add(
+                Map<String, dynamic>.from(call.arguments as Map),
+              );
+              if (publications.length == 1) {
+                config = calendarConfig(enabled: false);
+                return false;
+              }
+              return true;
+            }
+            throw StateError('Unexpected method ${call.method}');
+          },
+        );
+        await service.sync(settings);
+        expect(publications, hasLength(2));
+        expect(publications.first.containsKey('calendar'), isTrue);
+        expect(publications.last.containsKey('calendar'), isFalse);
+        expect(service.error.value, isFalse);
+      },
+    );
+
+    test('missing and damaged course terms preserve calendar events', () async {
+      for (final cache in [
+        <String, Object>{},
+        {
+          '202601': {'courses': 'damaged'},
+        },
+      ]) {
+        publications.clear();
+        await CacheHelper.saveMap(SpKeys.cacheCoursesMap, cache);
+        await service.sync(settings);
+        expect(publications.single.containsKey('calendar'), isFalse);
+        expect(service.error.value, isFalse);
+        expect(
+          service.snapshot.value!.select(now).state,
+          NextCourseWidgetState.unknown,
+        );
+      }
+    });
+
+    test('empty complete term can remove obsolete managed events', () async {
+      await CacheHelper.saveMap(SpKeys.cacheCoursesMap, {
+        '202601': {'courses': []},
+      });
+      await service.sync(settings);
+      final payload = publications.single['calendar'] as Map;
+      expect(payload['terms'], ['202601']);
+      expect(payload['events'], isEmpty);
+    });
+
+    test(
+      'only cached current and nearby terms enter the replacement',
+      () async {
+        await CacheHelper.saveMap(SpKeys.cacheSchoolCalendar, {
+          ...calendar,
+          'terms': [
+            ...(calendar['terms'] as List),
+            const CalTerm(
+              termId: 'history',
+              schoolYear: '2025',
+              term: '202501',
+              startDate: '2025-09-01',
+              endDate: '2026-01-20',
+            ).toJson(),
+            const CalTerm(
+              termId: 'future',
+              schoolYear: '2027',
+              term: '202602',
+              startDate: '2027-02-01',
+              endDate: '2027-07-01',
+            ).toJson(),
+          ],
+        });
+        await CacheHelper.saveMap(SpKeys.cacheCoursesMap, {
+          ...courses,
+          '202501': courses['202601'],
+          '202602': courses['202601'],
+        });
+        await service.sync(settings);
+        expect((publications.single['calendar'] as Map)['terms'], ['202601']);
+      },
+    );
+
+    test(
+      'logout while reading inputs cannot publish a calendar payload',
+      () async {
+        final entered = Completer<void>();
+        final release = Completer<void>();
+        messenger.setMockMethodCallHandler(
+          NextCourseWidgetService.backgroundChannel,
+          (call) async {
+            nativeCalls.add(call.method);
+            if (call.method == 'readInputs') {
+              entered.complete();
+              await release.future;
+              return {
+                'baseline': {'revision': 'old-account'},
+                'calendar': config,
+              };
+            }
+            throw StateError('Logout must fence ${call.method}');
+          },
+        );
+        final syncing = service.sync(settings);
+        await entered.future;
+        await service.clear();
+        release.complete();
+        await syncing;
+        expect(nativeCalls, ['readInputs']);
+        expect(calls.map((call) => call.method), ['clear']);
+        expect(service.snapshot.value, isNull);
+      },
+    );
+  });
 
   test(
     'public holiday cache is used only after explicit feature permission',

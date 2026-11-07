@@ -28,13 +28,22 @@ class CalendarSyncService {
   static bool get supported => WidgetSyncService.supported;
   static const channel = WidgetSyncService.channel;
   final status = ValueNotifier(const CalendarSyncStatus());
+  int _revision = 0;
 
   Future<void> load() async {
     if (!supported) return;
+    final revision = ++_revision;
+    final account = ApiClient.instance.studentId;
     final raw = await channel.invokeMapMethod<String, dynamic>('calendarState');
-    if (raw == null) return;
+    if (raw == null ||
+        revision != _revision ||
+        account != ApiClient.instance.studentId) {
+      return;
+    }
     final sameAccount =
-        raw['owner'] == calendarAccountKey(ApiClient.instance.studentId ?? '');
+        account != null &&
+        account.isNotEmpty &&
+        raw['owner'] == calendarAccountKey(account);
     final last = sameAccount ? (raw['lastSuccess'] as num?)?.toInt() : null;
     status.value = CalendarSyncStatus(
       enabled: sameAccount && raw['enabled'] == true,
@@ -68,6 +77,7 @@ class CalendarSyncService {
     final account = ApiClient.instance.studentId;
     if (account == null || account.isEmpty) throw StateError('请先登录教务账号');
     final current = status.value;
+    ++_revision;
     await channel.invokeMethod<void>('calendarConfigure', {
       'settings': {
         'owner': calendarAccountKey(account),
@@ -90,6 +100,7 @@ class CalendarSyncService {
   }
 
   Future<void> clearAll() async {
+    ++_revision;
     try {
       await channel.invokeMethod<void>('calendarClear');
     } finally {
@@ -100,6 +111,8 @@ class CalendarSyncService {
   }
 
   Future<void> disconnect() async {
+    ++_revision;
+    status.value = const CalendarSyncStatus();
     if (!supported) return;
     try {
       await channel.invokeMethod<void>('calendarDisconnect');
@@ -108,6 +121,5 @@ class CalendarSyncService {
     } on PlatformException {
       // The shared nightly generation has already been revoked by logout.
     }
-    status.value = const CalendarSyncStatus();
   }
 }

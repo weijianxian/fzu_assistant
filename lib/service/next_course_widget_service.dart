@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
+import 'package:fzu_assistant/model/calendar_sync.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/model/custom_course.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
@@ -16,6 +17,7 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/widget_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Writes only local display data to Android; never fetches academic services.
@@ -136,7 +138,8 @@ class NextCourseWidgetService with WidgetsBindingObserver {
       // Capture native inputs before reloading the foreground isolate's cache.
       // A background commit between either step and publication must reject
       // this build, rather than overwrite its newer snapshot.
-      final baseline = await _readInputBaseline();
+      final inputs = await _readInputs();
+      final baseline = inputs?.baseline;
       if (stale()) return;
       // Native input writes can be committed before the foreground stores have
       // notified listeners. Use the captured values that publication validates,
@@ -222,6 +225,43 @@ class NextCourseWidgetService with WidgetsBindingObserver {
         locale: locale,
         totalScheduleWeeks: CourseService.totalScheduleWeeks,
       );
+      Map<String, Object>? calendarPayload;
+      final calendarConfig = inputs?.calendar ?? const {};
+      if (account != null &&
+          account.isNotEmpty &&
+          calendarConfig['enabled'] == true &&
+          calendarConfig['granted'] == true &&
+          calendarConfig['owner'] == calendarAccountKey(account)) {
+        final actualTerms = widgetRefreshTerms(
+          SchoolCalendar(currentTerm: '', terms: terms),
+          now,
+        ).toSet();
+        final completeTerms = terms
+            .where(
+              (term) =>
+                  actualTerms.contains(term.term) &&
+                  coursesByTerm.containsKey(term.term),
+            )
+            .toList();
+        if (completeTerms.isNotEmpty) {
+          try {
+            calendarPayload = buildCalendarSyncPayload(
+              account: account,
+              terms: completeTerms,
+              coursesByTerm: coursesByTerm,
+              customCourses: customCourses,
+              hiddenSessions: hiddenSessions,
+              autoAdjust: autoAdjust,
+              includeExams: calendarConfig['includeExams'] != false,
+              reminderMinutes: calendarConfig['reminder'] as int? ?? 15,
+              now: now,
+            );
+          } catch (_) {
+            // Incomplete local inputs preserve existing calendar events and
+            // must not prevent the widget from showing its valid cached data.
+          }
+        }
+      }
       var refused = false;
       await _serialize(() async {
         if (stale()) return;
@@ -232,7 +272,11 @@ class NextCourseWidgetService with WidgetsBindingObserver {
           try {
             final accepted = await backgroundChannel.invokeMethod<bool>(
               'publishSnapshot',
-              {'baseline': baseline, 'snapshot': encoded},
+              {
+                'baseline': baseline,
+                'snapshot': encoded,
+                'calendar': ?calendarPayload,
+              },
             );
             if (accepted != true) {
               refused = true;
@@ -307,7 +351,10 @@ class NextCourseWidgetService with WidgetsBindingObserver {
         : FeatureAccess.tip;
   }
 
-  static Future<Map<Object?, Object?>?> _readInputBaseline() async {
+  static Future<
+    ({Map<Object?, Object?> baseline, Map<Object?, Object?> calendar})?
+  >
+  _readInputs() async {
     try {
       final inputs = await backgroundChannel.invokeMapMethod<String, dynamic>(
         'readInputs',
@@ -317,7 +364,10 @@ class NextCourseWidgetService with WidgetsBindingObserver {
       if (baseline is! Map) {
         throw StateError('小组件输入基线无效');
       }
-      return Map<Object?, Object?>.from(baseline);
+      return (
+        baseline: Map<Object?, Object?>.from(baseline),
+        calendar: Map<Object?, Object?>.from(inputs['calendar'] as Map? ?? {}),
+      );
     } on MissingPluginException {
       // Tests and native hosts predating background sync use the legacy bridge.
       return null;

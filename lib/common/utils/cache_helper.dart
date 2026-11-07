@@ -20,9 +20,18 @@ abstract final class CacheHelper {
   }
 
   /// 将整个 [map] 写入 [spKey]。
-  static Future<void> saveMap(String spKey, Map<String, dynamic> map) async {
+  static Future<void> saveMap(
+    String spKey,
+    Map<String, dynamic> map, {
+    void Function()? guard,
+  }) async {
     final sp = await SharedPreferences.getInstance();
-    await WidgetPreferenceBridge.write(sp, spKey, jsonEncode(map));
+    await WidgetPreferenceBridge.write(
+      sp,
+      spKey,
+      jsonEncode(map),
+      guard: guard,
+    );
     changes.value++;
   }
 
@@ -42,8 +51,9 @@ abstract final class CacheHelper {
   static Future<void> saveForKey(
     String spKey,
     String termKey,
-    dynamic value,
-  ) async {
+    dynamic value, {
+    void Function()? guard,
+  }) async {
     if (WidgetPreferenceBridge.nativeSupported &&
         (spKey == SpKeys.cacheCoursesMap ||
             spKey == SpKeys.cacheHolidayAdjustmentsMap)) {
@@ -52,13 +62,14 @@ abstract final class CacheHelper {
         spKey,
         termKey,
         jsonEncode(value),
+        guard: guard,
       );
       changes.value++;
       return;
     }
     final map = await loadMap(spKey);
     map[termKey] = value;
-    await saveMap(spKey, map);
+    await saveMap(spKey, map, guard: guard);
   }
 
   /// 整份删除 [spKeys] 指定的缓存（含其中所有学期分片）。

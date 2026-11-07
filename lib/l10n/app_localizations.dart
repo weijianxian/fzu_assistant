@@ -197,7 +197,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleSync.
   ///
   /// In zh, this message translates to:
-  /// **'课表同步'**
+  /// **'夜间自动更新课表'**
   String get scheduleSync;
 
   /// No description provided for @scheduleSyncDescription.
@@ -205,12 +205,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'更新课表、桌面小组件和已开启同步的系统日历'**
   String get scheduleSyncDescription;
-
-  /// No description provided for @scheduleSyncLinkDescription.
-  ///
-  /// In zh, this message translates to:
-  /// **'手动同步、自动更新时间与相关权限'**
-  String get scheduleSyncLinkDescription;
 
   /// No description provided for @scheduleSyncAutomaticDescription.
   ///
@@ -233,7 +227,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleSyncUnsupported.
   ///
   /// In zh, this message translates to:
-  /// **'课表同步仅支持 Android。'**
+  /// **'夜间自动更新课表仅支持 Android。'**
   String get scheduleSyncUnsupported;
 
   /// No description provided for @hiddenCourseManagement.
@@ -503,7 +497,7 @@ abstract class AppLocalizations {
   /// themeSettingsSubtitle
   ///
   /// In zh, this message translates to:
-  /// **'深浅色模式和主题色'**
+  /// **'界面风格、深浅色模式与自定义主题'**
   String get themeSettingsSubtitle;
 
   /// settings
@@ -593,7 +587,7 @@ abstract class AppLocalizations {
   /// siteInjectionDescription
   ///
   /// In zh, this message translates to:
-  /// **'注入自定义 CSS/JS 以改善网页外观'**
+  /// **'优化内置网页的排版与阅读体验'**
   String get siteInjectionDescription;
 
   /// about

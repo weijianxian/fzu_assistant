@@ -99,7 +99,9 @@ class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 "prepare" -> result.success(synchronized(WidgetSyncStore.LOCK) {
                     store.prepare(generation(call), manual(call))?.plus("calendar" to calendar.state())
                 })
-                "readInputs" -> result.success(store.readInputs())
+                "readInputs" -> result.success(synchronized(WidgetSyncStore.LOCK) {
+                    store.readInputs() + ("calendar" to calendar.state())
+                })
                 "writeInputs" -> result.success(store.writeInputs(mapArgument(call, "writes")))
                 "writeCacheTerm" -> result.success(store.writeCacheTerm(
                     call.argument<String>("key")
@@ -114,6 +116,19 @@ class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                         mapArgument(call, "baseline"),
                         call.argument<String>("snapshot")
                             ?: throw IllegalArgumentException("缺少课程快照"),
+                        onPublished = {
+                            // Calendar config was captured with the baseline.
+                            // This local path never updates nightly task state.
+                            publishLocalCalendar(
+                                calendar.state(),
+                                if (call.hasArgument("calendar")) mapArgument(call, "calendar") else null,
+                                calendar::sync,
+                                onFailure = { error ->
+                                    calendar.markFailed()
+                                    android.util.Log.w("SystemCalendarSync", "Local calendar update failed", error)
+                                },
+                            )
+                        },
                     )
                     if (published) updateWidgets()
                     result.success(published)

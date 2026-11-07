@@ -78,12 +78,23 @@ abstract final class HtmlHelper {
   /// 有些过期提示只能在解析 HTML 后识别，已经离开 Dio 拦截器，
   /// 因此在 HTML 请求边界再做一次有上限的重登重试。
   static Future<T> _withSessionRetry<T>(Future<T> Function() request) async {
+    final session = ApiClient.instance.captureSession();
     try {
-      return await request();
+      final result = await request();
+      session.check();
+      return result;
     } on SessionExpiredException {
+      // A stale response must not log a different/current session in again.
+      session.check();
       final ok = await ApiClient.instance.refreshSession();
       if (!ok) rethrow;
-      return request();
+      session.check();
+      final result = await request();
+      session.check();
+      return result;
+    } on DioException {
+      session.check();
+      rethrow;
     }
   }
 
@@ -93,18 +104,24 @@ abstract final class HtmlHelper {
     Map<String, dynamic>? queryParameters,
   }) async {
     final options = Options(responseType: ResponseType.bytes);
-    final response = data == null
-        ? await _dio.get<List<int>>(
-            url,
-            queryParameters: queryParameters,
-            options: options,
-          )
-        : await _dio.post<List<int>>(
-            url,
-            queryParameters: queryParameters,
-            data: data,
-            options: options,
-          );
+    final Response<List<int>> response;
+    try {
+      response = data == null
+          ? await _dio.get<List<int>>(
+              url,
+              queryParameters: queryParameters,
+              options: options,
+            )
+          : await _dio.post<List<int>>(
+              url,
+              queryParameters: queryParameters,
+              data: data,
+              options: options,
+            );
+    } on DioException catch (error) {
+      if (error.error is SessionExpiredException) throw error.error!;
+      rethrow;
+    }
     return _followIfNeeded(response, queryParameters: queryParameters);
   }
 

@@ -26,12 +26,14 @@ class CourseService {
     String term,
     List<Course> courses,
     bool useCache,
+    AcademicSessionGuard session,
   ) async {
     final cached = await CacheHelper.loadForKey<List<dynamic>>(
       SpKeys.cacheHolidayAdjustmentsMap,
       term,
       (json) => json as List,
     );
+    session.check();
     var holidays = cached ?? <dynamic>[];
     if (!useCache || cached == null) {
       try {
@@ -45,15 +47,18 @@ class CourseService {
           throw Exception('获取调休数据失败');
         }
         holidays = body['data'] as List;
+        session.check();
         await CacheHelper.saveForKey(
           SpKeys.cacheHolidayAdjustmentsMap,
           term,
           holidays,
+          guard: session.check,
         );
       } catch (_) {
         // 公共服务不可用时使用缓存，不阻断个人课表。
       }
     }
+    session.check();
     return applyHolidayAdjustments(courses, holidays);
   }
 
@@ -145,11 +150,15 @@ class CourseService {
     return map.containsKey(term);
   }
 
-  Future<void> _saveCourseCache(String term, List<Course> courses) {
+  Future<void> _saveCourseCache(
+    String term,
+    List<Course> courses,
+    AcademicSessionGuard session,
+  ) {
     return CacheHelper.saveForKey(SpKeys.cacheCoursesMap, term, {
       'courses': courses.map((c) => c.toJson()).toList(),
       'updatedAt': DateTime.now().toUtc().millisecondsSinceEpoch,
-    });
+    }, guard: session.check);
   }
 
   // ─── 按学期推算 firstMonday ───
@@ -203,11 +212,13 @@ class CourseService {
   // ─── 学期列表 ───
 
   Future<TermInfo> getTerms() async {
+    final session = ApiClient.instance.captureSession();
     final doc = await HtmlHelper.fetchHtml(
       _courseUrl,
-      queryParameters: {'id': ApiClient.instance.userId},
+      queryParameters: {'id': session.identifier},
     );
 
+    session.check();
     return HtmlHelper.parseTermInfo(doc);
   }
 
@@ -224,15 +235,17 @@ class CourseService {
     bool requireCompleteRows = false,
     TermInfo? termInfo,
   }) async {
+    final session = ApiClient.instance.captureSession();
     // 先尝试缓存
     if (useCache || ApiClient.instance.usingCachedSession.value) {
       final cached = await _loadCourseCache(term);
+      session.check();
       if (cached != null) {
         final courses = (cached['courses'] as List)
             .map((c) => Course.fromJson(c))
             .toList();
         return west2AdjustmentsEnabled
-            ? _withHolidayAdjustments(term, courses, useCache)
+            ? _withHolidayAdjustments(term, courses, useCache, session)
             : courses;
       }
     }
@@ -242,12 +255,13 @@ class CourseService {
 
     // 获取表单状态（并缓存供页面使用）
     termInfo ??= await getTerms();
+    session.check();
     _cachedTerms = termInfo.terms;
 
     // 网络请求
     final doc = await HtmlHelper.postHtml(
       _courseUrl,
-      queryParameters: {'id': ApiClient.instance.userId},
+      queryParameters: {'id': session.identifier},
       data: {
         'ctl00\$ContentPlaceHolder1\$DDL_xnxq': term,
         'ctl00\$ContentPlaceHolder1\$BT_submit': '确定',
@@ -255,6 +269,7 @@ class CourseService {
         '__EVENTVALIDATION': termInfo.eventValidation,
       },
     );
+    session.check();
 
     final table = doc.getElementById('ContentPlaceHolder1_DataList_xxk');
     if (table == null) throw StateError('教务处未返回有效课表，请稍后重试');
@@ -294,9 +309,11 @@ class CourseService {
     }
 
     // 写入缓存
-    if (persistCache) await _saveCourseCache(term, courses);
+    session.check();
+    if (persistCache) await _saveCourseCache(term, courses, session);
+    session.check();
     return west2AdjustmentsEnabled
-        ? _withHolidayAdjustments(term, courses, false)
+        ? _withHolidayAdjustments(term, courses, false, session)
         : courses;
   }
 

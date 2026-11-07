@@ -507,6 +507,153 @@ class WidgetSyncStoreTest {
         assertTrue(f.store.publishSnapshot(cancelled, snapshot))
     }
 
+    @Test fun localCalendarPublicationSharesTheLockWithoutChangingNightlyStateOrBaseline() {
+        val f = Fixture()
+        f.configure(enabled = false)
+        f.state.values["lastSuccess"] = 321L
+        f.state.values["lastAttempt"] = 456L
+        f.state.values["failed"] = true
+        val background = f.baseline(manual = true)
+        val baseline = f.foregroundBaseline()
+        val stateBefore = f.state.read()
+        val inputsBefore = f.flutter.read()
+        var calendarWrites = 0
+        assertTrue(f.store.publishSnapshot(baseline, snapshot) {
+            assertTrue(Thread.holdsLock(WidgetSyncStore.LOCK))
+            assertEquals(snapshot, f.widget.values["snapshot"])
+            calendarWrites++
+        })
+        assertEquals(1, calendarWrites)
+        assertEquals(stateBefore, f.state.read())
+        assertEquals(inputsBefore, f.flutter.read())
+        assertEquals(baseline, f.foregroundBaseline())
+        // An otherwise valid prepared nightly/manual refresh remains valid.
+        assertTrue(publish(f, background, manual = true))
+    }
+
+    @Test fun localCalendarDefaultsOffAndRequiresPermissionAndMatchingOwner() {
+        val allowed = mapOf<String, Any?>(
+            "enabled" to true, "granted" to true, "owner" to "account-digest",
+        )
+        val payload = mapOf<String, Any?>("owner" to "account-digest")
+        val states = listOf(
+            emptyMap(),
+            allowed + ("enabled" to false),
+            allowed + ("granted" to false),
+            allowed - "owner",
+            allowed + ("owner" to "another-account"),
+            allowed,
+        )
+        for ((index, state) in states.withIndex()) {
+            val f = Fixture()
+            f.configure(enabled = false) // local sync is independent of auto-update
+            val before = f.state.read()
+            var writes = 0
+            assertTrue(f.store.publishSnapshot(f.foregroundBaseline(), snapshot) {
+                publishLocalCalendar(state, payload, sync = {
+                    assertTrue(Thread.holdsLock(WidgetSyncStore.LOCK))
+                    writes++
+                }, onFailure = { throw it })
+            })
+            assertEquals(if (index == states.lastIndex) 1 else 0, writes)
+            assertEquals(before, f.state.read())
+            assertEquals(snapshot, f.widget.values["snapshot"])
+        }
+        var writes = 0
+        publishLocalCalendar(allowed, null, { writes++ }, { throw it })
+        assertEquals(0, writes)
+    }
+
+    @Test fun switchingCalendarAccountRejectsPreparedAndMismatchedLocalPayloads() {
+        val f = Fixture()
+        f.configure()
+        val old = f.foregroundBaseline()
+        val state = mapOf<String, Any?>(
+            "enabled" to true, "granted" to true, "owner" to "new-account",
+        )
+        val oldPayload = mapOf<String, Any?>("owner" to "old-account")
+        f.store.invalidateInputs() // same fence used by calendarConfigure
+        var writes = 0
+        val publishCalendar = {
+            publishLocalCalendar(state, oldPayload, { writes++ }, { throw it })
+        }
+        assertFalse(f.store.publishSnapshot(old, snapshot, publishCalendar))
+        assertTrue(f.store.publishSnapshot(f.foregroundBaseline(), snapshot, publishCalendar))
+        assertEquals(0, writes)
+    }
+
+    @Test fun localCalendarProviderFailurePreservesWidgetAndNightlyState() {
+        val f = Fixture()
+        f.configure()
+        val before = f.state.read()
+        val baseline = f.foregroundBaseline()
+        val state = mapOf<String, Any?>(
+            "enabled" to true, "granted" to true, "owner" to "account",
+        )
+        var failed = false
+        assertTrue(f.store.publishSnapshot(baseline, snapshot) {
+            publishLocalCalendar(
+                state, mapOf("owner" to "account"),
+                sync = { throw IllegalStateException("provider unavailable") },
+                onFailure = { failed = true },
+            )
+        })
+        assertTrue(failed)
+        assertEquals(before, f.state.read())
+        assertEquals(baseline, f.foregroundBaseline())
+        assertEquals(snapshot, f.widget.values["snapshot"])
+    }
+
+    @Test fun localCalendarRejectsChangedConfigurationAndBackgroundOrForegroundInputs() {
+        for (change in 0..3) {
+            val f = Fixture()
+            f.configure()
+            val baseline = f.foregroundBaseline()
+            when (change) {
+                0 -> f.store.invalidateInputs() // calendar off/permission/settings
+                1 -> f.configure(generation = "new-account-generation")
+                2 -> f.store.writeInputs(mapOf("cache_courses_map" to "{}"))
+                3 -> assertTrue(publish(f))
+            }
+            var calendarWrites = 0
+            assertFalse(f.store.publishSnapshot(baseline, snapshot) { calendarWrites++ })
+            assertEquals(0, calendarWrites)
+        }
+    }
+
+    @Test fun cancelledLocalPublicationCannotWriteCalendarEvenWithAFreshBaseline() {
+        for (failOnDisk in listOf(false, true)) {
+            val f = Fixture()
+            f.configure()
+            val before = f.foregroundBaseline()
+            if (failOnDisk) {
+                f.state.failAt = f.state.calls + 1
+                expect<WidgetStorageException> { f.store.cancel() }
+            } else {
+                f.store.cancel()
+            }
+            var calendarWrites = 0
+            assertFalse(f.store.publishSnapshot(before, snapshot) { calendarWrites++ })
+            // A late foreground read may still refresh the widget's signed-out
+            // display, but it must never touch the departing account's calendar.
+            assertTrue(f.store.publishSnapshot(f.foregroundBaseline(), snapshot) { calendarWrites++ })
+            assertEquals(0, calendarWrites)
+        }
+    }
+
+    @Test fun failedSnapshotStorageNeverStartsLocalCalendarWrites() {
+        val f = Fixture()
+        f.configure()
+        val baseline = f.foregroundBaseline()
+        f.widget.failAt = f.widget.calls + 1
+        var calendarWrites = 0
+        expect<WidgetStorageException> {
+            f.store.publishSnapshot(baseline, snapshot) { calendarWrites++ }
+        }
+        assertEquals(0, calendarWrites)
+        assertEquals("old-snapshot", f.widget.values["snapshot"])
+    }
+
     @Test fun backgroundPublicationPreventsAnOlderForegroundSnapshotOverwritingIt() {
         val f = Fixture()
         f.configure()

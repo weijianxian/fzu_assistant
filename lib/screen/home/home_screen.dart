@@ -61,9 +61,17 @@ class HomeScreen extends HookWidget {
       return null;
     }, [l10n.campusCode]);
     useEffect(() {
-      unawaited(NextCourseWidgetService.instance.sync(settings));
-      unawaited(WidgetSyncService.instance.activate());
-      return null;
+      var active = true;
+      final account = api.studentId;
+      unawaited(
+        WidgetSyncService.instance.activate().then((_) async {
+          if (!active || account != api.studentId) return;
+          // Release the previous logout fence before the initial local calendar
+          // publication; subsequent cache changes use the existing listeners.
+          await NextCourseWidgetService.instance.sync(settings);
+        }),
+      );
+      return () => active = false;
     }, [settings]);
     useEffect(() {
       if (!CourseReminderService.supported) return null;

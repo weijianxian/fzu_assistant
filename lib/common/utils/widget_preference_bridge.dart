@@ -24,8 +24,10 @@ abstract final class WidgetPreferenceBridge {
   static Future<bool> write(
     SharedPreferences preferences,
     String key,
-    Object? value,
-  ) async {
+    Object? value, {
+    void Function()? guard,
+  }) async {
+    guard?.call();
     if (nativeSupported && inputKeys.contains(key)) {
       try {
         final saved = await _channel.invokeMethod<bool>('writeInputs', {
@@ -38,6 +40,7 @@ abstract final class WidgetPreferenceBridge {
         // Compatibility with an older Android host during development.
       }
     }
+    guard?.call();
     return switch (value) {
       String() => preferences.setString(key, value),
       bool() => preferences.setBool(key, value),
@@ -53,8 +56,10 @@ abstract final class WidgetPreferenceBridge {
     SharedPreferences preferences,
     String key,
     String term,
-    String value,
-  ) async {
+    String value, {
+    void Function()? guard,
+  }) async {
+    guard?.call();
     final saved = await _channel.invokeMethod<bool>('writeCacheTerm', {
       'key': key,
       'term': term,

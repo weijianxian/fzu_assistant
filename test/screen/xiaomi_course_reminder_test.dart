@@ -109,6 +109,10 @@ void main() {
       await _settleHost(tester);
       expect(find.text('系统限制提醒'), findsOneWidget);
       expect(
+        find.ancestor(of: find.text('系统限制提醒'), matching: find.byType(Card)),
+        findsOneWidget,
+      );
+      expect(
         find.text('由于 MIUI / HyperOS 限制了应用在后台推送本地通知，该功能不可用，您可尝试在 root 后解锁此限制。'),
         findsOneWidget,
       );
@@ -155,7 +159,7 @@ void main() {
   );
 
   testWidgets(
-    'main settings keeps reminder entry with a short advisory on Xiaomi',
+    'main settings describes reminder features without a device advisory',
     (tester) async {
       _size(tester);
       final settings = AppSettings();
@@ -163,8 +167,10 @@ void main() {
       device.complete({'manufacturer': 'Xiaomi', 'brand': 'redmi'});
       await tester.pumpWidget(_app(settings, const SettingsPage()));
       await _settleHost(tester);
-      await tester.scrollUntilVisible(find.text('系统限制提醒'), 250);
-      expect(find.text('系统限制提醒'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('每天晚上提醒明天最早的课程'), 250);
+      expect(find.text('每天晚上提醒明天最早的课程'), findsOneWidget);
+      expect(find.text('系统限制提醒'), findsNothing);
+      expect(methods, isNot(contains('deviceInfo')));
       expect(find.text('早课提醒'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       settings.dispose();

@@ -144,7 +144,6 @@ class ScheduleSyncSettingsPage extends HookWidget {
       appBar: AppBar(title: Text(l10n.scheduleSync)),
       body: AppListView(
         children: [
-          ListTile(title: Text(l10n.scheduleSyncDescription)),
           if (!WidgetSyncService.supported)
             ListTile(title: Text(l10n.scheduleSyncUnsupported))
           else ...[

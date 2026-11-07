@@ -301,6 +301,38 @@ void main() {
     );
   });
 
+  test('calendar disabled still refreshes caches and widget with one fetch per source', () async {
+    var authentications = 0;
+    var calendars = 0;
+    final fetchedTerms = <String>[];
+    expect(
+      await refreshWidgetData(
+        'generation',
+        now: now,
+        authenticate: () async {
+          authentications++;
+          return 'account';
+        },
+        fetchCalendar: () async {
+          calendars++;
+          return calendar;
+        },
+        fetchCourses: (term) async {
+          fetchedTerms.add(term);
+          return [];
+        },
+      ),
+      isTrue,
+    );
+    expect(authentications, 1);
+    expect(calendars, 1);
+    expect(fetchedTerms, ['202601']);
+    expect(commit!.containsKey('calendar'), isFalse);
+    expect(commit!['writes'], contains(SpKeys.cacheCoursesMap));
+    expect(commit!['snapshot'], isA<String>());
+    expect(calls.map((call) => call.method), ['prepare', 'commit']);
+  });
+
   test(
     'stale generation stops before login; refused commits do not retry',
     () async {

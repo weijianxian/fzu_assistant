@@ -77,10 +77,12 @@ class CourseReminderSettingsPage extends HookWidget {
       body: AppListView(
         children: [
           if (isXiaomi.value == true)
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: Text(l10n.reminderXiaomiNotice),
-              subtitle: Text(l10n.reminderXiaomiDescription),
+            SettingsSection(
+              child: ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(l10n.reminderXiaomiNotice),
+                subtitle: Text(l10n.reminderXiaomiDescription),
+              ),
             ),
           SettingsSection.list(
             title: l10n.settingsReminderSection,

@@ -58,13 +58,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsReminderSection => '提醒设置';
 
   @override
-  String get scheduleSync => '课表同步';
+  String get scheduleSync => '夜间自动更新课表';
 
   @override
   String get scheduleSyncDescription => '更新课表、桌面小组件和已开启同步的系统日历';
-
-  @override
-  String get scheduleSyncLinkDescription => '手动同步、自动更新时间与相关权限';
 
   @override
   String get scheduleSyncAutomaticDescription => '每天定时更新课表、小组件与已开启同步的日历';
@@ -76,7 +73,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scheduleSyncUpdated => '课表已同步，小组件和已开启同步的系统日历已更新。';
 
   @override
-  String get scheduleSyncUnsupported => '课表同步仅支持 Android。';
+  String get scheduleSyncUnsupported => '夜间自动更新课表仅支持 Android。';
 
   @override
   String get hiddenCourseManagement => '不展示课程管理';
@@ -220,7 +217,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get themeSettings => '外观设置';
 
   @override
-  String get themeSettingsSubtitle => '深浅色模式和主题色';
+  String get themeSettingsSubtitle => '界面风格、深浅色模式与自定义主题';
 
   @override
   String get settings => '设置';
@@ -266,7 +263,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get siteInjection => '注入网页样式';
 
   @override
-  String get siteInjectionDescription => '注入自定义 CSS/JS 以改善网页外观';
+  String get siteInjectionDescription => '优化内置网页的排版与阅读体验';
 
   @override
   String get about => '关于';

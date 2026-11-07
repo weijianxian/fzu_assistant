@@ -334,10 +334,10 @@ class AcademicService {
   // ─── 成绩 ───
 
   Future<List<Mark>> getMarks() async {
-    final id = ApiClient.instance.userId;
-    if (id == null) throw Exception('未登录');
+    final session = ApiClient.instance.captureSession();
+    if (session.identifier == null) throw Exception('未登录');
     final observation = AcademicChangesService.instance.begin(
-      ApiClient.instance.studentId ?? '',
+      session.account ?? '',
     );
 
     final doc = await _fetch(_marksUrl);
@@ -374,13 +374,13 @@ class AcademicService {
         ),
       );
     }
+    session.check();
     try {
-      if (observation.account == ApiClient.instance.studentId) {
-        await AcademicChangesService.instance.observeMarks(observation, marks);
-      }
+      await AcademicChangesService.instance.observeMarks(observation, marks);
     } catch (_) {
       // Local change history must not turn a successful query into a failure.
     }
+    session.check();
     return marks;
   }
 
@@ -430,8 +430,9 @@ class AcademicService {
     String preferredTerm, {
     bool useCache = true,
   }) async {
+    final session = ApiClient.instance.captureSession();
     final observation = AcademicChangesService.instance.begin(
-      ApiClient.instance.studentId ?? '',
+      session.account ?? '',
     );
     if (ApiClient.instance.usingCachedSession.value) {
       final map = await CacheHelper.loadMap(SpKeys.cacheExamRoomsMap);
@@ -439,10 +440,12 @@ class AcademicService {
           ? preferredTerm
           : (map.keys.toList()..sort()).lastOrNull ?? '';
       final cached = await _loadCachedExamRooms(target);
+      session.check();
       if (cached != null) return (target, cached);
       throw Exception('当前为缓存模式，该学期暂无考场缓存');
     }
     final termInfo = await _fetchExamTermInfo();
+    session.check();
     final targetTerm =
         preferredTerm.isNotEmpty && termInfo.terms.contains(preferredTerm)
         ? preferredTerm
@@ -452,10 +455,16 @@ class AcademicService {
 
     if (useCache) {
       final cached = await _loadCachedExamRooms(targetTerm);
+      session.check();
       if (cached != null) return (targetTerm, cached);
     }
 
-    final rooms = await _fetchExamRooms(targetTerm, termInfo, observation);
+    final rooms = await _fetchExamRooms(
+      targetTerm,
+      termInfo,
+      observation,
+      session,
+    );
     return (targetTerm, rooms);
   }
 
@@ -481,13 +490,15 @@ class AcademicService {
     bool useCache = true,
   }) async {
     if (term.isEmpty) return [];
+    final session = ApiClient.instance.captureSession();
     final observation = AcademicChangesService.instance.begin(
-      ApiClient.instance.studentId ?? '',
+      session.account ?? '',
     );
 
     // 先尝试缓存
     if (useCache || ApiClient.instance.usingCachedSession.value) {
       final cached = await _loadCachedExamRooms(term);
+      session.check();
       if (cached != null) return cached;
     }
     if (ApiClient.instance.usingCachedSession.value) {
@@ -495,17 +506,18 @@ class AcademicService {
     }
 
     final termInfo = await _fetchExamTermInfo();
-    return _fetchExamRooms(term, termInfo, observation);
+    session.check();
+    return _fetchExamRooms(term, termInfo, observation, session);
   }
 
   Future<List<ExamRoomInfo>> _fetchExamRooms(
     String term,
     TermInfo termInfo,
     AcademicObservation observation,
+    AcademicSessionGuard session,
   ) async {
     if (!termInfo.terms.contains(term)) return [];
 
-    final account = ApiClient.instance.studentId;
     final courses = await CourseService().getCourses(
       term,
       useCache: false,
@@ -513,8 +525,8 @@ class AcademicService {
       requireCompleteRows: true,
       termInfo: termInfo,
     );
-    if (account != ApiClient.instance.studentId ||
-        !AcademicChangesService.instance.accepts(observation, 'exams:$term')) {
+    session.check();
+    if (!AcademicChangesService.instance.accepts(observation, 'exams:$term')) {
       throw const SessionExpiredException();
     }
     final rooms = courses.map(ExamRoomInfo.fromCourse).toList();
@@ -524,19 +536,20 @@ class AcademicService {
       SpKeys.cacheExamRoomsMap,
       term,
       rooms.map((r) => r.toJson()).toList(),
+      guard: session.check,
     );
+    session.check();
     try {
-      if (observation.account == ApiClient.instance.studentId) {
-        await AcademicChangesService.instance.observeExams(
-          observation,
-          term,
-          rooms,
-        );
-      }
+      await AcademicChangesService.instance.observeExams(
+        observation,
+        term,
+        rooms,
+      );
     } catch (_) {
       // Retain the successful official data if local history cannot be saved.
     }
 
+    session.check();
     return rooms;
   }
 
@@ -594,15 +607,23 @@ class AcademicService {
 
   /// 从缓存加载校历，缓存未命中时走网络并写入缓存。
   Future<SchoolCalendar> loadOrFetchCalendar({bool useCache = true}) async {
+    final session = ApiClient.instance.captureSession();
     if (useCache || ApiClient.instance.usingCachedSession.value) {
       final map = await CacheHelper.loadMap(SpKeys.cacheSchoolCalendar);
+      session.check();
       if (map.isNotEmpty) return SchoolCalendar.fromJson(map);
     }
     if (ApiClient.instance.usingCachedSession.value) {
       throw Exception('当前为缓存模式，暂无校历缓存');
     }
     final cal = await getSchoolCalendar();
-    await CacheHelper.saveMap(SpKeys.cacheSchoolCalendar, cal.toJson());
+    session.check();
+    await CacheHelper.saveMap(
+      SpKeys.cacheSchoolCalendar,
+      cal.toJson(),
+      guard: session.check,
+    );
+    session.check();
     return cal;
   }
 
@@ -626,13 +647,14 @@ class AcademicService {
   }
 
   Future<SchoolCalendar> getSchoolCalendar() async {
-    final id = ApiClient.instance.userId;
-    if (id == null) throw Exception('未登录');
+    final session = ApiClient.instance.captureSession();
+    if (session.identifier == null) throw Exception('未登录');
 
     final (doc, html) = await HtmlHelper.fetchHtmlGbk(
       _calendarUrl,
-      queryParameters: _idParam,
+      queryParameters: {'id': session.identifier},
     );
+    session.check();
 
     // 当前学期
     final curTermMatch = RegExp(r'当前学期：(\d{6})').firstMatch(html);
@@ -670,6 +692,7 @@ class AcademicService {
     String termId, {
     bool useCache = true,
   }) async {
+    final session = ApiClient.instance.captureSession();
     if (useCache || ApiClient.instance.usingCachedSession.value) {
       final cached = await CacheHelper.loadForKey<CalTermEvents>(
         SpKeys.cacheTermEventsMap,
@@ -677,6 +700,7 @@ class AcademicService {
         (json) =>
             CalTermEvents.fromJson(Map<String, dynamic>.from(json as Map)),
       );
+      session.check();
       if (cached != null) return cached;
     }
     if (ApiClient.instance.usingCachedSession.value) {
@@ -684,24 +708,28 @@ class AcademicService {
     }
 
     final result = await getTermEvents(termId);
+    session.check();
     await CacheHelper.saveForKey(
       SpKeys.cacheTermEventsMap,
       termId,
       result.toJson(),
+      guard: session.check,
     );
+    session.check();
     return result;
   }
 
   /// 从教务系统获取指定学期的校历事件。
   Future<CalTermEvents> getTermEvents(String termId) async {
-    final id = ApiClient.instance.userId;
-    if (id == null) throw Exception('未登录');
+    final session = ApiClient.instance.captureSession();
+    if (session.identifier == null) throw Exception('未登录');
 
     final (doc, _) = await HtmlHelper.postHtmlGbk(
       _calendarUrl,
       data: {'xq': termId, 'submit': '提交'},
-      queryParameters: _idParam,
+      queryParameters: {'id': session.identifier},
     );
+    session.check();
 
     final table = doc.querySelectorAll('table');
     if (table.length < 2) {

@@ -12,9 +12,6 @@ class SettingsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final device = useFuture(
-      useMemoized(() => CourseReminderService.instance.isXiaomiDevice()),
-    );
 
     return AppScaffold(
       appBar: AppBar(title: Text(l10n.settings)),
@@ -67,12 +64,6 @@ class SettingsPage extends HookWidget {
               title: l10n.settingsPlatformSection,
               children: [
                 ChevronListTile(
-                  leading: const Icon(Icons.admin_panel_settings_outlined),
-                  title: Text(l10n.permissionManagement),
-                  subtitle: Text(l10n.permissionManagementSubtitle),
-                  onTap: () => context.pushNamed(AppRoutes.androidPermissions),
-                ),
-                ChevronListTile(
                   leading: const Icon(Icons.sync),
                   title: Text(l10n.scheduleSync),
                   subtitle: Text(l10n.scheduleSyncDescription),
@@ -89,11 +80,7 @@ class SettingsPage extends HookWidget {
                 ChevronListTile(
                   leading: const Icon(Icons.notifications_active_outlined),
                   title: Text(l10n.courseReminderSettings),
-                  subtitle: Text(
-                    device.data == true
-                        ? l10n.reminderXiaomiNotice
-                        : l10n.courseReminderSettingsSubtitle,
-                  ),
+                  subtitle: Text(l10n.courseReminderSettingsSubtitle),
                   onTap: () =>
                       context.pushNamed(AppRoutes.courseReminderSettings),
                 ),
@@ -103,6 +90,12 @@ class SettingsPage extends HookWidget {
                   subtitle: Text(l10n.nextCourseWidgetDescription),
                   onTap: () =>
                       context.pushNamed(AppRoutes.nextCourseWidgetSettings),
+                ),
+                ChevronListTile(
+                  leading: const Icon(Icons.admin_panel_settings_outlined),
+                  title: Text(l10n.permissionManagement),
+                  subtitle: Text(l10n.permissionManagementSubtitle),
+                  onTap: () => context.pushNamed(AppRoutes.androidPermissions),
                 ),
               ],
             ),

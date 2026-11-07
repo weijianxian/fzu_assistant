@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/android_permissions_service.dart';
 import 'package:fzu_assistant/service/calendar_sync_service.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
@@ -88,22 +87,6 @@ class CalendarSyncSettingsPage extends HookWidget {
       }
     }
 
-    Future<void> openScheduleSync() async {
-      if (working ||
-          operation.value != null ||
-          modalOpen.value ||
-          nightly.status.value.running) {
-        return;
-      }
-      modalOpen.value = true;
-      try {
-        await context.pushNamed(AppRoutes.scheduleSyncSettings);
-      } finally {
-        if (context.mounted) modalOpen.value = false;
-      }
-      if (context.mounted) await reload();
-    }
-
     Future<void> setEnabled(bool enabled) => run(_Operation.saving, () async {
       if (enabled &&
           !service.status.value.granted &&
@@ -127,17 +110,7 @@ class CalendarSyncSettingsPage extends HookWidget {
       pendingChanges.value = true;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(l10n.calendarSyncSaved),
-            action: service.status.value.enabled
-                ? SnackBarAction(
-                    label: l10n.scheduleSync,
-                    onPressed: openScheduleSync,
-                  )
-                : null,
-          ),
-        );
+        ..showSnackBar(SnackBar(content: Text(l10n.calendarSyncSaved)));
     }
 
     Future<void> calendarPermission() => run(_Operation.permission, () async {
@@ -332,11 +305,7 @@ class CalendarSyncSettingsPage extends HookWidget {
                 SettingSwitchTile.controlled(
                   key: const Key('calendar-sync-enabled'),
                   title: Text(l10n.calendarSyncEnabled),
-                  subtitle: Text(
-                    status.enabled
-                        ? l10n.calendarSyncPausedHint
-                        : l10n.calendarSyncStartHint,
-                  ),
+                  subtitle: Text(l10n.calendarSyncDescription),
                   value: status.enabled,
                   onChanged: canEdit
                       ? (value) => unawaited(setEnabled(value))
@@ -397,12 +366,6 @@ class CalendarSyncSettingsPage extends HookWidget {
           SettingsSection.list(
             title: l10n.settingsSyncSection,
             children: [
-              ChevronListTile(
-                leading: const Icon(Icons.sync),
-                title: Text(l10n.scheduleSync),
-                subtitle: Text(l10n.scheduleSyncLinkDescription),
-                onTap: canEdit ? openScheduleSync : null,
-              ),
               SettingSwitchTile.controlled(
                 secondary: const Icon(Icons.event_note_outlined),
                 title: Text(l10n.calendarExportIncludeExams),

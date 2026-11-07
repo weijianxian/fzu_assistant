@@ -15,13 +15,12 @@
   "settingsManualSyncSection": "手动同步",
   "settingsExportSection": "导出设置",
   "settingsReminderSection": "提醒设置",
-  "scheduleSync": "课表同步",
+  "scheduleSync": "夜间自动更新课表",
   "scheduleSyncDescription": "更新课表、桌面小组件和已开启同步的系统日历",
-  "scheduleSyncLinkDescription": "手动同步、自动更新时间与相关权限",
   "scheduleSyncAutomaticDescription": "每天定时更新课表、小组件与已开启同步的日历",
   "scheduleSyncAlarmPurpose": "自动同步需要此权限，手动同步不受影响",
   "scheduleSyncUpdated": "课表已同步，小组件和已开启同步的系统日历已更新。",
-  "scheduleSyncUnsupported": "课表同步仅支持 Android。",
+  "scheduleSyncUnsupported": "夜间自动更新课表仅支持 Android。",
   "hiddenCourseManagement": "不展示课程管理",
   "customCourseManagement": "自定义课程管理",
   "academicCachedSession": "教务连接失败，正在展示历史缓存，请重试以获取最新数据。",
@@ -175,7 +174,7 @@
   "@themeSettings": {
     "description": "themeSettings"
   },
-  "themeSettingsSubtitle": "深浅色模式和主题色",
+  "themeSettingsSubtitle": "界面风格、深浅色模式与自定义主题",
   "@themeSettingsSubtitle": {
     "description": "themeSettingsSubtitle"
   },
@@ -235,7 +234,7 @@
   "@siteInjection": {
     "description": "siteInjection"
   },
-  "siteInjectionDescription": "注入自定义 CSS/JS 以改善网页外观",
+  "siteInjectionDescription": "优化内置网页的排版与阅读体验",
   "@siteInjectionDescription": {
     "description": "siteInjectionDescription"
   },

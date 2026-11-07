@@ -20,6 +20,24 @@ import 'package:fzu_assistant/service/captcha_solver.dart';
 import 'package:fzu_assistant/service/api/session_expired_exception.dart';
 import 'package:html/parser.dart' as html_parser;
 
+/// One explicit login lifetime, including automatic renewals for that account.
+class AcademicSessionGuard {
+  AcademicSessionGuard._(this._api)
+    : _generation = _api._sessionGeneration,
+      account = _api.studentId,
+      identifier = _api.userId;
+
+  final ApiClient _api;
+  final int _generation;
+  final String? account;
+  final String? identifier;
+
+  void check() {
+    _api._checkGeneration(_generation);
+    if (account != _api.studentId) throw const SessionExpiredException();
+  }
+}
+
 class ApiClient {
   ApiClient._() {
     _dio = Dio(
@@ -53,6 +71,7 @@ class ApiClient {
   Completer<bool>? _reloginCompleter;
   String? _userId;
   String? _studentId;
+  int _sessionGeneration = 0;
   final usingCachedSession = ValueNotifier(false);
 
   /// Background refreshes use an ephemeral session so an in-flight login cannot
@@ -65,6 +84,19 @@ class ApiClient {
 
   /// 稳定的登录学号，用于隔离账号的本地设置（identifier 会在重登后变化）。
   String? get studentId => _studentId;
+
+  AcademicSessionGuard captureSession() => AcademicSessionGuard._(this);
+
+  int _advanceSession() {
+    _reloginCompleter = null;
+    return ++_sessionGeneration;
+  }
+
+  void _checkGeneration(int generation) {
+    if (generation != _sessionGeneration) {
+      throw const SessionExpiredException();
+    }
+  }
 
   /// 仅供开发者工具模拟 Cookie 过期。
   ///
@@ -111,8 +143,18 @@ class ApiClient {
     return (image, CaptchaSolver.solve(image));
   }
 
-  Future<void> login(String user, String pass, String captcha) async {
-    _studentId = null;
+  Future<void> login(String user, String pass, String captcha) =>
+      _login(user, pass, captcha, generation: _advanceSession());
+
+  Future<void> _login(
+    String user,
+    String pass,
+    String captcha, {
+    required int generation,
+    bool automatic = false,
+  }) async {
+    _checkGeneration(generation);
+    if (!automatic) _studentId = null;
     // 登录成功前不持有 identifier：残留的旧值会被 _refreshIdentifier
     // 当成有效 id 发出去，导致"未登录"守卫失效。
     _userId = null;
@@ -123,6 +165,7 @@ class ApiClient {
       data: {'muser': user, 'passwd': _md5_16(pass), 'Verifycode': captcha},
       options: _loginFlowOptions(responseType: ResponseType.bytes),
     );
+    _checkGeneration(generation);
 
     if (checkResp.statusCode != 302) {
       throw Exception('登录失败');
@@ -137,6 +180,7 @@ class ApiClient {
       data: {'token': token},
       options: _loginFlowOptions(),
     );
+    _checkGeneration(generation);
     final ssoJson = ssoResp.data is String
         ? jsonDecode(_strip(ssoResp.data as String))
         : ssoResp.data;
@@ -158,17 +202,20 @@ class ApiClient {
       finishUrl,
       options: _loginFlowOptions(responseType: ResponseType.bytes),
     );
+    _checkGeneration(generation);
     final userId = _redirectParam(finishResp, 'id');
     if (userId == null) throw Exception('用户 ID 获取失败');
     _userId = userId;
 
-    await _verifySessionOwner(user);
+    await _verifySessionOwner(user, generation: generation);
+    _checkGeneration(generation);
     _studentId = user;
     usingCachedSession.value = false;
     // 保存会话 Cookie 和账号绑定关系，供下次教务处故障时进入缓存模式。
     final cookies = await _cookieJar.loadForRequest(
       Uri.parse(_urls['studentInfo']!),
     );
+    _checkGeneration(generation);
     if (persistAcademicSession) {
       await AuthStorage().saveAcademicSession({
         'studentId': user,
@@ -179,13 +226,20 @@ class ApiClient {
   }
 
   /// 仅恢复同一已保存账号的历史会话。旧 identifier 不用于网络请求。
-  Future<bool> restoreCachedSession({String? username}) async {
+  Future<bool> restoreCachedSession({String? username}) =>
+      _restoreCachedSession(username: username, generation: _advanceSession());
+
+  Future<bool> _restoreCachedSession({
+    String? username,
+    required int generation,
+  }) async {
     final auth = AuthStorage();
     final creds = await auth.loadCredentials();
     if (creds == null || (username != null && username != creds.username)) {
       return false;
     }
     final session = await auth.loadAcademicSession();
+    _checkGeneration(generation);
     if (session == null || session['studentId'] != creds.username) return false;
     try {
       final cookies = (session['cookies'] as List)
@@ -193,10 +247,12 @@ class ApiClient {
           .toList();
       if (cookies.isEmpty || session['userId'] is! String) return false;
       await _cookieJar.deleteAll();
+      _checkGeneration(generation);
       await _cookieJar.saveFromResponse(
         Uri.parse(_urls['studentInfo']!),
         cookies,
       );
+      _checkGeneration(generation);
     } on FormatException {
       return false;
     } on TypeError {
@@ -213,7 +269,10 @@ class ApiClient {
   /// identifier 与 Cookie 绑定，两者不匹配时后续请求会读到别人的数据。
   /// jwch 的 CheckSession 同样拿 StudentInformation.aspx 上的学号做比对。
   /// 请求失败或页面结构变化导致取不到学号时不阻断登录，只做"能确认才拦"。
-  Future<void> _verifySessionOwner(String studentId) async {
+  Future<void> _verifySessionOwner(
+    String studentId, {
+    required int generation,
+  }) async {
     final String? actual;
     try {
       final resp = await _dio.get<List<int>>(
@@ -221,6 +280,7 @@ class ApiClient {
         queryParameters: {'id': _userId},
         options: _loginFlowOptions(responseType: ResponseType.bytes),
       );
+      _checkGeneration(generation);
       final doc = html_parser.parse(
         utf8.decode(resp.data ?? const [], allowMalformed: true),
       );
@@ -268,25 +328,42 @@ class ApiClient {
   }
 
   /// 读取凭据 + 自动识别验证码 + 登录
-  Future<bool> relogin() async {
+  Future<bool> relogin() => _relogin(_advanceSession());
+
+  Future<bool> _relogin(
+    int generation, {
+    bool automatic = false,
+    String? account,
+  }) async {
     final auth = AuthStorage();
     final creds = await auth.loadCredentials();
+    _checkGeneration(generation);
     if (creds == null) return false;
+    if (automatic && account != null && creds.username != account) return false;
 
     // identifier 只有登录成功后才存在。登录过程中保持 null，
     // 避免登录失败后把学号当成教务处 identifier 继续发请求。
     _userId = null;
     try {
       final (_, solution) = await getCaptchaWithSolution();
+      _checkGeneration(generation);
       if (solution == null) return false;
 
-      await login(creds.username, creds.password, solution.toString());
+      await _login(
+        creds.username,
+        creds.password,
+        solution.toString(),
+        generation: generation,
+        automatic: automatic,
+      );
       return true;
     } catch (_) {
-      _userId = null;
+      if (generation == _sessionGeneration) _userId = null;
       return false;
     } finally {
-      if (usingCachedSession.value && _studentId == null) {
+      if (generation == _sessionGeneration &&
+          usingCachedSession.value &&
+          _studentId == null) {
         _studentId = creds.username;
       }
     }
@@ -296,6 +373,7 @@ class ApiClient {
   ///
   /// 课程/考场缓存只按学期分片、不含账号维度，不清会读到上一个账号的数据。
   Future<void> clearSession() async {
+    _advanceSession();
     final clearChanges = AcademicChangesService.instance.clear().catchError(
       (Object _) {},
     );
@@ -320,10 +398,15 @@ class ApiClient {
     if (pending != null) return pending.future;
 
     final completer = Completer<bool>();
+    final generation = _sessionGeneration;
+    final account = _studentId;
     _reloginCompleter = completer;
     try {
-      final ok = await relogin();
-      if (!ok) await restoreCachedSession();
+      final ok = await _relogin(generation, automatic: true, account: account);
+      _checkGeneration(generation);
+      if (!ok) {
+        await _restoreCachedSession(username: account, generation: generation);
+      }
       completer.complete(ok);
       return ok;
     } catch (_) {
@@ -359,12 +442,25 @@ class _AuthInterceptor extends Interceptor {
 
   /// 标记"正在重建会话"的请求（登录取证链路），使其跳过过期重登处理。
   static const skipExpiryKey = '_skipExpiryHandling';
+  static const _guardKey = '_academicSessionGuard';
 
   final ApiClient _api;
   _AuthInterceptor(this._api);
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (_needsSessionRetry(options)) {
+      final guard = options.extra.putIfAbsent(
+        _guardKey,
+        _api.captureSession,
+      ) as AcademicSessionGuard;
+      try {
+        guard.check();
+      } on SessionExpiredException catch (error) {
+        handler.reject(DioException(requestOptions: options, error: error));
+        return;
+      }
+    }
     // 业务层可能在重登前已经构造了参数，发送前统一刷新 id。
     _api._refreshIdentifier(options);
     handler.next(options);
@@ -372,6 +468,15 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
+    try {
+      (response.requestOptions.extra[_guardKey] as AcademicSessionGuard?)
+          ?.check();
+    } on SessionExpiredException catch (error) {
+      handler.reject(
+        DioException(requestOptions: response.requestOptions, error: error),
+      );
+      return;
+    }
     if (!_needsSessionRetry(response.requestOptions) || !_isNologin(response)) {
       handler.next(response);
       return;
@@ -385,6 +490,14 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    try {
+      (err.requestOptions.extra[_guardKey] as AcademicSessionGuard?)?.check();
+    } on SessionExpiredException catch (error) {
+      handler.next(
+        DioException(requestOptions: err.requestOptions, error: error),
+      );
+      return;
+    }
     if (err.error is! SessionExpiredException ||
         !_needsSessionRetry(err.requestOptions)) {
       handler.next(err);
@@ -421,7 +534,10 @@ class _AuthInterceptor extends Interceptor {
     void Function(DioException) reject,
   ) async {
     try {
+      final guard = options.extra[_guardKey] as AcademicSessionGuard?;
+      guard?.check();
       final ok = await _api.refreshSession();
+      guard?.check();
       if (ok) {
         resolve(await _api.retry(options));
       } else {

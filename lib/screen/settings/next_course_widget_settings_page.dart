@@ -4,7 +4,6 @@ import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/next_course_widget.dart';
-import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
@@ -69,10 +68,6 @@ class NextCourseWidgetSettingsPage extends HookWidget {
       appBar: AppBar(title: Text(l10n.nextCourseWidgetSettings)),
       body: AppListView(
         children: [
-          ListTile(
-            title: Text(l10n.nextCourseWidgetDescription),
-            subtitle: Text(l10n.nextCourseWidgetPrivacy),
-          ),
           if (!NextCourseWidgetService.supported)
             ListTile(title: Text(l10n.nextCourseWidgetUnsupported))
           else ...[
@@ -114,40 +109,29 @@ class NextCourseWidgetSettingsPage extends HookWidget {
                 ),
               ],
             ),
-            const SettingsDivider(),
-            SettingsSection.list(
-              title: l10n.settingsSyncSection,
-              children: [
-                ChevronListTile(
-                  leading: const Icon(Icons.sync),
-                  title: Text(l10n.scheduleSync),
-                  subtitle: Text(l10n.scheduleSyncLinkDescription),
-                  onTap: working
-                      ? null
-                      : () => run(() async {
-                          await context.pushNamed(
-                            AppRoutes.scheduleSyncSettings,
-                          );
-                          if (context.mounted) await service.sync(settings);
-                        }),
-                ),
-                if (missing)
-                  ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: Text(l10n.nextCourseWidgetMissing),
-                  ),
-                if (failed || operationFailed.value)
-                  ListTile(
-                    title: Text(l10n.nextCourseWidgetFailed),
-                    trailing: TextButton(
-                      onPressed: working
-                          ? null
-                          : () => run(() => service.sync(settings)),
-                      child: Text(l10n.retry),
+            if (missing || failed || operationFailed.value) ...[
+              const SettingsDivider(),
+              SettingsSection.list(
+                title: l10n.settingsSyncSection,
+                children: [
+                  if (missing)
+                    ListTile(
+                      leading: const Icon(Icons.info_outline),
+                      title: Text(l10n.nextCourseWidgetMissing),
                     ),
-                  ),
-              ],
-            ),
+                  if (failed || operationFailed.value)
+                    ListTile(
+                      title: Text(l10n.nextCourseWidgetFailed),
+                      trailing: TextButton(
+                        onPressed: working
+                            ? null
+                            : () => run(() => service.sync(settings)),
+                        child: Text(l10n.retry),
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ],
         ],
       ),
@@ -228,7 +212,9 @@ class _WidgetPreview extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      // Compact previews need the section's full width at large text sizes.
+      // The preview surface already supplies its own horizontal content inset.
+      padding: EdgeInsets.fromLTRB(compact ? 0 : 16, 20, compact ? 0 : 16, 8),
       child: Column(
         children: [
           Text(
@@ -260,31 +246,62 @@ class _WidgetPreview extends StatelessWidget {
                               child: _TimetablePreview(snapshot: snapshot),
                             )
                           : compact
-                          ? Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      status,
-                                      const SizedBox(height: 8),
-                                      courseName,
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Column(
+                          ? LayoutBuilder(
+                              builder: (context, constraints) {
+                                // Keep room for both the course and the clock.
+                                // Reflow instead of reducing accessibility text.
+                                final sideBySide =
+                                    constraints.maxWidth >=
+                                    MediaQuery.textScalerOf(context).scale(264);
+                                final details = Column(
                                   mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    sideBySide
+                                        ? status
+                                        : Text(
+                                            status.data!,
+                                            style: status.style,
+                                          ),
+                                    const SizedBox(height: 8),
+                                    sideBySide
+                                        ? courseName
+                                        : Text(
+                                            courseName.data!,
+                                            style: courseName.style,
+                                          ),
+                                  ],
+                                );
+                                final clock = Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: sideBySide
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
                                   children: [
                                     startTime,
                                     const SizedBox(height: 4),
                                     startDate,
                                   ],
-                                ),
-                              ],
+                                );
+                                return sideBySide
+                                    ? Row(
+                                        children: [
+                                          Expanded(child: details),
+                                          const SizedBox(width: 12),
+                                          clock,
+                                        ],
+                                      )
+                                    : Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          details,
+                                          const SizedBox(height: 12),
+                                          clock,
+                                        ],
+                                      );
+                              },
                             )
                           : Column(
                               mainAxisSize: MainAxisSize.min,

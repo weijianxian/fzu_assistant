@@ -177,10 +177,19 @@ internal class WidgetSyncStore(
     }
 
     /** Compare and publish under the same lock as input writers/background jobs. */
-    fun publishSnapshot(expected: Map<String, Any?>, snapshot: String): Boolean = synchronized(LOCK) {
+    fun publishSnapshot(
+        expected: Map<String, Any?>,
+        snapshot: String,
+        onPublished: (() -> Unit)? = null,
+    ): Boolean = synchronized(LOCK) {
         if (!matches(expected, baseline(flutter.read(), state.read()))) return@synchronized false
         WidgetSnapshotValidator.validate(snapshot)
         transaction(listOf(widget to mapOf("snapshot" to snapshot)))
+        // Local publication leaves task timestamps, alarms and the input
+        // revision untouched. Calendar work shares this lock and baseline,
+        // including cancellation/reconfiguration; logout must also prevent a
+        // fresh foreground read from writing while disconnect is in progress.
+        if (!fence.blocked) onPublished?.invoke()
         true
     }
 

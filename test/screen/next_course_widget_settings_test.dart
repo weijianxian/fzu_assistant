@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/next_course_widget.dart';
-import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/settings/next_course_widget_settings_page.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
@@ -70,7 +70,6 @@ void main() {
   late _SyncService sync;
   late List<String> events;
   late List<MethodCall> calls;
-  String? navigated;
 
   Future<void> reveal(WidgetTester tester, Finder target) async {
     if (target.evaluate().isEmpty) {
@@ -91,7 +90,6 @@ void main() {
     settings = AppSettings();
     events = [];
     calls = [];
-    navigated = null;
     widgets = _LocalWidgetService(events);
     sync = _SyncService(events);
     messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
@@ -166,12 +164,6 @@ void main() {
           locale: Locale(language),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          onGenerateRoute: (route) {
-            navigated = route.name;
-            return MaterialPageRoute<void>(
-              builder: (_) => const Scaffold(body: Text('shared sync page')),
-            );
-          },
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(
               textScaler: TextScaler.linear(textScale),
@@ -194,6 +186,10 @@ void main() {
 
   testWidgets('square is selected and pinned by default', (tester) async {
     final l10n = await open(tester);
+    expect(find.text(l10n.nextCourseWidgetDescription), findsNothing);
+    expect(find.text(l10n.nextCourseWidgetPrivacy), findsNothing);
+    expect(find.text(l10n.scheduleSync), findsNothing);
+    expect(find.text(l10n.settingsSyncSection), findsNothing);
     expect(find.byType(ChoiceChip), findsNWidgets(3));
     expect(
       tester
@@ -323,20 +319,18 @@ void main() {
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets(
-    'updates link to shared timetable sync without duplicated controls',
+    'local widget retry remains available without timetable sync navigation',
     (tester) async {
+      widgets.error.value = true;
       final l10n = await open(tester);
-      final link = find.text(l10n.scheduleSync);
-      await reveal(tester, link);
+      await reveal(tester, find.text(l10n.retry));
+      expect(find.text(l10n.scheduleSync), findsNothing);
       expect(find.byType(SwitchListTile), findsNothing);
       expect(find.text(l10n.reminderExactPermission), findsNothing);
       expect(find.text(l10n.widgetSyncTime), findsNothing);
       expect(find.text(l10n.nextCourseWidgetRefresh), findsNothing);
-      await tester.tap(link);
-      await tester.pumpAndSettle();
-      expect(navigated, AppRoutes.scheduleSyncSettings);
-      expect(events, isEmpty);
-      Navigator.of(tester.element(find.text('shared sync page'))).pop();
+      expect(find.text(l10n.nextCourseWidgetFailed), findsOneWidget);
+      await tester.tap(find.text(l10n.retry));
       await tester.pumpAndSettle();
       expect(events, ['snapshot']);
       expect(sync.loads, 0);
@@ -356,7 +350,7 @@ void main() {
             addTearDown(tester.view.resetPhysicalSize);
             addTearDown(tester.view.resetDevicePixelRatio);
             final course = seedPreview(language);
-            await open(
+            final l10n = await open(
               tester,
               language: language,
               textScale: textScale,
@@ -386,6 +380,51 @@ void main() {
                 find.descendant(of: preview, matching: find.text(course.name)),
                 findsOneWidget,
               );
+              if (variant == NextCourseWidgetVariant.compact) {
+                final start = course.start.add(
+                  NextCourseWidgetSnapshot.beijingOffset,
+                );
+                final time =
+                    '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}';
+                final date =
+                    '${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
+                final name = find.descendant(
+                  of: preview,
+                  matching: find.text(course.name),
+                );
+                final clock = find.descendant(
+                  of: preview,
+                  matching: find.text(time),
+                );
+                expect(
+                  tester.getTopLeft(clock).dy,
+                  greaterThan(tester.getBottomLeft(name).dy),
+                );
+                for (final value in [
+                  l10n.widgetInProgress,
+                  course.name,
+                  time,
+                  date,
+                ]) {
+                  final label = find.descendant(
+                    of: preview,
+                    matching: find.text(value),
+                  );
+                  final paragraph = tester.renderObject<RenderParagraph>(label);
+                  expect(
+                    paragraph.didExceedMaxLines,
+                    isFalse,
+                    reason: '$value must remain readable at $textScale text',
+                  );
+                  final labelBounds = tester.getRect(label);
+                  expect(bounds.contains(labelBounds.topLeft), isTrue);
+                  expect(bounds.contains(labelBounds.bottomRight), isTrue);
+                  expect(
+                    MediaQuery.textScalerOf(tester.element(label)).scale(16),
+                    16 * textScale,
+                  );
+                }
+              }
               if (variant != NextCourseWidgetVariant.timetable) {
                 expect(
                   find.descendant(

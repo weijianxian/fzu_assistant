@@ -15,13 +15,12 @@
   "settingsManualSyncSection": "Manual sync",
   "settingsExportSection": "Export settings",
   "settingsReminderSection": "Reminder settings",
-  "scheduleSync": "Timetable sync",
+  "scheduleSync": "Nightly timetable updates",
   "scheduleSyncDescription": "Update your timetable, home screen widgets and system calendar when calendar sync is on",
-  "scheduleSyncLinkDescription": "Sync now, automatic refresh time and permissions",
   "scheduleSyncAutomaticDescription": "Update your timetable and widgets daily, plus the calendar if sync is enabled",
   "scheduleSyncAlarmPurpose": "Required for automatic sync; manual sync works without it",
   "scheduleSyncUpdated": "Timetable and widgets updated, including the system calendar when sync is on.",
-  "scheduleSyncUnsupported": "Timetable sync is only available on Android.",
+  "scheduleSyncUnsupported": "Nightly timetable updates are only available on Android.",
   "hiddenCourseManagement": "Hidden course management",
   "customCourseManagement": "Custom course management",
   "academicCachedSession": "The academic connection failed, so cached data is shown until you reconnect.",
@@ -175,7 +174,7 @@
   "@themeSettings": {
     "description": "themeSettings"
   },
-  "themeSettingsSubtitle": "Light/dark mode and theme color",
+  "themeSettingsSubtitle": "Interface style, light/dark mode and custom themes",
   "@themeSettingsSubtitle": {
     "description": "themeSettingsSubtitle"
   },
@@ -235,7 +234,7 @@
   "@siteInjection": {
     "description": "siteInjection"
   },
-  "siteInjectionDescription": "Inject custom CSS/JS to improve web page appearance",
+  "siteInjectionDescription": "Improve page layout and readability in the in-app browser",
   "@siteInjectionDescription": {
     "description": "siteInjectionDescription"
   },

@@ -426,7 +426,7 @@ Future<bool> refreshWidgetData(
   }
 }
 
-@visibleForTesting
+/// Shared actual/upcoming term selection for network refresh and local publish.
 List<String> widgetRefreshTerms(SchoolCalendar calendar, DateTime now) {
   final beijing = now.toUtc().add(const Duration(hours: 8));
   final today = DateTime.utc(beijing.year, beijing.month, beijing.day);

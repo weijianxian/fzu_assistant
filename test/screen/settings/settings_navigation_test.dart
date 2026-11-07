@@ -70,6 +70,19 @@ void main() {
             );
             await tester.scrollUntilVisible(calendar, 200);
             await tester.pumpAndSettle();
+            final platformTiles = tester.widgetList<ChevronListTile>(
+              find.descendant(
+                of: platformSection,
+                matching: find.byType(ChevronListTile),
+              ),
+            );
+            expect(platformTiles.map((tile) => (tile.title as Text).data), [
+              l10n.scheduleSync,
+              l10n.calendarSync,
+              l10n.courseReminderSettings,
+              l10n.nextCourseWidgetSettings,
+              l10n.permissionManagement,
+            ]);
             await tester.tap(calendar);
             await tester.pumpAndSettle();
             expect(navigated, AppRoutes.calendarExport);
