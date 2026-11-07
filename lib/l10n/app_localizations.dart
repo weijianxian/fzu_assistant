@@ -194,6 +194,48 @@ abstract class AppLocalizations {
   /// **'提醒设置'**
   String get settingsReminderSection;
 
+  /// No description provided for @scheduleSync.
+  ///
+  /// In zh, this message translates to:
+  /// **'课表同步'**
+  String get scheduleSync;
+
+  /// No description provided for @scheduleSyncDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'统一更新本地课表、桌面小组件和已开启同步的系统日历。'**
+  String get scheduleSyncDescription;
+
+  /// No description provided for @scheduleSyncLinkDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'手动同步、自动更新时间与相关权限'**
+  String get scheduleSyncLinkDescription;
+
+  /// No description provided for @scheduleSyncAutomaticDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'每天定时更新，关闭后仍可手动同步。'**
+  String get scheduleSyncAutomaticDescription;
+
+  /// No description provided for @scheduleSyncAlarmPurpose.
+  ///
+  /// In zh, this message translates to:
+  /// **'自动同步需要此权限，手动同步不受影响'**
+  String get scheduleSyncAlarmPurpose;
+
+  /// No description provided for @scheduleSyncUpdated.
+  ///
+  /// In zh, this message translates to:
+  /// **'课表已同步，小组件和已开启同步的系统日历已更新。'**
+  String get scheduleSyncUpdated;
+
+  /// No description provided for @scheduleSyncUnsupported.
+  ///
+  /// In zh, this message translates to:
+  /// **'课表同步仅支持 Android。'**
+  String get scheduleSyncUnsupported;
+
   /// No description provided for @hiddenCourseManagement.
   ///
   /// In zh, this message translates to:
@@ -3623,7 +3665,7 @@ abstract class AppLocalizations {
   /// No description provided for @calendarSyncDescription.
   ///
   /// In zh, this message translates to:
-  /// **'将课表同步到系统日历，每晚自动更新。'**
+  /// **'将课表写入系统日历。'**
   String get calendarSyncDescription;
 
   /// No description provided for @calendarSyncScope.
@@ -3743,7 +3785,7 @@ abstract class AppLocalizations {
   /// No description provided for @calendarSyncStartHint.
   ///
   /// In zh, this message translates to:
-  /// **'开启后，每晚自动更新课表。'**
+  /// **'开启后，将课表写入系统日历。'**
   String get calendarSyncStartHint;
 
   /// No description provided for @calendarSyncNever.

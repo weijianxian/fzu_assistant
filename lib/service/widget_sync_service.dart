@@ -61,7 +61,6 @@ class WidgetSyncService {
   Future<void>? _pending;
   bool _running = false;
   bool _suspended = false;
-  bool _calendarEnabled = false;
   int _revision = 0;
   int _sequence = 0;
   int? _loadedCacheVersion;
@@ -95,7 +94,6 @@ class WidgetSyncService {
       if (raw == null) return;
       _alarmId = (raw['alarmId'] as num?)?.toInt();
       enabled.value = raw['enabled'] as bool? ?? true;
-      _calendarEnabled = raw['calendarEnabled'] == true;
       minutes.value = (raw['minutes'] as int? ?? 23 * 60).clamp(0, 1439);
       final permission = await CourseReminderService.instance.permissions();
       final exact = permission['exact'] == true;
@@ -107,10 +105,7 @@ class WidgetSyncService {
         lastSuccess: last == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch(last, isUtc: true),
-        nextAt:
-            (enabled.value || _calendarEnabled) &&
-                exact &&
-                raw['generation'] != null
+        nextAt: enabled.value && exact && raw['generation'] != null
             ? AndroidTaskScheduler.nextWidgetSync(_now(), minutes.value)
             : null,
       );
@@ -177,7 +172,7 @@ class WidgetSyncService {
       if (revision != _revision || account != ApiClient.instance.studentId) {
         return;
       }
-      if ((enabled.value || _calendarEnabled) && status.value.exactAllowed) {
+      if (enabled.value && status.value.exactAllowed) {
         await AndroidTaskScheduler.scheduleWidgetSync(
           generation: _generation!,
           minutes: minutes.value,
@@ -230,13 +225,13 @@ class WidgetSyncService {
 
   Future<bool> refreshNow() async {
     if (!supported || _running) return false;
-    await reconcile();
-    final generation = _generation;
-    if (generation == null) return false;
-    // Manual refresh is still available with nightly sync disabled.
+    // Reserve before reconciliation so another caller cannot enter while it
+    // awaits native state. Manual refresh also works with automatic sync off.
     _running = true;
-    await load();
     try {
+      await reconcile();
+      final generation = _generation;
+      if (generation == null) return false;
       final success = await _refresh(generation);
       if (success) {
         await reloadCaches();
@@ -262,8 +257,7 @@ class WidgetSyncService {
   static Future<void> runBackground(String? generation) async {
     if (generation == null) return;
     final state = await channel.invokeMapMethod<String, dynamic>('getState');
-    if (state?['generation'] != generation ||
-        (state?['enabled'] != true && state?['calendarEnabled'] != true)) {
+    if (state?['generation'] != generation || state?['enabled'] != true) {
       return;
     }
     // Schedule tomorrow first, so a network failure cannot stop future updates.

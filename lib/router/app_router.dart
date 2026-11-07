@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fzu_assistant/screen/toolbox/academic_changes/academic_changes_page.dart';
 import 'package:fzu_assistant/screen/settings/calendar_export_page.dart';
 import 'package:fzu_assistant/screen/settings/next_course_widget_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/schedule_sync_settings_page.dart';
 import 'package:fzu_assistant/screen/toolbox/academic/lectures_page.dart';
 import 'package:fzu_assistant/screen/toolbox/job_fair/job_fair_page.dart';
 import 'package:fzu_assistant/screen/toolbox/utility_payment/utility_payment_page.dart';
@@ -85,6 +86,7 @@ abstract final class AppRouter {
     AppRoutes.courseReminderSettings: (_) => const CourseReminderSettingsPage(),
     AppRoutes.nextCourseWidgetSettings: (_) =>
         const NextCourseWidgetSettingsPage(),
+    AppRoutes.scheduleSyncSettings: (_) => const ScheduleSyncSettingsPage(),
     AppRoutes.androidPermissions: (_) => const AndroidPermissionsPage(),
     AppRoutes.accountManagement: (_) => const AccountManagementPage(),
     AppRoutes.homeSettings: (_) => const HomeSettingsPage(),

@@ -58,6 +58,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsReminderSection => '提醒设置';
 
   @override
+  String get scheduleSync => '课表同步';
+
+  @override
+  String get scheduleSyncDescription => '统一更新本地课表、桌面小组件和已开启同步的系统日历。';
+
+  @override
+  String get scheduleSyncLinkDescription => '手动同步、自动更新时间与相关权限';
+
+  @override
+  String get scheduleSyncAutomaticDescription => '每天定时更新，关闭后仍可手动同步。';
+
+  @override
+  String get scheduleSyncAlarmPurpose => '自动同步需要此权限，手动同步不受影响';
+
+  @override
+  String get scheduleSyncUpdated => '课表已同步，小组件和已开启同步的系统日历已更新。';
+
+  @override
+  String get scheduleSyncUnsupported => '课表同步仅支持 Android。';
+
+  @override
   String get hiddenCourseManagement => '不展示课程管理';
 
   @override
@@ -1831,7 +1852,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendarSync => '日历同步';
 
   @override
-  String get calendarSyncDescription => '将课表同步到系统日历，每晚自动更新。';
+  String get calendarSyncDescription => '将课表写入系统日历。';
 
   @override
   String get calendarSyncScope => '同步当前和临近学期的课程、自定义课程、调课及可选考试。隐藏的课次不会写入日历。';
@@ -1894,7 +1915,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get calendarSyncClearFailed => '日程清理未完成，请检查日历权限后重试。';
 
   @override
-  String get calendarSyncStartHint => '开启后，每晚自动更新课表。';
+  String get calendarSyncStartHint => '开启后，将课表写入系统日历。';
 
   @override
   String get calendarSyncNever => '尚未同步';

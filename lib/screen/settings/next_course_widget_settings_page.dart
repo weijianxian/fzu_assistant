@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/course_sessions.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/next_course_widget.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
@@ -28,32 +27,16 @@ class NextCourseWidgetSettingsPage extends HookWidget {
     final syncService = this.syncService ?? WidgetSyncService.instance;
     final variant = useState(NextCourseWidgetVariant.square);
     final busy = useState(false);
-    final loaded = useState(false);
     final operationFailed = useState(false);
     final failed = useValueListenable(service.error);
     final snapshot = useValueListenable(service.snapshot);
-    final syncEnabled = useValueListenable(syncService.enabled);
-    final syncMinutes = useValueListenable(syncService.minutes);
     final syncStatus = useValueListenable(syncService.status);
     final selection = snapshot?.select(DateTime.now().toUtc());
     final missing = selection?.state == NextCourseWidgetState.unknown;
     final working = busy.value || syncStatus.running;
 
-    Future<void> reload() async {
-      if (!NextCourseWidgetService.supported) return;
-      try {
-        await syncService.load();
-        await syncService.reconcile();
-        if (context.mounted) {
-          loaded.value = true;
-          operationFailed.value = false;
-        }
-      } catch (_) {
-        if (context.mounted) operationFailed.value = true;
-      }
-    }
-
     Future<void> run(Future<void> Function() action) async {
+      if (busy.value || syncService.status.value.running) return;
       busy.value = true;
       operationFailed.value = false;
       try {
@@ -65,22 +48,15 @@ class NextCourseWidgetSettingsPage extends HookWidget {
       }
     }
 
-    Future<void> update({bool pin = false}) => run(() async {
+    Future<void> addWidget() => run(() async {
       String? message;
       try {
-        final refreshed = pin || await syncService.refreshNow();
         await service.sync(settings);
-        message = pin
-            ? await service.requestPin(variant: variant.value)
-                  ? null
-                  : l10n.nextCourseWidgetPinUnavailable
-            : !refreshed
-            ? l10n.widgetSyncFailed
-            : service.error.value
-            ? l10n.nextCourseWidgetFailed
-            : l10n.nextCourseWidgetUpdated;
+        message = await service.requestPin(variant: variant.value)
+            ? null
+            : l10n.nextCourseWidgetPinUnavailable;
       } catch (_) {
-        message = pin ? l10n.nextCourseWidgetFailed : l10n.widgetSyncFailed;
+        message = l10n.nextCourseWidgetFailed;
         if (context.mounted) operationFailed.value = true;
       }
       if (context.mounted && message != null) {
@@ -88,23 +64,6 @@ class NextCourseWidgetSettingsPage extends HookWidget {
             .showSnackBar(SnackBar(content: Text(message)));
       }
     });
-
-    useEffect(() {
-      unawaited(reload());
-      return null;
-    }, []);
-    useOnAppLifecycleStateChange((_, state) {
-      if (state == AppLifecycleState.resumed) unawaited(reload());
-    });
-
-    String beijingDateTime(DateTime instant) {
-      final beijing = instant.toUtc().add(
-        NextCourseWidgetSnapshot.beijingOffset,
-      );
-      final date = MaterialLocalizations.of(context).formatMediumDate(beijing);
-      final time = TimeOfDay.fromDateTime(beijing).format(context);
-      return l10n.reminderBeijingTime('$date $time');
-    }
 
     return AppScaffold(
       appBar: AppBar(title: Text(l10n.nextCourseWidgetSettings)),
@@ -151,107 +110,39 @@ class NextCourseWidgetSettingsPage extends HookWidget {
                   ),
                   subtitle: Text(l10n.nextCourseWidgetAddDescription),
                   trailing: const Icon(Icons.add),
-                  onTap: working ? null : () => update(pin: true),
+                  onTap: working ? null : addWidget,
                 ),
               ],
             ),
             const SettingsDivider(),
             SettingsSection.list(
-              title: l10n.settingsRefreshSection,
+              title: l10n.settingsSyncSection,
               children: [
-                SettingsActionTile(
-                  icon: Icons.refresh,
-                  title: l10n.nextCourseWidgetRefresh,
-                  subtitle: l10n.nextCourseWidgetRefreshDescription,
-                  busy: working,
-                  onTap: working ? null : update,
+                ChevronListTile(
+                  leading: const Icon(Icons.sync),
+                  title: Text(l10n.scheduleSync),
+                  subtitle: Text(l10n.scheduleSyncLinkDescription),
+                  onTap: working
+                      ? null
+                      : () => run(() async {
+                          await context.pushNamed(
+                            AppRoutes.scheduleSyncSettings,
+                          );
+                          if (context.mounted) await service.sync(settings);
+                        }),
                 ),
                 if (missing)
                   ListTile(
                     leading: const Icon(Icons.info_outline),
                     title: Text(l10n.nextCourseWidgetMissing),
                   ),
-                if (failed)
+                if (failed || operationFailed.value)
                   ListTile(
                     title: Text(l10n.nextCourseWidgetFailed),
                     trailing: TextButton(
-                      onPressed: working ? null : update,
-                      child: Text(l10n.retry),
-                    ),
-                  ),
-              ],
-            ),
-            const SettingsDivider(),
-            SettingsSection.list(
-              title: l10n.settingsAutoSyncSection,
-              children: [
-                SettingSwitchTile.controlled(
-                  title: Text(l10n.widgetSyncEnabled),
-                  subtitle: Text(l10n.widgetSyncDescription),
-                  value: syncEnabled,
-                  onChanged: !loaded.value || working
-                      ? null
-                      : (value) =>
-                            run(() => syncService.configure(enabled: value)),
-                ),
-                ListTile(
-                  title: Text(l10n.widgetSyncTime),
-                  subtitle: Text(
-                    l10n.reminderBeijingTime(
-                      TimeOfDay(
-                        hour: syncMinutes ~/ 60,
-                        minute: syncMinutes % 60,
-                      ).format(context),
-                    ),
-                  ),
-                  trailing: const Icon(Icons.schedule),
-                  onTap: !loaded.value || working || !syncEnabled
-                      ? null
-                      : () async {
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay(
-                              hour: syncMinutes ~/ 60,
-                              minute: syncMinutes % 60,
-                            ),
-                          );
-                          if (time == null || !context.mounted) return;
-                          await run(
-                            () => syncService.configure(
-                              minutes: time.hour * 60 + time.minute,
-                            ),
-                          );
-                        },
-                ),
-                SettingsPermissionTile(
-                  title: l10n.reminderExactPermission,
-                  granted: loaded.value ? syncStatus.exactAllowed : null,
-                  onTap: working
-                      ? null
-                      : () => run(() async {
-                          await syncService.requestExactPermission();
-                          await reload();
-                        }),
-                ),
-                ListTile(
-                  title: Text(l10n.widgetSyncLastSuccess),
-                  subtitle: Text(
-                    syncStatus.lastSuccess == null
-                        ? l10n.widgetSyncNever
-                        : beijingDateTime(syncStatus.lastSuccess!),
-                  ),
-                ),
-                if (syncEnabled && syncStatus.nextAt != null)
-                  ListTile(
-                    title: Text(l10n.widgetSyncNext),
-                    subtitle: Text(beijingDateTime(syncStatus.nextAt!)),
-                  ),
-                if (syncStatus.failed || operationFailed.value)
-                  ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: Text(l10n.widgetSyncFailed),
-                    trailing: TextButton(
-                      onPressed: working ? null : update,
+                      onPressed: working
+                          ? null
+                          : () => run(() => service.sync(settings)),
                       child: Text(l10n.retry),
                     ),
                   ),

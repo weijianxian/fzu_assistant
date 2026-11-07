@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/next_course_widget.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/settings/next_course_widget_settings_page.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
@@ -69,6 +70,7 @@ void main() {
   late _SyncService sync;
   late List<String> events;
   late List<MethodCall> calls;
+  String? navigated;
 
   Future<void> reveal(WidgetTester tester, Finder target) async {
     if (target.evaluate().isEmpty) {
@@ -89,6 +91,7 @@ void main() {
     settings = AppSettings();
     events = [];
     calls = [];
+    navigated = null;
     widgets = _LocalWidgetService(events);
     sync = _SyncService(events);
     messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
@@ -163,6 +166,12 @@ void main() {
           locale: Locale(language),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          onGenerateRoute: (route) {
+            navigated = route.name;
+            return MaterialPageRoute<void>(
+              builder: (_) => const Scaffold(body: Text('shared sync page')),
+            );
+          },
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(
               textScaler: TextScaler.linear(textScale),
@@ -238,8 +247,8 @@ void main() {
     }
     expect(calls.every((call) => call.method == 'requestPin'), isTrue);
     expect(events, ['snapshot', 'snapshot', 'snapshot']);
-    expect(sync.loads, 1);
-    expect(sync.reconciles, 1);
+    expect(sync.loads, 0);
+    expect(sync.reconciles, 0);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('compact shows the course beside Beijing time and date at 2 by 1', (
@@ -313,120 +322,28 @@ void main() {
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
-  testWidgets('manual refresh fetches data before generating a snapshot', (
-    tester,
-  ) async {
-    final l10n = await open(tester);
-    final refresh = find.text(l10n.nextCourseWidgetRefresh);
-    await reveal(tester, refresh);
-    await tester.tap(refresh);
-    await tester.pumpAndSettle();
-    expect(events, ['network', 'snapshot']);
-    expect(calls, isEmpty);
-    expect(find.text(l10n.nextCourseWidgetUpdated), findsOneWidget);
-  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
-
-  testWidgets('failed network refresh keeps the cache and shows failure', (
-    tester,
-  ) async {
-    sync.refreshSucceeds = false;
-    final previous = NextCourseWidgetSnapshot(
-      generatedAt: DateTime.utc(2026, 9, 13, 16),
-      days: const [],
-    );
-    widgets.snapshot.value = previous;
-    final l10n = await open(tester);
-    final refresh = find.text(l10n.nextCourseWidgetRefresh);
-    await reveal(tester, refresh);
-    await tester.tap(refresh);
-    await tester.pumpAndSettle();
-    expect(events, ['network', 'snapshot']);
-    expect(widgets.snapshot.value, same(previous));
-    expect(find.text(l10n.widgetSyncFailed), findsWidgets);
-    expect(find.text(l10n.nextCourseWidgetUpdated), findsNothing);
-  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
-
-  testWidgets('nightly preferences, permission link and resume reload work', (
-    tester,
-  ) async {
-    final l10n = await open(tester);
-    final enabled = find.widgetWithText(SwitchListTile, l10n.widgetSyncEnabled);
-    await reveal(tester, enabled);
-    await tester.tap(enabled);
-    await tester.pumpAndSettle();
-    expect(sync.enabled.value, isFalse);
-    ListTile timeTile() => tester.widget<ListTile>(
-      find.widgetWithText(ListTile, l10n.widgetSyncTime),
-    );
-    expect(timeTile().onTap, isNull);
-    await tester.tap(enabled);
-    await tester.pumpAndSettle();
-    expect(sync.enabled.value, isTrue);
-    final time = find.text(l10n.widgetSyncTime);
-    await reveal(tester, time);
-    await tester.tap(time);
-    await tester.pumpAndSettle();
-    expect(
-      tester
-          .widget<TimePickerDialog>(find.byType(TimePickerDialog))
-          .initialTime,
-      const TimeOfDay(hour: 23, minute: 0),
-    );
-    final material = MaterialLocalizations.of(
-      tester.element(find.byType(TimePickerDialog)),
-    );
-    await tester.tap(find.byTooltip(material.inputTimeModeButtonLabel));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).at(0), '22');
-    await tester.enterText(find.byType(TextField).at(1), '15');
-    await tester.tap(find.text(material.okButtonLabel));
-    await tester.pumpAndSettle();
-    expect(sync.minutes.value, 22 * 60 + 15);
-    final permission = find.text(l10n.reminderExactPermission);
-    await reveal(tester, permission);
-    await tester.tap(permission);
-    await tester.pumpAndSettle();
-    expect(sync.permissionRequests, 1);
-    final before = sync.loads;
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pumpAndSettle();
-    expect(sync.loads, before + 1);
-    expect(sync.reconciles, sync.loads);
-    expect(tester.takeException(), isNull);
-  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
-
-  testWidgets('successful sync timestamps display in Beijing time', (
-    tester,
-  ) async {
-    // This test compares timezone formatting across the permission/status rows;
-    // scrolling itself is covered by the compact settings interaction tests.
-    tester.view.physicalSize = const Size(800, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    sync.status.value = WidgetSyncStatus(
-      exactAllowed: true,
-      lastSuccess: DateTime.utc(2026, 9, 13, 15, 45),
-      nextAt: DateTime.utc(2026, 9, 14, 15),
-    );
-    final l10n = await open(tester, language: 'en');
-    final last = find.widgetWithText(ListTile, l10n.widgetSyncLastSuccess);
-    await reveal(tester, last);
-    final value = tester.widget<ListTile>(last).subtitle! as Text;
-    expect(value.data, contains('23:45'));
-    expect(value.data, contains('Beijing time'));
-    final permission = find.widgetWithText(
-      ListTile,
-      l10n.reminderExactPermission,
-    );
-    expect(
-      (tester.widget<ListTile>(permission).subtitle! as Text).data,
-      l10n.reminderPermissionGranted,
-    );
-    await reveal(tester, find.text(l10n.widgetSyncNext));
-    expect(find.text(l10n.widgetSyncNext), findsOneWidget);
-  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+  testWidgets(
+    'updates link to shared timetable sync without duplicated controls',
+    (tester) async {
+      final l10n = await open(tester);
+      final link = find.text(l10n.scheduleSync);
+      await reveal(tester, link);
+      expect(find.byType(SwitchListTile), findsNothing);
+      expect(find.text(l10n.reminderExactPermission), findsNothing);
+      expect(find.text(l10n.widgetSyncTime), findsNothing);
+      expect(find.text(l10n.nextCourseWidgetRefresh), findsNothing);
+      await tester.tap(link);
+      await tester.pumpAndSettle();
+      expect(navigated, AppRoutes.scheduleSyncSettings);
+      expect(events, isEmpty);
+      Navigator.of(tester.element(find.text('shared sync page'))).pop();
+      await tester.pumpAndSettle();
+      expect(events, ['snapshot']);
+      expect(sync.loads, 0);
+      expect(calls, isEmpty);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.android),
+  );
 
   for (final language in ['zh', 'en']) {
     for (final brightness in Brightness.values) {

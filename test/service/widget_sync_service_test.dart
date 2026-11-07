@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
@@ -5,13 +6,19 @@ import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/calendar_sync.dart';
 import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/android_task_scheduler.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
+import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../fixtures/lectures_fixture.dart';
+import '../fixtures/reminder_channel.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -380,37 +387,125 @@ void main() {
     expect(payload.toString(), isNot(contains('202501')));
   });
 
-  test('calendar-only nightly schedule re-arms tomorrow even if refresh cannot prepare', () async {
-    AndroidAlarmManager.setTestOverrides(
-      getCallbackHandle: (_) => CallbackHandle.fromRawHandle(1),
+  test(
+    'shared nightly schedule re-arms tomorrow even if refresh cannot prepare',
+    () async {
+      AndroidAlarmManager.setTestOverrides(
+        getCallbackHandle: (_) => CallbackHandle.fromRawHandle(1),
+      );
+      final alarms = <MethodCall>[];
+      messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
+        call,
+      ) async {
+        alarms.add(call);
+        return true;
+      });
+      messenger.setMockMethodCallHandler(WidgetSyncService.channel, (
+        call,
+      ) async {
+        calls.add(call);
+        return switch (call.method) {
+          'getState' => {
+            'generation': 'calendar',
+            'enabled': true,
+            'calendarEnabled': true,
+            'minutes': 1380,
+          },
+          'acquireWakeLock' => true,
+          _ => null,
+        };
+      });
+      await WidgetSyncService.runBackground('calendar');
+      expect(alarms.map((call) => call.method), contains('Alarm.oneShotAt'));
+      expect(calls.map((call) => call.method), [
+        'getState',
+        'acquireWakeLock',
+        'prepare',
+        'releaseWakeLock',
+      ]);
+    },
+  );
+
+  test(
+    'shared automatic off prevents calendar from rearming a background task',
+    () async {
+      messenger.setMockMethodCallHandler(WidgetSyncService.channel, (
+        call,
+      ) async {
+        calls.add(call);
+        return {
+          'generation': 'paused',
+          'enabled': false,
+          'calendarEnabled': true,
+        };
+      });
+      await WidgetSyncService.runBackground('paused');
+      expect(calls.map((call) => call.method), ['getState']);
+    },
+  );
+
+  test('manual refresh reserves before reconciliation and works with automatic sync and exact alarms off', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    FlutterSecureStorage.setMockInitialValues({});
+    mockReminderChannel();
+    final api = ApiClient.instance;
+    final previousAdapter = api.dio.httpClientAdapter;
+    api.dio.httpClientAdapter = LecturesFixtureAdapter();
+    final state = <String, dynamic>{
+      'enabled': false,
+      'calendarEnabled': true,
+      'minutes': 1380,
+    };
+    final alarms = <String>[];
+    final entered = Completer<void>();
+    final finish = Completer<bool>();
+    var refreshes = 0;
+    final service = WidgetSyncService(
+      refresh: (_) async {
+        refreshes++;
+        entered.complete();
+        return finish.future;
+      },
     );
-    final alarms = <MethodCall>[];
+    messenger.setMockMethodCallHandler(WidgetSyncService.channel, (call) async {
+      if (call.method == 'getState') return state;
+      if (call.method == 'configure') {
+        state.addAll(Map<String, dynamic>.from(call.arguments as Map));
+      }
+      return null;
+    });
+    messenger.setMockMethodCallHandler(CourseReminderService.channel, (
+      _,
+    ) async {
+      return {'notifications': false, 'exact': false};
+    });
     messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
       call,
     ) async {
-      alarms.add(call);
+      alarms.add(call.method);
       return true;
     });
-    messenger.setMockMethodCallHandler(WidgetSyncService.channel, (call) async {
-      calls.add(call);
-      return switch (call.method) {
-        'getState' => {
-          'generation': 'calendar',
-          'enabled': false,
-          'calendarEnabled': true,
-          'minutes': 1380,
-        },
-        'acquireWakeLock' => true,
-        _ => null,
-      };
-    });
-    await WidgetSyncService.runBackground('calendar');
-    expect(alarms.map((call) => call.method), contains('Alarm.oneShotAt'));
-    expect(calls.map((call) => call.method), [
-      'getState',
-      'acquireWakeLock',
-      'prepare',
-      'releaseWakeLock',
-    ]);
+    try {
+      await api.login('20230001', 'test-only', '1234');
+      final first = service.refreshNow();
+      expect(await service.refreshNow(), isFalse);
+      await entered.future;
+      expect(refreshes, 1);
+      expect(service.status.value.running, isTrue);
+      expect(service.status.value.nextAt, isNull);
+      expect(alarms, isNot(contains('Alarm.oneShotAt')));
+      finish.complete(true);
+      expect(await first, isTrue);
+      expect(service.status.value.running, isFalse);
+      expect(service.enabled.value, isFalse);
+      expect(service.status.value.exactAllowed, isFalse);
+    } finally {
+      await api.clearSession();
+      api.dio.httpClientAdapter = previousAdapter;
+      service.enabled.dispose();
+      service.minutes.dispose();
+      service.status.dispose();
+      messenger.setMockMethodCallHandler(CourseReminderService.channel, null);
+    }
   });
 }

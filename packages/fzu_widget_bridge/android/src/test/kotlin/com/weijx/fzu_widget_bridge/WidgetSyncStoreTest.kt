@@ -5,12 +5,12 @@ import org.junit.Test
 import org.json.JSONObject
 
 class WidgetSyncStoreTest {
-    @Test fun calendarKeepsNightlyTaskActiveAndSharesInputFencing() {
+    @Test fun calendarSharesAutomaticScheduleAndInputFencing() {
         val f = Fixture()
         var calendarEnabled = true
         val store = WidgetSyncStore(f.flutter, f.widget, f.state, f.fence,
             additionalEnabled = { calendarEnabled }) { f.now }
-        store.configure(false, 1380, "calendar")
+        store.configure(true, 1380, "calendar")
         @Suppress("UNCHECKED_CAST")
         val baseline = store.prepare("calendar", false)!!["baseline"] as Map<String, Any?>
         var writes = 0
@@ -20,7 +20,46 @@ class WidgetSyncStoreTest {
         assertEquals(1, writes)
         store.invalidateInputs()
         calendarEnabled = false
-        assertNull(store.prepare("calendar", false))
+        assertFalse(store.commit("calendar", false, baseline, emptyMap(), snapshot))
+    }
+
+    @Test fun legacyAutomaticStateMigratesWithoutLosingCalendarOnlySchedules() {
+        for (widgetEnabled in listOf(false, true)) {
+            for (calendarEnabled in listOf(false, true)) {
+                val f = Fixture()
+                f.state.values["enabled"] = widgetEnabled
+                f.state.values["generation"] = "old"
+                val store = WidgetSyncStore(f.flutter, f.widget, f.state, f.fence,
+                    additionalEnabled = { calendarEnabled }) { f.now }
+                val effective = widgetEnabled || calendarEnabled
+                assertEquals(effective, store.getState()["enabled"])
+                assertEquals(effective, store.isValid("old"))
+                store.configure(effective, 1380, "migrated")
+                assertEquals(effective, f.state.values["automaticEnabled"])
+                assertEquals(effective, store.isValid("migrated"))
+            }
+        }
+    }
+
+    @Test fun sharedAutomaticOffBlocksCalendarBackgroundButAllowsManualSync() {
+        val f = Fixture()
+        var calendarEnabled = true
+        val store = WidgetSyncStore(f.flutter, f.widget, f.state, f.fence,
+            additionalEnabled = { calendarEnabled }) { f.now }
+        store.configure(true, 1380, "active")
+        store.configure(false, 1380, "paused")
+        assertEquals(false, store.getState()["enabled"])
+        assertFalse(store.isValid("active", true))
+        assertFalse(store.isValid("paused"))
+        assertNull(store.prepare("paused", false))
+        assertFalse(store.markFailed("paused", false))
+        @Suppress("UNCHECKED_CAST")
+        val baseline = store.prepare("paused", true)!!["baseline"] as Map<String, Any?>
+        assertTrue(store.commit("paused", true, baseline, emptyMap(), snapshot))
+        // Toggling the calendar destination cannot undo the shared preference.
+        calendarEnabled = false
+        calendarEnabled = true
+        assertEquals(false, store.getState()["enabled"])
     }
     private val snapshot = """{"version":1,"days":[],"sourceUpdatedAt":123}"""
 

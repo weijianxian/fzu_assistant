@@ -7,7 +7,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar_sync.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/settings/calendar_sync_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/schedule_sync_settings_page.dart';
 import 'package:fzu_assistant/service/android_permissions_service.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/calendar_sync_service.dart';
@@ -133,11 +135,7 @@ void main() {
             find.text(l10n.calendarSyncPermission).hitTestable(),
             findsOneWidget,
           );
-          await revealWidget(tester, find.text(l10n.reminderExactPermission));
-          expect(
-            find.text(l10n.reminderExactPermission).hitTestable(),
-            findsOneWidget,
-          );
+          expect(find.text(l10n.reminderExactPermission), findsNothing);
           final scrollable = tester.state<ScrollableState>(
             find.byType(Scrollable).first,
           );
@@ -259,7 +257,7 @@ void main() {
           debugDefaultTargetPlatformOverride = null;
         });
 
-        testWidgets('$language 提醒选项即时保存并可手动应用，保存不显示正在同步', (tester) async {
+        testWidgets('$language 提醒选项即时保存，跳转课表同步应用且不重复展示更新控件', (tester) async {
           final calendar = _CalendarService();
           final nightly = _NightlyService();
           await _pumpPage(tester, language, calendar, nightly, style);
@@ -290,8 +288,20 @@ void main() {
           expect(find.text(l10n.calendarSyncPending), findsOneWidget);
           await tester.tap(find.byType(SnackBarAction));
           await tester.pumpAndSettle();
-          expect(calendar.syncCalls, 1);
-          expect(find.text(l10n.calendarSyncPending), findsNothing);
+          expect(find.byType(ScheduleSyncSettingsPage), findsOneWidget);
+          expect(calendar.syncCalls, 0);
+          expect(
+            ModalRoute.of(
+              tester.element(find.byType(ScheduleSyncSettingsPage)),
+            )!.settings.name,
+            AppRoutes.scheduleSyncSettings,
+          );
+          Navigator.of(tester.element(find.byType(ScheduleSyncSettingsPage)))
+              .pop();
+          await tester.pumpAndSettle();
+          expect(find.text(l10n.calendarSyncTime), findsNothing);
+          expect(find.text(l10n.reminderExactPermission), findsNothing);
+          expect(find.byKey(const Key('calendar-sync-now')), findsNothing);
           await tester.pumpWidget(const SizedBox());
         });
 
@@ -311,7 +321,7 @@ void main() {
           );
           expect(enable.onChanged, isNull);
           calendar.failLoad = false;
-          await tester.tap(find.byKey(const Key('calendar-sync-now')));
+          await tester.tap(find.byKey(const Key('calendar-sync-retry')));
           await tester.pumpAndSettle();
           expect(find.text(l10n.calendarSyncLoadFailed), findsNothing);
           expect(
@@ -328,40 +338,32 @@ void main() {
           await tester.pumpWidget(const SizedBox());
         });
 
-        testWidgets('$language 缺少精确闹钟仍可手动同步并防止重复点击', (tester) async {
+        testWidgets('$language 启用日历仍会首次写入，更新设置仅跳转课表同步', (tester) async {
           final calendar = _CalendarService()..syncGate = Completer<bool>();
-          final nightly = _NightlyService(exactAllowed: false);
+          final nightly = _NightlyService(exactAllowed: false)
+            ..enabled.value = false;
+          calendar.status.value = const CalendarSyncStatus(granted: true);
           await _pumpPage(tester, language, calendar, nightly, style);
           final l10n = AppLocalizations.of(
             tester.element(find.byType(CalendarSyncSettingsPage)),
           )!;
-          expect(find.text(l10n.calendarSyncAlarmHint), findsOneWidget);
-          final syncButton = find.byKey(const Key('calendar-sync-now'));
-          await tester.tap(syncButton);
-          await tester.tap(syncButton);
+          expect(find.text(l10n.calendarSyncAlarmHint), findsNothing);
+          final enabled = find.byType(SwitchListTile).first;
+          await tester.tap(enabled);
+          await tester.tap(enabled);
           await tester.pump();
           expect(calendar.syncCalls, 1);
-          expect(
-            tester
-                .widget<FilledButton>(
-                  find.descendant(
-                    of: syncButton,
-                    matching: find.byType(FilledButton),
-                  ),
-                )
-                .onPressed,
-            isNull,
-          );
-          expect(find.byType(CircularProgressIndicator), findsOneWidget);
+          expect(tester.widget<SwitchListTile>(enabled).onChanged, isNull);
           calendar.syncGate!.complete(false);
           await tester.pumpAndSettle();
           expect(find.text(l10n.calendarSyncFailed), findsOneWidget);
-          expect(find.text(l10n.retry), findsOneWidget);
-          expect(find.text(l10n.calendarSyncOccurrences(67)), findsOneWidget);
-          await tester.tap(find.text(l10n.calendarSyncGrantAlarm));
+          final link = find.text(l10n.scheduleSync);
+          await revealWidget(tester, link);
+          await tester.tap(link);
           await tester.pumpAndSettle();
-          expect(nightly.permissionRequests, 1);
-          expect(find.text(l10n.calendarSyncAlarmHint), findsNothing);
+          expect(find.byType(ScheduleSyncSettingsPage), findsOneWidget);
+          expect(nightly.enabled.value, isFalse);
+          expect(nightly.permissionRequests, 0);
           await tester.pumpWidget(const SizedBox());
         });
 
@@ -417,6 +419,13 @@ Future<void> _pumpPage(
       locale: Locale(language),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      onGenerateRoute: (route) => MaterialPageRoute<void>(
+        settings: route,
+        builder: (_) => ScheduleSyncSettingsPage(
+          syncService: nightly,
+          calendarService: calendar,
+        ),
+      ),
       home: CalendarSyncSettingsPage(
         calendarService: calendar,
         syncService: nightly,

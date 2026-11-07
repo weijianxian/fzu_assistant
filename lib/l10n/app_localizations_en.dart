@@ -58,6 +58,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsReminderSection => 'Reminder settings';
 
   @override
+  String get scheduleSync => 'Timetable sync';
+
+  @override
+  String get scheduleSyncDescription =>
+      'Update your cached timetable, home screen widgets, and system calendar when calendar sync is on.';
+
+  @override
+  String get scheduleSyncLinkDescription =>
+      'Sync now, automatic refresh time and permissions';
+
+  @override
+  String get scheduleSyncAutomaticDescription =>
+      'Update daily at the selected time. Manual sync is always available.';
+
+  @override
+  String get scheduleSyncAlarmPurpose =>
+      'Required for automatic sync; manual sync works without it';
+
+  @override
+  String get scheduleSyncUpdated =>
+      'Timetable and widgets updated, including the system calendar when sync is on.';
+
+  @override
+  String get scheduleSyncUnsupported =>
+      'Timetable sync is only available on Android.';
+
+  @override
   String get hiddenCourseManagement => 'Hidden course management';
 
   @override
@@ -1955,7 +1982,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarSyncDescription =>
-      'Keep your system calendar updated with your timetable each night.';
+      'Write your timetable to the system calendar.';
 
   @override
   String get calendarSyncScope =>
@@ -2027,7 +2054,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarSyncStartHint =>
-      'Update your timetable automatically each night.';
+      'Write your timetable to the system calendar when enabled.';
 
   @override
   String get calendarSyncNever => 'Not synced yet';

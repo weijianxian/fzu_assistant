@@ -72,6 +72,13 @@ class SettingsPage extends HookWidget {
                   subtitle: Text(l10n.permissionManagementSubtitle),
                   onTap: () => context.pushNamed(AppRoutes.androidPermissions),
                 ),
+                ChevronListTile(
+                  leading: const Icon(Icons.sync),
+                  title: Text(l10n.scheduleSync),
+                  subtitle: Text(l10n.scheduleSyncDescription),
+                  onTap: () =>
+                      context.pushNamed(AppRoutes.scheduleSyncSettings),
+                ),
                 if (CalendarSyncService.supported)
                   ChevronListTile(
                     leading: const Icon(Icons.calendar_month_outlined),

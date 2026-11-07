@@ -48,8 +48,13 @@ following `Int.MAX_VALUE - 1000` wraps to `1000000`. `cancel` removes `alarmId`
 and preserves the counter. Only the host schedules/cancels these alarm IDs;
 this plugin never invokes an alarm manager.
 
-Calendar sync may independently keep the nightly task active when widget sync is
-disabled. `getState` adds `calendarEnabled`; `prepare` also returns a `calendar`
+`enabled` is the shared automatic timetable refresh switch for caches, widgets,
+and enabled calendar sync. `configure` persists `automaticEnabled` alongside the
+legacy `enabled` key. Until that first configuration, old preferences retain
+their effective state (`enabled || calendarEnabled`), so calendar-only users keep
+their schedule after upgrading. Once configured, calendar sync cannot override
+an explicitly disabled automatic switch. Manual refresh still updates all enabled
+destinations. `getState` also adds `calendarEnabled`; `prepare` returns a `calendar`
 configuration map, read under the same lock as the baseline.
 
 `manual: true` bypasses only the enabled check on `prepare`, `commit` and

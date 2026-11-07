@@ -73,9 +73,20 @@ void main() {
             await tester.tap(calendar);
             await tester.pumpAndSettle();
             expect(navigated, AppRoutes.calendarExport);
+            Navigator.of(tester.element(find.byType(Scaffold).last)).pop();
+            await tester.pumpAndSettle();
+            final sync = find.descendant(
+              of: platformSection,
+              matching: find.text(l10n.scheduleSync),
+            );
+            await tester.ensureVisible(sync);
+            await tester.tap(sync);
+            await tester.pumpAndSettle();
+            expect(navigated, AppRoutes.scheduleSyncSettings);
           } else {
             expect(find.text(l10n.settingsPlatformSection), findsNothing);
             expect(find.text(l10n.calendarSync), findsNothing);
+            expect(find.text(l10n.scheduleSync), findsNothing);
           }
           await tester.pumpWidget(const SizedBox());
           await tester.pumpWidget(app(const HomeSettingsPage()));

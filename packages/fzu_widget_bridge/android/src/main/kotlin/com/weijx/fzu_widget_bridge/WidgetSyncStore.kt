@@ -66,7 +66,7 @@ internal class WidgetSyncStore(
         val active = generation != null && valid(values, generation, manual = true)
         val revoked = fence.blocked || (generation != null && generation in fence.revoked)
         mapOf(
-            "enabled" to (values["enabled"] as? Boolean ?: true),
+            "enabled" to automaticEnabled(values),
             "minutes" to ((values["minutes"] as? Number)?.toInt() ?: 1380),
             "generation" to if (active) generation else null,
             "alarmId" to if (active) values["alarmId"] else null,
@@ -93,6 +93,7 @@ internal class WidgetSyncStore(
             counter >= LAST_ALARM_ID) FIRST_ALARM_ID else (counter + 1).toInt()
         transaction(listOf(state to mapOf(
             "enabled" to enabled,
+            "automaticEnabled" to enabled,
             "minutes" to minutes,
             "generation" to generation,
             "alarmId" to alarmId,
@@ -126,7 +127,14 @@ internal class WidgetSyncStore(
     private fun valid(values: Map<String, Any?>, generation: String, manual: Boolean): Boolean =
         !fence.blocked && generation !in fence.revoked &&
             generation.isNotBlank() && values["generation"] == generation &&
-            (manual || (values["enabled"] as? Boolean) != false || additionalEnabled())
+            (manual || automaticEnabled(values))
+
+    // Before the shared timetable settings existed, either destination could
+    // keep the nightly task active. Preserve that state until first configure;
+    // afterwards the shared automatic switch controls both destinations.
+    private fun automaticEnabled(values: Map<String, Any?>): Boolean =
+        values["automaticEnabled"] as? Boolean
+            ?: ((values["enabled"] as? Boolean ?: true) || additionalEnabled())
 
     /** Calendar preferences participate in the same in-flight input fence. */
     fun invalidateInputs() = synchronized(LOCK) { fence.advance() }

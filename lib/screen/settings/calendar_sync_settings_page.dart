@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/android_permissions_service.dart';
 import 'package:fzu_assistant/service/calendar_sync_service.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
@@ -29,7 +30,6 @@ class CalendarSyncSettingsPage extends HookWidget {
     final nightly = syncService ?? WidgetSyncService.instance;
     final status = useValueListenable(service.status);
     final nightlyStatus = useValueListenable(nightly.status);
-    final minutes = useValueListenable(nightly.minutes);
     final operation = useState<_Operation?>(null);
     final modalOpen = useState(false);
     final ready = useState(false);
@@ -72,7 +72,6 @@ class CalendarSyncSettingsPage extends HookWidget {
 
     Future<void> readState() async {
       await service.load();
-      await nightly.reconcile();
       if (context.mounted) ready.value = true;
     }
 
@@ -89,7 +88,21 @@ class CalendarSyncSettingsPage extends HookWidget {
       }
     }
 
-    void syncNow() => unawaited(run(_Operation.syncing, sync));
+    Future<void> openScheduleSync() async {
+      if (working ||
+          operation.value != null ||
+          modalOpen.value ||
+          nightly.status.value.running) {
+        return;
+      }
+      modalOpen.value = true;
+      try {
+        await context.pushNamed(AppRoutes.scheduleSyncSettings);
+      } finally {
+        if (context.mounted) modalOpen.value = false;
+      }
+      if (context.mounted) await reload();
+    }
 
     Future<void> setEnabled(bool enabled) => run(_Operation.saving, () async {
       if (enabled &&
@@ -119,8 +132,8 @@ class CalendarSyncSettingsPage extends HookWidget {
             content: Text(l10n.calendarSyncSaved),
             action: service.status.value.enabled
                 ? SnackBarAction(
-                    label: l10n.calendarSyncNow,
-                    onPressed: syncNow,
+                    label: l10n.scheduleSync,
+                    onPressed: openScheduleSync,
                   )
                 : null,
           ),
@@ -137,11 +150,6 @@ class CalendarSyncSettingsPage extends HookWidget {
           'android.permission.WRITE_CALENDAR',
         );
       }
-      await readState();
-    });
-
-    Future<void> alarmPermission() => run(_Operation.permission, () async {
-      await nightly.requestExactPermission();
       await readState();
     });
 
@@ -176,25 +184,6 @@ class CalendarSyncSettingsPage extends HookWidget {
         return;
       }
       await saveOptions(reminder: selected);
-    }
-
-    Future<void> chooseTime() async {
-      final selected = await showChoice(
-        () => showTimePicker(
-          context: context,
-          helpText: l10n.reminderBeijingTime(l10n.calendarSyncTime),
-          initialTime: TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
-        ),
-      );
-      if (selected == null || !context.mounted) return;
-      final value = selected.hour * 60 + selected.minute;
-      if (value == minutes) return;
-      await run(_Operation.saving, () async {
-        await nightly.configure(minutes: value);
-        if (context.mounted && nightly.status.value.failed) {
-          error.value = l10n.calendarSyncScheduleFailed;
-        }
-      });
     }
 
     Future<void> clearAll() async {
@@ -272,12 +261,9 @@ class CalendarSyncSettingsPage extends HookWidget {
     }
 
     final needsCalendar = ready.value && !status.granted;
-    final needsAlarm = ready.value && !nightlyStatus.exactAllowed;
     final failure =
         error.value ??
-        (status.enabled && (status.failed || nightlyStatus.failed)
-            ? l10n.calendarSyncFailed
-            : null);
+        (status.enabled && status.failed ? l10n.calendarSyncFailed : null);
     final summaryTitle = syncing
         ? l10n.calendarSyncBusy
         : clearing
@@ -296,9 +282,6 @@ class CalendarSyncSettingsPage extends HookWidget {
         ? l10n.calendarExportNoReminder
         : l10n.calendarExportReminderMinutes(status.reminder);
     final canEdit = ready.value && !working;
-    final detailStyle = theme.textTheme.bodySmall?.copyWith(
-      color: colors.onSurfaceVariant,
-    );
 
     return AppScaffold(
       appBar: AppBar(
@@ -388,54 +371,22 @@ class CalendarSyncSettingsPage extends HookWidget {
                       if (!status.enabled && status.lastSuccess != null)
                         l10n.calendarSyncPausedHint,
                     ],
-                    action:
-                        status.enabled ||
-                            !ready.value ||
-                            (failure != null && needsCalendar)
+                    action: !ready.value || needsCalendar
                         ? SettingsActionButton(
-                            key: const Key('calendar-sync-now'),
-                            busy: syncing,
+                            key: const Key('calendar-sync-retry'),
                             onPressed: working
                                 ? null
                                 : !ready.value
                                 ? () => unawaited(reload())
                                 : needsCalendar
                                 ? () => unawaited(calendarPermission())
-                                : status.enabled
-                                ? syncNow
                                 : null,
                             icon: needsCalendar
                                 ? Icons.lock_open_outlined
                                 : Icons.sync,
-                            label: syncing
-                                ? l10n.calendarSyncBusy
-                                : !ready.value
+                            label: !ready.value
                                 ? l10n.retry
-                                : needsCalendar
-                                ? l10n.calendarSyncGrantCalendar
-                                : failure != null
-                                ? l10n.retry
-                                : l10n.calendarSyncNow,
-                          )
-                        : null,
-                    footer: status.enabled && needsAlarm
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                l10n.calendarSyncAlarmHint,
-                                style: detailStyle,
-                              ),
-                              Align(
-                                alignment: AlignmentDirectional.centerStart,
-                                child: TextButton(
-                                  onPressed: working
-                                      ? null
-                                      : () => unawaited(alarmPermission()),
-                                  child: Text(l10n.calendarSyncGrantAlarm),
-                                ),
-                              ),
-                            ],
+                                : l10n.calendarSyncGrantCalendar,
                           )
                         : null,
                   ),
@@ -447,13 +398,10 @@ class CalendarSyncSettingsPage extends HookWidget {
             title: l10n.settingsSyncSection,
             children: [
               ChevronListTile(
-                leading: const Icon(Icons.schedule_outlined),
-                title: Text(l10n.calendarSyncTime),
-                subtitle: Text(
-                  '${l10n.reminderBeijingTime(TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60).format(context))}\n'
-                  '${l10n.calendarSyncSharedTime}',
-                ),
-                onTap: canEdit ? chooseTime : null,
+                leading: const Icon(Icons.sync),
+                title: Text(l10n.scheduleSync),
+                subtitle: Text(l10n.scheduleSyncLinkDescription),
+                onTap: canEdit ? openScheduleSync : null,
               ),
               SettingSwitchTile.controlled(
                 secondary: const Icon(Icons.event_note_outlined),
@@ -481,12 +429,6 @@ class CalendarSyncSettingsPage extends HookWidget {
                 purpose: l10n.calendarSyncCalendarPurpose,
                 granted: ready.value ? status.granted : null,
                 onTap: canEdit ? calendarPermission : null,
-              ),
-              SettingsPermissionTile(
-                title: l10n.reminderExactPermission,
-                purpose: l10n.calendarSyncAlarmPurpose,
-                granted: ready.value ? nightlyStatus.exactAllowed : null,
-                onTap: canEdit ? alarmPermission : null,
               ),
             ],
           ),
