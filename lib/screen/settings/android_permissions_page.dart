@@ -80,6 +80,8 @@ class AndroidPermissionsPage extends HookWidget {
                       title: Text(switch (permission.name) {
                         'android.permission.POST_NOTIFICATIONS' =>
                           l10n.permissionNameNotifications,
+                        'android.permission.POST_PROMOTED_NOTIFICATIONS' =>
+                          l10n.permissionNameLiveUpdates,
                         'android.permission.SCHEDULE_EXACT_ALARM' =>
                           l10n.permissionNameAlarms,
                         'android.permission.CAMERA' =>
@@ -105,6 +107,7 @@ class AndroidPermissionsPage extends HookWidget {
                       subtitle: Text(
                         '${switch (permission.name) {
                           'android.permission.POST_NOTIFICATIONS' => l10n.permissionPurposeNotifications,
+                          'android.permission.POST_PROMOTED_NOTIFICATIONS' => l10n.permissionPurposeLiveUpdates,
                           'android.permission.SCHEDULE_EXACT_ALARM' => l10n.permissionPurposeAlarms,
                           'android.permission.CAMERA' => l10n.permissionPurposeCamera,
                           'android.permission.ACCESS_COARSE_LOCATION' => l10n.permissionPurposeLocation,

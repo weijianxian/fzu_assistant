@@ -47,6 +47,14 @@ class FzuWidgetBridgePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 "getState" -> result.success(synchronized(WidgetSyncStore.LOCK) {
                     store.getState() + ("calendarEnabled" to calendar.enabled)
                 })
+                "readLiveUpdateSnapshot" -> result.success(synchronized(WidgetSyncStore.LOCK) {
+                    mapOf(
+                        "generation" to store.getState()["generation"],
+                        "snapshot" to context.getSharedPreferences(
+                            WidgetSyncStore.WIDGET_PREFS, Context.MODE_PRIVATE,
+                        ).getString("snapshot", null),
+                    )
+                })
                 "calendarState" -> result.success(synchronized(WidgetSyncStore.LOCK) { calendar.state() })
                 "calendarConfigure" -> {
                     synchronized(WidgetSyncStore.LOCK) {

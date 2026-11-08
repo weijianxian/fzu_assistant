@@ -17,6 +17,7 @@ import 'package:fzu_assistant/service/api/academic_service.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
+import 'package:fzu_assistant/service/course_live_updates_controller.dart';
 import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -182,6 +183,11 @@ class WidgetSyncService {
         await AndroidTaskScheduler.cancelWidgetSync(alarmId: _alarmId);
       }
       await load();
+      if (revision == _revision && account == ApiClient.instance.studentId) {
+        await CourseLiveUpdatesController.synchronize(
+          expectedGeneration: _generation,
+        );
+      }
     } on MissingPluginException {
       // Optional integration is absent on non-Android test hosts.
     } catch (_) {
@@ -375,7 +381,8 @@ Future<bool> refreshWidgetData(
     );
     final encoded = snapshot.toJson()
       ..['sourceUpdatedAt'] = instant.millisecondsSinceEpoch;
-    return await channel.invokeMethod<bool>('commit', {
+    final committed =
+        await channel.invokeMethod<bool>('commit', {
           'generation': generation,
           'manual': manual,
           'baseline': baseline,
@@ -400,6 +407,12 @@ Future<bool> refreshWidgetData(
             ),
         }) ??
         false;
+    if (committed) {
+      await CourseLiveUpdatesController.synchronize(
+        expectedGeneration: generation,
+      );
+    }
+    return committed;
   } catch (error) {
     if (kDebugMode) {
       debugPrint(

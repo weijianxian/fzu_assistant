@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/hooks/use_async_data.dart';
+import 'package:fzu_assistant/service/course_live_update_service.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 
@@ -13,11 +17,62 @@ const _tools = [
   (Icons.lock, 'SecureStorage', AppRoutes.devSecureStorage),
 ];
 
+const _liveUpdatePreviews = [
+  (
+    CourseLiveUpdatePreview.inProgress,
+    Icons.school_outlined,
+    'Class in progress',
+    'Preview a course progress bar and a countdown to the end',
+  ),
+  (
+    CourseLiveUpdatePreview.ended,
+    Icons.task_alt,
+    'Class ended',
+    'Replace the Live Update with a completed-class notification',
+  ),
+  (
+    CourseLiveUpdatePreview.nextClass,
+    Icons.upcoming_outlined,
+    'Next class',
+    'Preview a five-minute countdown with the next classroom',
+  ),
+];
+
 class DevToolPage extends HookWidget {
   const DevToolPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final notificationBusy = useState(false);
+    final promotion = useAsyncData(CourseLiveUpdateService.promotionEnabled);
+    useOnAppLifecycleStateChange((_, state) {
+      if (state == AppLifecycleState.resumed &&
+          CourseLiveUpdateService.supported) {
+        unawaited(promotion.refresh());
+      }
+    });
+
+    Future<void> notificationAction(Future<String?> Function() action) async {
+      if (notificationBusy.value) return;
+      notificationBusy.value = true;
+      try {
+        final message = await action();
+        if (!context.mounted || message == null) return;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      } catch (error) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text('Notification test failed: $error')),
+          );
+      } finally {
+        if (context.mounted) notificationBusy.value = false;
+      }
+    }
+
     return AppScaffold(
       appBar: AppBar(title: Text('Dev Tools')),
       body: AppListView(
@@ -32,26 +87,81 @@ class DevToolPage extends HookWidget {
                   subtitle: const Text(
                     'Schedule an exact alarm to test background or lock-screen delivery.',
                   ),
-                  onTap: () async {
-                    try {
-                      await CourseReminderService.instance.testNotification();
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Notification scheduled in one minute'),
-                        ),
-                      );
-                    } catch (error) {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Failed to schedule notification: $error',
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await CourseReminderService.instance
+                              .testNotification();
+                          return 'Notification scheduled in one minute';
+                        }),
+                ),
+                for (final preview in _liveUpdatePreviews)
+                  ListTile(
+                    leading: Icon(preview.$2),
+                    title: Text(preview.$3),
+                    subtitle: Text(preview.$4),
+                    onTap: notificationBusy.value
+                        ? null
+                        : () => notificationAction(() async {
+                            final promoted =
+                                await CourseLiveUpdateService.showPreview(
+                                  preview.$1,
+                                );
+                            await promotion.refresh();
+                            if (preview.$1 == CourseLiveUpdatePreview.ended) {
+                              return 'Class-ended notification sent';
+                            }
+                            return promoted
+                                ? 'Live Update requested'
+                                : 'Preview sent as a standard notification; Live Updates are unavailable or disabled';
+                          }),
+                  ),
+                ListTile(
+                  leading: const Icon(Icons.play_circle_outline),
+                  title: const Text('Test all styles in 2 minutes'),
+                  subtitle: const Text(
+                    'In progress → next class → in progress → morning finished',
+                  ),
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await CourseLiveUpdateService.startPreviewSequence();
+                          await promotion.refresh();
+                          return 'Preview started: now, 30s, 60s and 110s';
+                        }),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_off_outlined),
+                  title: const Text('Clear course preview'),
+                  subtitle: const Text(
+                    'Stop the test sequence and remove its notification',
+                  ),
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await CourseLiveUpdateService.clearPreview();
+                          return 'Course preview cleared';
+                        }),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text('Live Update settings'),
+                  subtitle: Text(
+                    promotion.loading
+                        ? 'Checking availability'
+                        : promotion.error != null
+                        ? 'Could not check availability'
+                        : promotion.data == true
+                        ? 'Allowed by Android'
+                        : 'Unavailable or disabled; previews use standard notifications',
+                  ),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await CourseLiveUpdateService.openSettings();
+                          return null;
+                        }),
                 ),
               ],
             ),

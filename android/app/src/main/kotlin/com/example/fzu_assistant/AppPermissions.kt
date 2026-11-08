@@ -21,22 +21,27 @@ object AppPermissions {
     }
     /** 仅维护产品需要展示的权限，不扫描安装包或插件的权限声明。 */
     fun list(context: Context): List<Map<String, Any>> {
-        val permissions = listOf(
-            Manifest.permission.POST_NOTIFICATIONS,
-            Manifest.permission.SCHEDULE_EXACT_ALARM,
-            Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.READ_CALENDAR,
-            Manifest.permission.WRITE_CALENDAR,
-            Manifest.permission.REQUEST_INSTALL_PACKAGES,
-            Manifest.permission.INTERNET,
-            Manifest.permission.WAKE_LOCK,
-            Manifest.permission.RECEIVE_BOOT_COMPLETED,
-        )
+        val permissions = buildList {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+            if (Build.VERSION.SDK_INT >= 36) add(Manifest.permission.POST_PROMOTED_NOTIFICATIONS)
+            addAll(listOf(
+                Manifest.permission.SCHEDULE_EXACT_ALARM,
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR,
+                Manifest.permission.REQUEST_INSTALL_PACKAGES,
+                Manifest.permission.INTERNET,
+                Manifest.permission.WAKE_LOCK,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED,
+            ))
+        }
         return permissions.map { name ->
             val granted = when (name) {
                 Manifest.permission.POST_NOTIFICATIONS -> notificationsAllowed(context)
+                Manifest.permission.POST_PROMOTED_NOTIFICATIONS -> Build.VERSION.SDK_INT >= 36 &&
+                    context.getSystemService(android.app.NotificationManager::class.java).canPostPromotedNotifications()
                 Manifest.permission.SCHEDULE_EXACT_ALARM -> exactAllowed(context)
                 Manifest.permission.REQUEST_INSTALL_PACKAGES -> Build.VERSION.SDK_INT < 26 || context.packageManager.canRequestPackageInstalls()
                 else -> androidx.core.content.ContextCompat.checkSelfPermission(context, name) == PackageManager.PERMISSION_GRANTED
@@ -47,6 +52,10 @@ object AppPermissions {
     fun open(context: Context, name: String?) {
         val details = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}"))
         val intent = when {
+            name == Manifest.permission.POST_PROMOTED_NOTIFICATIONS && Build.VERSION.SDK_INT >= 36 ->
+                Intent(Settings.ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            name == Manifest.permission.POST_PROMOTED_NOTIFICATIONS ->
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
             name == Manifest.permission.SCHEDULE_EXACT_ALARM && Build.VERSION.SDK_INT >= 31 ->
                 Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${context.packageName}"))
             name == Manifest.permission.POST_NOTIFICATIONS ->

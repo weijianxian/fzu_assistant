@@ -2072,6 +2072,12 @@ abstract class AppLocalizations {
   /// **'发送课程与定时任务通知'**
   String get permissionPurposeNotifications;
 
+  /// No description provided for @permissionPurposeLiveUpdates.
+  ///
+  /// In zh, this message translates to:
+  /// **'在状态栏和锁屏突出显示正在进行的课程'**
+  String get permissionPurposeLiveUpdates;
+
   /// No description provided for @permissionPurposeAlarms.
   ///
   /// In zh, this message translates to:
@@ -2143,6 +2149,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'通知'**
   String get permissionNameNotifications;
+
+  /// No description provided for @permissionNameLiveUpdates.
+  ///
+  /// In zh, this message translates to:
+  /// **'实况通知'**
+  String get permissionNameLiveUpdates;
 
   /// No description provided for @permissionNameAlarms.
   ///
@@ -4621,6 +4633,84 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'文件操作失败'**
   String get downloadActionFailed;
+
+  /// No description provided for @courseLiveUpdates.
+  ///
+  /// In zh, this message translates to:
+  /// **'实况通知'**
+  String get courseLiveUpdates;
+
+  /// No description provided for @courseLiveUpdatesSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程进度、下节课与时段结束提醒'**
+  String get courseLiveUpdatesSubtitle;
+
+  /// No description provided for @courseLiveUpdatesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'上课时显示课程进度，课间提醒同一时段的下节课'**
+  String get courseLiveUpdatesDescription;
+
+  /// No description provided for @courseLiveUpdatesEnabled.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程实况通知'**
+  String get courseLiveUpdatesEnabled;
+
+  /// No description provided for @courseLiveUpdatesRule.
+  ///
+  /// In zh, this message translates to:
+  /// **'上午、下午或晚上的最后一门课结束后，直接发送结束通知'**
+  String get courseLiveUpdatesRule;
+
+  /// No description provided for @courseLiveUpdatesFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法更新课程实况通知'**
+  String get courseLiveUpdatesFailed;
+
+  /// No description provided for @courseLiveInProgress.
+  ///
+  /// In zh, this message translates to:
+  /// **'上课中'**
+  String get courseLiveInProgress;
+
+  /// No description provided for @courseLiveEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程结束'**
+  String get courseLiveEnded;
+
+  /// No description provided for @courseLiveNext.
+  ///
+  /// In zh, this message translates to:
+  /// **'下节课'**
+  String get courseLiveNext;
+
+  /// No description provided for @courseLiveMorningEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'上午课程已结束'**
+  String get courseLiveMorningEnded;
+
+  /// No description provided for @courseLiveAfternoonEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'下午课程已结束'**
+  String get courseLiveAfternoonEnded;
+
+  /// No description provided for @courseLiveEveningEnded.
+  ///
+  /// In zh, this message translates to:
+  /// **'晚间课程已结束'**
+  String get courseLiveEveningEnded;
+
+  /// No description provided for @courseLiveStartsInMinutes.
+  ///
+  /// In zh, this message translates to:
+  /// **'{minutes} 分钟后上课'**
+  String courseLiveStartsInMinutes(int minutes);
 }
 
 class _AppLocalizationsDelegate

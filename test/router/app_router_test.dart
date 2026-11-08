@@ -69,18 +69,27 @@ void main() {
         expect(tester.getRect(find.byType(AppBar)).left, 0);
         expect(tester.getRect(find.byType(AppBar)).width, 1200);
         expect(tester.getRect(find.byType(ListView)).bottom, 600);
+        final debugTile = find.widgetWithText(
+          ListTile,
+          'Learning Center API Debug',
+        );
+        await _scrollUntilHittable(tester, debugTile);
+        final leading = tester.widget<ListTile>(debugTile).leading;
+        expect(leading, isNotNull);
         expect(
-          tester.getTopLeft(find.byIcon(Icons.science_outlined)).dx,
+          tester
+              .getTopLeft(
+                find.descendant(
+                  of: debugTile,
+                  matching: find.byWidget(leading!),
+                ),
+              )
+              .dx,
           48 + 16 + (style.isCard ? 16 : 0),
         );
-        await tester.scrollUntilVisible(
-          find.text('Native BottomSheet'),
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
-        await tester.pumpAndSettle();
-        expect(find.text('Native BottomSheet').hitTestable(), findsOneWidget);
-        await tester.tap(find.text('Native BottomSheet'));
+        final sheetTile = find.widgetWithText(ListTile, 'Native BottomSheet');
+        await _scrollUntilHittable(tester, sheetTile);
+        await tester.tap(sheetTile);
         await tester.pumpAndSettle();
         final barrier = find.byType(ModalBarrier).last;
         expect(tester.getRect(barrier).left, 0);
@@ -199,6 +208,24 @@ void main() {
       isNull,
     );
   });
+}
+
+Future<void> _scrollUntilHittable(WidgetTester tester, Finder tile) async {
+  final scrollable = find.byType(Scrollable).first;
+  for (
+    var attempt = 0;
+    attempt < 20 && tile.hitTestable().evaluate().isEmpty;
+    attempt++
+  ) {
+    // Timed touch movement gives lazy rows and gesture recognition a frame.
+    await tester.timedDrag(
+      scrollable,
+      const Offset(0, -200),
+      const Duration(milliseconds: 300),
+    );
+    await tester.pumpAndSettle();
+  }
+  expect(tile.hitTestable(), findsOneWidget);
 }
 
 Future<T> _buildRoutePage<T>(WidgetTester tester, Route<dynamic> route) async {

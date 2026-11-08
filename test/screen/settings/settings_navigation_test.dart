@@ -80,6 +80,7 @@ void main() {
               l10n.scheduleSync,
               l10n.calendarSync,
               l10n.courseReminderSettings,
+              l10n.courseLiveUpdates,
               l10n.nextCourseWidgetSettings,
               l10n.permissionManagement,
             ]);
@@ -100,6 +101,7 @@ void main() {
             expect(find.text(l10n.settingsPlatformSection), findsNothing);
             expect(find.text(l10n.calendarSync), findsNothing);
             expect(find.text(l10n.scheduleSync), findsNothing);
+            expect(find.text(l10n.courseLiveUpdates), findsNothing);
           }
           await tester.pumpWidget(const SizedBox());
           await tester.pumpWidget(app(const HomeSettingsPage()));

@@ -17,6 +17,7 @@ import 'package:fzu_assistant/screen/toolbox/campus_services/campus_services_pag
 import 'package:fzu_assistant/screen/settings/third_party_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/android_permissions_page.dart';
 import 'package:fzu_assistant/screen/settings/course_reminder_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/course_live_updates_settings_page.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/my/account_management_page.dart';
 import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
@@ -89,6 +90,7 @@ abstract final class AppRouter {
     AppRoutes.webDavSettings: (_) => const WebDavSettingsPage(),
     AppRoutes.thirdPartySettings: (_) => const ThirdPartySettingsPage(),
     AppRoutes.courseReminderSettings: (_) => const CourseReminderSettingsPage(),
+    AppRoutes.courseLiveUpdates: (_) => const CourseLiveUpdatesSettingsPage(),
     AppRoutes.nextCourseWidgetSettings: (_) =>
         const NextCourseWidgetSettingsPage(),
     AppRoutes.scheduleSyncSettings: (_) => const ScheduleSyncSettingsPage(),

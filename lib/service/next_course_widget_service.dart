@@ -16,6 +16,7 @@ import 'package:fzu_assistant/model/next_course_widget.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/custom_course_store.dart';
+import 'package:fzu_assistant/service/course_live_updates_controller.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,6 +59,7 @@ class NextCourseWidgetService with WidgetsBindingObserver {
       settings.autoAdjustCourse,
       settings.west2AdjustmentsAccess,
       settings.localeKey,
+      settings.courseLiveUpdatesEnabled,
     ];
     void update() => unawaited(_sync(settings));
     for (final input in inputs) {
@@ -290,6 +292,7 @@ class NextCourseWidgetService with WidgetsBindingObserver {
         if (!stale()) {
           snapshot.value = next;
           error.value = false;
+          await CourseLiveUpdatesController.synchronize();
         }
       });
       if (refused && !stale() && attempt < 3) {

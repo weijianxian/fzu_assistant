@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fzu_assistant/service/course_live_update_service.dart';
+import 'package:fzu_assistant/service/course_live_updates_controller.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
 
 /// 闹钟只保存任务名和 JSON 参数，回调在插件的后台 isolate 执行。
@@ -16,6 +18,9 @@ abstract final class AndroidTaskScheduler {
   static const courseTaskId = 4201;
   static const testTaskId = 4202;
   static const widgetSyncTaskId = 4203;
+  static const livePreviewTaskId = 4211;
+  static const courseLiveTaskId = 4213;
+  static const livePreviewRunKey = 'android_course_live_preview_run';
   static const _plansKey = 'android_course_reminder_plans';
   static const _generationKey = 'android_course_reminder_generation';
   static const _testGenerationKey = 'android_notification_test_generation';
@@ -83,10 +88,45 @@ abstract final class AndroidTaskScheduler {
     await sp.remove(_plansKey);
     await AndroidAlarmManager.cancel(courseTaskId);
     await AndroidAlarmManager.cancel(testTaskId);
+    await _cancelLivePreview();
     final notifications = await notificationPlugin();
     await notifications.cancel(id: courseTaskId);
     await notifications.cancel(id: testTaskId);
+    await notifications.cancel(id: CourseLiveUpdateService.notificationId);
+    await AndroidAlarmManager.cancel(courseLiveTaskId);
+    await notifications.cancel(id: CourseLiveUpdatesController.notificationId);
   });
+
+  static Future<String> beginLivePreview(
+    DateTime startedAt, {
+    String mode = 'sequence',
+  }) async {
+    late String generation;
+    await _serialize(() async {
+      await _cancelLivePreview();
+      await initialize();
+      generation = DateTime.now().microsecondsSinceEpoch.toString();
+      final sp = await SharedPreferences.getInstance();
+      await sp.setString(
+        livePreviewRunKey,
+        jsonEncode({
+          'generation': generation,
+          'startedAt': startedAt.millisecondsSinceEpoch,
+          'mode': mode,
+        }),
+      );
+    });
+    return generation;
+  }
+
+  static Future<void> cancelLivePreview() => _serialize(_cancelLivePreview);
+
+  static Future<void> _cancelLivePreview() async {
+    final sp = await SharedPreferences.getInstance();
+    // Revoke callbacks before awaiting Android's alarm cancellation.
+    await sp.remove(livePreviewRunKey);
+    await AndroidAlarmManager.cancel(livePreviewTaskId);
+  }
 
   static Future<void> testNotification() => _serialize(() async {
     await initialize();
@@ -205,6 +245,19 @@ Future<void> dispatchAndroidTask(int id, Map<String, dynamic> params) async {
   try {
     if (params['task'] == 'widgetSync') {
       await WidgetSyncService.runBackground(params['generation'] as String?);
+      return;
+    }
+    if (params['task'] == 'courseLivePreview') {
+      await CourseLiveUpdateService.runPreviewSequence(
+        params['generation'] as String?,
+        animate: true,
+      );
+      return;
+    }
+    if (params['task'] == 'courseLiveUpdate') {
+      await CourseLiveUpdatesController.synchronize(
+        expectedGeneration: params['generation'] as String?,
+      );
       return;
     }
     final sp = await SharedPreferences.getInstance();

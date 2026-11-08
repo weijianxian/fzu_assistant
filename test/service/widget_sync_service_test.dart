@@ -476,6 +476,114 @@ void main() {
     },
   );
 
+  test(
+    'changing nightly settings replaces the live-course alarm generation',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      FlutterSecureStorage.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({
+        SpKeys.courseLiveUpdatesEnabled: true,
+      });
+      AndroidAlarmManager.setTestOverrides(
+        getCallbackHandle: (_) => CallbackHandle.fromRawHandle(1),
+      );
+      mockReminderChannel();
+      final api = ApiClient.instance;
+      final previousAdapter = api.dio.httpClientAdapter;
+      api.dio.httpClientAdapter = LecturesFixtureAdapter();
+      final state = <String, dynamic>{'enabled': false, 'minutes': 1380};
+      final instant = DateTime.now().toUtc();
+      final snapshot = jsonEncode({
+        'version': 1,
+        'signedIn': true,
+        'locale': 'en',
+        'days': [
+          {
+            'start': instant
+                .subtract(const Duration(hours: 1))
+                .millisecondsSinceEpoch,
+            'known': true,
+            'courses': [
+              {
+                'name': 'Upcoming class',
+                'location': 'Room A',
+                'start': instant
+                    .add(const Duration(minutes: 10))
+                    .millisecondsSinceEpoch,
+                'end': instant
+                    .add(const Duration(minutes: 55))
+                    .millisecondsSinceEpoch,
+                'startClass': 1,
+                'endClass': 1,
+              },
+            ],
+          },
+        ],
+      });
+      final alarms = <Map>[];
+      final service = WidgetSyncService();
+      messenger.setMockMethodCallHandler(WidgetSyncService.channel, (
+        call,
+      ) async {
+        if (call.method == 'getState') return state;
+        if (call.method == 'configure') {
+          state.addAll(Map<String, dynamic>.from(call.arguments as Map));
+        }
+        if (call.method == 'readLiveUpdateSnapshot') {
+          return {'generation': state['generation'], 'snapshot': snapshot};
+        }
+        return null;
+      });
+      messenger.setMockMethodCallHandler(
+        const MethodChannel('dexterous.com/flutter/local_notifications'),
+        (call) async =>
+            [
+              'getNotificationChannels',
+              'getActiveNotifications',
+            ].contains(call.method)
+            ? []
+            : true,
+      );
+      messenger.setMockMethodCallHandler(AndroidAlarmManager.channel, (
+        call,
+      ) async {
+        if (call.method == 'Alarm.oneShotAt') {
+          final args = call.arguments as List;
+          if (args.first == AndroidTaskScheduler.courseLiveTaskId) {
+            alarms.add(args[8] as Map);
+          }
+        }
+        return true;
+      });
+      try {
+        await api.login('20230001', 'test-only', '1234');
+        await service.configure(enabled: false, minutes: 1380);
+        final firstGeneration = state['generation'];
+        await service.configure(minutes: 1320);
+        expect(alarms.map((alarm) => alarm['generation']), [
+          firstGeneration,
+          state['generation'],
+        ]);
+        expect(state['generation'], isNot(firstGeneration));
+        expect(
+          alarms.every((alarm) => alarm['task'] == 'courseLiveUpdate'),
+          isTrue,
+        );
+      } finally {
+        await api.clearSession();
+        api.dio.httpClientAdapter = previousAdapter;
+        service.enabled.dispose();
+        service.minutes.dispose();
+        service.status.dispose();
+        messenger.setMockMethodCallHandler(CourseReminderService.channel, null);
+        messenger.setMockMethodCallHandler(
+          const MethodChannel('dexterous.com/flutter/local_notifications'),
+          null,
+        );
+      }
+    },
+  );
+
   test('manual refresh reserves before reconciliation and works with automatic sync and exact alarms off', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     FlutterSecureStorage.setMockInitialValues({});

@@ -1048,6 +1048,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get permissionPurposeNotifications => '发送课程与定时任务通知';
 
   @override
+  String get permissionPurposeLiveUpdates => '在状态栏和锁屏突出显示正在进行的课程';
+
+  @override
   String get permissionPurposeAlarms => '按设定时间执行后台任务';
 
   @override
@@ -1082,6 +1085,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get permissionNameNotifications => '通知';
+
+  @override
+  String get permissionNameLiveUpdates => '实况通知';
 
   @override
   String get permissionNameAlarms => '精确闹钟';
@@ -2359,4 +2365,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get downloadActionFailed => '文件操作失败';
+
+  @override
+  String get courseLiveUpdates => '实况通知';
+
+  @override
+  String get courseLiveUpdatesSubtitle => '课程进度、下节课与时段结束提醒';
+
+  @override
+  String get courseLiveUpdatesDescription => '上课时显示课程进度，课间提醒同一时段的下节课';
+
+  @override
+  String get courseLiveUpdatesEnabled => '课程实况通知';
+
+  @override
+  String get courseLiveUpdatesRule => '上午、下午或晚上的最后一门课结束后，直接发送结束通知';
+
+  @override
+  String get courseLiveUpdatesFailed => '无法更新课程实况通知';
+
+  @override
+  String get courseLiveInProgress => '上课中';
+
+  @override
+  String get courseLiveEnded => '课程结束';
+
+  @override
+  String get courseLiveNext => '下节课';
+
+  @override
+  String get courseLiveMorningEnded => '上午课程已结束';
+
+  @override
+  String get courseLiveAfternoonEnded => '下午课程已结束';
+
+  @override
+  String get courseLiveEveningEnded => '晚间课程已结束';
+
+  @override
+  String courseLiveStartsInMinutes(int minutes) {
+    return '$minutes 分钟后上课';
+  }
 }

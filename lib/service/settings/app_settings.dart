@@ -42,6 +42,7 @@ class AppSettings {
   final localeKey = ValueNotifier<String>('system');
   final courseReminderEnabled = ValueNotifier<bool>(false);
   final courseReminderMinutes = ValueNotifier<int>(21 * 60);
+  final courseLiveUpdatesEnabled = ValueNotifier<bool>(false);
 
   // 首页
 
@@ -94,6 +95,8 @@ class AppSettings {
         sp.getBool(SpKeys.courseReminderEnabled) ?? false;
     courseReminderMinutes.value =
         (sp.getInt(SpKeys.courseReminderMinutes) ?? 21 * 60).clamp(0, 1439);
+    courseLiveUpdatesEnabled.value =
+        sp.getBool(SpKeys.courseLiveUpdatesEnabled) ?? false;
 
     final savedTheme = sp.getString(SpKeys.themeKey) ?? 'deep_purple';
     final validTheme =
@@ -254,6 +257,14 @@ class AppSettings {
     Future<bool> Function(T) write,
   ) {
     notifier.addListener(() => unawaited(write(notifier.value)));
+  }
+
+  Future<void> setCourseLiveUpdatesEnabled(bool enabled) async {
+    final sp = await SharedPreferences.getInstance();
+    if (!await sp.setBool(SpKeys.courseLiveUpdatesEnabled, enabled)) {
+      throw StateError('Cannot save Live Update settings');
+    }
+    if (!_disposed) courseLiveUpdatesEnabled.value = enabled;
   }
 
   Future<void> loadCustomThemes() {
@@ -466,6 +477,7 @@ class AppSettings {
     systemColorRevision.dispose();
     courseReminderEnabled.dispose();
     courseReminderMinutes.dispose();
+    courseLiveUpdatesEnabled.dispose();
     themeKey.dispose();
     themeModeKey.dispose();
     interfaceStyle.dispose();

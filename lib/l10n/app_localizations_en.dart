@@ -1091,6 +1091,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Send course and scheduled-task notifications';
 
   @override
+  String get permissionPurposeLiveUpdates =>
+      'Show ongoing courses prominently in the status bar and on the lock screen';
+
+  @override
   String get permissionPurposeAlarms =>
       'Run background tasks at scheduled times';
 
@@ -1132,6 +1136,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissionNameNotifications => 'Notifications';
+
+  @override
+  String get permissionNameLiveUpdates => 'Live Updates';
 
   @override
   String get permissionNameAlarms => 'Exact alarms';
@@ -2520,4 +2527,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get downloadActionFailed => 'File action failed';
+
+  @override
+  String get courseLiveUpdates => 'Live Updates';
+
+  @override
+  String get courseLiveUpdatesSubtitle =>
+      'Course progress, next class and end-of-session reminders';
+
+  @override
+  String get courseLiveUpdatesDescription =>
+      'Show course progress, then the next class in the same morning, afternoon or evening';
+
+  @override
+  String get courseLiveUpdatesEnabled => 'Course Live Updates';
+
+  @override
+  String get courseLiveUpdatesRule =>
+      'After the last class of the morning, afternoon or evening, send an end notification';
+
+  @override
+  String get courseLiveUpdatesFailed => 'Could not update course Live Updates';
+
+  @override
+  String get courseLiveInProgress => 'Class in progress';
+
+  @override
+  String get courseLiveEnded => 'Class ended';
+
+  @override
+  String get courseLiveNext => 'Next class';
+
+  @override
+  String get courseLiveMorningEnded => 'Morning classes finished';
+
+  @override
+  String get courseLiveAfternoonEnded => 'Afternoon classes finished';
+
+  @override
+  String get courseLiveEveningEnded => 'Evening classes finished';
+
+  @override
+  String courseLiveStartsInMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Starts in $minutes minutes',
+      one: 'Starts in 1 minute',
+    );
+    return '$_temp0';
+  }
 }

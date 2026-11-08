@@ -33,6 +33,7 @@ lib/
     app_localizations_en.dart # 英文翻译
   model/                 # 数据模型（纯 Dart class）
     course.dart          # 课程、课表规则、调课规则、当前周次、学期信息
+    course_live_update.dart # Android 课程实况的上午/下午/晚上状态与切换时间
     hidden_course_session.dart # 按账号、学期、周次和节次持久化的单次隐藏课程
     gpa.dart             # 绩点数据
     mark.dart            # 成绩记录
@@ -126,6 +127,7 @@ lib/
     settings/            # 设置页（首页/一般/主题/高级设置入口）
       settings_page.dart # 设置页面主页；底部自适应分隔后直接展示当前平台支持的功能入口或开关，无平台分类页
       course_reminder_settings_page.dart # Android 早课提醒：提醒开关、北京时间及通知/精确闹钟授权和通知渠道管理
+      course_live_updates_settings_page.dart # Android 课程实况开关及通知、精确闹钟与实况授权
       android_permissions_page.dart # Android 预期权限固定清单：标题为权限名称，说明为具体用途和授权状态；不扫描权限，不展示 ID/类型，返回应用自动刷新
       schedule_sync_settings_page.dart # Android 夜间自动更新课表：统一手动更新、夜间自动开关/时间、精确闹钟权限及最近/下次同步状态
       home_settings_page.dart # 课表设置（学期单选弹层、课表显示、自定义课程及不展示课程；Android 日历同步在平台功能区）
@@ -152,6 +154,8 @@ lib/
     webview_environment.dart # Windows WebView2 环境初始化
     desktop_window.dart # Windows 窗口初始化、状态监听与统一关闭行为
     course_reminder_service.dart # Android 明日课程提醒计划：缓存校历和课表、北京时间、调课与隐藏课程过滤；预排 180 天
+    course_live_update_service.dart # Android 官方实况通知展示与独立开发者测试
+    course_live_updates_controller.dart # 读取已接受的本地课表快照并安排真实课程实况
     android_task_scheduler.dart # android_alarm_manager_plus 的命名任务分发、后台入口、计划持久化/取消与 flutter_local_notifications 展示
     android_permissions_service.dart # 应用预期权限的实际授权状态读取和系统权限设置跳转
     api/                 # API 相关服务
@@ -235,6 +239,13 @@ lib/
 ## 小米设备的课程提醒
 
 - 保留 `android_alarm_manager_plus` 调度与 `flutter_local_notifications` 展示通知的插件实现，不恢复通知实验 stash 或新增原生调度层。通过现有 reminders MethodChannel 的只读 `deviceInfo` 读取 Android Build.MANUFACTURER / BRAND，归一化精确识别 Xiaomi、Redmi、POCO，仅显示 MIUI / HyperOS 后台本地通知限制及 root 后可尝试解除限制的提示，不按品牌强制关闭开关、取消计划、拦截授权或禁用开发者测试。品牌检测未完成或失败不得阻断提醒操作，所有设备继续正常授权与插件调度流程；不检测或自动修改 root 状态。开发者工具保留直接通知测试入口，不读取机型、不显示系统限制或 root 提示，也不附加品牌门槛。
+
+## Android 实况通知
+
+- 仅接入 Android 官方 Live Updates API，复用 `flutter_local_notifications`，不增加厂商私有协议或另建原生调度层。`service/course_live_update_service.dart` 提供开发者工具的上课中、下课和下节课示例，使用独立渠道和同一测试通知 ID；不读取真实课表、不联网、不改变早课提醒或夜间同步计划。活动状态请求 promoted ongoing，倒计时使用系统 chronometer；结束状态清除 ongoing 和 promotion，转为可清除的普通通知，测试通知设置自动过期并提供手动清除。正常通知权限不足时可请求授权；不支持或未允许实况时回退普通通知，不宣称已提升展示。权限页在 Android 16 及以上展示实况通知授权状态，并通过官方设置 Intent 管理。
+- Android 全部系统通知默认使用 `Importance.high` / `Priority.high`，允许系统以横幅展示；沿用既有通知渠道，不删除重建或更换 ID 绕过用户设置。已创建渠道的提醒方式由系统设置控制，应用不能强制修改。实况通知通过插件读取本应用当前通知，首次发布、课程阶段或课程内容变化时可重新提醒，单纯进度及倒计时刷新使用 `onlyAlertOnce` 保持静默；不使用悬浮窗、全屏 Intent 或私有协议强制展开系统卡片。
+- `model/course_live_update.dart` 按上午 1–4 节、下午 5–8 节、晚上 9–11 节处理一天内已筛选的课程：当前时段还有课程时显示下节课，当前时段最后一门结束时直接结束实况并发普通结束通知，不跨午休或晚餐等待下一时段；每个时段第一门课提前五分钟开始预告。Dev Tools 的两分钟测试复用这套判断，以示例上午两门课和下午课程验证，在 0/30/60/110 秒依次展示上课中、下节课、上课中、上午结束，两次上课进度均从零开始。下节课正文显示剩余时间，测试按秒、真实课表按分钟刷新，并保留系统 chronometer。复用 `android_alarm_manager_plus` 命名后台任务，后台引擎在两分钟测试中每秒更新进度，单项示例每五秒更新；阶段闹钟作为恢复入口，离开页面继续执行。重复启动、单项预览、清除和退出撤销旧测试，延迟回调按当前时间跳过过期阶段，不补发整串通知。
+- Android 平台功能区提供独立“实况通知”设置页 `screen/settings/course_live_updates_settings_page.dart`，开关默认关闭，与明日课程提醒和 Dev Tools 示例独立；普通通知及精确闹钟需授权，promotion 不可用时回退普通通知。`service/course_live_updates_controller.dart` 仅读取原生锁下已经接受的小组件快照，复用自定义课、隐藏课、调课与授权缓存处理，不联网。前台本地快照发布、夜间完整刷新成功和前台恢复后重排；进度按分钟刷新，阶段切换使用现有命名后台闹钟。真实通知和测试使用不同 ID，关闭真实开关仅取消真实任务；退出统一取消，并在回调与发布前核对原生账号代次及快照，旧账号回调不得覆盖新账号。设备开关不加入 WebDAV；当前仅做 Android，不新增 iOS/macOS 的实况接入。
 
 ## 招聘会与宣讲会
 
