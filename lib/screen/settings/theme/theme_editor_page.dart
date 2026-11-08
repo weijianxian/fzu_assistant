@@ -5,11 +5,9 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:fzu_assistant/common/widget/layout/app_theme_background.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
-import 'package:fzu_assistant/model/course.dart';
-import 'package:fzu_assistant/screen/schedule/widgets/course_card.dart';
+import 'package:fzu_assistant/screen/settings/theme/theme_schedule_preview.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_section.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/service/course_color_palettes.dart';
@@ -55,7 +53,6 @@ class ThemeEditorPage extends HookWidget {
     final leaving = useState(false);
     final confirming = useRef(false);
     final colorSheetOpen = useRef(false);
-    final previewOpen = useRef(false);
     final controller = useScrollController();
     final style = useValueListenable(settings.interfaceStyle);
     final systemColorRevision = useValueListenable(
@@ -461,75 +458,6 @@ class ThemeEditorPage extends HookWidget {
       }
     }
 
-    Future<void> showPreview() async {
-      if (task.value != null || previewOpen.value) return;
-      previewOpen.value = true;
-      FocusScope.of(context).unfocus();
-      try {
-        await showAppBottomSheet<void>(
-          context: context,
-          builder: (sheetContext) => AnimatedBuilder(
-            animation: Listenable.merge([
-              draft,
-              name,
-              mode,
-              settings.interfaceStyle,
-              settings.systemColorRevision,
-            ]),
-            builder: (sheetContext, _) {
-              final previewTheme = settings.buildProfileTheme(
-                draft.value,
-                mode.value,
-              );
-              final scale = MediaQuery.textScalerOf(sheetContext);
-              return Padding(
-                key: const ValueKey('theme-preview-sheet'),
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            l10n.themePreview,
-                            style: Theme.of(sheetContext).textTheme.titleLarge,
-                          ),
-                        ),
-                        CloseButton(
-                          key: const ValueKey('theme-preview-close'),
-                          onPressed: () => Navigator.of(sheetContext).pop(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _ThemeModeSelector(
-                      key: const ValueKey('theme-preview-mode'),
-                      mode: mode.value,
-                      onChanged: (value) => mode.value = value,
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 160 + scale.scale(160),
-                      child: _ThemePreview(
-                        theme: previewTheme,
-                        name: name.text.trim().isEmpty
-                            ? draft.value.name
-                            : name.text.trim(),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      } finally {
-        previewOpen.value = false;
-      }
-    }
-
     return PopScope<void>(
       canPop: task.value == null && (!dirty || leaving.value),
       onPopInvokedWithResult: (didPop, _) {
@@ -541,13 +469,6 @@ class ThemeEditorPage extends HookWidget {
             onPressed: task.value == null ? () => unawaited(exit()) : null,
           ),
           title: Text(l10n.themeEdit),
-          actions: [
-            TextButton(
-              key: const ValueKey('theme-preview-button'),
-              onPressed: task.value == null ? showPreview : null,
-              child: Text(l10n.themePreview),
-            ),
-          ],
           bottom: task.value == null
               ? null
               : const PreferredSize(
@@ -561,359 +482,368 @@ class ThemeEditorPage extends HookWidget {
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
-              child: AppListView(
-                key: const ValueKey('theme-editor-list'),
-                controller: controller,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _ThemeModeSelector(
-                      key: const ValueKey('theme-editor-mode'),
-                      mode: mode.value,
-                      onChanged: (value) => mode.value = value,
+              child: LayoutBuilder(
+                builder: (context, constraints) => AppListView(
+                  key: const ValueKey('theme-editor-list'),
+                  controller: controller,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: ThemeSchedulePreview(
+                        theme: theme,
+                        maxHeight: (constraints.maxHeight - 112)
+                            .clamp(80.0, 400.0)
+                            .toDouble(),
+                      ),
                     ),
-                  ),
-                  SettingsSection.list(
-                    key: const ValueKey('theme-basic-info-section'),
-                    title: l10n.themeBasicInfo,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: TextField(
-                          key: const ValueKey('theme-name'),
-                          controller: name,
-                          maxLength: 80,
-                          textCapitalization: TextCapitalization.sentences,
-                          decoration: InputDecoration(
-                            labelText: l10n.themeName,
-                            errorText: nameError.value
-                                ? l10n.themeNameRequired
-                                : null,
-                          ),
-                          onChanged: (value) {
-                            if (nameError.value) {
-                              nameError.value = !_validName(value);
-                            }
-                          },
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: _ThemeModeSelector(
+                        key: const ValueKey('theme-editor-mode'),
+                        mode: mode.value,
+                        onChanged: (value) => mode.value = value,
                       ),
-                    ],
-                  ),
-                  SettingsSection.list(
-                    key: const ValueKey('theme-background-section'),
-                    title: l10n.themeBackground,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.themeImageHelp,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                OutlinedButton.icon(
-                                  key: const ValueKey('theme-choose-image'),
-                                  onPressed: chooseImage,
-                                  icon: const Icon(Icons.image_outlined),
-                                  label: Text(l10n.themeChooseImage),
-                                ),
-                                if (variant.backgroundImagePath != null) ...[
-                                  TextButton.icon(
-                                    key: const ValueKey('theme-remove-image'),
-                                    onPressed: () => updateVariant(
-                                      (value) => value.copyWith(
-                                        clearBackgroundImage: true,
-                                        colorSource: 'system',
-                                        clearSeedColor: true,
-                                      ),
-                                    ),
-                                    icon: const Icon(Icons.hide_image_outlined),
-                                    label: Text(l10n.themeRemoveImage),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      _EditorSlider(
-                        id: 'backgroundDim',
-                        label: l10n.themeBackgroundDim,
-                        icon: Icons.brightness_6_outlined,
-                        value: variant.backgroundDim,
-                        onChanged: (value) => updateVariant(
-                          (entry) => entry.copyWith(backgroundDim: value),
-                        ),
-                      ),
-                      _EditorSlider(
-                        id: 'backgroundBlur',
-                        label: l10n.themeBackgroundBlur,
-                        icon: Icons.blur_on,
-                        value: variant.backgroundBlur,
-                        max: 30,
-                        onChanged: (value) => updateVariant(
-                          (entry) => entry.copyWith(backgroundBlur: value),
-                        ),
-                      ),
-                      _EditorSlider(
-                        id: 'surfaceOpacity',
-                        label: l10n.themeSurfaceOpacity,
-                        icon: Icons.opacity,
-                        value: variant.surfaceOpacity,
-                        onChanged: (value) => updateVariant(
-                          (entry) => entry.copyWith(surfaceOpacity: value),
-                        ),
-                      ),
-                      _EditorSlider(
-                        id: 'cardRadius',
-                        label: l10n.themeCardRadius,
-                        icon: Icons.rounded_corner,
-                        value: variant.cardRadius,
-                        max: 48,
-                        onChanged: (value) => updateVariant(
-                          (entry) => entry.copyWith(cardRadius: value),
-                        ),
-                      ),
-                      _EditorSlider(
-                        id: 'dividerWidth',
-                        label: l10n.themeDividerWidth,
-                        icon: Icons.horizontal_rule,
-                        value: variant.dividerWidth,
-                        max: 3,
-                        onChanged: (value) => updateVariant(
-                          (entry) => entry.copyWith(dividerWidth: value),
-                        ),
-                      ),
-                    ],
-                  ),
-                  RadioGroup<String>(
-                    groupValue: source,
-                    onChanged: (value) {
-                      if (value == 'image') {
-                        unawaited(selectImagePalette());
-                      } else if (value != null) {
-                        unawaited(selectPalette(value, seed.toARGB32()));
-                      }
-                    },
-                    child: SettingsSection.list(
-                      key: const ValueKey('theme-source-section'),
-                      title: l10n.themeColorSource,
+                    ),
+                    SettingsSection.list(
+                      key: const ValueKey('theme-basic-info-section'),
+                      title: l10n.themeBasicInfo,
                       children: [
-                        SettingsRadioTile<String>(
-                          key: const ValueKey('theme-source-system'),
-                          value: 'system',
-                          enabled: systemColorsAvailable,
-                          title: Text(l10n.themeSourceSystem),
-                          subtitle: Text(
-                            systemColorsAvailable
-                                ? l10n.themeSourceSystemHelp
-                                : l10n.themeSourceSystemUnavailable,
-                          ),
-                        ),
-                        if (variant.backgroundImagePath != null)
-                          SettingsRadioTile<String>(
-                            key: const ValueKey('theme-source-image'),
-                            value: 'image',
-                            title: Text(l10n.themeSourceImage),
-                          ),
-                        SettingsRadioTile<String>(
-                          key: const ValueKey('theme-source-seed'),
-                          value: 'seed',
-                          title: Text(l10n.themeSourceSeed),
-                        ),
-                        if (source == 'seed') ...[
-                          SettingsChoiceTile<String>(
-                            key: const ValueKey('theme-base-palette'),
-                            leading: const Icon(Icons.palette_outlined),
-                            title: l10n.themeBasePalette,
-                            value: isCustomSeed ? 'custom' : preset,
-                            choices: [
-                              SettingsChoice(
-                                value: 'custom',
-                                label: l10n.themeCustomPalette,
-                              ),
-                              for (final entry in appThemes)
-                                SettingsChoice(
-                                  value: entry.key,
-                                  label: themeName(entry.key, l10n),
-                                ),
-                            ],
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: TextField(
+                            key: const ValueKey('theme-name'),
+                            controller: name,
+                            maxLength: 80,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: InputDecoration(
+                              labelText: l10n.themeName,
+                              errorText: nameError.value
+                                  ? l10n.themeNameRequired
+                                  : null,
+                            ),
                             onChanged: (value) {
-                              if (value == 'custom') {
-                                updateVariant(
-                                  (entry) =>
-                                      entry.copyWith(isSeedColorCustom: true),
-                                );
-                              } else {
-                                final color = appThemes
-                                    .firstWhere((entry) => entry.key == value)
-                                    .color;
-                                unawaited(
-                                  selectPalette(
-                                    'seed',
-                                    color.toARGB32(),
-                                    isSeedColorCustom: false,
-                                  ),
-                                );
+                              if (nameError.value) {
+                                nameError.value = !_validName(value);
                               }
                             },
                           ),
-                          if (isCustomSeed)
-                            ListTile(
-                              key: const ValueKey('theme-seed-color'),
-                              leading: _ColorSwatch(color: seed, size: 24),
-                              title: Text(l10n.themeCustomSeed),
-                              subtitle: Text(_hex(seed)),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: editSeed,
-                            ),
-                        ],
+                        ),
                       ],
                     ),
-                  ),
-                  SettingsSection.list(
-                    key: const ValueKey('theme-course-section'),
-                    title: l10n.themeCourseStyle,
-                    children: [
-                      SettingsChoiceTile<String>(
-                        key: const ValueKey('theme-course-palette'),
-                        leading: const Icon(Icons.palette_outlined),
-                        title: l10n.themeCoursePalette,
-                        value: variant.coursePalette.isEmpty
-                            ? variant.coursePaletteKey
-                            : _customCoursePalette,
-                        choices: [
-                          const SettingsChoice(
-                            value: CourseColorPalettes.tailwind,
-                            label: 'Tailwind',
-                          ),
-                          const SettingsChoice(
-                            value: CourseColorPalettes.fuu,
-                            label: 'FUU',
-                          ),
-                          if (variant.coursePalette.isNotEmpty)
-                            SettingsChoice(
-                              value: _customCoursePalette,
-                              label: l10n.themeCoursePaletteCustom,
-                            ),
-                        ],
-                        onChanged: (value) {
-                          if (value != _customCoursePalette) {
-                            selectCoursePalette(value);
-                          }
-                        },
-                      ),
-                      AppExpansionTile(
-                        key: const PageStorageKey('theme-course-palette-edit'),
-                        leading: const Icon(Icons.edit_outlined),
-                        title: Row(
-                          children: [
-                            Expanded(child: Text(l10n.themeCoursePaletteEdit)),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                l10n.themeCoursePaletteCount(
-                                  coursePalette.length,
+                    SettingsSection.list(
+                      key: const ValueKey('theme-background-section'),
+                      title: l10n.themeBackground,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              OutlinedButton.icon(
+                                key: const ValueKey('theme-choose-image'),
+                                onPressed: chooseImage,
+                                icon: const Icon(Icons.image_outlined),
+                                label: Text(l10n.themeChooseImage),
+                              ),
+                              if (variant.backgroundImagePath != null) ...[
+                                TextButton.icon(
+                                  key: const ValueKey('theme-remove-image'),
+                                  onPressed: () => updateVariant(
+                                    (value) => value.copyWith(
+                                      clearBackgroundImage: true,
+                                      colorSource: 'system',
+                                      clearSeedColor: true,
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.hide_image_outlined),
+                                  label: Text(l10n.themeRemoveImage),
                                 ),
-                                textAlign: TextAlign.end,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              ],
+                            ],
+                          ),
+                        ),
+                        _EditorSlider(
+                          id: 'backgroundDim',
+                          label: l10n.themeBackgroundDim,
+                          icon: Icons.brightness_6_outlined,
+                          value: variant.backgroundDim,
+                          onChanged: (value) => updateVariant(
+                            (entry) => entry.copyWith(backgroundDim: value),
+                          ),
+                        ),
+                        _EditorSlider(
+                          id: 'backgroundBlur',
+                          label: l10n.themeBackgroundBlur,
+                          icon: Icons.blur_on,
+                          value: variant.backgroundBlur,
+                          max: 30,
+                          onChanged: (value) => updateVariant(
+                            (entry) => entry.copyWith(backgroundBlur: value),
+                          ),
+                        ),
+                        _EditorSlider(
+                          id: 'surfaceOpacity',
+                          label: l10n.themeSurfaceOpacity,
+                          icon: Icons.opacity,
+                          value: variant.surfaceOpacity,
+                          onChanged: (value) => updateVariant(
+                            (entry) => entry.copyWith(surfaceOpacity: value),
+                          ),
+                        ),
+                        _EditorSlider(
+                          id: 'cardRadius',
+                          label: l10n.themeCardRadius,
+                          icon: Icons.rounded_corner,
+                          value: variant.cardRadius,
+                          max: 48,
+                          onChanged: (value) => updateVariant(
+                            (entry) => entry.copyWith(cardRadius: value),
+                          ),
+                        ),
+                        _EditorSlider(
+                          id: 'dividerWidth',
+                          label: l10n.themeDividerWidth,
+                          icon: Icons.horizontal_rule,
+                          value: variant.dividerWidth,
+                          max: 3,
+                          onChanged: (value) => updateVariant(
+                            (entry) => entry.copyWith(dividerWidth: value),
+                          ),
+                        ),
+                      ],
+                    ),
+                    RadioGroup<String>(
+                      groupValue: source,
+                      onChanged: (value) {
+                        if (value == 'image') {
+                          unawaited(selectImagePalette());
+                        } else if (value != null) {
+                          unawaited(selectPalette(value, seed.toARGB32()));
+                        }
+                      },
+                      child: SettingsSection.list(
+                        key: const ValueKey('theme-source-section'),
+                        title: l10n.themeColorSource,
+                        children: [
+                          SettingsRadioTile<String>(
+                            key: const ValueKey('theme-source-system'),
+                            value: 'system',
+                            enabled: systemColorsAvailable,
+                            title: Text(l10n.themeSourceSystem),
+                            subtitle: Text(
+                              systemColorsAvailable
+                                  ? l10n.themeSourceSystemHelp
+                                  : l10n.themeSourceSystemUnavailable,
+                            ),
+                          ),
+                          if (variant.backgroundImagePath != null)
+                            SettingsRadioTile<String>(
+                              key: const ValueKey('theme-source-image'),
+                              value: 'image',
+                              title: Text(l10n.themeSourceImage),
+                            ),
+                          SettingsRadioTile<String>(
+                            key: const ValueKey('theme-source-seed'),
+                            value: 'seed',
+                            title: Text(l10n.themeSourceSeed),
+                          ),
+                          if (source == 'seed') ...[
+                            SettingsChoiceTile<String>(
+                              key: const ValueKey('theme-base-palette'),
+                              leading: const Icon(Icons.palette_outlined),
+                              title: l10n.themeBasePalette,
+                              value: isCustomSeed ? 'custom' : preset,
+                              choices: [
+                                SettingsChoice(
+                                  value: 'custom',
+                                  label: l10n.themeCustomPalette,
+                                ),
+                                for (final entry in appThemes)
+                                  SettingsChoice(
+                                    value: entry.key,
+                                    label: themeName(entry.key, l10n),
+                                  ),
+                              ],
+                              onChanged: (value) {
+                                if (value == 'custom') {
+                                  updateVariant(
+                                    (entry) =>
+                                        entry.copyWith(isSeedColorCustom: true),
+                                  );
+                                } else {
+                                  final color = appThemes
+                                      .firstWhere((entry) => entry.key == value)
+                                      .color;
+                                  unawaited(
+                                    selectPalette(
+                                      'seed',
+                                      color.toARGB32(),
+                                      isSeedColorCustom: false,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            if (isCustomSeed)
+                              ListTile(
+                                key: const ValueKey('theme-seed-color'),
+                                leading: _ColorSwatch(color: seed, size: 24),
+                                title: Text(l10n.themeCustomSeed),
+                                subtitle: Text(_hex(seed)),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: editSeed,
+                              ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    SettingsSection.list(
+                      key: const ValueKey('theme-course-section'),
+                      title: l10n.themeCourseStyle,
+                      children: [
+                        SettingsChoiceTile<String>(
+                          key: const ValueKey('theme-course-palette'),
+                          leading: const Icon(Icons.palette_outlined),
+                          title: l10n.themeCoursePalette,
+                          value: variant.coursePalette.isEmpty
+                              ? variant.coursePaletteKey
+                              : _customCoursePalette,
+                          choices: [
+                            const SettingsChoice(
+                              value: CourseColorPalettes.tailwind,
+                              label: 'Tailwind',
+                            ),
+                            const SettingsChoice(
+                              value: CourseColorPalettes.fuu,
+                              label: 'FUU',
+                            ),
+                            if (variant.coursePalette.isNotEmpty)
+                              SettingsChoice(
+                                value: _customCoursePalette,
+                                label: l10n.themeCoursePaletteCustom,
+                              ),
+                          ],
+                          onChanged: (value) {
+                            if (value != _customCoursePalette) {
+                              selectCoursePalette(value);
+                            }
+                          },
+                        ),
+                        AppExpansionTile(
+                          key: const PageStorageKey(
+                            'theme-course-palette-edit',
+                          ),
+                          leading: const Icon(Icons.edit_outlined),
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: Text(l10n.themeCoursePaletteEdit),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  l10n.themeCoursePaletteCount(
+                                    coursePalette.length,
+                                  ),
+                                  textAlign: TextAlign.end,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                              child: Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Wrap(
+                                  spacing: 4,
+                                  runSpacing: 4,
+                                  children: [
+                                    for (
+                                      var i = 0;
+                                      i < coursePalette.length;
+                                      i++
+                                    )
+                                      InputChip(
+                                        key: ValueKey(
+                                          'theme-course-palette-color-$i',
+                                        ),
+                                        tooltip: l10n.themeCoursePaletteColor(
+                                          i + 1,
+                                        ),
+                                        label: _ColorSwatch(
+                                          color: Color(coursePalette[i]),
+                                        ),
+                                        onPressed: () =>
+                                            editCoursePaletteColor(i),
+                                        deleteIcon: const Icon(Icons.remove),
+                                        deleteButtonTooltipMessage: l10n
+                                            .themeCoursePaletteRemove(i + 1),
+                                        onDeleted: coursePalette.length > 1
+                                            ? () => removeCoursePaletteColor(i)
+                                            : null,
+                                      ),
+                                    ActionChip(
+                                      key: const ValueKey(
+                                        'theme-course-palette-add',
+                                      ),
+                                      avatar: const Icon(Icons.add),
+                                      label: Text(l10n.themeCoursePaletteAdd),
+                                      onPressed:
+                                          coursePalette.length <
+                                              CourseColorPalettes.maxColors
+                                          ? addCoursePaletteColor
+                                          : null,
+                                    ),
+                                    if (variant.backgroundImagePath != null)
+                                      ActionChip(
+                                        key: const ValueKey(
+                                          'theme-course-palette-from-wallpaper',
+                                        ),
+                                        avatar: const Icon(
+                                          Icons.wallpaper_outlined,
+                                        ),
+                                        label: Text(
+                                          l10n.themeCoursePaletteFromWallpaper,
+                                        ),
+                                        onPressed: generateCoursePalette,
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                            child: Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              child: Wrap(
-                                spacing: 4,
-                                runSpacing: 4,
-                                children: [
-                                  for (var i = 0; i < coursePalette.length; i++)
-                                    InputChip(
-                                      key: ValueKey(
-                                        'theme-course-palette-color-$i',
-                                      ),
-                                      tooltip: l10n.themeCoursePaletteColor(
-                                        i + 1,
-                                      ),
-                                      label: _ColorSwatch(
-                                        color: Color(coursePalette[i]),
-                                      ),
-                                      onPressed: () =>
-                                          editCoursePaletteColor(i),
-                                      deleteIcon: const Icon(Icons.remove),
-                                      deleteButtonTooltipMessage: l10n
-                                          .themeCoursePaletteRemove(i + 1),
-                                      onDeleted: coursePalette.length > 1
-                                          ? () => removeCoursePaletteColor(i)
-                                          : null,
-                                    ),
-                                  ActionChip(
-                                    key: const ValueKey(
-                                      'theme-course-palette-add',
-                                    ),
-                                    avatar: const Icon(Icons.add),
-                                    label: Text(l10n.themeCoursePaletteAdd),
-                                    onPressed:
-                                        coursePalette.length <
-                                            CourseColorPalettes.maxColors
-                                        ? addCoursePaletteColor
-                                        : null,
-                                  ),
-                                  if (variant.backgroundImagePath != null)
-                                    ActionChip(
-                                      key: const ValueKey(
-                                        'theme-course-palette-from-wallpaper',
-                                      ),
-                                      avatar: const Icon(
-                                        Icons.wallpaper_outlined,
-                                      ),
-                                      label: Text(
-                                        l10n.themeCoursePaletteFromWallpaper,
-                                      ),
-                                      onPressed: generateCoursePalette,
-                                    ),
-                                ],
-                              ),
-                            ),
+                        _EditorSlider(
+                          id: 'courseCardOpacity',
+                          label: l10n.themeCourseOpacity,
+                          icon: Icons.opacity,
+                          value: variant.courseCardOpacity,
+                          onChanged: (value) => updateVariant(
+                            (entry) => entry.copyWith(courseCardOpacity: value),
                           ),
-                        ],
-                      ),
-                      _EditorSlider(
-                        id: 'courseCardOpacity',
-                        label: l10n.themeCourseOpacity,
-                        icon: Icons.opacity,
-                        value: variant.courseCardOpacity,
-                        onChanged: (value) => updateVariant(
-                          (entry) => entry.copyWith(courseCardOpacity: value),
                         ),
-                      ),
-                      _EditorSlider(
-                        id: 'courseCardRadius',
-                        label: l10n.themeCourseRadius,
-                        icon: Icons.rounded_corner,
-                        value: variant.courseCardRadius,
-                        max: 48,
-                        onChanged: (value) => updateVariant(
-                          (entry) => entry.copyWith(courseCardRadius: value),
+                        _EditorSlider(
+                          id: 'courseCardRadius',
+                          label: l10n.themeCourseRadius,
+                          icon: Icons.rounded_corner,
+                          value: variant.courseCardRadius,
+                          max: 48,
+                          onChanged: (value) => updateVariant(
+                            (entry) => entry.copyWith(courseCardRadius: value),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
           ),
@@ -961,19 +891,6 @@ bool _sameVariant(ThemeVariant a, ThemeVariant b) =>
     a.cardRadius == b.cardRadius &&
     a.courseCardRadius == b.courseCardRadius &&
     a.dividerWidth == b.dividerWidth;
-
-Color _extraColor(ThemeData theme, String role) {
-  final visuals = theme.extension<ThemeVisuals>();
-  final scheme = theme.colorScheme;
-  return visuals?.color(role) ??
-      switch (role) {
-        'courseCard' || 'todayHighlight' => scheme.primaryContainer,
-        'courseCardText' || 'onTodayHighlight' => scheme.onPrimaryContainer,
-        'courseCardSecondaryText' => scheme.onSurfaceVariant,
-        'courseAccent' => scheme.primary,
-        _ => scheme.primary,
-      };
-}
 
 String _hex(Color color) =>
     '#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
@@ -1193,103 +1110,6 @@ class _ThemeModeSelector extends StatelessWidget {
           onSelectionChanged: (values) => onChanged(values.single),
         );
       },
-    );
-  }
-}
-
-class _ThemePreview extends StatelessWidget {
-  const _ThemePreview({required this.theme, required this.name});
-
-  final ThemeData theme;
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return RepaintBoundary(
-      child: LayoutBuilder(
-        builder: (context, constraints) => MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            size: constraints.biggest,
-            padding: EdgeInsets.zero,
-            viewPadding: EdgeInsets.zero,
-          ),
-          child: Theme(
-            data: theme,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: AppThemeBackground(
-                key: const ValueKey('theme-editor-preview'),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    children: [
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              _ColorSwatch(color: theme.colorScheme.primary),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Divider(),
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Flexible(
-                              child: Container(
-                                constraints: const BoxConstraints(minWidth: 48),
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: _extraColor(theme, 'todayHighlight'),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    l10n.monday,
-                                    style: TextStyle(
-                                      color: _extraColor(
-                                        theme,
-                                        'onTodayHighlight',
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: CourseCard(
-                                course: Course.fromJson({
-                                  'name': l10n.customCourseName,
-                                }),
-                                location: l10n.customCourseLocation,
-                                isHorizontal: true,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

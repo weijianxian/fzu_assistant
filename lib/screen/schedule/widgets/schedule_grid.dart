@@ -124,9 +124,10 @@ class ScheduleGrid extends HookWidget {
 
     final isWindows =
         !kIsWeb && Theme.of(context).platform == TargetPlatform.windows;
-    final textScale = isWindows
-        ? math.max(1.0, MediaQuery.textScalerOf(context).scale(14) / 14)
-        : 1.0;
+    final textScale = math.max(
+      1.0,
+      MediaQuery.textScalerOf(context).scale(14) / 14,
+    );
     final headerHeight = _headerHeight * textScale;
     final labelWidth = (isWindows ? 56.0 : _labelWidth) * textScale;
     final minCellHeight = _minCellHeight * textScale;
@@ -179,6 +180,8 @@ class ScheduleGrid extends HookWidget {
                               )
                             : Text(
                                 weekdays[i],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
@@ -319,6 +322,8 @@ class ScheduleGrid extends HookWidget {
         children: [
           Text(
             weekday,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: isWindows ? 13 : 12,
               height: 1.2,
@@ -328,6 +333,8 @@ class ScheduleGrid extends HookWidget {
           ),
           Text(
             '${date.month}/${date.day}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: isWindows ? 11 : 10,
               height: 1.2,

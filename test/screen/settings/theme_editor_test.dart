@@ -1,22 +1,38 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fzu_assistant/common/utils/cache_helper.dart';
 import 'package:fzu_assistant/common/widget/layout/app_theme_background.dart';
 import 'package:fzu_assistant/common/widget/settings/settings_radio_tile.dart';
+import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
+import 'package:fzu_assistant/model/calendar.dart';
+import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/custom_course.dart';
+import 'package:fzu_assistant/model/exam_room.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/course_card.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/horizontal_schedule_grid.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/schedule_grid.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_editor_page.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/service/course_color_palettes.dart';
+import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/theme_customization_service.dart';
 import 'package:fzu_assistant/service/theme_visuals.dart';
 import 'package:image/image.dart' as image;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../fixtures/reminder_channel.dart';
 
 const _picker = MethodChannel('plugins.flutter.io/file_selector');
 const _dynamicColor = MethodChannel('io.material.plugins/dynamic_color');
@@ -25,7 +41,7 @@ const _save = ValueKey('theme-save');
 const _preview = ValueKey('theme-editor-preview');
 const _previewButton = ValueKey('theme-preview-button');
 const _previewSheet = ValueKey('theme-preview-sheet');
-const _previewClose = ValueKey('theme-preview-close');
+const _previewPhone = ValueKey('theme-preview-phone');
 
 Future<void> _capture(WidgetTester tester, String filename) async {
   const directory = String.fromEnvironment('THEME_EDITOR_CAPTURE_DIR');
@@ -43,6 +59,33 @@ Future<void> _capture(WidgetTester tester, String filename) async {
       bitmap.dispose();
     }
   });
+}
+
+Future<void> _settleImageLoads(WidgetTester tester) async {
+  final images = find.byType(Image).evaluate().toList();
+  if (images.isEmpty) return;
+  // The embedded wallpaper starts real file reads during the first frame.
+  // Wait for its stream before scrolling it away or deleting test files.
+  var pending = images.length;
+  for (final element in images) {
+    unawaited(
+      precacheImage(
+        (element.widget as Image).image,
+        element,
+        onError: (_, _) {},
+      ).then((_) => pending--),
+    );
+  }
+  // Image decoding also schedules work in the fake test zone, so real I/O
+  // turns must alternate with frames rather than awaiting only runAsync.
+  for (var i = 0; i < 200 && pending > 0; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pump();
+  }
+  expect(pending, 0, reason: 'Wallpaper decoding did not finish');
+  await tester.pump();
 }
 
 ThemeProfile _profile({ThemeVariant? light, ThemeVariant? dark}) =>
@@ -214,6 +257,7 @@ Future<void> _finishWork(WidgetTester tester) async {
     if (find.byType(ThemeEditorPage).evaluate().isEmpty ||
         tester.widget<FilledButton>(find.byKey(_save)).onPressed != null) {
       await tester.pumpAndSettle();
+      await _settleImageLoads(tester);
       return;
     }
   }
@@ -231,6 +275,7 @@ Future<AppLocalizations> _openEditor(
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = size;
   addTearDown(tester.view.reset);
+  addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
   const captureFont = String.fromEnvironment('THEME_EDITOR_CAPTURE_FONT');
   if (captureFont.isNotEmpty) {
     await tester.runAsync(() async {
@@ -282,65 +327,21 @@ Future<AppLocalizations> _openEditor(
   );
   await tester.tap(find.byKey(const ValueKey('open-editor')));
   await tester.pumpAndSettle();
+  await _settleImageLoads(tester);
   return AppLocalizations.of(tester.element(find.byType(ThemeEditorPage)))!;
 }
 
 ThemeVisuals _previewVisuals(WidgetTester tester) =>
     ThemeVisuals.of(tester.element(find.byKey(_preview)));
 
-Future<void> _openPreview(WidgetTester tester) async {
+Future<void> _revealPreview(WidgetTester tester) async {
+  tester.state<ScrollableState>(_listScroll()).position.jumpTo(0);
   await tester.pumpAndSettle();
   expect(find.byType(AlertDialog), findsNothing);
+  expect(find.byKey(_previewButton), findsNothing);
   expect(find.byKey(_previewSheet), findsNothing);
-  expect(find.byKey(_preview, skipOffstage: false), findsNothing);
-  final button = find.byKey(_previewButton);
-  expect(button.hitTestable(), findsOneWidget);
-  await tester.tap(button);
-  await tester.pumpAndSettle();
-  expect(find.byKey(_previewSheet), findsOneWidget);
   expect(find.byKey(_preview), findsOneWidget);
-  final images = find.descendant(
-    of: find.byKey(_preview),
-    matching: find.byType(Image),
-  );
-  for (final element in images.evaluate()) {
-    final provider = (element.widget as Image).image;
-    var loaded = false;
-    unawaited(precacheImage(provider, element).then((_) => loaded = true));
-    for (var i = 0; i < 200 && !loaded; i++) {
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)),
-      );
-      await tester.pump();
-    }
-    expect(loaded, isTrue, reason: 'Wallpaper preview did not finish decoding');
-  }
-  await tester.pumpAndSettle();
-}
-
-Future<void> _closePreview(WidgetTester tester) async {
-  final close = find.byKey(_previewClose);
-  await _sheetReveal(tester, close);
-  expect(close.hitTestable(), findsOneWidget);
-  await tester.tap(close);
-  await tester.pumpAndSettle();
-  expect(find.byKey(_previewSheet, skipOffstage: false), findsNothing);
-  expect(find.byKey(_preview, skipOffstage: false), findsNothing);
-}
-
-Future<void> _previewMode(WidgetTester tester, Brightness brightness) async {
-  final segment = find.byKey(const ValueKey('theme-preview-mode'));
-  await _sheetReveal(tester, segment);
-  await tester.tap(
-    find.descendant(
-      of: segment,
-      matching: find.byIcon(
-        brightness == Brightness.light
-            ? Icons.light_mode_outlined
-            : Icons.dark_mode_outlined,
-      ),
-    ),
-  );
+  await _settleImageLoads(tester);
   await tester.pumpAndSettle();
 }
 
@@ -348,12 +349,17 @@ Future<void> _checkPreview(
   WidgetTester tester,
   void Function(ThemeData theme, ThemeVisuals visuals) check,
 ) async {
-  await _openPreview(tester);
+  final position = tester.state<ScrollableState>(_listScroll()).position;
+  final offset = position.pixels;
+  await _revealPreview(tester);
   check(
     Theme.of(tester.element(find.byKey(_preview))),
     _previewVisuals(tester),
   );
-  await _closePreview(tester);
+  // Sliver extents are estimates until their children are laid out again.
+  // Restore the previously valid offset and let layout resolve the range.
+  position.jumpTo(offset);
+  await tester.pumpAndSettle();
 }
 
 File _png(Directory directory, String filename, int red, int blue) {
@@ -652,12 +658,6 @@ void main() {
         PaintingBinding.instance.imageCache
           ..clear()
           ..clearLiveImages();
-        for (var i = 0; i < 5; i++) {
-          await tester.runAsync(
-            () => Future<void>.delayed(const Duration(milliseconds: 20)),
-          );
-          await tester.pump();
-        }
       },
     );
 
@@ -866,6 +866,7 @@ void main() {
       settings.activateCustomTheme(original);
       final l10n = await _openEditor(tester, settings, original);
       final basicInfo = find.byKey(const ValueKey('theme-basic-info-section'));
+      await _reveal(tester, find.byKey(_name));
       expect(
         find.descendant(
           of: basicInfo,
@@ -1125,6 +1126,7 @@ void main() {
     final original = _profile();
     settings.activateCustomTheme(original);
     final l10n = await _openEditor(tester, settings, original);
+    await _reveal(tester, find.byKey(_name));
     await tester.enterText(find.byKey(_name), '未保存');
     await tester.pump();
     await tester.binding.handlePopRoute();
@@ -1144,6 +1146,7 @@ void main() {
 
   testWidgets('an empty name does not save or apply the draft', (tester) async {
     final l10n = await _openEditor(tester, settings, _profile());
+    await _reveal(tester, find.byKey(_name));
     await tester.enterText(find.byKey(_name), '   ');
     await tester.tap(find.byKey(_save));
     await tester.pumpAndSettle();
@@ -1480,7 +1483,7 @@ void main() {
     final system = find.byKey(const ValueKey('theme-source-system'));
     await _reveal(tester, system);
     expect(tester.widget<SettingsRadioTile<String>>(system).enabled, isFalse);
-    await _openPreview(tester);
+    await _revealPreview(tester);
     expect(
       Theme.of(tester.element(find.byKey(_preview))).colorScheme.primary,
       ColorScheme.fromSeed(seedColor: const Color(0xff663399)).primary,
@@ -1496,7 +1499,7 @@ void main() {
       Theme.of(tester.element(find.byKey(_preview))).colorScheme.primary,
       AppSettings.systemColorScheme(Brightness.light)!.primary,
     );
-    await _closePreview(tester);
+    await _reveal(tester, system);
     expect(tester.widget<SettingsRadioTile<String>>(system).enabled, isTrue);
     expect(find.text(l10n.themeSourceSystemUnavailable), findsNothing);
     expect(settings.activeCustomTheme.value, isNull);
@@ -1520,7 +1523,7 @@ void main() {
       await tester.tap(choose);
       await _finishWork(tester);
       expect(request!['acceptedTypeGroups'], isNotEmpty);
-      await _openPreview(tester);
+      await _revealPreview(tester);
       final path = _previewVisuals(tester).backgroundImage!;
       expect(path, contains('fzu-themes'));
       expect(path, isNot(source.path));
@@ -1531,7 +1534,6 @@ void main() {
       });
       await tester.runAsync(() => source.delete());
       expect(await tester.runAsync(() => File(path).exists()), isTrue);
-      await _closePreview(tester);
       await _mode(tester, l10n, Brightness.dark);
       await _checkPreview(tester, (_, visuals) {
         expect(visuals.backgroundImage, isNull);
@@ -1769,6 +1771,7 @@ void main() {
     final original = _profile();
     settings.activateCustomTheme(original);
     await _openEditor(tester, settings, original);
+    await _reveal(tester, find.byKey(_name));
     await tester.enterText(find.byKey(_name), '保存重试');
     await tester.tap(find.byKey(_save));
     await _finishWork(tester);
@@ -1857,6 +1860,185 @@ void main() {
     }
   }
 
+  testWidgets(
+    'embedded preview uses local courses and updates the draft without side effects',
+    (tester) async {
+      mockReminderChannel();
+      FlutterSecureStorage.setMockInitialValues({
+        'fzu_username': 'preview-student',
+        'fzu_password': 'test-password',
+        'fzu_academic_session': jsonEncode({
+          'studentId': 'preview-student',
+          'userId': 'preview-session',
+          'cookies': ['SESSION=test; Path=/'],
+        }),
+      });
+      final api = ApiClient.instance;
+      expect(await api.restoreCachedSession(), isTrue);
+      addTearDown(api.clearSession);
+      var requests = 0;
+      final offline = InterceptorsWrapper(
+        onRequest: (options, handler) {
+          requests++;
+          handler.reject(DioException(requestOptions: options));
+        },
+      );
+      api.dio.interceptors.add(offline);
+      addTearDown(() => api.dio.interceptors.remove(offline));
+      final custom = CustomCourseStore.instance;
+      final previousCustom = custom.value;
+      addTearDown(() => custom.value = previousCustom);
+      custom.value = [
+        CustomCourse(
+          id: 'preview-custom',
+          account: 'preview-student',
+          term: '202601',
+          name: '本地自定义课程',
+          startClass: 3,
+          endClass: 4,
+          startWeek: 1,
+          endWeek: 19,
+          weekday: 2,
+        ),
+      ];
+      final now = DateTime.now();
+      final monday = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: now.weekday - 1 + 9 * 7));
+      final course = Course.fromJson({
+        'name': '缓存高数',
+        'scheduleRules': [
+          {
+            'weekday': 1,
+            'startClass': 1,
+            'endClass': 2,
+            'startWeek': 1,
+            'endWeek': 19,
+            'location': '东1-101',
+          },
+        ],
+      });
+      await CacheHelper.saveMap(
+        SpKeys.cacheSchoolCalendar,
+        SchoolCalendar(
+          currentTerm: '202601',
+          terms: [
+            CalTerm(
+              termId: '1',
+              schoolYear: '2026',
+              term: '202601',
+              startDate: monday.toIso8601String().split('T').first,
+              endDate: monday
+                  .add(const Duration(days: 140))
+                  .toIso8601String()
+                  .split('T')
+                  .first,
+            ),
+          ],
+        ).toJson(),
+      );
+      await CacheHelper.saveForKey(SpKeys.cacheCoursesMap, '202601', {
+        'courses': [course.toJson()],
+      });
+      await CacheHelper.saveForKey(SpKeys.cacheExamRoomsMap, '202601', [
+        const ExamRoomInfo(
+          courseName: '缓存考试',
+          credit: '2',
+          teacher: '',
+          date: '',
+          time: '',
+          location: '',
+        ).toJson(),
+      ]);
+      settings.selectedSemesterKey.value = '202601';
+      final original = _profile(
+        light: ThemeVariant(coursePalette: const [0xff00aa88]),
+        dark: ThemeVariant(coursePalette: const [0xffbb5500]),
+      );
+      settings.activateCustomTheme(original);
+      final preferences = await SharedPreferences.getInstance();
+      Map<String, Object?> stored() => {
+        for (final key in preferences.getKeys()) key: preferences.get(key),
+      };
+      final before = stored();
+      final l10n = await _openEditor(tester, settings, original, textScale: 2);
+      expect(find.byKey(_previewButton), findsNothing);
+      expect(find.byKey(_previewSheet), findsNothing);
+      final phone = tester.getRect(find.byKey(_previewPhone));
+      expect(phone.top, closeTo(tester.getRect(_listScroll()).top + 16, 0.01));
+      expect(phone.width / phone.height, closeTo(0.5, 0.001));
+      final grid = tester.widget<ScheduleGrid>(find.byType(ScheduleGrid));
+      expect(grid.week, 10);
+      expect(grid.firstMonday, monday);
+      expect(grid.courses.map((entry) => entry.name), ['缓存高数', '本地自定义课程']);
+      expect(grid.examRooms.single.courseName, '缓存考试');
+      expect(find.byType(CourseCard), findsNWidgets(2));
+      expect(find.text('缓存高数'), findsOneWidget);
+      expect(find.text('本地自定义课程'), findsOneWidget);
+      expect(find.byType(HorizontalScheduleGrid), findsNothing);
+      expect(
+        MediaQuery.sizeOf(tester.element(find.byType(ScheduleGrid))),
+        const Size(400, 800),
+      );
+      expect(
+        Theme.of(tester.element(find.byType(ScheduleGrid))).platform,
+        TargetPlatform.android,
+      );
+      expect(
+        MediaQuery.textScalerOf(tester.element(find.byType(ScheduleGrid)))
+            .scale(12),
+        24,
+      );
+      await _capture(tester, 'theme-editor-cached-android-large-text.png');
+      await _mode(tester, l10n, Brightness.dark);
+      await _checkPreview(tester, (theme, visuals) {
+        expect(theme.brightness, Brightness.dark);
+        expect(visuals.coursePalette, [const Color(0xffbb5500)]);
+        expect(
+          Theme.of(tester.element(find.byType(CourseCard).first)).brightness,
+          Brightness.dark,
+        );
+      });
+      await _mode(tester, l10n, Brightness.light);
+      await _setSlider(tester, 'courseCardRadius', 17);
+      await _checkPreview(tester, (_, visuals) {
+        expect(visuals.courseCardRadius, 17);
+        final surface = tester.widget<Container>(
+          find
+              .descendant(
+                of: find.byType(CourseCard).first,
+                matching: find.byType(Container),
+              )
+              .first,
+        );
+        expect(
+          (surface.decoration! as BoxDecoration).borderRadius,
+          BorderRadius.circular(17),
+        );
+      });
+      expect(stored(), before);
+      expect(settings.activeCustomTheme.value, same(original));
+      expect(settings.customThemes.value, isEmpty);
+      await _revealPreview(tester);
+      await CacheHelper.saveForKey(SpKeys.cacheCoursesMap, '202601', {
+        'courses': [course.toJson()..['name'] = '新缓存课程'],
+      });
+      await tester.pumpAndSettle();
+      expect(find.text('缓存高数'), findsNothing);
+      expect(find.text('新缓存课程'), findsOneWidget);
+      settings.selectedSemesterKey.value = 'uncached-term';
+      await tester.pumpAndSettle();
+      final empty = tester.widget<ScheduleGrid>(find.byType(ScheduleGrid));
+      expect(empty.term, 'uncached-term');
+      expect(empty.courses, isEmpty);
+      expect(empty.examRooms, isEmpty);
+      expect(requests, 0);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final scenario in [
     (size: const Size(400, 800), scale: 1.0, style: InterfaceStyle.cards),
     (
@@ -1867,109 +2049,110 @@ void main() {
     (size: const Size(400, 800), scale: 1.0, style: InterfaceStyle.classic),
     (size: const Size(320, 480), scale: 2.0, style: InterfaceStyle.cards),
     (size: const Size(640, 320), scale: 2.0, style: InterfaceStyle.cards),
+    (size: const Size(900, 900), scale: 1.0, style: InterfaceStyle.cards),
+    (size: const Size(1600, 900), scale: 1.0, style: InterfaceStyle.cards),
   ]) {
-    testWidgets('preview opens on demand and preserves form scroll $scenario', (
-      tester,
-    ) async {
-      final original = _profile();
-      settings.activateCustomTheme(original);
-      settings.interfaceStyle.value = scenario.style;
-      final l10n = await _openEditor(
-        tester,
-        settings,
-        original,
-        size: scenario.size,
-        textScale: scenario.scale,
-      );
-      final button = find.byKey(_previewButton);
-      expect(
-        find.descendant(of: button, matching: find.text(l10n.themePreview)),
-        findsOneWidget,
-      );
-      expect(tester.widget(button), isA<TextButton>());
-      expect(find.byKey(_preview, skipOffstage: false), findsNothing);
-      expect(find.byKey(_previewSheet, skipOffstage: false), findsNothing);
-      final mode = find.byKey(const ValueKey('theme-editor-mode'));
-      expect(
-        find.descendant(
-          of: find.byKey(const ValueKey('theme-editor-list')),
-          matching: mode,
-        ),
-        findsOneWidget,
-      );
-      final list = tester.getRect(_listScroll());
-      expect(
-        list.top,
-        lessThanOrEqualTo(tester.getRect(find.byType(AppBar)).bottom + 1),
-      );
-      expect(list.height, greaterThan(scenario.size.height * 0.5));
-      await _reveal(tester, find.byKey(_name));
-      await tester.enterText(find.byKey(_name), '当前草稿预览');
-      await _setSlider(tester, 'backgroundDim', 0.3);
-      final captureName =
-          '${scenario.size.width.toInt()}x${scenario.size.height.toInt()}-${scenario.scale}-${scenario.style.name}';
-      await _capture(tester, 'theme-editor-$captureName.png');
-      await tester.dragFrom(
-        Offset(list.left + 8, list.center.dy),
-        const Offset(0, -220),
-      );
-      await tester.pumpAndSettle();
-      final position = tester.state<ScrollableState>(_listScroll()).position;
-      final before = position.pixels;
-      expect(before, greaterThan(0));
-      expect(mode.hitTestable(), findsNothing);
-      await _openPreview(tester);
-      expect(
-        find.descendant(
-          of: find.byKey(_preview),
-          matching: find.text('当前草稿预览'),
-        ),
-        findsOneWidget,
-      );
-      expect(_previewVisuals(tester).backgroundDim, 0.3);
-      expect(
-        MediaQuery.textScalerOf(tester.element(find.byKey(_preview))).scale(16),
-        16 * scenario.scale,
-      );
-      await _previewMode(tester, Brightness.dark);
-      expect(
-        Theme.of(tester.element(find.byKey(_preview))).brightness,
-        Brightness.dark,
-      );
-      expect(
-        _previewVisuals(tester).colors['primary'],
-        const Color(0xffabcdef),
-      );
-      await _previewMode(tester, Brightness.light);
-      expect(_previewVisuals(tester).backgroundDim, 0.3);
-      await _sheetReveal(
-        tester,
-        find.descendant(
-          of: find.byKey(_preview),
-          matching: find.text(l10n.customCourseName),
-        ),
-      );
-      await _capture(tester, 'theme-editor-$captureName-preview.png');
-      await _closePreview(tester);
-      expect(position.pixels, closeTo(before, 0.01));
-      expect(settings.activeCustomTheme.value, same(original));
-      expect(settings.customThemes.value, isEmpty);
-      final last = find.byKey(
-        const ValueKey('theme-slider-row-courseCardRadius'),
-      );
-      await _reveal(tester, last);
-      expect(last.hitTestable(), findsOneWidget);
-      final atEnd = position.pixels;
-      await _checkPreview(tester, (_, visuals) {
-        expect(visuals.backgroundDim, 0.3);
-      });
-      expect(position.pixels, closeTo(atEnd, 0.01));
-      await _setSlider(tester, 'backgroundDim', 0.65);
-      await _checkPreview(tester, (_, visuals) {
-        expect(visuals.backgroundDim, 0.65);
-      });
-      expect(tester.takeException(), isNull);
-    });
+    testWidgets(
+      'phone preview leads the scrollable editor at $scenario',
+      (tester) async {
+        final desktop = scenario.size.shortestSide >= 600;
+        final original = _profile();
+        settings.activateCustomTheme(original);
+        settings.interfaceStyle.value = scenario.style;
+        final l10n = await _openEditor(
+          tester,
+          settings,
+          original,
+          size: scenario.size,
+          textScale: scenario.scale,
+        );
+        expect(find.byKey(_previewButton), findsNothing);
+        expect(find.byKey(_preview), findsOneWidget);
+        expect(find.byKey(_previewSheet, skipOffstage: false), findsNothing);
+        final list = tester.getRect(_listScroll());
+        final phone = tester.getRect(find.byKey(_previewPhone));
+        final logicalPhone = desktop
+            ? const Size(400, 800)
+            : Size(scenario.size.shortestSide, scenario.size.longestSide);
+        expect(phone.top, closeTo(list.top + 16, 0.01));
+        expect(
+          phone.width / phone.height,
+          closeTo(logicalPhone.aspectRatio, 0.001),
+        );
+        expect(phone.height, lessThanOrEqualTo(400));
+        final mode = find.byKey(const ValueKey('theme-editor-mode'));
+        expect(tester.getRect(mode).bottom, lessThanOrEqualTo(list.bottom));
+        final grid = find.byType(ScheduleGrid);
+        expect(grid, findsOneWidget);
+        expect(find.byType(HorizontalScheduleGrid), findsNothing);
+        expect(tester.widget<ScheduleGrid>(grid).courses, isEmpty);
+        expect(MediaQuery.sizeOf(tester.element(grid)), logicalPhone);
+        expect(Theme.of(tester.element(grid)).platform, TargetPlatform.android);
+        expect(
+          MediaQuery.textScalerOf(tester.element(grid)).scale(16),
+          16 * scenario.scale,
+        );
+        await tester.dragFrom(
+          Offset(list.center.dx, list.top + 40),
+          const Offset(0, -180),
+        );
+        await tester.pumpAndSettle();
+        final position = tester.state<ScrollableState>(_listScroll()).position;
+        expect(position.pixels, greaterThan(0));
+        await _reveal(tester, mode);
+        expect(
+          find.descendant(
+            of: find.byKey(const ValueKey('theme-editor-list')),
+            matching: mode,
+          ),
+          findsOneWidget,
+        );
+        expect(list.height, greaterThan(scenario.size.height * 0.5));
+        await _reveal(tester, find.byKey(_name));
+        await tester.enterText(find.byKey(_name), '当前草稿预览');
+        await _setSlider(tester, 'backgroundDim', 0.3);
+        final captureName =
+            '${scenario.size.width.toInt()}x${scenario.size.height.toInt()}-${scenario.scale}-${scenario.style.name}';
+        await _capture(tester, 'theme-editor-$captureName.png');
+        final before = position.pixels;
+        expect(before, greaterThan(0));
+        await _checkPreview(tester, (_, visuals) {
+          expect(visuals.backgroundDim, 0.3);
+        });
+        expect(position.pixels, closeTo(before, 0.01));
+        await _mode(tester, l10n, Brightness.dark);
+        await _checkPreview(tester, (theme, visuals) {
+          expect(theme.brightness, Brightness.dark);
+          expect(visuals.colors['primary'], const Color(0xffabcdef));
+        });
+        await _mode(tester, l10n, Brightness.light);
+        await _revealPreview(tester);
+        expect(_previewVisuals(tester).backgroundDim, 0.3);
+        await _capture(tester, 'theme-editor-$captureName-preview.png');
+        expect(settings.activeCustomTheme.value, same(original));
+        expect(settings.customThemes.value, isEmpty);
+        final last = find.byKey(
+          const ValueKey('theme-slider-row-courseCardRadius'),
+        );
+        await _reveal(tester, last);
+        expect(last.hitTestable(), findsOneWidget);
+        final atEnd = position.pixels;
+        await _checkPreview(tester, (_, visuals) {
+          expect(visuals.backgroundDim, 0.3);
+        });
+        expect(position.pixels, closeTo(atEnd, 0.01));
+        await _setSlider(tester, 'backgroundDim', 0.65);
+        await _checkPreview(tester, (_, visuals) {
+          expect(visuals.backgroundDim, 0.65);
+        });
+        expect(tester.takeException(), isNull);
+      },
+      variant: TargetPlatformVariant.only(
+        scenario.size.shortestSide >= 600
+            ? TargetPlatform.windows
+            : TargetPlatform.android,
+      ),
+    );
   }
 
   testWidgets('preview mode changes leave a clean draft unsaved', (
@@ -1978,9 +2161,10 @@ void main() {
     final original = _profile();
     settings.activateCustomTheme(original);
     final l10n = await _openEditor(tester, settings, original);
-    await _openPreview(tester);
-    await _previewMode(tester, Brightness.dark);
-    await _closePreview(tester);
+    await _mode(tester, l10n, Brightness.dark);
+    await _checkPreview(tester, (theme, _) {
+      expect(theme.brightness, Brightness.dark);
+    });
     expect(settings.activeCustomTheme.value, same(original));
     expect(settings.customThemes.value, isEmpty);
     await tester.tap(find.byType(BackButton));
@@ -1989,27 +2173,25 @@ void main() {
     expect(find.text(l10n.themeUnsavedTitle), findsNothing);
   });
 
-  testWidgets('preview shows real slider edits after closing and reopening', (
+  testWidgets('scrolling back to the preview shows current slider edits', (
     tester,
   ) async {
     final original = _profile();
     settings.activateCustomTheme(original);
     await _openEditor(tester, settings, original);
-    await _openPreview(tester);
+    await _revealPreview(tester);
     expect(_previewVisuals(tester).backgroundDim, original.light.backgroundDim);
-    await _closePreview(tester);
     await _setSlider(tester, 'backgroundDim', 0.42);
-    await _openPreview(tester);
+    await _revealPreview(tester);
     expect(_previewVisuals(tester).backgroundDim, 0.42);
     expect(settings.activeCustomTheme.value, same(original));
     expect(settings.customThemes.value, isEmpty);
-    await _closePreview(tester);
     final slider = await _expandSlider(tester, 'backgroundDim');
     expect(tester.widget<Slider>(slider).value, 0.42);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('keyboard leaves the full form editable without a preview', (
+  testWidgets('keyboard leaves the form editable below the phone preview', (
     tester,
   ) async {
     await _openEditor(
@@ -2019,10 +2201,10 @@ void main() {
       size: const Size(400, 800),
       textScale: 1.5,
     );
+    await _reveal(tester, find.byKey(_name));
     await tester.showKeyboard(find.byKey(_name));
     tester.view.viewInsets = const FakeViewPadding(bottom: 320);
     await tester.pumpAndSettle();
-    expect(find.byKey(_preview, skipOffstage: false), findsNothing);
     expect(find.byKey(_previewSheet, skipOffstage: false), findsNothing);
     expect(tester.getRect(_listScroll()).height, greaterThan(240));
     await _reveal(tester, find.byKey(_name));
@@ -2066,9 +2248,8 @@ void main() {
       await _sheetReveal(tester, cancel);
       await tester.tap(cancel);
       await tester.pumpAndSettle();
-      await _openPreview(tester);
+      await _revealPreview(tester);
       expect(tester.widget(find.byKey(_preview)), isA<AppThemeBackground>());
-      await _closePreview(tester);
       expect(tester.takeException(), isNull);
     },
   );

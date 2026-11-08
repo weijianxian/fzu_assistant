@@ -139,7 +139,8 @@ lib/
       general_settings_page.dart  # 一般设置（语言 + 网页注入开关）
       theme/             # 主题相关
         theme_section.dart # 主题库、导入导出分享、界面风格、外观模式和竖向默认色卡
-        theme_editor_page.dart # 基础信息、亮暗独立草稿、背景图片及课表色卡与样式预览
+        theme_editor_page.dart # 基础信息、亮暗独立草稿、背景图片、课表色卡及顶部手机比例的真实课表预览
+        theme_schedule_preview.dart # 只读本地缓存，按手机逻辑尺寸渲染首页 ScheduleGrid 后等比例缩放
     dev/                 # 开发者工具
       dev_tool.dart      # 开发者工具主页（英文标题/自适应分隔原页分组，保留原有导航与操作）
       learning_center_debug_page.dart # 学习中心 API 调试：分组操作按钮、token 显隐、原始参数/spaceId 直传、HTTP 状态和原始响应；无业务校验和确认弹窗
