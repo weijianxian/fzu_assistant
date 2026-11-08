@@ -356,6 +356,8 @@ class _ScheduleBody extends StatelessWidget {
     }
 
     return PageView.builder(
+      // 加载完成后更换控制器时，初始周次不能沿用临时第一页的位置。
+      key: ObjectKey(pageController),
       controller: pageController,
       physics: const BouncingScrollPhysics(),
       itemCount: CourseService.totalScheduleWeeks,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,16 +9,22 @@ import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/calendar.dart';
 import 'package:fzu_assistant/model/course.dart';
+import 'package:fzu_assistant/model/custom_course.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/home/home_screen.dart';
 import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
 import 'package:fzu_assistant/screen/schedule/schedule.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/floating_schedule_controls.dart';
 import 'package:fzu_assistant/screen/schedule/widgets/horizontal_schedule_grid.dart';
+import 'package:fzu_assistant/screen/schedule/widgets/schedule_grid.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
+import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/widget_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../fixtures/reminder_channel.dart';
 
 Widget _app(
   AppSettings settings, {
@@ -58,14 +66,14 @@ void _viewport(WidgetTester tester, Size size) {
   addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
 }
 
-Future<void> _cacheSchedule() async {
+Future<void> _cacheSchedule({int weeksBefore = 4}) async {
   const term = '202601';
   final now = DateTime.now();
   final monday = DateTime(
     now.year,
     now.month,
     now.day,
-  ).subtract(Duration(days: now.weekday - 1 + 28));
+  ).subtract(Duration(days: now.weekday - 1 + weeksBefore * 7));
   await CacheHelper.saveMap(
     SpKeys.cacheSchoolCalendar,
     SchoolCalendar(
@@ -126,6 +134,89 @@ void main() {
     ApiClient.instance.dio.interceptors.add(offline);
     addTearDown(() => ApiClient.instance.dio.interceptors.remove(offline));
   });
+
+  for (final size in [const Size(400, 800), const Size(1200, 800)]) {
+    for (final localCourses in [false, true]) {
+      testWidgets(
+        'opening week 10 matches title, page and dates at $size (local=$localCourses)',
+        (tester) async {
+          _viewport(tester, size);
+          mockReminderChannel();
+          FlutterSecureStorage.setMockInitialValues({
+            'fzu_username': 'local-student',
+            'fzu_password': 'test-only',
+            'fzu_academic_session': jsonEncode({
+              'studentId': 'local-student',
+              'userId': 'test-session',
+              'cookies': ['SESSION=test; Path=/'],
+            }),
+          });
+          expect(await ApiClient.instance.restoreCachedSession(), isTrue);
+          addTearDown(ApiClient.instance.clearSession);
+          final store = CustomCourseStore.instance;
+          final previousCourses = store.value;
+          addTearDown(() => store.value = previousCourses);
+          store.value = [
+            if (localCourses)
+              CustomCourse(
+                id: 'local-course',
+                account: 'local-student',
+                term: '202601',
+                name: '自定义课程',
+                startClass: 1,
+                endClass: 2,
+                startWeek: 1,
+                endWeek: 19,
+                weekday: 1,
+              ),
+          ];
+          final settings = AppSettings();
+          addTearDown(settings.dispose);
+          settings.selectedSemesterKey.value = '202601';
+          await tester.runAsync(() => _cacheSchedule(weeksBefore: 9));
+          await tester.pumpWidget(_app(settings));
+          await tester.pumpAndSettle();
+          expect(find.text('第 10 周'), findsOneWidget);
+          final page = tester.widget<PageView>(find.byType(PageView));
+          expect(page.controller!.page, 9);
+          expect(
+            tester.widget<ScheduleGrid>(find.byType(ScheduleGrid).first).week,
+            10,
+          );
+          expect(
+            find.byKey(const ValueKey('portrait-schedule-today-column')),
+            size.width < size.height ? findsOneWidget : findsNothing,
+          );
+          if (size.width > size.height) {
+            final grid = tester.widget<HorizontalScheduleGrid>(
+              find.byType(HorizontalScheduleGrid),
+            );
+            expect(grid.week, 10);
+            expect(
+              grid.weekDates.any(
+                (date) => DateUtils.isSameDay(date, DateTime.now()),
+              ),
+              isTrue,
+            );
+          }
+          page.controller!.jumpToPage(10);
+          await tester.pumpAndSettle();
+          WidgetSyncService.cacheUpdates.value++;
+          await tester.pumpAndSettle();
+          expect(find.text('第 11 周'), findsOneWidget);
+          expect(
+            tester.widget<PageView>(find.byType(PageView)).controller!.page,
+            10,
+          );
+          expect(
+            tester.widget<ScheduleGrid>(find.byType(ScheduleGrid).first).week,
+            11,
+          );
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
 
   testWidgets('缓存模式提示可见且缺少考场缓存仍展示课表', (tester) async {
     _viewport(tester, const Size(400, 800));
