@@ -20,6 +20,7 @@ import 'package:fzu_assistant/screen/settings/settings_page.dart';
 import 'package:fzu_assistant/screen/toolbox/gpa/gpa_page.dart';
 import 'package:fzu_assistant/screen/toolbox/marks/marks_page.dart';
 import 'package:fzu_assistant/screen/toolbox/toolbox.dart';
+import 'package:fzu_assistant/screen/toolbox/widgets/toolbox_menu.dart';
 import 'package:fzu_assistant/screen/toolbox/empty_room/empty_room_page.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/auth_storage.dart';
@@ -163,7 +164,7 @@ void main() {
 
     expect(find.byType(SplitNavigationPage), findsOneWidget);
     expect(find.byType(GpaPage), findsOneWidget);
-    await tester.tap(find.widgetWithText(ListTile, '成绩查询'));
+    await tester.tap(find.widgetWithText(ToolboxFeatureCard, '成绩查询'));
     await tester.pumpAndSettle();
 
     expect(find.byType(MarksPage), findsOneWidget);
@@ -261,7 +262,9 @@ void main() {
     final root = GlobalKey<NavigatorState>();
     await tester.pumpWidget(_app(settings, const ToolboxPage(), root));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithIcon(ListTile, Icons.school_outlined));
+    await tester.tap(
+      find.widgetWithIcon(ToolboxFeatureCard, Icons.school_outlined),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(SplitNavigationPage), findsNothing);

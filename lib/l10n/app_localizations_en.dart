@@ -251,6 +251,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navToolbox => 'Tools';
 
   @override
+  String get toolboxEmptyRoomTitle => 'Empty rooms';
+
+  @override
+  String get toolboxJobFairTitle => 'Job fairs';
+
+  @override
+  String get toolboxClassroomUsageTitle => 'Room usage';
+
+  @override
+  String get toolboxAcademicShortcutsTitle => 'Academics';
+
+  @override
   String get navMy => 'Profile';
 
   @override

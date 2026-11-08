@@ -229,6 +229,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get navToolbox => '工具箱';
 
   @override
+  String get toolboxEmptyRoomTitle => '空教室';
+
+  @override
+  String get toolboxJobFairTitle => '招聘会';
+
+  @override
+  String get toolboxClassroomUsageTitle => '教室占用';
+
+  @override
+  String get toolboxAcademicShortcutsTitle => '教务入口';
+
+  @override
   String get navMy => '我的';
 
   @override

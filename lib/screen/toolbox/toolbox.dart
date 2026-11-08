@@ -7,6 +7,7 @@ import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/router/app_router.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
+import 'package:fzu_assistant/screen/toolbox/widgets/toolbox_menu.dart';
 
 class ToolboxPage extends HookWidget {
   const ToolboxPage({super.key, this.isActive = true});
@@ -149,57 +150,51 @@ class ToolboxPage extends HookWidget {
       ),
     ];
 
+    final destinations = [
+      for (final section in sections)
+        NavigationPaneSection(
+          title: section.$1,
+          destinations: [
+            for (final tile in section.$2)
+              NavigationPaneDestination(
+                icon: tile.$1,
+                title: tile.$2,
+                subtitle: tile.$3,
+                route: tile.$4,
+                menuTitle: switch (tile.$4) {
+                  AppRoutes.emptyRoom => l10n.toolboxEmptyRoomTitle,
+                  AppRoutes.jobFair => l10n.toolboxJobFairTitle,
+                  AppRoutes.classroomUsage => l10n.toolboxClassroomUsageTitle,
+                  AppRoutes.academicShortcuts =>
+                    l10n.toolboxAcademicShortcutsTitle,
+                  _ => tile.$2,
+                },
+              ),
+          ],
+        ),
+    ];
+
     if (context.isLandscape) {
       return SplitNavigationPage(
         title: l10n.navToolbox,
+        sections: destinations,
         initialRoute: AppRoutes.gpa,
         onGenerateRoute: AppRouter.onGenerateRoute,
         isActive: isActive,
-        sections: [
-          for (final section in sections)
-            NavigationPaneSection(
-              title: section.$1,
-              destinations: [
-                for (final tile in section.$2)
-                  NavigationPaneDestination(
-                    icon: tile.$1,
-                    title: tile.$2,
-                    subtitle: tile.$3,
-                    route: tile.$4,
-                  ),
-              ],
-            ),
-        ],
+        navigationBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        menuBuilder: (context, selectedRoute, onSelected) => ToolboxMenu(
+          sections: destinations,
+          selectedRoute: selectedRoute,
+          onSelected: onSelected,
+        ),
       );
     }
 
     return AppScaffold(
       appBar: AppBar(title: Text(l10n.navToolbox)),
-      body: AppCustomScrollView(
-        slivers: [
-          for (final section in sections)
-            Section.sliver(
-              title: section.$1,
-              child: MasonrySliverGrid.grouped(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                childCount: section.$2.length,
-                itemBuilder: (context, i) {
-                  final tile = section.$2[i];
-                  return ListTile(
-                    leading: Icon(tile.$1, size: 28),
-                    title: Text(
-                      tile.$2,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Text(tile.$3),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.pushNamed(tile.$4),
-                  );
-                },
-              ),
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        ],
+      body: ToolboxMenu(
+        sections: destinations,
+        onSelected: (route) => context.pushNamed(route),
       ),
     );
   }

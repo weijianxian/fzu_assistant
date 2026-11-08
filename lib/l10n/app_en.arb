@@ -83,6 +83,10 @@
   "@navToolbox": {
     "description": "navToolbox"
   },
+  "toolboxEmptyRoomTitle": "Empty rooms",
+  "toolboxJobFairTitle": "Job fairs",
+  "toolboxClassroomUsageTitle": "Room usage",
+  "toolboxAcademicShortcutsTitle": "Academics",
   "navMy": "Profile",
   "@navMy": {
     "description": "navMy"

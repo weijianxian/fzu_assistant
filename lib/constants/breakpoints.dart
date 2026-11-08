@@ -17,3 +17,7 @@ const kLearningAreaNavigationWidth = 32.0;
 
 /// 工具页单列连接分组／多列瀑布流的最大列宽。
 const kToolTileMaxWidth = 600.0;
+
+/// 工具箱上图标、下标题的最小列宽；普通手机约五列。
+/// 随原生菜单字号及文字缩放增宽、减少列数，长标题换行，末行保持等宽。
+const kToolboxCardMinWidth = 64.0;

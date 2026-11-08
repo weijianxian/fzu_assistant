@@ -530,6 +530,30 @@ abstract class AppLocalizations {
   /// **'工具箱'**
   String get navToolbox;
 
+  /// No description provided for @toolboxEmptyRoomTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'空教室'**
+  String get toolboxEmptyRoomTitle;
+
+  /// No description provided for @toolboxJobFairTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'招聘会'**
+  String get toolboxJobFairTitle;
+
+  /// No description provided for @toolboxClassroomUsageTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'教室占用'**
+  String get toolboxClassroomUsageTitle;
+
+  /// No description provided for @toolboxAcademicShortcutsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'教务入口'**
+  String get toolboxAcademicShortcutsTitle;
+
   /// navMy
   ///
   /// In zh, this message translates to:

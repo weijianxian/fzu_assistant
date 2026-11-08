@@ -190,48 +190,55 @@ void main() {
     });
   }
 
-  testWidgets('toolbox sections share the switch and keep named navigation', (
-    tester,
-  ) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(400, 900);
-    addTearDown(tester.view.reset);
-    final settings = AppSettings()..papersAccess.value = FeatureAccess.allow;
-    addTearDown(settings.dispose);
-    String? navigated;
-    await tester.pumpWidget(
-      AppSettingsProvider(
-        settings: settings,
-        child: AnimatedBuilder(
-          animation: settings.interfaceStyle,
-          builder: (_, _) => MaterialApp(
-            theme: settings.lightTheme,
-            locale: const Locale('zh'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const ToolboxPage(),
-            onGenerateRoute: (route) {
-              navigated = route.name;
-              return MaterialPageRoute<void>(builder: (_) => const Scaffold());
-            },
+  testWidgets(
+    'toolbox keeps independent cards across styles and named navigation',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(400, 900);
+      addTearDown(tester.view.reset);
+      final settings = AppSettings()..papersAccess.value = FeatureAccess.allow;
+      addTearDown(settings.dispose);
+      String? navigated;
+      await tester.pumpWidget(
+        AppSettingsProvider(
+          settings: settings,
+          child: AnimatedBuilder(
+            animation: settings.interfaceStyle,
+            builder: (_, _) => MaterialApp(
+              theme: settings.lightTheme,
+              locale: const Locale('zh'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const ToolboxPage(),
+              onGenerateRoute: (route) {
+                navigated = route.name;
+                return MaterialPageRoute<void>(
+                  builder: (_) => const Scaffold(),
+                );
+              },
+            ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(settings.interfaceStyle.value, InterfaceStyle.cards);
-    expect(find.byType(Card), findsWidgets);
-    settings.interfaceStyle.value = InterfaceStyle.classic;
-    await tester.pumpAndSettle();
-    expect(find.byType(Card), findsNothing);
-    settings.interfaceStyle.value = InterfaceStyle.cards;
-    await tester.pumpAndSettle();
-    expect(find.byType(Card), findsWidgets);
-    expect(find.byType(Divider), findsNothing);
-    await tester.tap(find.text('成绩查询'));
-    await tester.pumpAndSettle();
-    expect(navigated, '/marks');
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox());
-  });
+      );
+      await tester.pumpAndSettle();
+      for (final style in InterfaceStyle.values) {
+        settings.interfaceStyle.value = style;
+        await tester.pumpAndSettle();
+        final cards = tester.widgetList<Card>(find.byType(Card)).toList();
+        expect(cards, isNotEmpty);
+        for (final card in cards) {
+          expect(
+            (card.shape! as RoundedRectangleBorder).borderRadius,
+            BorderRadius.circular(24),
+          );
+        }
+        expect(find.byType(Divider), findsNothing);
+      }
+      await tester.tap(find.text('成绩查询'));
+      await tester.pumpAndSettle();
+      expect(navigated, '/marks');
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 }

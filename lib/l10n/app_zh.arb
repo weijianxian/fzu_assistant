@@ -83,6 +83,10 @@
   "@navToolbox": {
     "description": "navToolbox"
   },
+  "toolboxEmptyRoomTitle": "空教室",
+  "toolboxJobFairTitle": "招聘会",
+  "toolboxClassroomUsageTitle": "教室占用",
+  "toolboxAcademicShortcutsTitle": "教务入口",
   "navMy": "我的",
   "@navMy": {
     "description": "navMy"

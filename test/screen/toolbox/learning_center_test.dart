@@ -283,8 +283,7 @@ void main() {
             matching: find.byType(Scrollable),
           )
           .first;
-      // The longer menu lazily builds the campus group. Keep the pointer down
-      // until it scrolls into view instead of restarting instant short drags.
+      // Reveal the campus group if the current width / text scale needs scrolling.
       await tester.scrollUntilVisible(
         find.text('学习中心'),
         250,
@@ -296,12 +295,6 @@ void main() {
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('学习中心'));
       await tester.pumpAndSettle();
-      if (size.width > size.height) {
-        expect(
-          tester.state<ScrollableState>(menu).position.pixels,
-          greaterThan(0),
-        );
-      }
       await tester.tap(find.text('学习中心'));
       await tester.pumpAndSettle();
       expect(find.byType(LearningCenterPage), findsOneWidget);
