@@ -24,7 +24,7 @@ class CourseReminderSettingsPage extends HookWidget {
     final syncError = useValueListenable(reminder.error);
 
     Future<void> reload() async {
-      if (!CourseReminderService.supported) return;
+      if (!CourseReminderService.androidSupported) return;
       try {
         final result = await reminder.permissions();
         if (context.mounted) {
@@ -37,7 +37,7 @@ class CourseReminderSettingsPage extends HookWidget {
     }
 
     Future<void> loadDeviceHint() async {
-      if (!CourseReminderService.supported) return;
+      if (!CourseReminderService.androidSupported) return;
       try {
         final xiaomi = await reminder.isXiaomiDevice();
         if (context.mounted) isXiaomi.value = xiaomi;

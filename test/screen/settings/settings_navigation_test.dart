@@ -97,6 +97,44 @@ void main() {
             await tester.tap(sync);
             await tester.pumpAndSettle();
             expect(navigated, AppRoutes.scheduleSyncSettings);
+          } else if (platform == TargetPlatform.windows) {
+            final platformSection = find.byWidgetPredicate(
+              (widget) =>
+                  widget is SettingsSection &&
+                  widget.title == l10n.settingsPlatformSection,
+            );
+            final background = find.descendant(
+              of: platformSection,
+              matching: find.text(l10n.windowsBackground),
+            );
+            await tester.scrollUntilVisible(background, 200);
+            await tester.pumpAndSettle();
+            final titles = tester
+                .widgetList<ChevronListTile>(
+                  find.descendant(
+                    of: platformSection,
+                    matching: find.byType(ChevronListTile),
+                  ),
+                )
+                .map((tile) => (tile.title as Text).data);
+            expect(titles, [l10n.windowsBackground, l10n.windowsNotifications]);
+            expect(find.text(l10n.scheduleSync), findsNothing);
+            expect(find.text(l10n.courseLiveUpdates), findsNothing);
+            expect(find.text(l10n.permissionManagement), findsNothing);
+            expect(find.text(l10n.nextCourseWidgetSettings), findsNothing);
+            await tester.tap(background);
+            await tester.pumpAndSettle();
+            expect(navigated, AppRoutes.windowsBackground);
+            Navigator.of(tester.element(find.byType(Scaffold).last)).pop();
+            await tester.pumpAndSettle();
+            final notifications = find.descendant(
+              of: platformSection,
+              matching: find.text(l10n.windowsNotifications),
+            );
+            await tester.ensureVisible(notifications);
+            await tester.tap(notifications);
+            await tester.pumpAndSettle();
+            expect(navigated, AppRoutes.windowsNotifications);
           } else {
             expect(find.text(l10n.settingsPlatformSection), findsNothing);
             expect(find.text(l10n.calendarSync), findsNothing);

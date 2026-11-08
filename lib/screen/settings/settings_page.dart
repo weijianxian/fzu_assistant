@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fzu_assistant/service/calendar_sync_service.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
+import 'package:fzu_assistant/service/windows_background_service.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -12,6 +13,8 @@ class SettingsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final androidSupported = CourseReminderService.androidSupported;
+    final windowsSupported = WindowsBackgroundService.supported;
 
     return AppScaffold(
       appBar: AppBar(title: Text(l10n.settings)),
@@ -58,51 +61,69 @@ class SettingsPage extends HookWidget {
               ),
             ],
           ),
-          if (CourseReminderService.supported) const SettingsDivider(),
-          if (CourseReminderService.supported) ...[
+          if (androidSupported || windowsSupported) const SettingsDivider(),
+          if (androidSupported || windowsSupported) ...[
             SettingsSection.list(
               title: l10n.settingsPlatformSection,
               children: [
-                ChevronListTile(
-                  leading: const Icon(Icons.sync),
-                  title: Text(l10n.scheduleSync),
-                  subtitle: Text(l10n.scheduleSyncDescription),
-                  onTap: () =>
-                      context.pushNamed(AppRoutes.scheduleSyncSettings),
-                ),
-                if (CalendarSyncService.supported)
+                if (androidSupported) ...[
                   ChevronListTile(
-                    leading: const Icon(Icons.calendar_month_outlined),
-                    title: Text(l10n.calendarSync),
-                    subtitle: Text(l10n.calendarSyncDescription),
-                    onTap: () => context.pushNamed(AppRoutes.calendarExport),
+                    leading: const Icon(Icons.sync),
+                    title: Text(l10n.scheduleSync),
+                    subtitle: Text(l10n.scheduleSyncDescription),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.scheduleSyncSettings),
                   ),
-                ChevronListTile(
-                  leading: const Icon(Icons.notifications_active_outlined),
-                  title: Text(l10n.courseReminderSettings),
-                  subtitle: Text(l10n.courseReminderSettingsSubtitle),
-                  onTap: () =>
-                      context.pushNamed(AppRoutes.courseReminderSettings),
-                ),
-                ChevronListTile(
-                  leading: const Icon(Icons.timelapse),
-                  title: Text(l10n.courseLiveUpdates),
-                  subtitle: Text(l10n.courseLiveUpdatesSubtitle),
-                  onTap: () => context.pushNamed(AppRoutes.courseLiveUpdates),
-                ),
-                ChevronListTile(
-                  leading: const Icon(Icons.widgets_outlined),
-                  title: Text(l10n.nextCourseWidgetSettings),
-                  subtitle: Text(l10n.nextCourseWidgetDescription),
-                  onTap: () =>
-                      context.pushNamed(AppRoutes.nextCourseWidgetSettings),
-                ),
-                ChevronListTile(
-                  leading: const Icon(Icons.admin_panel_settings_outlined),
-                  title: Text(l10n.permissionManagement),
-                  subtitle: Text(l10n.permissionManagementSubtitle),
-                  onTap: () => context.pushNamed(AppRoutes.androidPermissions),
-                ),
+                  if (CalendarSyncService.supported)
+                    ChevronListTile(
+                      leading: const Icon(Icons.calendar_month_outlined),
+                      title: Text(l10n.calendarSync),
+                      subtitle: Text(l10n.calendarSyncDescription),
+                      onTap: () => context.pushNamed(AppRoutes.calendarExport),
+                    ),
+                  ChevronListTile(
+                    leading: const Icon(Icons.notifications_active_outlined),
+                    title: Text(l10n.courseReminderSettings),
+                    subtitle: Text(l10n.courseReminderSettingsSubtitle),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.courseReminderSettings),
+                  ),
+                  ChevronListTile(
+                    leading: const Icon(Icons.timelapse),
+                    title: Text(l10n.courseLiveUpdates),
+                    subtitle: Text(l10n.courseLiveUpdatesSubtitle),
+                    onTap: () => context.pushNamed(AppRoutes.courseLiveUpdates),
+                  ),
+                  ChevronListTile(
+                    leading: const Icon(Icons.widgets_outlined),
+                    title: Text(l10n.nextCourseWidgetSettings),
+                    subtitle: Text(l10n.nextCourseWidgetDescription),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.nextCourseWidgetSettings),
+                  ),
+                  ChevronListTile(
+                    leading: const Icon(Icons.admin_panel_settings_outlined),
+                    title: Text(l10n.permissionManagement),
+                    subtitle: Text(l10n.permissionManagementSubtitle),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.androidPermissions),
+                  ),
+                ],
+                if (windowsSupported) ...[
+                  ChevronListTile(
+                    leading: const Icon(Icons.desktop_windows_outlined),
+                    title: Text(l10n.windowsBackground),
+                    subtitle: Text(l10n.windowsBackgroundDescription),
+                    onTap: () => context.pushNamed(AppRoutes.windowsBackground),
+                  ),
+                  ChevronListTile(
+                    leading: const Icon(Icons.notifications_active_outlined),
+                    title: Text(l10n.windowsNotifications),
+                    subtitle: Text(l10n.windowsNotificationsDescription),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.windowsNotifications),
+                  ),
+                ],
               ],
             ),
           ],

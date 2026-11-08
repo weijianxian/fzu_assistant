@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_async_data.dart';
 import 'package:fzu_assistant/service/course_live_update_service.dart';
 import 'package:fzu_assistant/service/course_reminder_service.dart';
+import 'package:fzu_assistant/service/windows_course_notifications.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 
 import 'package:fzu_assistant/router/app_routes.dart';
@@ -77,7 +78,7 @@ class DevToolPage extends HookWidget {
       appBar: AppBar(title: Text('Dev Tools')),
       body: AppListView(
         children: [
-          if (CourseReminderService.supported)
+          if (CourseReminderService.androidSupported)
             AppSection.list(
               title: 'Notifications',
               children: [
@@ -162,6 +163,99 @@ class DevToolPage extends HookWidget {
                           await CourseLiveUpdateService.openSettings();
                           return null;
                         }),
+                ),
+              ],
+            ),
+          if (WindowsCourseNotifications.supported)
+            AppSection.list(
+              title: 'Windows Notifications',
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.notification_add_outlined),
+                  title: const Text('Send a toast now'),
+                  subtitle: const Text(
+                    'Click the notification to restore the existing window',
+                  ),
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await WindowsCourseNotifications.instance
+                              .testNotification();
+                          return 'Windows toast sent';
+                        }),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.schedule),
+                  title: const Text('Notify in one minute'),
+                  subtitle: const Text(
+                    'Keep the app running or close to tray to test background delivery',
+                  ),
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await WindowsCourseNotifications.instance
+                              .testNotification(
+                                delay: const Duration(minutes: 1),
+                              );
+                          return 'Windows toast scheduled in one minute';
+                        }),
+                ),
+                for (final preview in _liveUpdatePreviews)
+                  ListTile(
+                    leading: Icon(preview.$2),
+                    title: Text(preview.$3),
+                    subtitle: Text(switch (preview.$1) {
+                      CourseLiveUpdatePreview.inProgress =>
+                        'Preview a Windows course progress toast',
+                      CourseLiveUpdatePreview.nextClass =>
+                        'Preview the next course and classroom',
+                      CourseLiveUpdatePreview.ended =>
+                        'Preview a finished morning notification',
+                    }),
+                    onTap: notificationBusy.value
+                        ? null
+                        : () => notificationAction(() async {
+                            await WindowsCourseNotifications.instance
+                                .showPreview(preview.$1);
+                            return 'Windows course toast sent';
+                          }),
+                  ),
+                ListTile(
+                  leading: const Icon(Icons.play_circle_outline),
+                  title: const Text('Test all styles in 2 minutes'),
+                  subtitle: const Text(
+                    'In progress → next class → in progress → morning finished',
+                  ),
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await WindowsCourseNotifications.instance
+                              .startPreviewSequence();
+                          return 'Windows preview started: now, 30s, 60s and 110s';
+                        }),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_off_outlined),
+                  title: const Text('Clear course preview'),
+                  subtitle: const Text(
+                    'Stop testing and restore the current course notification',
+                  ),
+                  onTap: notificationBusy.value
+                      ? null
+                      : () => notificationAction(() async {
+                          await WindowsCourseNotifications.instance
+                              .clearPreview();
+                          return 'Windows preview cleared';
+                        }),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text('Windows notification settings'),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: () => notificationAction(() async {
+                    await WindowsCourseNotifications.instance.openSettings();
+                    return null;
+                  }),
                 ),
               ],
             ),

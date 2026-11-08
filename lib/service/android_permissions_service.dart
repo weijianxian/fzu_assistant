@@ -11,7 +11,7 @@ abstract final class AndroidPermissionsService {
   static const channel = MethodChannel('com.weijx.fzu_assistant/permissions');
 
   static Future<List<AndroidAppPermission>> load() async {
-    if (!CourseReminderService.supported) return [];
+    if (!CourseReminderService.androidSupported) return [];
     final result = await channel.invokeListMethod<dynamic>('list') ?? [];
     return result.map((item) {
       final map = Map<String, dynamic>.from(item as Map);
@@ -23,7 +23,7 @@ abstract final class AndroidPermissionsService {
   }
 
   static Future<void> openSettings([String? name]) async {
-    if (CourseReminderService.supported) {
+    if (CourseReminderService.androidSupported) {
       await channel.invokeMethod<void>('open', {'name': name});
     }
   }

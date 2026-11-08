@@ -14,6 +14,8 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/app_shortcut_service.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/desktop_window.dart';
+import 'package:fzu_assistant/service/windows_background_service.dart';
+import 'package:fzu_assistant/service/windows_course_notifications.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webview_environment.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
@@ -23,6 +25,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppShortcutService.instance.initialize();
   await DesktopWindow.instance.initialize();
+  await WindowsBackgroundService.instance.initialize();
+  if (WindowsBackgroundService.supported) {
+    WindowsBackgroundService.instance.beforeExit =
+        WindowsCourseNotifications.instance.shutdown;
+  }
   await initWebViewEnvironment();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
@@ -58,11 +65,18 @@ class MyApp extends HookWidget {
     useEffect(() {
       var mounted = true;
       VoidCallback? unbind;
+      VoidCallback? unbindWindowsNotifications;
       unawaited(
         settingsReady
             .then((_) {
               if (mounted) {
                 unbind = NextCourseWidgetService.instance.bind(settings);
+                unbindWindowsNotifications = WindowsCourseNotifications.instance
+                    .bind(
+                      settings,
+                      onActivate:
+                          WindowsBackgroundService.instance.restoreWindow,
+                    );
               }
             })
             .catchError((Object _) {
@@ -72,6 +86,7 @@ class MyApp extends HookWidget {
       return () {
         mounted = false;
         unbind?.call();
+        unbindWindowsNotifications?.call();
       };
     }, [settings, settingsReady]);
     useEffect(() {
@@ -109,6 +124,14 @@ class MyApp extends HookWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) {
+            final l10n = AppLocalizations.of(context)!;
+            WindowsBackgroundService.instance.updateLabels(
+              WindowsBackgroundLabels(
+                appName: l10n.appName,
+                showWindow: l10n.windowsBackgroundRestore,
+                exit: l10n.windowsBackgroundExit,
+              ),
+            );
             final scheme = Theme.of(context).colorScheme;
             final overlayStyle = scheme.brightness == Brightness.dark
                 ? SystemUiOverlayStyle.light

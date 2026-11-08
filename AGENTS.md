@@ -21,6 +21,7 @@
 - re_editor + re_highlight 代码编辑器（JSON 语法高亮，开发者工具用）
 - flutter_inappwebview 内置浏览器（Windows + Android，支持 Cookie 注入）
 - window_manager（Windows 自绘标题栏、窗口操作与状态监听）
+- tray_manager（Windows 原生托盘图标、显示窗口与明确退出菜单）
 - pointycastle（统一身份认证 AES-ECB / PKCS#7 加密）、mobile_scanner（Android / iOS / macOS 学习中心现场扫码签到）
 - geolocator（晚点名网页的前台定位、系统权限和原生定位协议回调）
 - barcode_widget（支持原始字节的消费二维码及入馆 Code128 条形码）、asn1lib（解析一卡通 RSA 私钥）、screen_brightness（手机展示码时临时提高应用亮度）
@@ -133,6 +134,8 @@ lib/
       course_reminder_settings_page.dart # Android 早课提醒：提醒开关、北京时间及通知/精确闹钟授权和通知渠道管理
       course_live_updates_settings_page.dart # Android 课程实况开关及通知、精确闹钟与实况授权
       android_permissions_page.dart # Android 预期权限固定清单：标题为权限名称，说明为具体用途和授权状态；不扫描权限，不展示 ID/类型，返回应用自动刷新
+      windows_background_settings_page.dart # Windows 关闭到托盘开关与真实可用状态
+      windows_notifications_settings_page.dart # Windows 明日课程及课程阶段通知，不暴露 Android 授权项
       schedule_sync_settings_page.dart # Android 夜间自动更新课表：统一手动更新、夜间自动开关/时间、精确闹钟权限及最近/下次同步状态
       home_settings_page.dart # 课表设置（学期单选弹层、课表显示、自定义课程及不展示课程；Android 日历同步在平台功能区）
       hidden_courses_page.dart # 独立管理当前账号的隐藏课程并逐项或全部恢复
@@ -158,6 +161,7 @@ lib/
     theme_image_palette.dart # 后台解码及 Material 图片种子取色，不改变 dynamic_color 版本
     webview_environment.dart # Windows WebView2 环境初始化
     desktop_window.dart # Windows 窗口初始化、状态监听与统一关闭行为
+    windows_background_service.dart # Windows 本机驻留偏好、托盘生命周期、恢复与明确退出
     course_reminder_service.dart # Android 明日课程提醒计划：缓存校历和课表、北京时间、调课与隐藏课程过滤；预排 180 天
     course_live_update_service.dart # Android 官方实况通知展示与独立开发者测试
     course_live_updates_controller.dart # 读取已接受的本地课表快照并安排真实课程实况
@@ -338,7 +342,10 @@ lib/
   ```
 - `flutter_inappwebview` 在 Windows 上需要 WebView2 Runtime
 - `windows/runner/flutter_window.cpp` 中有 `closeWindow` 方法频道的 workaround（修复关窗 bug）
-- Windows 标题栏由 `window_manager` 隐藏，`MaterialApp.builder` 加入全局 `DesktopWindowFrame`；首帧完成后由 Dart 显示窗口。窗口壳拥有独立 Overlay，Navigator 内容使用 ClipRect，防止页面过渡覆盖标题栏。关闭按钮、Alt+F4 和系统菜单关闭共用现有 `closeWindow` 修复。
+- Windows 标题栏由 `window_manager` 隐藏，`MaterialApp.builder` 加入全局 `DesktopWindowFrame`；首帧完成后由 Dart 显示窗口。窗口壳拥有独立 Overlay，Navigator 内容使用 ClipRect，防止页面过渡覆盖标题栏。关闭按钮、Alt+F4 和系统菜单关闭统一交给 `DesktopWindow.onCloseRequested`，明确退出继续共用现有 `closeWindow` 修复。
+- `service/windows_background_service.dart` 通过 `tray_manager` 官方 `TrayIcon` / `Menu` API 管理托盘，不新增原生后台服务或调度层。`windows_close_to_tray` 为本机独立偏好，缺省及旧安装均关闭；用户开启且托盘实际可用后，普通关闭仅隐藏窗口并保留后台课程通知。托盘单击／双击或“显示窗口”恢复并聚焦原窗口，右键提供“退出应用”；关闭驻留前先恢复窗口，托盘创建或可见性失败不得隐藏窗口，普通关闭仍可退出。此偏好不加入 WebDAV 白名单，不自动注册开机启动。
+- `main` 在 `DesktopWindow.initialize()` 后初始化后台服务，并在当前本地化上下文更新托盘文案；设置加载后仅绑定一个 `WindowsCourseNotifications` 实例，toast 点击复用 `WindowsBackgroundService.restoreWindow()`，恢复最小化及隐藏的现有窗口。明确退出依次等待通知 `shutdown()`、移除托盘、调用 `closeWindow`；通知清理失败也必须允许进程退出。关闭到托盘不停止通知。安装版更新保留 `UpdateService` 的显式 `exit(0)` 和安装器关闭／重启路径，不能改成普通关窗。
+- 设置主列表的平台区分别判断 Android 与 Windows：Android 专属项使用 `CourseReminderService.androidSupported`，Windows 仅展示“后台运行”和“课程通知”，路由分别为 `/settings/windows-background` 与 `/settings/windows-notifications`；不通过扩大通用 `supported` 条件暴露 Android 权限、日历、小组件或实况授权入口。
 - `service/webview_environment.dart` 中初始化 `WebViewEnvironment`，`userDataFolder` 设在 app support 目录
 
 ## 构建

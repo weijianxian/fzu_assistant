@@ -25,6 +25,9 @@ class DesktopWindow extends ChangeNotifier {
   bool _isMaximized = false;
   bool _isFullScreen = false;
 
+  /// 后台服务接管普通关闭；明确退出始终直接调用 [exitApplication]。
+  Future<void> Function()? onCloseRequested;
+
   bool get isFocused => _isFocused;
   bool get isMaximized => _isMaximized;
   bool get isFullScreen => _isFullScreen;
@@ -54,9 +57,21 @@ class DesktopWindow extends ChangeNotifier {
   }
 
   Future<void> show() async {
+    if (nativeWindow.isMinimized) nativeWindow.restore();
     nativeWindow.show();
     nativeWindow.focus();
   }
+
+  Future<void> hide() async {
+    nativeWindow.hide();
+    if (nativeWindow.isVisible) {
+      throw StateError('Windows window could not be hidden');
+    }
+  }
+
+  /// 直接复用 WebView2 的进程退出修复，跳过普通关闭到托盘逻辑。
+  Future<void> exitApplication() =>
+      _windowControl.invokeMethod<void>('closeWindow');
 
   void toggleMaximize() {
     if (nativeWindow.isMaximized) {
@@ -71,7 +86,7 @@ class DesktopWindow extends ChangeNotifier {
       case WindowCloseRequestedEvent():
         // 所有关闭入口（按钮、Alt+F4、系统菜单）共用 WebView2 关窗修复。
         event.request.cancel();
-        unawaited(_windowControl.invokeMethod<void>('closeWindow'));
+        unawaited(_requestClose());
       case WindowFocusedEvent() ||
           WindowBlurredEvent() ||
           WindowMaximizedEvent() ||
@@ -81,6 +96,19 @@ class DesktopWindow extends ChangeNotifier {
         _refreshState();
       default:
         break;
+    }
+  }
+
+  Future<void> _requestClose() async {
+    try {
+      await (onCloseRequested ?? exitApplication)();
+    } catch (error) {
+      debugPrint('Could not close Windows window: $error');
+      try {
+        await show();
+      } catch (restoreError) {
+        debugPrint('Could not restore Windows window: $restoreError');
+      }
     }
   }
 

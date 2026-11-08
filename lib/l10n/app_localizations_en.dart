@@ -10,6 +10,78 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get windowsNotifications => 'Course notifications';
+
+  @override
+  String get windowsNotificationsDescription =>
+      'Tomorrow’s courses, classes, next classes and session endings';
+
+  @override
+  String get windowsNotificationsHelp =>
+      'Keep the app running to receive reminders; enable “Keep running after closing the window” for tray delivery. Exiting stops reminders';
+
+  @override
+  String get windowsNotificationsSystemHint =>
+      'Windows notification settings and Do not disturb control banners and sounds';
+
+  @override
+  String get windowsCourseStages => 'Course stage reminders';
+
+  @override
+  String get windowsCourseStagesDescription =>
+      'Remind five minutes before class, at class start, between classes and when the session ends';
+
+  @override
+  String get windowsNotificationsSystemSettings =>
+      'Windows notification settings';
+
+  @override
+  String get windowsNotificationsRefresh => 'Refresh reminder plans';
+
+  @override
+  String get windowsNotificationsNext => 'Next tomorrow-course reminder';
+
+  @override
+  String get windowsBackground => 'Background activity';
+
+  @override
+  String get windowsBackgroundDescription =>
+      'Keep running in the tray, restore the window or quit';
+
+  @override
+  String get windowsBackgroundCloseToTray =>
+      'Keep running after closing the window';
+
+  @override
+  String get windowsBackgroundCloseToTrayDescription =>
+      'Keep the tray icon and course notifications active';
+
+  @override
+  String get windowsBackgroundHelp =>
+      'Click the tray icon to restore the window, or right-click it to show the window or quit';
+
+  @override
+  String get windowsBackgroundReady =>
+      'Tray ready; closing the window keeps the app running';
+
+  @override
+  String get windowsBackgroundDisabled => 'Closing the window quits the app';
+
+  @override
+  String get windowsBackgroundFailed =>
+      'The tray or settings are unavailable; the window stays visible and closing it quits the app';
+
+  @override
+  String get windowsBackgroundUnsupported =>
+      'The background tray is only available on Windows';
+
+  @override
+  String get windowsBackgroundRestore => 'Show window';
+
+  @override
+  String get windowsBackgroundExit => 'Quit';
+
+  @override
   String get settingsAppSection => 'Application';
 
   @override

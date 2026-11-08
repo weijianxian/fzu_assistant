@@ -1289,6 +1289,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.11.2"
+  tray_manager:
+    dependency: "direct main"
+    description:
+      name: tray_manager
+      sha256: "30c67f4f27a9b2ad56606b369b75256fd9ef25851b66788597d4df3fbbfa536a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.3"
   typed_data:
     dependency: transitive
     description:

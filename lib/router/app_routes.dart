@@ -44,6 +44,8 @@ abstract final class AppRoutes {
   static const nextCourseWidgetSettings = '/settings/next-course-widget';
   static const scheduleSyncSettings = '/settings/schedule-sync';
   static const androidPermissions = '/settings/permissions';
+  static const windowsBackground = '/settings/windows-background';
+  static const windowsNotifications = '/settings/windows-notifications';
   static const accountManagement = '/account-management';
   static const homeSettings = '/settings/home';
   static const calendarExport = '/settings/calendar-export';

@@ -98,6 +98,126 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @windowsNotifications.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程通知'**
+  String get windowsNotifications;
+
+  /// No description provided for @windowsNotificationsDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'明日课程、上课、下节课与时段结束提醒'**
+  String get windowsNotificationsDescription;
+
+  /// No description provided for @windowsNotificationsHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'保持应用运行即可接收提醒；启用“关闭窗口后继续运行”后可在托盘接收，彻底退出后停止'**
+  String get windowsNotificationsHelp;
+
+  /// No description provided for @windowsNotificationsSystemHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知横幅和声音由 Windows 通知设置及勿扰模式控制'**
+  String get windowsNotificationsSystemHint;
+
+  /// No description provided for @windowsCourseStages.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程阶段提醒'**
+  String get windowsCourseStages;
+
+  /// No description provided for @windowsCourseStagesDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'课前五分钟、上课、课间下节课与半天结束时提醒'**
+  String get windowsCourseStagesDescription;
+
+  /// No description provided for @windowsNotificationsSystemSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'Windows 通知设置'**
+  String get windowsNotificationsSystemSettings;
+
+  /// No description provided for @windowsNotificationsRefresh.
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新提醒计划'**
+  String get windowsNotificationsRefresh;
+
+  /// No description provided for @windowsNotificationsNext.
+  ///
+  /// In zh, this message translates to:
+  /// **'下次明日课程提醒'**
+  String get windowsNotificationsNext;
+
+  /// No description provided for @windowsBackground.
+  ///
+  /// In zh, this message translates to:
+  /// **'后台运行'**
+  String get windowsBackground;
+
+  /// No description provided for @windowsBackgroundDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭窗口后驻留托盘，随时恢复或退出'**
+  String get windowsBackgroundDescription;
+
+  /// No description provided for @windowsBackgroundCloseToTray.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭窗口后继续运行'**
+  String get windowsBackgroundCloseToTray;
+
+  /// No description provided for @windowsBackgroundCloseToTrayDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭窗口时保留托盘图标和课程通知'**
+  String get windowsBackgroundCloseToTrayDescription;
+
+  /// No description provided for @windowsBackgroundHelp.
+  ///
+  /// In zh, this message translates to:
+  /// **'点击托盘图标恢复窗口，右键菜单可显示窗口或退出应用'**
+  String get windowsBackgroundHelp;
+
+  /// No description provided for @windowsBackgroundReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'托盘已就绪，关闭窗口后继续运行'**
+  String get windowsBackgroundReady;
+
+  /// No description provided for @windowsBackgroundDisabled.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭窗口时退出应用'**
+  String get windowsBackgroundDisabled;
+
+  /// No description provided for @windowsBackgroundFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'托盘或设置未就绪，窗口将保持可见；关闭窗口可退出应用'**
+  String get windowsBackgroundFailed;
+
+  /// No description provided for @windowsBackgroundUnsupported.
+  ///
+  /// In zh, this message translates to:
+  /// **'后台托盘仅支持 Windows'**
+  String get windowsBackgroundUnsupported;
+
+  /// No description provided for @windowsBackgroundRestore.
+  ///
+  /// In zh, this message translates to:
+  /// **'显示窗口'**
+  String get windowsBackgroundRestore;
+
+  /// No description provided for @windowsBackgroundExit.
+  ///
+  /// In zh, this message translates to:
+  /// **'退出应用'**
+  String get windowsBackgroundExit;
+
   /// No description provided for @settingsAppSection.
   ///
   /// In zh, this message translates to:

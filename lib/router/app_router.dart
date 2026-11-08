@@ -18,6 +18,8 @@ import 'package:fzu_assistant/screen/settings/third_party_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/android_permissions_page.dart';
 import 'package:fzu_assistant/screen/settings/course_reminder_settings_page.dart';
 import 'package:fzu_assistant/screen/settings/course_live_updates_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/windows_background_settings_page.dart';
+import 'package:fzu_assistant/screen/settings/windows_notifications_settings_page.dart';
 import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/screen/my/account_management_page.dart';
 import 'package:fzu_assistant/screen/campus_code/campus_code_page.dart';
@@ -95,6 +97,9 @@ abstract final class AppRouter {
         const NextCourseWidgetSettingsPage(),
     AppRoutes.scheduleSyncSettings: (_) => const ScheduleSyncSettingsPage(),
     AppRoutes.androidPermissions: (_) => const AndroidPermissionsPage(),
+    AppRoutes.windowsBackground: (_) => const WindowsBackgroundSettingsPage(),
+    AppRoutes.windowsNotifications: (_) =>
+        const WindowsNotificationsSettingsPage(),
     AppRoutes.accountManagement: (_) => const AccountManagementPage(),
     AppRoutes.homeSettings: (_) => const HomeSettingsPage(),
     AppRoutes.academicChanges: (_) => const AcademicChangesPage(),

@@ -17,6 +17,7 @@ import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/app_shortcut_service.dart';
 import 'package:fzu_assistant/service/next_course_widget_service.dart';
 import 'package:fzu_assistant/service/widget_sync_service.dart';
+import 'package:fzu_assistant/service/windows_course_notifications.dart';
 import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 import 'package:fzu_assistant/common/widget/layout/app_top_banner.dart';
 
@@ -74,7 +75,19 @@ class HomeScreen extends HookWidget {
       return () => active = false;
     }, [settings]);
     useEffect(() {
-      if (!CourseReminderService.supported) return null;
+      if (WindowsCourseNotifications.supported) {
+        // Home is mounted only after successful login/session restoration.
+        // Only this explicit activation may release Windows' logout fence.
+        // Resident cache/settings/resume listeners belong to Windows.bind.
+        unawaited(
+          WindowsCourseNotifications.instance.synchronize(
+            settings,
+            activate: true,
+          ),
+        );
+        return null;
+      }
+      if (!CourseReminderService.androidSupported) return null;
       final inputs = <Listenable>[
         CacheHelper.changes,
         settings.courseReminderEnabled,
@@ -103,7 +116,9 @@ class HomeScreen extends HookWidget {
             (_) => WidgetSyncService.instance.reconcile(),
           ),
         );
-        unawaited(CourseReminderService.instance.sync(settings));
+        if (CourseReminderService.androidSupported) {
+          unawaited(CourseReminderService.instance.sync(settings));
+        }
       }
     });
 

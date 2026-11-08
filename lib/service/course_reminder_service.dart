@@ -17,13 +17,16 @@ import 'package:fzu_assistant/model/course.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/api/course_service.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
+import 'package:fzu_assistant/service/windows_course_notifications.dart';
 
-/// 预生成课程通知，由 android_alarm_manager_plus 在后台 Dart 回调中展示。
+/// Android 使用独立闹钟回调；Windows 使用现有前台/托盘进程。
 class CourseReminderService {
   static final instance = CourseReminderService();
   static const channel = MethodChannel('com.weijx.fzu_assistant/reminders');
-  static bool get supported =>
+  static bool get androidSupported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  static bool get supported =>
+      androidSupported || WindowsCourseNotifications.supported;
   final error = ValueNotifier<bool>(false);
   int _revision = 0;
 
@@ -36,7 +39,7 @@ class CourseReminderService {
   }
 
   Future<bool> isXiaomiDevice() async {
-    if (!supported) return false;
+    if (!androidSupported) return false;
     try {
       final info = await channel.invokeMapMethod<String, dynamic>('deviceInfo');
       return matchesXiaomiDevice(
@@ -50,24 +53,34 @@ class CourseReminderService {
   }
 
   Future<Map<String, bool>> permissions() async {
-    if (!supported) return {'notifications': false, 'exact': false};
+    if (!androidSupported) return {'notifications': false, 'exact': false};
     final result = await channel.invokeMapMethod<String, bool>('permissions');
     return result ?? {'notifications': false, 'exact': false};
   }
 
   Future<void> requestPermission(String permission) async {
-    if (supported) {
+    if (androidSupported) {
       await channel.invokeMethod<void>(permission);
     }
   }
 
   Future<void> cancel() async {
     ++_revision;
-    if (supported) await AndroidTaskScheduler.cancelAll();
+    if (WindowsCourseNotifications.supported) {
+      await WindowsCourseNotifications.instance.cancel();
+    } else if (androidSupported) {
+      await AndroidTaskScheduler.cancelAll();
+    }
   }
 
   Future<void> testNotification() async {
-    if (!supported) return;
+    if (WindowsCourseNotifications.supported) {
+      await WindowsCourseNotifications.instance.testNotification(
+        delay: const Duration(minutes: 1),
+      );
+      return;
+    }
+    if (!androidSupported) return;
     final status = await permissions();
     if (status['notifications'] != true || status['exact'] != true) {
       throw StateError(
@@ -78,7 +91,11 @@ class CourseReminderService {
   }
 
   Future<void> sync(AppSettings settings) async {
-    if (!supported) return;
+    if (WindowsCourseNotifications.supported) {
+      await WindowsCourseNotifications.instance.synchronize(settings);
+      return;
+    }
+    if (!androidSupported) return;
     final revision = ++_revision;
     final account = ApiClient.instance.studentId;
     bool stale() =>
@@ -131,7 +148,7 @@ class CourseReminderService {
     }
   }
 
-  @visibleForTesting
+  /// Shared Beijing-time plan builder for Android alarms and Windows toasts.
   static List<Map<String, Object>> buildPlans({
     required AppSettings settings,
     required String account,

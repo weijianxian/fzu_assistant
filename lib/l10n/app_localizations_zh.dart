@@ -10,6 +10,67 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get windowsNotifications => '课程通知';
+
+  @override
+  String get windowsNotificationsDescription => '明日课程、上课、下节课与时段结束提醒';
+
+  @override
+  String get windowsNotificationsHelp =>
+      '保持应用运行即可接收提醒；启用“关闭窗口后继续运行”后可在托盘接收，彻底退出后停止';
+
+  @override
+  String get windowsNotificationsSystemHint => '通知横幅和声音由 Windows 通知设置及勿扰模式控制';
+
+  @override
+  String get windowsCourseStages => '课程阶段提醒';
+
+  @override
+  String get windowsCourseStagesDescription => '课前五分钟、上课、课间下节课与半天结束时提醒';
+
+  @override
+  String get windowsNotificationsSystemSettings => 'Windows 通知设置';
+
+  @override
+  String get windowsNotificationsRefresh => '刷新提醒计划';
+
+  @override
+  String get windowsNotificationsNext => '下次明日课程提醒';
+
+  @override
+  String get windowsBackground => '后台运行';
+
+  @override
+  String get windowsBackgroundDescription => '关闭窗口后驻留托盘，随时恢复或退出';
+
+  @override
+  String get windowsBackgroundCloseToTray => '关闭窗口后继续运行';
+
+  @override
+  String get windowsBackgroundCloseToTrayDescription => '关闭窗口时保留托盘图标和课程通知';
+
+  @override
+  String get windowsBackgroundHelp => '点击托盘图标恢复窗口，右键菜单可显示窗口或退出应用';
+
+  @override
+  String get windowsBackgroundReady => '托盘已就绪，关闭窗口后继续运行';
+
+  @override
+  String get windowsBackgroundDisabled => '关闭窗口时退出应用';
+
+  @override
+  String get windowsBackgroundFailed => '托盘或设置未就绪，窗口将保持可见；关闭窗口可退出应用';
+
+  @override
+  String get windowsBackgroundUnsupported => '后台托盘仅支持 Windows';
+
+  @override
+  String get windowsBackgroundRestore => '显示窗口';
+
+  @override
+  String get windowsBackgroundExit => '退出应用';
+
+  @override
   String get settingsAppSection => '应用设置';
 
   @override
