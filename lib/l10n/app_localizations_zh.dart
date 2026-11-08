@@ -1909,6 +1909,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nextCourseWidgetAddDescription => '将所选课程小组件添加到桌面';
 
   @override
+  String get nextCourseWidgetPinGuidance =>
+      '请在桌面的系统提示中确认添加；若未出现提示，可长按桌面，从小组件列表添加。';
+
+  @override
+  String get nextCourseWidgetPinPermissionHint =>
+      'MIUI / HyperOS 若限制添加，可在应用信息中检查“桌面快捷方式”授权（若有）。';
+
+  @override
+  String get nextCourseWidgetPinSettings => '打开应用信息';
+
+  @override
+  String get nextCourseWidgetPinRequested =>
+      '已提交桌面添加请求，请在系统确认中选择添加。若没有提示，请长按桌面，从小组件列表添加。';
+
+  @override
+  String get nextCourseWidgetPinFailed => '无法请求添加小组件，请重试或从桌面的小组件列表添加。';
+
+  @override
   String get nextCourseWidgetPinUnavailable => '当前桌面不支持直接添加，请长按桌面，从小组件列表添加。';
 
   @override

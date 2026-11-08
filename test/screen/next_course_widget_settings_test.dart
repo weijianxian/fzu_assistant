@@ -209,6 +209,101 @@ void main() {
     await tester.pumpAndSettle();
     expect(calls.single.arguments, {'variant': 'square'});
     expect(events, ['snapshot']);
+    expect(find.text(l10n.nextCourseWidgetPinRequested), findsOneWidget);
+    expect(find.text(l10n.nextCourseWidgetUpdated), findsNothing);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  for (final language in ['zh', 'en']) {
+    testWidgets(
+      'unsupported launcher shows manual addition help in $language',
+      (tester) async {
+        messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
+          call,
+        ) async {
+          calls.add(call);
+          return false;
+        });
+        final l10n = await open(tester, language: language);
+        final add = find.text(l10n.widgetAddVariant(l10n.widgetVariantSquare));
+        await reveal(tester, add);
+        await tester.tap(add);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.nextCourseWidgetPinUnavailable), findsOneWidget);
+        expect(find.text(l10n.nextCourseWidgetPinRequested), findsNothing);
+        expect(calls.single.method, 'requestPin');
+        expect(events, ['snapshot']);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+
+    testWidgets(
+      'pin errors do not masquerade as missing permissions in $language',
+      (tester) async {
+        messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
+          call,
+        ) async {
+          calls.add(call);
+          throw PlatformException(code: 'widget_failed');
+        });
+        final l10n = await open(tester, language: language);
+        final add = find.text(l10n.widgetAddVariant(l10n.widgetVariantSquare));
+        await reveal(tester, add);
+        await tester.tap(add);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.nextCourseWidgetPinFailed), findsOneWidget);
+        expect(find.text(l10n.nextCourseWidgetPinUnavailable), findsNothing);
+        expect(find.text(l10n.nextCourseWidgetPinRequested), findsNothing);
+        expect(find.text(l10n.nextCourseWidgetFailed), findsNothing);
+        expect(calls.single.method, 'requestPin');
+        expect(events, ['snapshot']);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+
+    testWidgets(
+      'app info help opens official settings without pinning in $language',
+      (tester) async {
+        messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
+          call,
+        ) async {
+          calls.add(call);
+          return null;
+        });
+        final l10n = await open(tester, language: language);
+        final help = find.text(l10n.nextCourseWidgetPinSettings);
+        await reveal(tester, help);
+        expect(find.text(l10n.nextCourseWidgetPinGuidance), findsOneWidget);
+        expect(
+          find.text(l10n.nextCourseWidgetPinPermissionHint),
+          findsOneWidget,
+        );
+        await tester.tap(help);
+        await tester.pumpAndSettle();
+        expect(calls.single.method, 'openPinSettings');
+        expect(events, isEmpty);
+        expect(find.text(l10n.nextCourseWidgetPinRequested), findsNothing);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+  }
+
+  testWidgets('app info failure is visible and does not claim authorization', (
+    tester,
+  ) async {
+    messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
+      call,
+    ) async {
+      calls.add(call);
+      throw PlatformException(code: 'widget_failed');
+    });
+    final l10n = await open(tester);
+    final help = find.text(l10n.nextCourseWidgetPinSettings);
+    await reveal(tester, help);
+    await tester.tap(help);
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.permissionSettingsFailed), findsOneWidget);
+    expect(calls.single.method, 'openPinSettings');
+    expect(events, isEmpty);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 
   testWidgets('all three sizes pin from local data without network refresh', (

@@ -1,8 +1,10 @@
 package com.weijx.fzu_assistant
 
 import android.app.Activity
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Build
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -48,9 +50,22 @@ class NextCourseWidgetBridge(activity: Activity, messenger: BinaryMessenger) {
                             val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                                 manager.isRequestPinAppWidgetSupported
                             val requested = supported && manager.requestPinAppWidget(
-                                ComponentName(activity, provider), null, null,
+                                ComponentName(activity, provider), null,
+                                PendingIntent.getBroadcast(
+                                    activity,
+                                    variant.hashCode(),
+                                    Intent(activity, provider).setAction(
+                                        NextCourseWidgetProvider.pinSuccessAction(variant),
+                                    ),
+                                    PendingIntent.FLAG_UPDATE_CURRENT or
+                                        PendingIntent.FLAG_IMMUTABLE,
+                                ),
                             )
                             result.success(requested)
+                        }
+                        "openPinSettings" -> {
+                            AppPermissions.open(activity, null)
+                            result.success(null)
                         }
                         else -> result.notImplemented()
                     }

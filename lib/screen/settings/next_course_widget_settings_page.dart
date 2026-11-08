@@ -48,19 +48,32 @@ class NextCourseWidgetSettingsPage extends HookWidget {
     }
 
     Future<void> addWidget() => run(() async {
-      String? message;
+      final choice = variant.value;
+      String message;
       try {
         await service.sync(settings);
-        message = await service.requestPin(variant: variant.value)
-            ? null
+        if (!context.mounted) return;
+        message = await service.requestPin(variant: choice)
+            ? l10n.nextCourseWidgetPinRequested
             : l10n.nextCourseWidgetPinUnavailable;
       } catch (_) {
-        message = l10n.nextCourseWidgetFailed;
-        if (context.mounted) operationFailed.value = true;
+        message = l10n.nextCourseWidgetPinFailed;
       }
-      if (context.mounted && message != null) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(message)));
+      }
+    });
+
+    Future<void> openPinSettings() => run(() async {
+      try {
+        await service.openPinSettings();
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.permissionSettingsFailed)),
+          );
+        }
       }
     });
 
@@ -108,6 +121,19 @@ class NextCourseWidgetSettingsPage extends HookWidget {
                   onTap: working ? null : addWidget,
                 ),
               ],
+            ),
+            AppInfoCard(
+              title: Text(l10n.nextCourseWidgetPinGuidance),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.nextCourseWidgetPinPermissionHint),
+                  TextButton(
+                    onPressed: working ? null : openPinSettings,
+                    child: Text(l10n.nextCourseWidgetPinSettings),
+                  ),
+                ],
+              ),
             ),
             if (missing || failed || operationFailed.value) ...[
               const SettingsDivider(),

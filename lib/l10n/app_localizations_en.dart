@@ -2047,6 +2047,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add the selected course widget to your home screen';
 
   @override
+  String get nextCourseWidgetPinGuidance =>
+      'Confirm the addition in your launcher\'s system prompt. If no prompt appears, long-press the home screen and add it from the widget list.';
+
+  @override
+  String get nextCourseWidgetPinPermissionHint =>
+      'If MIUI / HyperOS blocks adding widgets, check the home screen shortcuts permission in App info, if available.';
+
+  @override
+  String get nextCourseWidgetPinSettings => 'Open App info';
+
+  @override
+  String get nextCourseWidgetPinRequested =>
+      'The add request was sent to your launcher. Confirm it in the system prompt. If no prompt appears, long-press the home screen and add it from the widget list.';
+
+  @override
+  String get nextCourseWidgetPinFailed =>
+      'Could not request a widget. Try again or add it from your launcher\'s widget list.';
+
+  @override
   String get nextCourseWidgetPinUnavailable =>
       'This launcher cannot add widgets directly. Long-press the home screen and add it from the widget list.';
 

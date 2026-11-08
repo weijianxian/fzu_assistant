@@ -3776,6 +3776,36 @@ abstract class AppLocalizations {
   /// **'将所选课程小组件添加到桌面'**
   String get nextCourseWidgetAddDescription;
 
+  /// No description provided for @nextCourseWidgetPinGuidance.
+  ///
+  /// In zh, this message translates to:
+  /// **'请在桌面的系统提示中确认添加；若未出现提示，可长按桌面，从小组件列表添加。'**
+  String get nextCourseWidgetPinGuidance;
+
+  /// No description provided for @nextCourseWidgetPinPermissionHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'MIUI / HyperOS 若限制添加，可在应用信息中检查“桌面快捷方式”授权（若有）。'**
+  String get nextCourseWidgetPinPermissionHint;
+
+  /// No description provided for @nextCourseWidgetPinSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开应用信息'**
+  String get nextCourseWidgetPinSettings;
+
+  /// No description provided for @nextCourseWidgetPinRequested.
+  ///
+  /// In zh, this message translates to:
+  /// **'已提交桌面添加请求，请在系统确认中选择添加。若没有提示，请长按桌面，从小组件列表添加。'**
+  String get nextCourseWidgetPinRequested;
+
+  /// No description provided for @nextCourseWidgetPinFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法请求添加小组件，请重试或从桌面的小组件列表添加。'**
+  String get nextCourseWidgetPinFailed;
+
   /// No description provided for @nextCourseWidgetPinUnavailable.
   ///
   /// In zh, this message translates to:

@@ -424,6 +424,8 @@ class NextCourseWidgetService with WidgetsBindingObserver {
         : null;
   }
 
+  /// Returns whether the launcher accepted the request, not whether the user
+  /// added a widget. Android does not report cancellation of its confirmation.
   Future<bool> requestPin({
     NextCourseWidgetVariant variant = NextCourseWidgetVariant.square,
   }) async {
@@ -435,8 +437,13 @@ class NextCourseWidgetService with WidgetsBindingObserver {
           false;
     } on MissingPluginException {
       return false;
-    } on PlatformException {
-      return false;
     }
+  }
+
+  /// Opens the official app details screen for any manufacturer-specific
+  /// home-screen controls. There is no widget runtime permission to request.
+  Future<void> openPinSettings() async {
+    if (!supported) return;
+    await channel.invokeMethod<void>('openPinSettings');
   }
 }

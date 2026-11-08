@@ -276,6 +276,7 @@ lib/
 ## Android 桌面课程小组件
 
 - `model/next_course_widget.dart`、`service/next_course_widget_service.dart`、`screen/settings/next_course_widget_settings_page.dart` 与 Android `NextCourseWidgetBridge.kt` / `NextCourseWidgetProvider.kt` 提供桌面课程。设置入口置于主设置底部 Android 功能区，支持系统确认添加与手动更新。从本地校历匹配实际学期，合并课表、自定义课程、单双周、调课及隐藏课程生成最多 180 天最小快照，不保存账号标识、凭据或支付码；缺少有效缓存时提示刷新，不能误报无课。原生使用系统小组件半小时更新和手动刷新重新渲染本地显示；时间统一北京时间，支持正在上课/下一节、同起始时刻冲突与真实缓存更新时间，点击回到周课表。缓存、设置、语言和前台恢复触发更新，教务退出使在途写入失效并清空，原生写入串行且只保留未完成队列；小组件异常不得阻断教务退出。
+- “添加到桌面”使用官方 `requestPinAppWidget`，返回 true 只表示桌面接受请求，分别反馈请求已提交、不支持和调用失败，不宣称已添加或已授权；用户取消没有回调。小组件没有可申请的通用运行时权限，不声明桌面宿主的 `BIND_APPWIDGET`。添加操作之后通过共享信息卡片提供系统确认及手动添加指引，厂商桌面授权通过官方应用信息页入口检查，不调用私有权限接口或猜测授权状态。成功回调使用显式 provider、独立 variant action 和不可变 PendingIntent，查询实际绑定的小组件后刷新，不依赖系统填入的 widget ID；三个 receiver 保持 `exported=false`。
 
 - 小组件完整周课表从北京时间本周一开始生成，包含已过去日期，周次与日期按实际校历匹配，不跟随首页手动选择的历史学期。
 - `service/widget_sync_service.dart` 使用现有 `AndroidTaskScheduler` 的独立 `widgetSync` 命名任务，每晚默认北京时间 23:00 通过精确唤醒闹钟重新登录教务，刷新实际学期及近期跨学期的校历、课表缓存并发布所有课程小组件；时间、统一自动开关与手动同步在“夜间自动更新课表”页设置，精确闹钟需系统授权。保留插件调度及重启恢复，不另建原生调度层。后台登录只使用安全存储中的教务凭据，不写回登录会话，不请求 SSO 或支付服务，联网失败保留已有缓存及最近成功时间。

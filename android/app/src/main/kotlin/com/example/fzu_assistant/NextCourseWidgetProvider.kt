@@ -35,6 +35,13 @@ abstract class NextCourseWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        // The immutable callback cannot receive a filled-in widget ID.
+        // Query this provider's bound widgets instead of trusting extras.
+        if (intent.action == pinSuccessAction(variant.key)) {
+            val manager = AppWidgetManager.getInstance(context)
+            onUpdate(context, manager, manager.getAppWidgetIds(ComponentName(context, javaClass)))
+            return
+        }
         when (intent.action) {
             ACTION_REFRESH, Intent.ACTION_DATE_CHANGED, Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_LOCALE_CHANGED,
@@ -44,6 +51,10 @@ abstract class NextCourseWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_REFRESH = "com.weijx.fzu_assistant.REFRESH_NEXT_COURSE_WIDGET"
+        private const val ACTION_PIN_SUCCESS_PREFIX =
+            "com.weijx.fzu_assistant.PIN_NEXT_COURSE_WIDGET."
+
+        fun pinSuccessAction(variant: String) = ACTION_PIN_SUCCESS_PREFIX + variant
 
         fun preferences(context: Context) =
             context.getSharedPreferences("next_course_widget", Context.MODE_PRIVATE)

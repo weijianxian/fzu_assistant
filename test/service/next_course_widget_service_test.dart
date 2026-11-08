@@ -525,15 +525,18 @@ void main() {
     expect(calls.map((call) => call.method), ['clear', 'invalidate']);
   });
 
-  test('pinning defaults to square and reports launcher support', () async {
-    expect(await service.requestPin(), isTrue);
-    expect(calls.single.method, 'requestPin');
-    expect(calls.single.arguments, {'variant': 'square'});
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    calls.clear();
-    expect(await service.requestPin(), isFalse);
-    expect(calls, isEmpty);
-  });
+  test(
+    'pinning defaults to square and only reports request acceptance',
+    () async {
+      expect(await service.requestPin(), isTrue);
+      expect(calls.single.method, 'requestPin');
+      expect(calls.single.arguments, {'variant': 'square'});
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      calls.clear();
+      expect(await service.requestPin(), isFalse);
+      expect(calls, isEmpty);
+    },
+  );
 
   test('each pin variant selects its corresponding native provider', () async {
     for (final variant in NextCourseWidgetVariant.values) {
@@ -548,14 +551,69 @@ void main() {
   });
 
   test('unavailable pin handlers return false for every widget size', () async {
-    messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
-      call,
-    ) async {
-      throw PlatformException(code: 'unsupported');
-    });
+    messenger.setMockMethodCallHandler(
+      NextCourseWidgetService.channel,
+      (call) async => false,
+    );
     for (final variant in NextCourseWidgetVariant.values) {
       expect(await service.requestPin(variant: variant), isFalse);
     }
+  });
+
+  test(
+    'missing pin handler offers the manual widget picker fallback',
+    () async {
+      messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, null);
+      expect(await service.requestPin(), isFalse);
+    },
+  );
+
+  test(
+    'native pin failures are not reported as unsupported launchers',
+    () async {
+      messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
+        call,
+      ) async {
+        if (call.method == 'requestPin') {
+          throw PlatformException(code: 'widget_failed');
+        }
+        return null;
+      });
+      for (final variant in NextCourseWidgetVariant.values) {
+        await expectLater(
+          service.requestPin(variant: variant),
+          throwsA(isA<PlatformException>()),
+        );
+      }
+    },
+  );
+
+  test(
+    'widget help opens app details without requesting a permission',
+    () async {
+      await service.openPinSettings();
+      expect(calls.single.method, 'openPinSettings');
+      expect(calls.single.arguments, isNull);
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      calls.clear();
+      await service.openPinSettings();
+      expect(calls, isEmpty);
+    },
+  );
+
+  test('app details failures propagate for visible error feedback', () async {
+    messenger.setMockMethodCallHandler(NextCourseWidgetService.channel, (
+      call,
+    ) async {
+      if (call.method == 'openPinSettings') {
+        throw PlatformException(code: 'widget_failed');
+      }
+      return null;
+    });
+    await expectLater(
+      service.openPinSettings(),
+      throwsA(isA<PlatformException>()),
+    );
   });
 
   test(
