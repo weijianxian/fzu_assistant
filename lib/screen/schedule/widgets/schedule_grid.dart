@@ -24,6 +24,17 @@ const _headerHeight = 48.0;
 const _labelWidth = 44.0;
 const _minCellHeight = 52.0;
 
+int _currentPeriodIndex(int minutes) {
+  int parse(String time) {
+    final parts = time.split(':');
+    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+  }
+
+  return coursePeriodTimes.indexWhere(
+    (slot) => minutes >= parse(slot.$1) && minutes <= parse(slot.$2),
+  );
+}
+
 List<String> _weekdays(AppLocalizations l10n) => [
   l10n.monday,
   l10n.tuesday,
@@ -133,15 +144,9 @@ class ScheduleGrid extends HookWidget {
         final todayIndex = weekDates.indexWhere(
           (date) => DateUtils.isSameDay(date, displayTime),
         );
-        final nowMinutes = displayTime.hour * 60 + displayTime.minute;
-        // 竖屏没有午休分组留白，复用横屏映射并将间隔压到节次边界。
-        final metrics = HorizontalScheduleMetrics(
-          periodWidth: cellHeight,
-          groupGap: 0,
-        );
-        final nowOffset = todayIndex < 0
-            ? null
-            : metrics.timeOffset(nowMinutes);
+        final currentPeriod = todayIndex < 0
+            ? -1
+            : _currentPeriodIndex(displayTime.hour * 60 + displayTime.minute);
         final scheme = Theme.of(context).colorScheme;
         final visuals = Theme.of(context).extension<ThemeVisuals>();
         final todayColor =
@@ -202,6 +207,21 @@ class ScheduleGrid extends HookWidget {
                         ),
                       ),
                     ),
+                  if (currentPeriod >= 0)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: currentPeriod * cellHeight,
+                      height: cellHeight,
+                      child: IgnorePointer(
+                        child: ColoredBox(
+                          key: const ValueKey(
+                            'portrait-schedule-current-period-row',
+                          ),
+                          color: todayBackground,
+                        ),
+                      ),
+                    ),
                   // 左侧节次索引
                   Positioned(
                     left: 0,
@@ -216,7 +236,7 @@ class ScheduleGrid extends HookWidget {
                             p,
                             cellHeight,
                             labelWidth,
-                            todayIndex < 0 ? -1 : nowMinutes,
+                            p == currentPeriod,
                           ),
                       ],
                     ),
@@ -249,21 +269,6 @@ class ScheduleGrid extends HookWidget {
                       ],
                     ),
                   ),
-                  if (nowOffset != null)
-                    Positioned(
-                      left: labelWidth,
-                      right: 0,
-                      top: nowOffset.clamp(0.0, gridHeight - 2),
-                      height: 2,
-                      child: IgnorePointer(
-                        child: ColoredBox(
-                          key: const ValueKey('portrait-schedule-current-time'),
-                          color:
-                              visuals?.color('todayHighlight') ??
-                              scheme.primary.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -339,7 +344,7 @@ class ScheduleGrid extends HookWidget {
     int index,
     double cellHeight,
     double labelWidth,
-    int nowMinutes,
+    bool isCurrent,
   ) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -348,11 +353,6 @@ class ScheduleGrid extends HookWidget {
         visuals?.color('onTodayHighlight') ?? scheme.onPrimaryContainer;
     final isWindows = !kIsWeb && theme.platform == TargetPlatform.windows;
     final slot = coursePeriodTimes[index];
-    final startParts = slot.$1.split(':');
-    final endParts = slot.$2.split(':');
-    final startMin = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
-    final endMin = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
-    final isCurrent = nowMinutes >= startMin && nowMinutes <= endMin;
 
     return SizedBox(
       width: labelWidth,
@@ -362,7 +362,9 @@ class ScheduleGrid extends HookWidget {
             ? BoxDecoration(
                 color:
                     visuals?.color('todayHighlight') ?? scheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(8),
+                ),
               )
             : null,
         child: Column(

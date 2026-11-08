@@ -11,7 +11,7 @@ import 'package:fzu_assistant/service/theme_visuals.dart';
 
 final _monday = DateTime(2026, 11, 2);
 final _column = find.byKey(const ValueKey('portrait-schedule-today-column'));
-final _line = find.byKey(const ValueKey('portrait-schedule-current-time'));
+final _row = find.byKey(const ValueKey('portrait-schedule-current-period-row'));
 
 Course _course(int period, {int weekday = 1}) => Course(
   type: '',
@@ -128,17 +128,38 @@ void main() {
     expect(header.bottom, closeTo(column.top, 0.01));
     expect(column.top, closeTo(first.top - 1, 0.01));
     expect(column.bottom, closeTo(last.bottom + 1, 0.01));
-    final line = tester.getRect(_line);
-    expect(line.height, 2);
-    expect(line.left, lessThanOrEqualTo(column.left));
-    expect(line.right, greaterThanOrEqualTo(column.right));
-    // 8:35 位于第一节的三分之一处，而不是整行的中央。
-    expect(line.top, closeTo(column.top + (first.height + 2) / 3, 0.01));
+    final row = tester.getRect(_row);
+    final grid = tester.getRect(find.byType(ScheduleGrid));
+    expect(row.left, grid.left);
+    expect(row.right, grid.right);
+    expect(row.top, closeTo(first.top - 1, 0.01));
+    expect(row.bottom, closeTo(first.bottom + 1, 0.01));
+    expect(
+      find.byKey(const ValueKey('portrait-schedule-current-time')),
+      findsNothing,
+    );
     final scheme = Theme.of(tester.element(find.byType(ScheduleGrid)))
         .colorScheme;
     expect(
       tester.widget<ColoredBox>(_column).color,
       scheme.primary.withValues(alpha: 0.07),
+    );
+    expect(
+      tester.widget<ColoredBox>(_row).color,
+      tester.widget<ColoredBox>(_column).color,
+    );
+    final periodCard = tester.widget<Container>(
+      find.ancestor(of: find.text('1'), matching: find.byType(Container)).first,
+    );
+    final periodDecoration = periodCard.decoration! as BoxDecoration;
+    expect(periodDecoration.color, scheme.primaryContainer);
+    expect(
+      periodDecoration.borderRadius,
+      const BorderRadius.horizontal(left: Radius.circular(8)),
+    );
+    expect(
+      periodDecoration.color,
+      isNot(tester.widget<ColoredBox>(_row).color),
     );
     expect(tester.takeException(), isNull);
   });
@@ -167,7 +188,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.widget<ColoredBox>(_column).color.toARGB32(), 0x40445566);
-      expect(tester.widget<ColoredBox>(_line).color.toARGB32(), 0x80445566);
+      expect(tester.widget<ColoredBox>(_row).color.toARGB32(), 0x40445566);
+      final periodCard = tester.widget<Container>(
+        find
+            .ancestor(of: find.text('5'), matching: find.byType(Container))
+            .first,
+      );
+      expect(
+        (periodCard.decoration! as BoxDecoration).color!.toARGB32(),
+        0x80445566,
+      );
       expect(
         tester.widget<Text>(find.text('11/4')).style?.color,
         Colors.yellow,
@@ -187,6 +217,10 @@ void main() {
           .colorScheme;
       expect(
         tester.widget<ColoredBox>(_column).color,
+        scheme.primary.withValues(alpha: 0.07),
+      );
+      expect(
+        tester.widget<ColoredBox>(_row).color,
         scheme.primary.withValues(alpha: 0.07),
       );
       expect(
@@ -211,7 +245,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(_column, findsNothing);
-      expect(_line, findsNothing);
+      expect(_row, findsNothing);
       expect(tester.takeException(), isNull);
     }
   });
@@ -227,27 +261,34 @@ void main() {
       await tester.pumpWidget(_app(settings, firstMonday: _monday, now: time));
       await tester.pumpAndSettle();
       expect(_column, findsOneWidget);
-      expect(_line, findsNothing);
+      expect(_row, findsNothing);
     }
   });
 
   testWidgets(
-    'breaks stay at period boundaries without drifting into classes',
+    'current period fills the whole row from start through its final minute',
     (tester) async {
       final settings = _setup(tester);
       final courses = [for (var i = 1; i <= maxCoursePeriod; i++) _course(i)];
-      // 用实际课程边缘验证课间、午休和晚饭，而不是复制时间映射算法。
-      for (final (hour, minute, period, atEnd) in [
-        (8, 20, 1, false),
-        (9, 5, 1, true),
-        (9, 10, 1, true),
-        (9, 15, 2, false),
-        (12, 0, 4, true),
-        (13, 0, 4, true),
-        (14, 0, 5, false),
-        (17, 30, 8, true),
-        (18, 0, 8, true),
-        (19, 0, 9, false),
+      // 用真实课程边缘验证整行对齐，不复制时间到节次的映射算法。
+      for (final (hour, minute, period) in [
+        (8, 20, 1),
+        (8, 35, 1),
+        (9, 5, 1),
+        (9, 15, 2),
+        (10, 20, 3),
+        (11, 15, 4),
+        (12, 0, 4),
+        (14, 0, 5),
+        (14, 45, 5),
+        (14, 55, 6),
+        (15, 50, 7),
+        (16, 45, 8),
+        (17, 30, 8),
+        (19, 0, 9),
+        (19, 55, 10),
+        (20, 50, 11),
+        (21, 35, 11),
       ]) {
         await tester.pumpWidget(
           _app(
@@ -259,10 +300,16 @@ void main() {
         );
         await tester.pumpAndSettle();
         final card = tester.getRect(_card(period));
+        final row = tester.getRect(_row);
         expect(
-          tester.getTopLeft(_line).dy,
-          closeTo(atEnd ? card.bottom + 1 : card.top - 1, 0.01),
-          reason: '$hour:$minute should meet period $period',
+          row.top,
+          closeTo(card.top - 1, 0.01),
+          reason: '$hour:$minute should highlight period $period',
+        );
+        expect(
+          row.bottom,
+          closeTo(card.bottom + 1, 0.01),
+          reason: '$hour:$minute should fill period $period',
         );
       }
       await tester.pumpWidget(
@@ -274,12 +321,48 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(tester.getRect(_line).bottom, tester.getRect(_column).bottom);
+      expect(tester.getRect(_row).bottom, tester.getRect(_column).bottom);
       expect(tester.takeException(), isNull);
     },
   );
 
-  testWidgets('line allows course taps and small-screen scrolling', (
+  testWidgets('breaks and meal times do not highlight an adjacent period', (
+    tester,
+  ) async {
+    final settings = _setup(tester);
+    for (final (hour, minute) in [
+      (9, 6),
+      (9, 10),
+      (9, 14),
+      (10, 10),
+      (11, 10),
+      (12, 1),
+      (13, 0),
+      (13, 59),
+      (14, 50),
+      (15, 45),
+      (16, 40),
+      (17, 31),
+      (18, 0),
+      (18, 59),
+      (19, 50),
+      (20, 45),
+    ]) {
+      await tester.pumpWidget(
+        _app(
+          settings,
+          firstMonday: _monday,
+          now: DateTime(2026, 11, 2, hour, minute),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_column, findsOneWidget);
+      expect(_row, findsNothing, reason: '$hour:$minute is outside a period');
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('row allows course taps and small-screen scrolling', (
     tester,
   ) async {
     final settings = _setup(tester, const Size(320, 480));
@@ -293,7 +376,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     final card = tester.getRect(_card(1));
-    await tester.tapAt(Offset(card.center.dx, tester.getCenter(_line).dy));
+    await tester.tapAt(Offset(card.center.dx, tester.getCenter(_row).dy));
     await tester.pumpAndSettle();
     expect(find.text('测试教师'), findsOneWidget);
     Navigator.of(tester.element(find.text('测试教师'))).pop();
@@ -301,13 +384,14 @@ void main() {
 
     final position = _scrollPosition(tester);
     await tester.timedDragFrom(
-      Offset(tester.getRect(_card(1)).center.dx, tester.getCenter(_line).dy),
+      Offset(tester.getRect(_card(1)).center.dx, tester.getCenter(_row).dy),
       const Offset(0, -48),
       const Duration(milliseconds: 300),
     );
     await tester.pumpAndSettle();
     expect(position.pixels, greaterThan(0));
     final offset = position.pixels;
+    final row = tester.getRect(_row);
     await tester.pumpWidget(
       _app(
         settings,
@@ -318,6 +402,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(_scrollPosition(tester).pixels, offset);
+    expect(tester.getRect(_row), row);
     expect(tester.takeException(), isNull);
   });
 
@@ -338,13 +423,13 @@ void main() {
     await tester.pump();
     await show(DateTime(2026, 11, 3));
     expect(tester.getCenter(_column).dx, closeTo(mondayX + columnWidth, 0.01));
-    expect(_line, findsNothing);
+    expect(_row, findsNothing);
     expect(_scrollPosition(tester).pixels, 80);
     await show(DateTime(2026, 11, 8, 23, 59));
     expect(_column, findsOneWidget);
     await show(DateTime(2026, 11, 9));
     expect(_column, findsNothing);
-    expect(_line, findsNothing);
+    expect(_row, findsNothing);
     expect(_scrollPosition(tester).pixels, 80);
     expect(tester.takeException(), isNull);
   });
