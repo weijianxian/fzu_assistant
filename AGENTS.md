@@ -2,6 +2,10 @@
 
 福州大学一站式校园助手 —— 课表、成绩、考试、校历，开箱即用。
 
+## UI 设计规范
+
+- 新增、修改或检查界面前，必须先阅读根目录 [design.md](design.md)。Material 3、界面风格、共享组件、提示卡片、布局、安全区、弹层与页面交互规则统一维护在该文件；本文件保留业务、数据、权限、架构、构建和提交约束。
+
 ## 技术栈
 
 - Flutter 3.47.6 + Dart 3.x
@@ -192,16 +196,12 @@ lib/
 ## 自定义主题
 
 - `ThemeCustomizationService` 将主题清单和背景图片保存到应用文档目录的 `fzu-themes/`，亮暗模式分别保存 Material 颜色覆盖、图片、压暗、模糊、面板透明度、课程卡片颜色/透明度/圆角及分割线。默认色卡和系统动态配色继续保留，经典/卡片风格与亮暗模式独立。编辑使用草稿，保存后应用，未保存退出需确认。
-- 课程卡片色卡独立于 App 主题色，原有 20 色命名为 Tailwind，另一预设 FUU 复用官方 `utils/random-color.ts` 的 25 色及暗色 C0 透明度。`course_color_palettes.dart` 统一管理预设；每个亮暗 `ThemeVariant` 分别保存预设键和 DIY 色序列，主题包包含此配置，旧主题缺字段时沿用 Tailwind。色卡使用原生 InputChip，点击色块编辑、减号直接删除任意颜色，末尾加号直接新增当前主题色，保留 1 至 64 色。课程按名称稳定选色，专属课程颜色优先；选择或编辑色卡时清除当前模式的统一课程底色与强调色覆盖，使色卡立即生效，保留文字、透明度及其他样式。
+- 课程卡片色卡独立于 App 主题色，原有 20 色命名为 Tailwind，另一预设 FUU 复用官方 `utils/random-color.ts` 的 25 色及暗色 C0 透明度。`course_color_palettes.dart` 统一管理预设；每个亮暗 `ThemeVariant` 分别保存预设键和 DIY 色序列，主题包包含此配置，旧主题缺字段时沿用 Tailwind。课程按名称稳定选色，专属课程颜色优先；选择或编辑色卡时清除当前模式的统一课程底色与强调色覆盖，使色卡立即生效，保留文字、透明度及其他样式。
 - 课程色卡可从当前编辑模式的 App 壁纸生成，浅色使用浅色背景图、深色使用深色背景图，不读取原始系统壁纸。提取沿用后台 isolate 的安全解码与量化，生成最多 8 个实际图片代表色，支持继续改色和加减；没有背景图时隐藏生成入口，失败保留原色卡，不更改 App 配色来源、背景、其他样式或另一模式。
-- 课程色卡的当前名称由实际配置决定：有 DIY 色序列时显示“自定义”，包含改色、加减和壁纸生成；重新选择 Tailwind 或 FUU 清空 DIY 并恢复预设名称，选择相同来源的原预设也能重置。编辑色卡的色数在标题区域靠右对齐，保留右侧原生展开箭头。
 - 主题背景选图在 Android/iOS 使用官方 `image_picker` 系统相册入口，Android 显式启用 Photo Picker，不读取完整照片元数据、不新增整个相册的读取权限；桌面继续使用 `file_selector`。选中后复用现有解码校验和应用目录图片导入，取消选择保持草稿，`dynamic_color` 版本保持不变。
-- 竖屏周课表增加当前时间线和今日整列背景高亮，与横屏共用节次时间映射及今日高亮主题色，分钟和跨日自动刷新，不抢占课程点击和手动滚动；今日日期表头仅上方圆角、下方直角，铺满表头高度并与下方今日整列高亮无缝相接；周课表布局保持不变。
-- 主题编辑依次使用基础信息、背景图、主题色来源和课表卡片 DIY 分组，主题名称归入基础信息。移除 Material 具体颜色微调，以及课程底色、课程名称、课程地点、课程强调、今日高亮底色和今日文字的独立颜色入口，课表分组只保留课程色卡、课程卡片不透明度和圆角；旧主题的颜色覆盖继续兼容。界面圆角和分割线宽度放入背景分组。右上角“预览”按钮打开预览弹层，编辑区不常驻预览卡片。每个亮暗配置独立保存 `colorSource`（手机系统配色、App 壁纸取色、自选种子色）和 `seedColor`；旧文件缺少来源时沿用 `baseThemeKey`。基础色卡选择“自定义”时只在下方显示一行颜色编辑入口，点击该行才打开调色器，选择现成色卡时隐藏该行；通过各模式的 `isSeedColorCustom` 保留显式自定义选择，即使当前颜色与现成色卡相同，旧文件仍按种子色识别。重新生成整体配色只替换该模式的 Material 配色覆盖，保留课表颜色和其他样式。手机壁纸取色复用系统动态配色接口，不读取原始系统壁纸文件。
-- 背景图取色在后台 isolate 解码、采样并使用 Material Color Utilities 生成种子；选择 App 壁纸取色时直接使用当前编辑模式的背景图，浅色和深色分别取色，不提供“从背景图生成配色”按钮或亮暗范围选择。当前模式未设置或移除背景图时隐藏 App 壁纸取色选项，移除后选中手机壁纸取色。已选 App 壁纸取色时，更换对应背景图自动更新种子，保留单独微调的颜色及其他样式；不升级 `dynamic_color`。Navigator 后保留背景填补转场空隙，带壁纸主题的原生页面转场同时将背景放入路由内容，使预测性返回与页面快照包含完整背景；转场底色透明，保留原生动画和返回手势。各页面复用透明 Scaffold，标题栏、底部导航栏与横屏导航轨道共用面板不透明度；预览单独使用草稿 Theme。
-- 独立说明、分组标题、状态提示和输入框辅助文字不额外添加文字衬底，使用背景图时也保留原有布局。正常设置卡片及导航面板继续使用各自的主题颜色和不透明度。
-- 输入框通过全局 `InputDecorationThemeData` 统一沿用登录账号框的 12 圆角描边，保留原生焦点、错误与禁用状态；页面只配置标签、图标、验证和业务输入行为，不各自定义边框与内边距。有背景图时输入区使用当前主题背景色填充。
-- 主题编辑的圆角、透明度、压暗、模糊、分割线及颜色通道等数值项默认收起，左侧显示设置项、右侧显示当前值，点击后向下展开原生滑动条；展开和收起均不添加上下分割线，展开状态随滚动保留，预览仍由右上角按钮打开。
+- 每个亮暗配置独立保存 `colorSource`（手机系统配色、App 壁纸取色、自选种子色）和 `seedColor`；旧文件缺少来源时沿用 `baseThemeKey`，旧主题的颜色覆盖继续兼容。通过各模式的 `isSeedColorCustom` 保留显式自定义选择，即使当前颜色与现成色卡相同，旧文件仍按种子色识别。重新生成整体配色只替换该模式的 Material 配色覆盖，保留课表颜色和其他样式。手机壁纸取色复用系统动态配色接口，不读取原始系统壁纸文件。
+- 背景图取色在后台 isolate 解码、采样并使用 Material Color Utilities 生成种子；浅色和深色分别使用对应背景图。已选 App 壁纸取色时，更换对应背景图自动更新种子，保留单独微调的颜色及其他样式；不升级 `dynamic_color`。
+- `interface_style` 持久化独立界面风格，并通过 `InterfaceTheme` 注入种子色和动态色的明暗主题。WebDAV 白名单包含该偏好，新导出采用卡片默认值；旧备份仅缺少此新增字段时仍按经典列表兼容，其他缺失或未知字段仍拒绝。
 - `.fzutheme` 为包含 `theme.json` 和相对路径图片的 ZIP，导入分配新 ID，不覆盖原主题。限制文件、解码尺寸及参数范围，禁止路径穿越和符号链接；分享不包含账号、凭据、绝对路径或其他应用数据。自定义主题 ID 和本地图片不加入 WebDAV 白名单，恢复默认色卡时清除当前自定义主题选择。
 
 ## WebDAV 同步
@@ -267,44 +267,37 @@ lib/
 
 - `model/next_course_widget.dart`、`service/next_course_widget_service.dart`、`screen/settings/next_course_widget_settings_page.dart` 与 Android `NextCourseWidgetBridge.kt` / `NextCourseWidgetProvider.kt` 提供桌面课程。设置入口置于主设置底部 Android 功能区，支持系统确认添加与手动更新。从本地校历匹配实际学期，合并课表、自定义课程、单双周、调课及隐藏课程生成最多 180 天最小快照，不保存账号标识、凭据或支付码；缺少有效缓存时提示刷新，不能误报无课。原生使用系统小组件半小时更新和手动刷新重新渲染本地显示；时间统一北京时间，支持正在上课/下一节、同起始时刻冲突与真实缓存更新时间，点击回到周课表。缓存、设置、语言和前台恢复触发更新，教务退出使在途写入失效并清空，原生写入串行且只保留未完成队列；小组件异常不得阻断教务退出。
 
-- 小组件采用 Material Design 3 的圆角、色彩角色与文字层级，提供下一节课横向 2×1、方形 2×2 和本周课表 4×4 三种预设；支持调整尺寸，完整周课表从北京时间本周一开始生成，包含已过去日期，周次与日期按实际校历匹配，不跟随首页手动选择的历史学期。
+- 小组件完整周课表从北京时间本周一开始生成，包含已过去日期，周次与日期按实际校历匹配，不跟随首页手动选择的历史学期。
 - `service/widget_sync_service.dart` 使用现有 `AndroidTaskScheduler` 的独立 `widgetSync` 命名任务，每晚默认北京时间 23:00 通过精确唤醒闹钟重新登录教务，刷新实际学期及近期跨学期的校历、课表缓存并发布所有课程小组件；时间、统一自动开关与手动同步在“夜间自动更新课表”页设置，精确闹钟需系统授权。保留插件调度及重启恢复，不另建原生调度层。后台登录只使用安全存储中的教务凭据，不写回登录会话，不请求 SSO 或支付服务，联网失败保留已有缓存及最近成功时间。
 - 本地插件 `packages/fzu_widget_bridge` 由 Flutter 自动注册到前台和后台引擎，只负责后台存储、有限时长唤醒锁与原生小组件更新；以任务代次和本地输入基线校验所有在途结果，退出/换号/设置或课程修改后拒绝旧数据写入。`common/utils/widget_preference_bridge.dart` 将影响小组件的前台缓存、设置、自定义课程及 WebDAV 恢复写入统一送入同一原生锁，学期缓存在原生合并，前台发布也校验输入基线。缓存和不含身份信息的快照通过受限提交一起更新；每代同步分配独立闹钟 ID，旧回调不能覆盖新计划。取消同步先在内存失效代次，磁盘失败也不恢复授权，再独立取消闹钟，不影响课程提醒。回到前台重新读取后台缓存并刷新课表。第三方调休继续遵守独立授权，夜间只使用已授权的缓存调休。
 
 ## 编码规范
 
-- 首页固定为周课表，不保留天视图、时间线首页、周/天切换或相关设置。历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。
-
-- 普通页面统一使用 AppScaffold，由内部 Scaffold.body 统一消费 AppBar 尚未处理的顶部和左右边距，保留底部给实际内容处理；背景、标题栏和导航自身延伸至系统区域。首页使用 AppScaffold.shell，外壳不预消费边距，实际子页面的 AppBar 和原生 NavigationRail 自行绘制系统区域并避让内容；横屏分栏仅保留各列触及屏幕外侧的边距。缓存提示统一使用 AppTopBanner，在原生 MaterialBanner 内部避让内容，提示背景覆盖状态栏，其下页面只消费一次顶部边距。状态栏透明并自然显示下方真实表面，保留 AppBar 滚动变色，不通过固定颜色或同步颜色制造沉浸。业务页面不单独放 SafeArea、不用固定留白代替系统边距；Navigator、路由和弹层遮罩保持全屏。普通对话框沿用 Flutter 安全区，全屏导览由 AppScaffold 管理；底部弹层统一使用 showAppBottomSheet 或 showHalfScreenSheet。 垂直滚动统一使用 AppListView、AppCustomScrollView 或 AppSingleChildScrollView，视口延伸至手势区，系统底边距只加入滚动内容末尾并向子树清零；不得在视口外加底部 SafeArea 或使用 Clip.none 泄漏绘制。第三方滚动控件通过 AppScrollInsets 接收内容边距；静态内容使用 AppSafeContent，固定底部操作使用 AppBottomBar 和 Scaffold.bottomNavigationBar，让操作面延伸背景并避让按钮。 横屏侧边抽屉占窗口宽度的2/3，清除不接触屏幕左边时的刘海边距；竖屏拖动柄统一使用 SheetDragHandle，上下各8逻辑像素，内容不再重复添加顶部间距。
+- 历史 home_style / timeline_days 存储值忽略，不恢复已移除的功能。
 
 - west2 online 服务按功能独立配置 `FeatureAccess.tip / allow / hide`：默认 tip，入口可见但不得请求服务；allow 才启用请求；hide 隐藏入口，仍可在设置中恢复。原 west2 调课布尔开关迁移到 `west2AdjustmentsAccess`，已允许的用户保持 allow；历年卷使用独立 `papersAccess`。统一设置页为 `screen/settings/third_party_settings_page.dart`，模型为 `model/feature_access.dart`，周课表和后台提醒共同读取同一授权状态。
 - 本轮功能约束：自定义课程按账号和学期保存，并覆盖周课表与提醒；WebDAV 同步应用设置、自定义课程和隐藏课程，提供默认关闭的每次打开自动同步，禁止上传登录凭据、Cookie、支付数据、缓存及 WebDAV 密码，手动下载覆盖前须确认，自动同步冲突须手动选择。WebDAV 密码只放 SecureStorage。校园服务通过域名隔离的 SSO 会话进入，不把教务 Cookie 当作 SSO Cookie。
 
-- 平台功能直接放在设置主列表底部自适应分隔之后（经典列表画分隔线，卡片风格用分组和留白），仅展示当前平台支持的内容，不设置“平台特性”分类页；Android 展示权限管理和早课提醒入口；Windows 不提供全屏开关，没有专属设置时不展示空分隔区。Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
+- Android 明日课程提醒默认关闭，默认北京时间 21:00；预生成未来 180 天的通知正文，使用 android_alarm_manager_plus 精确唤醒，在独立后台 Dart isolate 执行命名任务，通过 flutter_local_notifications 展示通知，不依赖前台页面或网络。通知与精确闹钟由用户授权；刷新缓存、调课/隐藏课程/语言设置变更和应用恢复前台时重排，退出教务账号取消计划及测试通知。根据校历日期匹配实际学期，不跟随界面选择的历史学期；缺少课表/校历或超出有效课表周次时提示刷新，不误报无课。AndroidTaskScheduler 持久化计划，闹钟设置 exact/wakeup/allowWhileIdle/rescheduleOnReboot；后台入口保留 @pragma(vm:entry-point)，不引用 UI/主 isolate 内存，执行前核对任务代次防止退出或重排后展示旧通知；插件负责重启恢复。通知默认高重要性、公开锁屏内容，现有系统渠道的用户设置不能由应用强制覆盖，设置提供渠道直达入口。开发者工具仅 Android 显示“Notify in one minute”，使用独立测试闹钟，重复点击替换旧测试，不影响正式计划。
 
 - 教务处成功登录后，将账号绑定的历史 Cookie 与 identifier 保存到 SecureStorage；启动/同账号登录失败且有历史会话时进入缓存模式，保留稳定学号，旧 identifier 不用于业务请求。课表、考场、校历与事件优先展示已有缓存，强制刷新也不得清空缓存；主页提示缓存模式并支持重试登录，退出教务账号同时删除历史会话。
 
 - **每次项目结构或技术栈变更后，必须同步更新本 AGENTS.md 文件**
 
 - 页面统一用 HookWidget，状态用 useState/useEffect/useMemoized
-- 设置的平台功能在主列表最底部用自适应分隔与通用设置分开，按当前平台显示或隐藏，不增加平台分类菜单。Android 权限管理手动维护预期权限清单（通知、精确闹钟、扫码相机、安装更新、联网、定时唤醒和重启恢复），不扫描安装包或插件权限；页面标题展示国际化权限名称，说明展示具体功能用途和授权状态，不展示权限 ID 或类型；通知、精确闹钟、安装未知应用使用实际系统状态，不仅依据 manifest 的授权标志。开发者工具文案及测试通知统一直接使用英文，不接入国际化；工具保持原有入口与操作，在同一列表中用英文标题和自适应分隔分组，不为分组新增二级页面。
+- Android 权限管理手动维护预期权限清单（通知、精确闹钟、扫码相机、安装更新、联网、定时唤醒和重启恢复），不扫描安装包或插件权限；通知、精确闹钟、安装未知应用使用实际系统状态，不仅依据 manifest 的授权标志。
 - 页面导航统一使用 `context.pushNamed(AppRoutes.xxx)` / `context.pushReplacementNamed(AppRoutes.xxx)`；教务退出使用 `context.replaceAllNamed(AppRoutes.login)` 清空根导航栈，防止横屏嵌套导航或返回键回到已退出页面。路由名和参数定义在 `app_routes.dart`，页面构建集中在 `app_router.dart`，禁止页面直接构造 `MaterialPageRoute`
-- 工具箱内所有工具页使用 ToolPageWrapper 包装（loading、error、空数据、下拉刷新、数据更新时间），`emptyText` 为必填参数；需要瀑布流的页面传 `slivers` 参数，普通列表传 `child` 参数
-- 多列自适应布局统一使用 `MasonrySliverGrid`（封装自 `lib/common/masonry_sliver_grid.dart`），列宽断点从 `lib/constants/breakpoints.dart` 的 `kTileMinWidth` 读取
-- 横屏/宽屏自动切换侧栏导航（NavigationRail），窄屏使用底部导航栏（BottomNavigationBar），通过 `context.isLandscape`（`common/utils/context_ext.dart`）判断方向
-- 响应式断点常量统一定义在 `lib/constants/breakpoints.dart`
 - 教务处数据抓取在 AcademicService 中实现，用 Dio GET/POST 请求 HTML 页面，html 包解析 DOM
 - 教务处页面多为 GBK 编码，用 `charset` 包的 `gbk.decode()` 解码
 - 请求教务处接口需要带 `queryParameters: {'id': userId}`
 - ASP.NET WebForms 页面需要先 GET 获取 __VIEWSTATE/__EVENTVALIDATION，再 POST 提交
-- 工具页数据列表优先使用 Table 布局（对齐整齐），不用手搓 Row+Card
 - UI 文本必须通过 `AppLocalizations.of(context)!.xxx` 引用，禁止硬编码中文/英文字符串；开发者工具（`lib/screen/dev/`）文案直接定义，不使用国际化。
 - Service 层错误消息保留中文（无 BuildContext），UI 层捕获后展示
 - 状态管理模式：AppSettingsProvider 使用 InheritedWidget + ValueNotifier + SharedPreferences 持久化；普通查询页复用 common/hooks/use_async_data.dart，保留刷新期间的旧数据，特殊分页/条件查询独立管理状态
 - 单次隐藏课程保存在 AppSettings.hiddenCourseSessions，按稳定学号 + 学期 + 课程 + 周次/星期/节次隔离；课程详情列表底部提供“我不想上”，说明文字作为按钮的 subtitle，CourseSessions 统一过滤周课表，不展示课程管理页支持逐项/全部恢复。非本周课程提示卡和考试卡不提供此操作，刷新课表与登出不删除隐藏记录。
 - 学习中心协议参考 `.reference/fzuhelper-app/lib/sso-login.ts` 和 `utils/learning-center/api-service.ts`。SSO Cookie 与学习中心 token 存在 SecureStorage，按教务账号隔离，教务登出时清理；SSO 密码不保存。SSO Cookie 仅发送给其所属域名，学习中心变更请求不自动重试。正常签到须校验现场一分钟有效二维码，直接签到仅在开发者调试页提供。
 - 一码通协议参考 `.reference/fzuhelper-app/lib/ykt-login.ts`：无 voucher 时直接展示服务端返回的 20 位在线消费码，不请求离线参数或前端 RSA 配置；有 voucher 时生成离线消费码，SO 正文为原始字节、SP 正文为 Base64，二维码必须按字节编码；摘要对大写十六进制文本计算 SHA1，时间戳使用 Unix 秒。入馆二维码和 Code128 使用服务端用户 account。一码通 token 存在按教务账号隔离的 SecureStorage，SSO/教务登出时清理；支付码、RSA 配置和用户密钥只保留内存。消费码在页面前台每 50 秒刷新，后台/隐藏路由停止刷新并恢复亮度，重新进入时刷新；未开通离线支付仍可使用在线消费码和入馆码。一码通 SSO 登录不依赖学习中心授权。
-- 学习中心日期和无时区的服务端时间统一按北京时间（Asia/Shanghai，UTC+8）解释，不受设备时区影响；日期卡片、22 点后默认次日、过去时段禁用、未来七天范围、预约状态及现场二维码校验使用同一时间约定。时间选择参考 fzuhelper-app 的日期卡片与四列时间格，端点深色、区间浅色，最长 4 小时。
+- 学习中心日期和无时区的服务端时间统一按北京时间（Asia/Shanghai，UTC+8）解释，不受设备时区影响；日期卡片、22 点后默认次日、过去时段禁用、未来七天范围、预约状态及现场二维码校验使用同一时间约定，预约最长 4 小时。
 - 学习中心开发者调试页直接通过 Dio 调用接口，允许空 token、空 ID 和任意日期时段，预约直接传入 spaceId，不先查座位，不弹操作确认框；展示 HTTP 状态和原始响应，不因业务错误自动清 token 或跳转。正常学习中心页面继续使用业务 Service 的校验和确认流程。
 - 开发者工具通过「关于」页面图标累计点击七次进入，无点击间隔限制，跳转后计数清零；横竖屏不显示独立开发者入口。「我的」头像点击后通过带教务 Cookie 的 WebView 打开教务处个人信息页。
 - 每次做完一个功能，就 commit 一次，提交信息遵循下方规范。
@@ -508,17 +501,6 @@ version: 1.1.5+46
 - [FluxDown](https://github.com/zerx-lab/FluxDown)（`.reference/FluxDown/`）：Flutter 下载管理器，参考 Windows 安装包与自动更新流程。
 - [PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus)（`.reference/PiliPlus/`）：Flutter 哔哩哔哩客户端，参考 Flutter UI 与交互实现。
 
-## Review 与界面约定
+## Review
 
-- Flutter 设置界面沿用紧凑的 Material 3 风格：标题和简短说明建立层级，次要说明放入折叠区域或帮助弹层，危险操作单独放在底部并确认。直接使用 Flutter `material` 的 MD3 组件，优先保留默认间距、圆角、字号、触摸区域与语义色，仅在必要的页面布局处设置留白。常用设置分组、开关、单选弹层、状态、权限及操作组合复用 `lib/common/widget/settings/`，通过 `common/widgets.dart` 导出；页面保留业务状态与回调，不复制整页、不包装无额外职责的组件，不重复实现系统安全区。`SettingSwitchTile` 同时支持 ValueNotifier 和受控回调，普通行用原生 `ListTile`，导航行用已有 `ChevronListTile`。
-- 外观页提供独立的 `InterfaceStyle.classic / cards / continuousCards` 选择，依次显示经典列表、卡片分组、连续卡片，默认卡片分组，`interface_style` 持久化并即时更新。`InterfaceTheme` 作为 `ThemeExtension` 注入种子色和动态色的明暗主题；卡片分组参考用户提供的 Keyguard 截图，`SettingsSection.list` 使用 `Card.filled` 实现连接式分组（首尾大圆角、中间小圆角、组内窄间隔）；连续卡片将同组设置连成完整表面，组内不留间隙、不画分割线，只有组首尾保留外圆角，两种卡片风格共用表面色、透明度及行内控件。主题编辑的背景、配色来源、课表样式和具体颜色统一通过共享列表分组响应风格，避免同一风格下混用分隔规则；复合内容用 `SettingsSection` 单卡片。表面在浅色下使用 MD3 的 `surfaceContainerLow`、深色下使用更亮的 `surfaceContainerHigh`，普通卡片及 Sliver 面板统一复用 `CardTheme` 的表面色与壁纸透明度，保持与页面背景的明暗层次。行内控件保留默认样式，卡片风格的开关通过 `SwitchThemeData.thumbIcon` 展示勾/叉。`SettingsChoiceTile` 提供“名称＋当前值”列表和原生单选弹层，三种风格复用页面内容与业务逻辑。设置主列表、课表、一般、高级、外观、WebDAV、第三方、提醒、小组件、权限与日历页面共用此分组。WebDAV 白名单包含该偏好，新导出采用卡片默认值；旧备份仅缺少此新增字段时仍按经典列表兼容，其他缺失或未知字段仍拒绝。夜间自动更新课表和桌面小组件页直接展示状态与设置，不展示顶部概述提示。
-
-- 外观模式和界面风格继续使用原生列表与单选弹层；主题色保留三色圆点、名称和小配色预览的旧色卡，默认色卡、动态取色及自定义主题均复用 `SettingsSection.list`，卡片风格下与普通设置项使用相同的连接式分组背景、圆角、间距和面板不透明度。色卡竖向排列并随整页滚动，点击直接选择，选中项整行使用 `secondaryContainer` 背景与 `onSecondaryContainer` 文字高亮并提供无障碍选中状态，不添加选中描边或圈，不使用横向色卡滚动。色卡预览跟随深浅色，动态配色仅在系统支持或已选中时展示，缺少系统配色时安全回退。
-- 界面风格开关覆盖全应用原生界面，包括工具箱、历年卷、查询结果、个人资料、账号管理、校历、学习中心、登录表单及开发者工具。课程表网格与课程卡片保留现有布局，不为了统一卡片风格改动；二维码保持可扫描的白底，表格与预约时间／座位网格保留各自的数据语义。网页内容不注入此界面偏好。
-- 全应用共用 `AppSurface` / `AppSection`，设置的 `SettingsSection` 复用同一实现；分组标题沿用工具箱的 `SectionHeader`。长列表使用 `AppListView.grouped` / `AppSliverList` 保持懒加载，工具页用 `MasonrySliverGrid.grouped` 在手机连接分组与宽屏多列间自适应，列宽由 `kToolTileMaxWidth` 管理。经典列表的 list item 之间不加分界线，宽屏网格和展开后的明细也不额外添加条目分界线。逻辑分组使用 `AppDivider` / `AppVerticalDivider`（或设置别名）：经典列表在组间显示分隔线，卡片模式只保留间隔，不在卡片内外画分组分隔线；不通过全局透明 Divider 隐藏数据表的必要结构。
-
-- 全应用的描述性文字只用一句简要概述，功能入口和设置项的副标题描述有哪些功能，中文末尾不加句号、英文末尾不加句点，不用系统限制、风险提示或实现细节替代。早课提醒入口始终说明提醒功能；小米设备的系统限制说明仅放在提醒页顶部的独立设置卡片中，不替换入口副标题。操作确认保留关键后果，不堆砌实现细节。
-- 全应用业务弹层统一复用 `showHalfScreenSheet`：竖屏为可拖拽的底部半屏，横屏为右侧占窗口 2/3 的带关闭箭头面板。普通内容通过 `showAppBottomSheet` 仅适配同一滚动控制器，不再独立调用 `showModalBottomSheet`；学期、外观与提醒单选、日历说明、试卷下载、评价验证码和开发者工具均使用同一实现，保留原生 Material 对话框及日期／时间选择器。
-- 设置页的每个卡片／列表分组均有简短标题，复用 `SectionHeader`，标题位于分组外。设置主列表底部以“平台功能”命名当前平台的入口区，Android 依次展示夜间自动更新课表、日历同步、早课提醒、桌面小组件，权限管理置于整个设置列表最底部；非 Android 的日历文件导出仍在课表设置。日历页直接展示日历访问权限，夜间自动更新课表页直接展示精确闹钟权限，不使用折叠。学期选择与其他单选设置共用 `showSettingsChoiceSheet`，选项跟随经典／卡片风格，保留自动学期和缓存之外的当前选择。
-- 第三方服务使用三选按钮，左侧“隐藏”、中间“询问”、右侧“开启”，默认“询问”且不请求服务。
 - review 修改直接 amend / squash 到对应功能的原提交，不创建额外 review 或 fixup 提交。
