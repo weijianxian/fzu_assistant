@@ -86,6 +86,12 @@ class ToolboxPage extends HookWidget {
             l10n.emptyClassroomSubtitle,
             AppRoutes.emptyRoom,
           ),
+          (
+            Icons.view_timeline_outlined,
+            l10n.classroomUsage,
+            l10n.classroomUsageSubtitle,
+            AppRoutes.classroomUsage,
+          ),
         ],
       ),
       (

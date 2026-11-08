@@ -484,6 +484,7 @@ version: 1.1.5+46
 
 ## 教室全天占用与已下载试卷
 
+- `service/api/classroom_usage_service.dart` 直接读取教务处 `kbcx_zb.aspx`，复用教务会话、每次响应的 WebForms 令牌与请求代次检查；校区、教学楼使用下拉选项实际值。`model/classroom_usage.dart` 保存教室信息及占用节次，`screen/toolbox/empty_room/classroom_usage_page.dart` 提供日期、校区、教学楼及可展开的 1–11 节占用展示，不提供搜索框；工具箱和空教室页均有入口。筛选项元数据与占用查询分开，只有点击条件下方的“查询”按钮才请求占用结果，进入页面、修改条件及重试筛选项均不自动查询；条件改变清除旧结果。解析须展开 rowspan/colspan 并校验完整周表表头、教室元数据和行列，缺失或截断响应报错，不能显示为空闲；结果列表懒加载。
 - `service/paper_library_service.dart` 和 `screen/toolbox/paper/paper_library_page.dart` 管理应用目录 `paper_downloads/` 的已下载试卷，提供本地搜索、空间统计、打开、分享、复制路径和确认删除，Linux 保留打开与复制路径。入口仅位于历年卷页，不依赖在线历年卷授权、不联网、不清除账号或其他应用数据。兼容旧 `paper-*` 下载目录；新下载在 `pending-paper-*` 写入，完整后整体重命名为 `saved-paper-*`，避免将半成品或合法 `.part` 文件名混淆。枚举不跟随链接，每次文件操作重新校验目录与普通文件，删除仅处理选中文件及空目录，不递归清理。
 
 ## 参考

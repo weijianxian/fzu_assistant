@@ -291,6 +291,11 @@ void main() {
         scrollable: menu,
         continuous: true,
       );
+      // End the continuous gesture and any ballistic movement before tapping.
+      // Added toolbox entries can leave the first built tile below the viewport.
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('学习中心'));
+      await tester.pumpAndSettle();
       if (size.width > size.height) {
         expect(
           tester.state<ScrollableState>(menu).position.pixels,

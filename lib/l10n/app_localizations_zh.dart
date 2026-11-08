@@ -2304,6 +2304,36 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get classroomUsage => '教室全天占用';
+
+  @override
+  String get classroomUsageSubtitle => '查看教室全天空闲与占用节次';
+
+  @override
+  String get usageFilters => '查询条件';
+
+  @override
+  String get usageCampus => '校区';
+
+  @override
+  String get usageBuilding => '教学楼';
+
+  @override
+  String get usageLegend => '数字为节次，带圆点表示占用；展开查看详情';
+
+  @override
+  String get usagePeriod => '节次';
+
+  @override
+  String get usageOccupied => '占用';
+
+  @override
+  String get usageFree => '空闲';
+
+  @override
+  String get usageAllFree => '当天暂无占用安排';
+
+  @override
   String get downloadLibrary => '已下载试卷';
 
   @override

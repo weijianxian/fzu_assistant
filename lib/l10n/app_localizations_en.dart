@@ -2461,6 +2461,38 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get classroomUsage => 'Classroom availability';
+
+  @override
+  String get classroomUsageSubtitle =>
+      'View classroom availability throughout the day';
+
+  @override
+  String get usageFilters => 'Filters';
+
+  @override
+  String get usageCampus => 'Campus';
+
+  @override
+  String get usageBuilding => 'Building';
+
+  @override
+  String get usageLegend =>
+      'Numbers are periods; a dot means occupied. Expand for details';
+
+  @override
+  String get usagePeriod => 'Period';
+
+  @override
+  String get usageOccupied => 'Occupied';
+
+  @override
+  String get usageFree => 'Available';
+
+  @override
+  String get usageAllFree => 'No scheduled occupancy on this day';
+
+  @override
   String get downloadLibrary => 'Downloaded papers';
 
   @override

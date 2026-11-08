@@ -4508,6 +4508,66 @@ abstract class AppLocalizations {
   /// **'发现时间（北京时间）：{time}'**
   String academicChangeDetectedAt(String time);
 
+  /// No description provided for @classroomUsage.
+  ///
+  /// In zh, this message translates to:
+  /// **'教室全天占用'**
+  String get classroomUsage;
+
+  /// No description provided for @classroomUsageSubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看教室全天空闲与占用节次'**
+  String get classroomUsageSubtitle;
+
+  /// No description provided for @usageFilters.
+  ///
+  /// In zh, this message translates to:
+  /// **'查询条件'**
+  String get usageFilters;
+
+  /// No description provided for @usageCampus.
+  ///
+  /// In zh, this message translates to:
+  /// **'校区'**
+  String get usageCampus;
+
+  /// No description provided for @usageBuilding.
+  ///
+  /// In zh, this message translates to:
+  /// **'教学楼'**
+  String get usageBuilding;
+
+  /// No description provided for @usageLegend.
+  ///
+  /// In zh, this message translates to:
+  /// **'数字为节次，带圆点表示占用；展开查看详情'**
+  String get usageLegend;
+
+  /// No description provided for @usagePeriod.
+  ///
+  /// In zh, this message translates to:
+  /// **'节次'**
+  String get usagePeriod;
+
+  /// No description provided for @usageOccupied.
+  ///
+  /// In zh, this message translates to:
+  /// **'占用'**
+  String get usageOccupied;
+
+  /// No description provided for @usageFree.
+  ///
+  /// In zh, this message translates to:
+  /// **'空闲'**
+  String get usageFree;
+
+  /// No description provided for @usageAllFree.
+  ///
+  /// In zh, this message translates to:
+  /// **'当天暂无占用安排'**
+  String get usageAllFree;
+
   /// No description provided for @downloadLibrary.
   ///
   /// In zh, this message translates to:

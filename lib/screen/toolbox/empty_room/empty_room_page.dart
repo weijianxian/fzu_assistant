@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -73,7 +74,16 @@ class EmptyRoomPage extends HookWidget {
     }
 
     return AppScaffold(
-      appBar: AppBar(title: Text(l10n.emptyClassroom)),
+      appBar: AppBar(
+        title: Text(l10n.emptyClassroom),
+        actions: [
+          IconButton(
+            tooltip: l10n.classroomUsage,
+            icon: const Icon(Icons.view_timeline_outlined),
+            onPressed: () => context.pushNamed(AppRoutes.classroomUsage),
+          ),
+        ],
+      ),
       body: ToolPageWrapper(
         onRefresh: () async {
           if (!loading.value && selectedCampus.value.isNotEmpty) await load();
