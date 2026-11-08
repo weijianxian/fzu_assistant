@@ -1,12 +1,10 @@
-import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
-import 'package:fzu_assistant/common/widget/layout/app_section.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/utils/semester_utils.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
-import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class HiddenCoursesPage extends HookWidget {
   const HiddenCoursesPage({super.key});
@@ -44,7 +42,7 @@ class HiddenCoursesPage extends HookWidget {
       body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
-          ListTile(
+          AppInfoCard(
             title: Text(l10n.hiddenCourseSessionsDescription),
             trailing: hidden.isEmpty
                 ? null

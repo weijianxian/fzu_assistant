@@ -111,7 +111,10 @@ class LearningScannerPage extends HookWidget {
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           children: [
-                            Text(l10n.learningScanHint),
+                            AppInfoCard(
+                              margin: EdgeInsets.zero,
+                              title: Text(l10n.learningScanHint),
+                            ),
                             if (busy.value) const LinearProgressIndicator(),
                             if (paused.value && !busy.value)
                               TextButton(

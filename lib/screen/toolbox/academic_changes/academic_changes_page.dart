@@ -76,7 +76,7 @@ class AcademicChangesPage extends HookWidget {
         onRefresh: query.refresh,
         slivers: [
           SliverToBoxAdapter(
-            child: ListTile(subtitle: Text(l10n.academicChangesDescription)),
+            child: AppInfoCard(title: Text(l10n.academicChangesDescription)),
           ),
           if (failure.value != null)
             SliverToBoxAdapter(

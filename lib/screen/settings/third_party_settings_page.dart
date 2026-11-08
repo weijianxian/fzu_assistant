@@ -15,10 +15,7 @@ class ThirdPartySettingsPage extends HookWidget {
       appBar: AppBar(title: Text(l10n.thirdPartyServices)),
       body: AppListView(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(l10n.thirdPartyDescription),
-          ),
+          AppInfoCard(title: Text(l10n.thirdPartyDescription)),
           SettingsSection(
             title: l10n.west2AdjustmentsEnabled,
             child: FeatureAccessTile(

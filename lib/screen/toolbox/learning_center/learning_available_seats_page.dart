@@ -212,7 +212,10 @@ class LearningAvailableSeatsPage extends HookWidget {
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 12),
-                          Text(l10n.learningSeatLegend),
+                          AppInfoCard(
+                            margin: EdgeInsets.zero,
+                            title: Text(l10n.learningSeatLegend),
+                          ),
                           const SizedBox(height: 8),
                           SizedBox(
                             height: 4,

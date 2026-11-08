@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/common/widget/layout/app_theme_background.dart';
+import 'package:fzu_assistant/common/widget/settings/settings_radio_tile.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/screen/settings/theme/theme_editor_page.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
@@ -1263,7 +1264,7 @@ void main() {
     final l10n = await _openEditor(tester, settings, original);
     final system = find.byKey(const ValueKey('theme-source-system'));
     await _reveal(tester, system);
-    expect(tester.widget<RadioListTile<String>>(system).enabled, isFalse);
+    expect(tester.widget<SettingsRadioTile<String>>(system).enabled, isFalse);
     expect(
       tester
           .widget<RadioGroup<String>>(find.byType(RadioGroup<String>))
@@ -1373,7 +1374,7 @@ void main() {
       final l10n = await _openEditor(tester, settings, original);
       final system = find.byKey(const ValueKey('theme-source-system'));
       await _reveal(tester, system);
-      expect(tester.widget<RadioListTile<String>>(system).enabled, isTrue);
+      expect(tester.widget<SettingsRadioTile<String>>(system).enabled, isTrue);
       await tester.tap(system);
       await tester.pumpAndSettle();
       expect(
@@ -1478,7 +1479,7 @@ void main() {
     final l10n = await _openEditor(tester, settings, original);
     final system = find.byKey(const ValueKey('theme-source-system'));
     await _reveal(tester, system);
-    expect(tester.widget<RadioListTile<String>>(system).enabled, isFalse);
+    expect(tester.widget<SettingsRadioTile<String>>(system).enabled, isFalse);
     await _openPreview(tester);
     expect(
       Theme.of(tester.element(find.byKey(_preview))).colorScheme.primary,
@@ -1496,7 +1497,7 @@ void main() {
       AppSettings.systemColorScheme(Brightness.light)!.primary,
     );
     await _closePreview(tester);
-    expect(tester.widget<RadioListTile<String>>(system).enabled, isTrue);
+    expect(tester.widget<SettingsRadioTile<String>>(system).enabled, isTrue);
     expect(find.text(l10n.themeSourceSystemUnavailable), findsNothing);
     expect(settings.activeCustomTheme.value, isNull);
     expect(tester.takeException(), isNull);

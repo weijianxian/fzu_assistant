@@ -48,10 +48,7 @@ class LecturesPage extends HookWidget {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(l10n.lecturesDescription),
-          ),
+          AppInfoCard(title: Text(l10n.lecturesDescription)),
           if (refreshing.value) const LinearProgressIndicator(),
           if (result.error != null && result.data != null)
             Padding(

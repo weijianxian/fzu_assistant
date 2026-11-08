@@ -73,7 +73,7 @@ class MarksPage extends HookWidget {
           final sem = semesters[i];
           final items = grouped[sem]!;
           final summary = SemesterSummary.fromMarks(items);
-          return ExpansionTile(
+          return AppExpansionTile(
             key: ValueKey(sem),
             initiallyExpanded: expandedKeys.value.contains(sem),
             onExpansionChanged: (expanded) {
@@ -87,8 +87,6 @@ class MarksPage extends HookWidget {
             },
             tilePadding: const EdgeInsets.symmetric(horizontal: 16),
             childrenPadding: EdgeInsets.zero,
-            shape: const Border(),
-            collapsedShape: const Border(),
             title: Text(
               sem,
               style: const TextStyle(fontWeight: FontWeight.bold),

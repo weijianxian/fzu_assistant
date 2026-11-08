@@ -28,10 +28,7 @@ class CampusServicesPage extends HookWidget {
         onRefresh: () async {},
         slivers: [
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(l10n.campusServicesDescription),
-            ),
+            child: AppInfoCard(title: Text(l10n.campusServicesDescription)),
           ),
           // Keep the small service groups in one masonry delegate. Multiple
           // short masonry slivers can repeatedly correct the viewport offset

@@ -648,6 +648,7 @@ class ThemeEditorPage extends HookWidget {
                       _EditorSlider(
                         id: 'backgroundDim',
                         label: l10n.themeBackgroundDim,
+                        icon: Icons.brightness_6_outlined,
                         value: variant.backgroundDim,
                         onChanged: (value) => updateVariant(
                           (entry) => entry.copyWith(backgroundDim: value),
@@ -656,6 +657,7 @@ class ThemeEditorPage extends HookWidget {
                       _EditorSlider(
                         id: 'backgroundBlur',
                         label: l10n.themeBackgroundBlur,
+                        icon: Icons.blur_on,
                         value: variant.backgroundBlur,
                         max: 30,
                         onChanged: (value) => updateVariant(
@@ -665,6 +667,7 @@ class ThemeEditorPage extends HookWidget {
                       _EditorSlider(
                         id: 'surfaceOpacity',
                         label: l10n.themeSurfaceOpacity,
+                        icon: Icons.opacity,
                         value: variant.surfaceOpacity,
                         onChanged: (value) => updateVariant(
                           (entry) => entry.copyWith(surfaceOpacity: value),
@@ -673,6 +676,7 @@ class ThemeEditorPage extends HookWidget {
                       _EditorSlider(
                         id: 'cardRadius',
                         label: l10n.themeCardRadius,
+                        icon: Icons.rounded_corner,
                         value: variant.cardRadius,
                         max: 48,
                         onChanged: (value) => updateVariant(
@@ -682,6 +686,7 @@ class ThemeEditorPage extends HookWidget {
                       _EditorSlider(
                         id: 'dividerWidth',
                         label: l10n.themeDividerWidth,
+                        icon: Icons.horizontal_rule,
                         value: variant.dividerWidth,
                         max: 3,
                         onChanged: (value) => updateVariant(
@@ -703,7 +708,7 @@ class ThemeEditorPage extends HookWidget {
                       key: const ValueKey('theme-source-section'),
                       title: l10n.themeColorSource,
                       children: [
-                        RadioListTile<String>(
+                        SettingsRadioTile<String>(
                           key: const ValueKey('theme-source-system'),
                           value: 'system',
                           enabled: systemColorsAvailable,
@@ -715,12 +720,12 @@ class ThemeEditorPage extends HookWidget {
                           ),
                         ),
                         if (variant.backgroundImagePath != null)
-                          RadioListTile<String>(
+                          SettingsRadioTile<String>(
                             key: const ValueKey('theme-source-image'),
                             value: 'image',
                             title: Text(l10n.themeSourceImage),
                           ),
-                        RadioListTile<String>(
+                        SettingsRadioTile<String>(
                           key: const ValueKey('theme-source-seed'),
                           value: 'seed',
                           title: Text(l10n.themeSourceSeed),
@@ -765,7 +770,7 @@ class ThemeEditorPage extends HookWidget {
                           if (isCustomSeed)
                             ListTile(
                               key: const ValueKey('theme-seed-color'),
-                              leading: _ColorSwatch(color: seed),
+                              leading: _ColorSwatch(color: seed, size: 24),
                               title: Text(l10n.themeCustomSeed),
                               subtitle: Text(_hex(seed)),
                               trailing: const Icon(Icons.chevron_right),
@@ -807,10 +812,9 @@ class ThemeEditorPage extends HookWidget {
                           }
                         },
                       ),
-                      ExpansionTile(
+                      AppExpansionTile(
                         key: const PageStorageKey('theme-course-palette-edit'),
-                        shape: const Border(),
-                        collapsedShape: const Border(),
+                        leading: const Icon(Icons.edit_outlined),
                         title: Row(
                           children: [
                             Expanded(child: Text(l10n.themeCoursePaletteEdit)),
@@ -890,6 +894,7 @@ class ThemeEditorPage extends HookWidget {
                       _EditorSlider(
                         id: 'courseCardOpacity',
                         label: l10n.themeCourseOpacity,
+                        icon: Icons.opacity,
                         value: variant.courseCardOpacity,
                         onChanged: (value) => updateVariant(
                           (entry) => entry.copyWith(courseCardOpacity: value),
@@ -898,6 +903,7 @@ class ThemeEditorPage extends HookWidget {
                       _EditorSlider(
                         id: 'courseCardRadius',
                         label: l10n.themeCourseRadius,
+                        icon: Icons.rounded_corner,
                         value: variant.courseCardRadius,
                         max: 48,
                         onChanged: (value) => updateVariant(
@@ -1030,7 +1036,7 @@ class _ColorEditor extends HookWidget {
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
               labelText: l10n.themeColorHex,
-              helperText: l10n.themeColorHexHelp,
+              hintText: l10n.themeColorHexHelp,
               errorText: error.value ? l10n.themeColorInvalid : null,
             ),
             onChanged: (value) {
@@ -1084,13 +1090,14 @@ class _ColorEditor extends HookWidget {
 }
 
 class _ColorSwatch extends StatelessWidget {
-  const _ColorSwatch({required this.color});
+  const _ColorSwatch({required this.color, this.size = 32});
 
   final Color color;
+  final double size;
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
-    dimension: 32,
+    dimension: size,
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: color,
@@ -1107,11 +1114,13 @@ class _EditorSlider extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.icon,
     this.max = 1,
     this.divisions,
   });
 
   final String id, label;
+  final IconData? icon;
   final double value, max;
   final int? divisions;
   final ValueChanged<double> onChanged;
@@ -1121,10 +1130,9 @@ class _EditorSlider extends StatelessWidget {
     final display = max == 1
         ? '${(value * 100).round()}%'
         : value.toStringAsFixed(max == 3 ? 1 : 0);
-    return ExpansionTile(
+    return AppExpansionTile(
       key: PageStorageKey('theme-slider-expansion-$id'),
-      shape: const Border(),
-      collapsedShape: const Border(),
+      leading: icon == null ? null : Icon(icon),
       title: Row(
         key: ValueKey('theme-slider-row-$id'),
         children: [

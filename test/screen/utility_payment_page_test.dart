@@ -18,7 +18,12 @@ void main() {
     (tester) async {
       await tester.pumpWidget(_app(const UtilityPaymentPage()));
       expect(find.textContaining('需要手机上的中国建设银行'), findsOneWidget);
-      expect(find.byType(ListTile), findsNothing);
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is ListTile && widget.onTap != null,
+        ),
+        findsNothing,
+      );
       expect(find.byType(FilledButton), findsNothing);
     },
     variant: TargetPlatformVariant({

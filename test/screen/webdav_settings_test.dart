@@ -10,6 +10,8 @@ import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:fzu_assistant/service/webdav_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../fixtures/reveal_widget.dart';
+
 class _Service extends WebDavSyncService {
   int uploads = 0;
   int restores = 0;
@@ -119,7 +121,7 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), 'new-user');
     await tester.enterText(find.byType(TextField).at(2), 'new-password');
     final button = find.widgetWithText(OutlinedButton, '测试连接');
-    await tester.ensureVisible(button);
+    await revealWidget(tester, button);
     await tester.pumpAndSettle();
     await tester.tap(button);
     await tester.pump();
@@ -166,7 +168,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     final button = find.widgetWithText(OutlinedButton, '测试连接');
-    await tester.ensureVisible(button);
+    await revealWidget(tester, button);
     await tester.pumpAndSettle();
     await tester.tap(button);
     await tester.pumpAndSettle();
@@ -340,7 +342,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.ensureVisible(
+      await revealWidget(
+        tester,
         find.widgetWithText(FilledButton, '上传到 WebDAV'),
       );
       await tester.pumpAndSettle();
@@ -357,7 +360,8 @@ void main() {
       await tester.tap(find.widgetWithText(TextButton, '取消'));
       await tester.pumpAndSettle();
       expect(service.uploads, 0);
-      await tester.ensureVisible(
+      await revealWidget(
+        tester,
         find.widgetWithText(OutlinedButton, '下载并覆盖本地'),
       );
       await tester.pumpAndSettle();

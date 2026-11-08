@@ -100,9 +100,8 @@ class UtilityPaymentPage extends HookWidget {
         child: AppListView(
           padding: const EdgeInsets.symmetric(vertical: 16),
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
+            AppInfoCard(
+              title: Text(
                 mobile ? l10n.utilityDescription : l10n.utilityMobileRequired,
               ),
             ),

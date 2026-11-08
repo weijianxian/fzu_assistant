@@ -156,15 +156,7 @@ class JobFairPage extends HookWidget {
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    l10n.jobFairDescription,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
+                AppInfoCard(title: Text(l10n.jobFairDescription)),
               ],
             ),
           ),

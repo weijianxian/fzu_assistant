@@ -1,5 +1,4 @@
-import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
-import 'package:fzu_assistant/common/widget/layout/app_section.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fzu_assistant/common/hooks/use_async_data.dart';
@@ -10,7 +9,6 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
-import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 const _courseColors = <int>[
   0xfff39f9d,
@@ -135,10 +133,7 @@ class CustomCoursesPage extends HookWidget {
                 },
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(l10n.customCoursesDescription),
-          ),
+          AppInfoCard(title: Text(l10n.customCoursesDescription)),
           Expanded(
             child: status.loading
                 ? const Center(child: CircularProgressIndicator())
@@ -363,7 +358,7 @@ class CustomCourseEditPage extends HookWidget {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: l10n.selectSemester,
-                          helperText: l10n.customCourseTermHint,
+                          hintText: l10n.customCourseTermHint,
                         ),
                         validator: (value) =>
                             !RegExp(r'^\d{6}$').hasMatch(value?.trim() ?? '')

@@ -58,6 +58,8 @@ lib/
       layout/app_scaffold.dart # 统一普通页面及导航壳：内容避让系统栏，实际 AppBar/导航绘制系统区
       layout/app_scroll_view.dart # 统一滚动视口保持全屏，底部系统边距放在内容末尾
       layout/app_section.dart # 全应用风格表面、连接分组、懒加载列表项及自适应分隔；课程表网格不接入
+      layout/app_expansion_tile.dart # 全应用共享的原生展开列表项，统一取消展开及收起边框
+      feedback/app_info_card.dart # 独立短提示共享卡片：info 图标、简短说明及可选副标题
       layout/app_top_banner.dart # 缓存提示条背景延伸至状态栏，内容边距统一处理
       input/password_field.dart # 教务和 SSO 登录共用密码框、显隐按钮及自动填充
       layout/desktop_window_frame.dart # Windows 全局窗口壳（自绘标题栏、提示 Overlay、内容裁剪与顶部缩放）
@@ -70,6 +72,7 @@ lib/
       sheet/app_bottom_sheet.dart # 普通内容的滚动适配入口，复用 showHalfScreenSheet 的横竖屏弹层、安全区及键盘处理
       sheet/sheet_drag_handle.dart # 统一顶部拖动柄，上下各8逻辑像素留白
       settings/          # MD3 设置分组、开关、单选弹层、状态、权限及操作组合
+        settings_radio_tile.dart # 复用原生 RadioListTile，与普通设置图标及标题统一对齐
       update_dialog.dart # 更新对话框
   router/                # 路由
     app_routes.dart      # 路由名、参数对象与命名导航扩展

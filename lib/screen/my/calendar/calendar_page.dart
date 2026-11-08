@@ -118,11 +118,9 @@ class _TermCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
+    return AppExpansionTile(
       key: ValueKey(term.termId),
       initiallyExpanded: expanded,
-      shape: const Border(),
-      collapsedShape: const Border(),
       onExpansionChanged: onExpansionChanged,
       title: Row(
         children: [

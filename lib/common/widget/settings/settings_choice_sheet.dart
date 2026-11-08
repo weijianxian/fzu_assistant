@@ -3,6 +3,8 @@ import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:fzu_assistant/common/widget/sheet/app_bottom_sheet.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 
+import 'settings_radio_tile.dart';
+
 class SettingsChoice<T> {
   const SettingsChoice({required this.value, required this.label, this.detail});
 
@@ -39,7 +41,7 @@ Future<T?> showSettingsChoiceSheet<T>({
         AppSection.list(
           children: [
             for (final choice in choices)
-              RadioListTile<T>(
+              SettingsRadioTile<T>(
                 value: choice.value,
                 title: Text(choice.label),
                 subtitle: choice.detail == null ? null : Text(choice.detail!),

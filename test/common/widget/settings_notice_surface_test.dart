@@ -118,6 +118,44 @@ void _expectUnbacked(WidgetTester tester, Finder content) {
   );
 }
 
+Future<void> _expectInfoCardSurface(
+  WidgetTester tester,
+  Finder content,
+  ThemeData theme,
+) async {
+  expect(content, findsOneWidget);
+  expect(
+    find.ancestor(of: content, matching: find.byType(AppInfoCard)),
+    findsOneWidget,
+  );
+  final card = find.ancestor(of: content, matching: find.byType(Card));
+  expect(card, findsOneWidget);
+  expect(
+    find.ancestor(of: content, matching: find.byType(ListTile)),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(of: card, matching: find.byIcon(Icons.info_outline)),
+    findsOneWidget,
+  );
+  final materialFinder = _materialBehind(content);
+  final material = tester.widget<Material>(materialFinder);
+  expect(material.type, MaterialType.card);
+  expect(material.color, theme.cardTheme.color);
+  expect(material.shape, theme.cardTheme.shape);
+  expect(material.elevation, theme.cardTheme.elevation);
+  final background = theme.extension<ThemeVisuals>()!.hasBackground
+      ? _backdrop
+      : theme.colorScheme.surface;
+  _expectColor(
+    await _pixel(
+      tester,
+      tester.getRect(materialFinder).topCenter + const Offset(0, 3),
+    ),
+    Color.alphaBlend(theme.cardTheme.color!, background),
+  );
+}
+
 void main() {
   for (final style in InterfaceStyle.values) {
     for (final brightness in Brightness.values) {
@@ -397,7 +435,7 @@ void main() {
   }
 
   testWidgets(
-    'classic reminder advisory and error have no separate text backings',
+    'classic reminder advisory uses a themed info card while errors stay flat',
     (tester) async {
       _viewport(tester);
       SharedPreferences.setMockInitialValues({});
@@ -421,92 +459,128 @@ void main() {
       addTearDown(settings.dispose);
       CourseReminderService.instance.error.value = true;
       addTearDown(() => CourseReminderService.instance.error.value = false);
-      for (final wallpaper in [false, true, false]) {
-        await tester.pumpWidget(
-          _app(
-            _theme(wallpaper: wallpaper),
-            AppSettingsProvider(
-              settings: settings,
-              child: const CourseReminderSettingsPage(),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        final context = tester.element(find.byType(CourseReminderSettingsPage));
-        final l10n = AppLocalizations.of(context)!;
-        for (final message in [
-          l10n.reminderXiaomiDescription,
-          l10n.reminderFailed,
-        ]) {
-          expect(find.text(message), findsOneWidget);
-          if (wallpaper) {
-            _expectUnbacked(tester, find.text(message));
-          } else {
-            expect(
-              tester
-                  .widget<Material>(_materialBehind(find.text(message)))
-                  .color,
-              _lightBackground,
+      for (final brightness in Brightness.values) {
+        for (final wallpaper in [false, true, false]) {
+          for (final opacity in [0.0, 0.4, 1.0]) {
+            final theme = _theme(
+              brightness: brightness,
+              wallpaper: wallpaper,
+              opacity: opacity,
             );
+            await tester.pumpWidget(
+              _app(
+                theme,
+                AppSettingsProvider(
+                  settings: settings,
+                  child: const CourseReminderSettingsPage(),
+                ),
+              ),
+            );
+            await tester.pumpAndSettle();
+            final context = tester.element(
+              find.byType(CourseReminderSettingsPage),
+            );
+            final l10n = AppLocalizations.of(context)!;
+            expect(find.text(l10n.reminderXiaomiNotice), findsOneWidget);
+            await _expectInfoCardSurface(
+              tester,
+              find.text(l10n.reminderXiaomiDescription),
+              theme,
+            );
+            expect(find.byType(Card), findsOneWidget);
+            final error = find.text(l10n.reminderFailed);
+            expect(error, findsOneWidget);
+            expect(
+              find.ancestor(of: error, matching: find.byType(Card)),
+              findsNothing,
+            );
+            final errorTile = find.ancestor(
+              of: error,
+              matching: find.byType(ListTile),
+            );
+            expect(errorTile, findsOneWidget);
+            final retry = find.descendant(
+              of: errorTile,
+              matching: find.widgetWithText(TextButton, l10n.retry),
+            );
+            expect(retry, findsOneWidget);
+            expect(tester.widget<TextButton>(retry).onPressed, isNotNull);
+            if (wallpaper) {
+              _expectUnbacked(tester, error);
+            } else {
+              expect(
+                tester.widget<Material>(_materialBehind(error)).color,
+                theme.colorScheme.surface,
+              );
+            }
+            _expectColor(
+              await _pixel(
+                tester,
+                tester.getRect(errorTile).topCenter + const Offset(0, 3),
+              ),
+              wallpaper ? _backdrop : theme.colorScheme.surface,
+            );
+            expect(
+              find.ancestor(
+                of: find.byType(SwitchListTile),
+                matching: find.byType(Card),
+              ),
+              findsNothing,
+            );
+            final toggle = tester.widget<SwitchListTile>(
+              find.byType(SwitchListTile),
+            );
+            expect(toggle.onChanged, isNotNull);
+            expect(tester.takeException(), isNull);
           }
         }
-        expect(find.byType(Card), findsNothing);
-        expect(
-          find.ancestor(
-            of: find.byType(SwitchListTile),
-            matching: find.byType(Card),
-          ),
-          findsNothing,
-        );
-        final toggle = tester.widget<SwitchListTile>(
-          find.byType(SwitchListTile),
-        );
-        expect(toggle.onChanged, isNotNull);
-        expect(tester.takeException(), isNull);
       }
       await tester.pumpWidget(const SizedBox.shrink());
     },
     variant: TargetPlatformVariant({TargetPlatform.android}),
   );
 
-  testWidgets('third party introduction does not cover the wallpaper', (
-    tester,
-  ) async {
-    _viewport(tester);
-    SharedPreferences.setMockInitialValues({});
-    final settings = AppSettings();
-    addTearDown(settings.dispose);
-    for (final brightness in Brightness.values) {
-      for (final wallpaper in [true, false]) {
-        final theme = _theme(
-          brightness: brightness,
-          wallpaper: wallpaper,
-          opacity: 0,
-        );
-        await tester.pumpWidget(
-          _app(
-            theme,
-            AppSettingsProvider(
-              settings: settings,
-              child: const ThirdPartySettingsPage(),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        final context = tester.element(find.byType(ThirdPartySettingsPage));
-        final message = find.text(
-          AppLocalizations.of(context)!.thirdPartyDescription,
-        );
-        if (wallpaper) _expectUnbacked(tester, message);
-        final text = tester.getRect(message);
-        _expectColor(
-          await _pixel(tester, text.topLeft - const Offset(0, 8)),
-          wallpaper ? _backdrop : theme.colorScheme.surface,
-        );
-        expect(find.byType(Card), findsNothing);
-        expect(tester.takeException(), isNull);
+  testWidgets(
+    'third party introduction uses an info card with themed wallpaper opacity',
+    (tester) async {
+      _viewport(tester);
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      addTearDown(settings.dispose);
+      for (final style in InterfaceStyle.values) {
+        for (final brightness in Brightness.values) {
+          for (final wallpaper in [true, false]) {
+            for (final opacity in [0.0, 0.4, 1.0]) {
+              final theme = _theme(
+                style: style,
+                brightness: brightness,
+                wallpaper: wallpaper,
+                opacity: opacity,
+              );
+              await tester.pumpWidget(
+                _app(
+                  theme,
+                  AppSettingsProvider(
+                    settings: settings,
+                    child: const ThirdPartySettingsPage(),
+                  ),
+                ),
+              );
+              await tester.pumpAndSettle();
+              final context = tester.element(
+                find.byType(ThirdPartySettingsPage),
+              );
+              final message = find.text(
+                AppLocalizations.of(context)!.thirdPartyDescription,
+              );
+              expect(find.byType(AppInfoCard), findsOneWidget);
+              await _expectInfoCardSurface(tester, message, theme);
+              expect(tester.takeException(), isNull);
+            }
+          }
+        }
       }
-    }
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

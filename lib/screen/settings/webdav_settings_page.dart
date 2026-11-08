@@ -125,6 +125,7 @@ class WebDavSettingsPage extends HookWidget {
       body: AppListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          AppInfoCard(title: Text(l10n.webdavDescription)),
           SettingsSection(
             title: l10n.settingsConnectionSection,
             child: Padding(
@@ -132,8 +133,6 @@ class WebDavSettingsPage extends HookWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(l10n.webdavDescription),
-                  const SizedBox(height: 20),
                   TextField(
                     controller: directory,
                     enabled: !busy.value,
@@ -142,8 +141,7 @@ class WebDavSettingsPage extends HookWidget {
                     decoration: InputDecoration(
                       labelText: l10n.webdavDirectory,
                       prefixIcon: const Icon(Icons.link_outlined),
-                      helperText: l10n.webdavDirectoryHint,
-                      helperMaxLines: 3,
+                      hintText: l10n.webdavDirectoryHint,
                     ),
                   ),
                   const SizedBox(height: 16),

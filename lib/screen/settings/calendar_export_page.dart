@@ -93,7 +93,7 @@ class CalendarExportPage extends HookWidget {
         child: AppListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           children: [
-            ListTile(
+            AppInfoCard(
               title: Text(l10n.calendarExportDescription),
               subtitle: Text(l10n.calendarExportSnapshot),
             ),

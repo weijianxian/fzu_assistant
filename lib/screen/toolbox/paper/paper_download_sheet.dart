@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/screen/toolbox/paper/paper_file_actions.dart';
@@ -254,7 +255,10 @@ class PaperDownloadSheet extends HookWidget {
         children: [
           Text(name, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          Text(l10n.papersDownloadDescription),
+          AppInfoCard(
+            margin: EdgeInsets.zero,
+            title: Text(l10n.papersDownloadDescription),
+          ),
           if (status != null) ...[
             const SizedBox(height: 24),
             Text(

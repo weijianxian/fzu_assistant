@@ -108,11 +108,40 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(l10n.calendarExportEventCount(2)), findsOneWidget);
       expect(find.text(l10n.calendarExportReminderMinutes(15)), findsOneWidget);
-      await tester.ensureVisible(find.text(l10n.calendarExportReminder));
-      await tester.tap(find.text(l10n.calendarExportReminder));
+      final reminder = find.widgetWithText(
+        ListTile,
+        l10n.calendarExportReminder,
+      );
+      await tester.scrollUntilVisible(
+        reminder.hitTestable(),
+        150,
+        scrollable: find.descendant(
+          of: find.byType(CalendarExportPage),
+          matching: find.byType(Scrollable),
+        ),
+      );
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.calendarExportReminderMinutes(30)).last);
+      expect(reminder.hitTestable(), findsOneWidget);
+      await tester.tap(reminder);
       await tester.pumpAndSettle();
+      expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+      final thirtyMinutes = find.widgetWithText(
+        RadioListTile<int>,
+        l10n.calendarExportReminderMinutes(30),
+      );
+      await tester.scrollUntilVisible(
+        thirtyMinutes.hitTestable(),
+        120,
+        scrollable: find.descendant(
+          of: find.byType(DraggableScrollableSheet),
+          matching: find.byType(Scrollable),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(thirtyMinutes.hitTestable(), findsOneWidget);
+      await tester.tap(thirtyMinutes);
+      await tester.pumpAndSettle();
+      expect(find.byType(DraggableScrollableSheet), findsNothing);
       expect(find.text(l10n.calendarExportReminderMinutes(30)), findsOneWidget);
       expect(tester.takeException(), isNull);
       if (const bool.fromEnvironment('CAPTURE_QA')) {

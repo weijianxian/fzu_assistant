@@ -1,7 +1,9 @@
 export 'widget/layout/app_scaffold.dart';
 export 'widget/layout/app_scroll_view.dart';
 export 'widget/layout/app_section.dart';
+export 'widget/layout/app_expansion_tile.dart';
 export 'widget/layout/app_top_banner.dart';
+export 'widget/feedback/app_info_card.dart';
 export 'widget/feedback/success_checkmark.dart';
 export 'widget/layout/masonry_sliver_grid.dart';
 export 'widget/layout/section.dart';
@@ -14,6 +16,7 @@ export 'widget/settings/settings_action.dart';
 export 'widget/settings/settings_choice_sheet.dart';
 export 'widget/settings/settings_choice_tile.dart';
 export 'widget/settings/settings_permission_tile.dart';
+export 'widget/settings/settings_radio_tile.dart';
 export 'widget/settings/settings_section.dart';
 export 'widget/settings/settings_status.dart';
 export 'widget/sheet/half_screen_sheet.dart';
