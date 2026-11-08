@@ -142,7 +142,8 @@ void main() {
     final immutableWrites = server.requests.where(
       (request) =>
           request.method == 'PUT' &&
-          request.uri.path.contains('/fzu-assistant-history/'),
+          RegExp(r'/fzu-assistant-history/[a-f0-9]{64}\.json$')
+              .hasMatch(request.uri.path),
     );
     expect(immutableWrites, hasLength(1));
     expect(immutableWrites.single.headers['If-None-Match'], '*');
@@ -249,32 +250,33 @@ void main() {
     expect(await service.listHistory(config), hasLength(2));
   });
 
-  test('history append merges another device after an index ETag conflict', () async {
-    await publish(snapshot(mode: 'light'));
-    final previous = await service.readRemote(config);
-    var raced = false;
-    server.beforeRequest = (request, data) {
-      if (request.method == 'PUT' && request.uri == indexUri && !raced) {
-        raced = true;
-        // Simulate a concurrent writer changing the index ETag while retaining
-        // its existing entries; the retry must use that new validator.
-        server.seed(indexUri, jsonDecode(server.files[indexUri.path]!));
-        return ResponseBody.fromString('', 412);
-      }
-      return null;
-    };
-    await service.upload(config, snapshot(mode: 'dark'), previous);
-    expect(raced, isTrue);
-    expect(await service.listHistory(config), hasLength(2));
-    final indexPuts = server.requests
-        .where((request) => request.method == 'PUT' && request.uri == indexUri)
-        .toList();
-    expect(indexPuts, hasLength(3));
-    expect(
-      indexPuts.last.headers['If-Match'],
-      isNot(indexPuts[indexPuts.length - 2].headers['If-Match']),
-    );
-  });
+  test(
+    'repeated history publication validates immutable files after 412',
+    () async {
+      await publish(snapshot(mode: 'light'));
+      final previous = await service.readRemote(config);
+      await service.upload(config, snapshot(mode: 'dark'), previous);
+      expect(await service.listHistory(config), hasLength(2));
+      final metadataPuts = server.requests.where(
+        (request) =>
+            request.method == 'PUT' && request.uri.path.contains('/metadata/'),
+      );
+      expect(metadataPuts, hasLength(3));
+      expect(
+        metadataPuts.every(
+          (request) => request.headers['If-None-Match'] == '*',
+        ),
+        isTrue,
+      );
+      expect(
+        server.requests.where(
+          (request) => request.method == 'PUT' && request.uri == indexUri,
+        ),
+        isEmpty,
+      );
+      expect(server.files.containsKey(indexUri.path), isFalse);
+    },
+  );
 
   test('failed history writes never replace the primary backup', () async {
     final old = snapshot(mode: 'light');
@@ -317,8 +319,12 @@ void main() {
 
   test('history never follows injected hrefs or paths and never forwards authentication', () async {
     await publish(snapshot());
-    final index = jsonDecode(server.files[indexUri.path]!) as Map;
-    final entry = (index['entries'] as List).single as Map;
+    final entry = (await service.listHistory(config)).single.toJson();
+    final index = {
+      'format': 'fzu-assistant-history',
+      'schemaVersion': 1,
+      'entries': [entry],
+    };
     for (final id in [
       '../other',
       'https://elsewhere.example/file',

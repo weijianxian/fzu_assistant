@@ -18,6 +18,7 @@ import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:xml/xml.dart';
 
 part 'webdav_history.dart';
 
@@ -269,6 +270,31 @@ class _WebDavNetworkFailure implements Exception {
 
   @override
   String toString() => '无法连接 WebDAV，请检查目录地址、网络和服务器状态';
+}
+
+class _WebDavCreateFailure implements Exception {
+  const _WebDavCreateFailure({
+    required this.target,
+    required this.published,
+    required this.attemptedMove,
+    required this.paths,
+  });
+  final Uri target;
+  final bool published, attemptedMove;
+  final List<String> paths;
+
+  String get message => paths.isEmpty
+      ? 'WebDAV 创建确认失败'
+      : 'WebDAV 临时上传资源清理失败，请检查并手动删除：${paths.join('、')}';
+
+  @override
+  String toString() =>
+      '$message'
+      '${published
+          ? '；已确认创建目标 ${target.path}'
+          : attemptedMove
+          ? '；目标 ${target.path} 的归属未确认，未删除，请重新读取'
+          : ''}';
 }
 
 /// A strict whitelist keeps authentication data and caches off WebDAV.
@@ -561,7 +587,7 @@ class WebDavSyncService {
           return WebDavAutoSyncResult.downloaded;
         }
         // Existing files need a strong validator to prevent racing another device.
-        if (remote.etag == null || remote.etag!.startsWith('W/')) {
+        if (_writeEtag(config, remote.etag) == null) {
           return WebDavAutoSyncResult.manualUploadRequired;
         }
         await upload(config, local, remote);
@@ -647,11 +673,14 @@ class WebDavSyncService {
     int depth = 0,
     bool Function()? canWrite,
   }) async {
+    if (_isJianguoyun(config) && {'/', '/dav/'}.contains(directory.path)) {
+      throw Exception('请在坚果云中选择已授权的同步文件夹，不能向 WebDAV 根目录写入');
+    }
     Future<int?> create() async {
       if (canWrite != null) _checkCurrent(canWrite);
       final response = await _request(
         config,
-        _options(config, 'MKCOL'),
+        _options(config, 'MKCOL', headers: {'Content-Length': 0}),
         uri: directory,
       );
       await response.data?.stream.drain<void>();
@@ -685,6 +714,16 @@ class WebDavSyncService {
     Uri? uri,
     bool Function()? canWrite,
   }) async {
+    _checkWriteDirectory(config);
+    if (_isJianguoyun(config) && headers['If-None-Match'] == '*') {
+      return _createByMove(
+        config,
+        uri ?? config.fileUri,
+        data,
+        headers,
+        canWrite: canWrite,
+      );
+    }
     Future<Response<ResponseBody>> send() {
       if (canWrite != null) _checkCurrent(canWrite);
       return _request(
@@ -705,6 +744,208 @@ class WebDavSyncService {
     );
     // Rebuild the body stream and preserve conditional headers on the one retry.
     return send();
+  }
+
+  // Jianguoyun's official endpoint honors raw If-Match and MOVE Overwrite:F,
+  // but ignores PUT If-None-Match:*. Keep that compatibility profile confined
+  // to the tested HTTPS endpoint; other servers retain the standard protocol.
+  static bool _isJianguoyun(WebDavConfig config) {
+    final uri = config.fileUri;
+    return uri.origin == 'https://dav.jianguoyun.com' &&
+        uri.path.startsWith('/dav/');
+  }
+
+  static void _checkWriteDirectory(WebDavConfig config) {
+    final root = config.fileUri.resolve('.');
+    if (root.origin == 'https://dav.jianguoyun.com' &&
+        {'/', '/dav/'}.contains(root.path)) {
+      throw Exception('请在坚果云中选择已授权的同步文件夹，不能向 WebDAV 根目录写入');
+    }
+  }
+
+  Future<Response<ResponseBody>> _createByMove(
+    WebDavConfig config,
+    Uri target,
+    List<int> data,
+    Map<String, Object> headers, {
+    bool Function()? canWrite,
+  }) async {
+    _checkWriteDirectory(config);
+    final root = config.fileUri.resolve('.');
+    if (target.origin != root.origin ||
+        target.userInfo.isNotEmpty ||
+        target.hasQuery ||
+        target.hasFragment ||
+        !target.path.startsWith(root.path) ||
+        target.path.endsWith('/')) {
+      throw const FormatException('WebDAV 创建目标不属于当前同步目录');
+    }
+    final random = Random.secure();
+    final nonce = List.generate(
+      16,
+      (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+    ).join();
+    // Never put temporary collections in metadata/: concurrent Depth:1
+    // readers must only discover published immutable metadata files there.
+    final directory = root.resolve('fzu-assistant-upload-$nonce/');
+    final payload = directory.resolve('payload');
+    var owned = false;
+    var attemptedPayload = false;
+    var attemptedMove = false;
+    var published = false;
+    Response<ResponseBody>? result;
+    Object? failure;
+    StackTrace? failureStack;
+    final cleanupFailures = <String>[];
+
+    void check() {
+      if (canWrite != null) _checkCurrent(canWrite);
+    }
+
+    Future<void> drain(Response<ResponseBody> response) async {
+      try {
+        await response.data?.stream
+            .timeout(const Duration(seconds: 30))
+            .drain<void>();
+      } catch (_) {
+        throw const _WebDavNetworkFailure();
+      }
+    }
+
+    Future<int?> claim() async {
+      check();
+      final response = await _request(
+        config,
+        _options(config, 'MKCOL', headers: {'Content-Length': 0}),
+        uri: directory,
+      );
+      // A failed response stream must not lose cleanup ownership.
+      owned = response.statusCode == 201;
+      await drain(response);
+      check();
+      return response.statusCode;
+    }
+
+    try {
+      var status = await claim();
+      if (status == 409) {
+        // Only a missing staging parent can trigger directory repair. MOVE
+        // conflicts below never enter _put's generic 409 repair/retry path.
+        await _ensureDirectory(config, root, canWrite: canWrite);
+        status = await claim();
+      }
+      if (status != 201) {
+        if (status == 405) {
+          throw Exception('WebDAV 临时上传目录已存在，已停止且未修改该目录');
+        }
+        _httpError(status);
+      }
+      check();
+      attemptedPayload = true;
+      final uploaded = await _request(
+        config,
+        _options(
+          config,
+          'PUT',
+          headers: {
+            for (final entry in headers.entries)
+              if (entry.key != 'If-None-Match') entry.key: entry.value,
+          },
+        ),
+        uri: payload,
+        data: Stream.value(data),
+      );
+      await drain(uploaded);
+      check();
+      if (!{200, 201, 204}.contains(uploaded.statusCode)) {
+        _httpError(uploaded.statusCode);
+      }
+      attemptedMove = true;
+      final moved = await _request(
+        config,
+        _options(
+          config,
+          'MOVE',
+          headers: {
+            'Destination': target.toString(),
+            'Overwrite': 'F',
+            'Content-Length': 0,
+          },
+        ),
+        uri: payload,
+      );
+      published = moved.statusCode == 201;
+      await drain(moved);
+      check();
+      final moveStatus = moved.statusCode;
+      if (moveStatus != 201 && moveStatus != 409 && moveStatus != 412) {
+        _httpError(moveStatus);
+      }
+      // The tested server reports an existing destination as 409. Expose the
+      // ordinary create-conflict path so history reads/validates the winner,
+      // while a main-file creation race fails without replacing the winner.
+      result = Response<ResponseBody>(
+        requestOptions: moved.requestOptions,
+        statusCode: moveStatus == 201 ? 201 : 412,
+        data: ResponseBody.fromString('', moveStatus == 201 ? 201 : 412),
+      );
+    } catch (error, stack) {
+      failure = error;
+      if (error is _WebDavNetworkFailure) {
+        if (attemptedMove && !published) {
+          failure = Exception(
+            'WebDAV 创建结果未知，请重新读取后再同步；'
+            '可能已创建 ${target.path}，未自动重试或删除该目标',
+          );
+        } else if (!owned) {
+          failure = Exception(
+            'WebDAV 临时目录创建结果未知，可能残留 ${directory.path}；'
+            '未取得 HTTP 201，未写入或清理该目录，请检查后手动处理',
+          );
+        }
+      }
+      failureStack = stack;
+    } finally {
+      if (owned) {
+        Future<bool> remove(Uri uri) async {
+          try {
+            final response = await _request(
+              config,
+              _options(config, 'DELETE', headers: {'Content-Length': 0}),
+              uri: uri,
+            );
+            await drain(response);
+            return {200, 204, 404}.contains(response.statusCode);
+          } catch (_) {
+            return false;
+          }
+        }
+
+        // Cleanup remains authorized after configuration/account invalidation:
+        // these are exact resources inside our MKCOL-201 collection.
+        final removed = !attemptedPayload || await remove(payload);
+        if (!removed) cleanupFailures.add(payload.path);
+        if (!removed || !await remove(directory)) {
+          cleanupFailures.add(directory.path);
+        }
+      }
+    }
+    if (cleanupFailures.isNotEmpty ||
+        (published && failure is _WebDavNetworkFailure)) {
+      // Retain confirmed ownership for response/cleanup failures. With cleanup
+      // complete, configuration invalidation keeps WebDavLocalChanged below.
+      // Only the connection probe may remove its own random target.
+      throw _WebDavCreateFailure(
+        target: target,
+        published: published,
+        attemptedMove: attemptedMove,
+        paths: cleanupFailures,
+      );
+    }
+    if (failure != null) {
+      Error.throwWithStackTrace(failure, failureStack!);
+    }
+    return result!;
   }
 
   /// Probe the entered directory without reading or replacing the sync backup.
@@ -728,6 +969,17 @@ class WebDavSyncService {
       }, uri: uri);
     } on _WebDavNetworkFailure {
       throw Exception('连接测试中断，临时文件 $name 可能残留，请检查连接后手动删除');
+    } on _WebDavCreateFailure catch (error) {
+      if (!error.published || error.target != uri) rethrow;
+      // MOVE 201 proves this exact random test target is ours even when the
+      // helper failed reading the response or cleaning staging. A conflicting
+      // target is never deleted.
+      try {
+        await _removeConnectionFile(config, uri);
+      } catch (_) {
+        throw Exception('$error；测试文件 ${uri.path} 也清理失败，请手动处理');
+      }
+      throw Exception('${error.message}；本次测试文件 ${uri.path} 已清理');
     }
     if (!{200, 201, 204}.contains(created.statusCode)) {
       await created.data?.stream.drain<void>();
@@ -766,19 +1018,23 @@ class WebDavSyncService {
         throw Exception('连接测试读取的内容不一致，请检查目录和权限');
       }
     } finally {
-      try {
-        final deleted = await _request(
-          config,
-          _options(config, 'DELETE'),
-          uri: uri,
-        );
-        await deleted.data?.stream.drain<void>();
-        if (!{200, 204, 404}.contains(deleted.statusCode)) {
-          _httpError(deleted.statusCode);
-        }
-      } catch (_) {
-        throw Exception('测试文件 $name 清理失败，请手动删除并检查目录权限');
+      await _removeConnectionFile(config, uri);
+    }
+  }
+
+  Future<void> _removeConnectionFile(WebDavConfig config, Uri uri) async {
+    try {
+      final deleted = await _request(
+        config,
+        _options(config, 'DELETE', headers: {'Content-Length': 0}),
+        uri: uri,
+      );
+      await deleted.data?.stream.drain<void>();
+      if (!{200, 204, 404}.contains(deleted.statusCode)) {
+        _httpError(deleted.statusCode);
       }
+    } catch (_) {
+      throw Exception('测试文件 ${uri.path} 清理失败，请手动删除并检查目录权限');
     }
   }
 
@@ -810,10 +1066,16 @@ class WebDavSyncService {
   Future<Object?> _readJson(
     Response<ResponseBody> response,
     bool Function() isCurrent,
-  ) async {
+  ) async => jsonDecode(utf8.decode(await _readBytes(response, isCurrent)));
+
+  Future<Uint8List> _readBytes(
+    Response<ResponseBody> response,
+    bool Function() isCurrent, {
+    int limit = maxBytes,
+  }) async {
     final body = response.data!;
     if ((int.tryParse(response.headers.value('content-length') ?? '') ?? 0) >
-        maxBytes) {
+        limit) {
       await body.stream.listen((_) {}).cancel();
       throw const FormatException('WebDAV 同步文件过大');
     }
@@ -822,13 +1084,59 @@ class WebDavSyncService {
       const Duration(seconds: 30),
     )) {
       _checkCurrent(isCurrent);
-      if (bytes.length + chunk.length > maxBytes) {
+      if (bytes.length + chunk.length > limit) {
         throw const FormatException('WebDAV 同步文件过大');
       }
       bytes.add(chunk);
     }
     _checkCurrent(isCurrent);
-    return jsonDecode(utf8.decode(bytes.takeBytes()));
+    return bytes.takeBytes();
+  }
+
+  static String? _strongEtag(String? source) {
+    final value = source?.replaceAll(RegExp(r'^[ \t]+|[ \t]+$'), '');
+    if (value == null ||
+        value.length < 2 ||
+        !value.startsWith('"') ||
+        !value.endsWith('"')) {
+      return null;
+    }
+    // RFC 9110 entity-tag: preserve opaque bytes and case, without interpreting
+    // quoted contents as a wildcard, a list, or backslash escapes.
+    final opaque = value.substring(1, value.length - 1);
+    return opaque.codeUnits.every(
+          (char) =>
+              char == 0x21 ||
+              (char >= 0x23 && char <= 0x7e) ||
+              (char >= 0x80 && char <= 0xff),
+        )
+        ? value
+        : null;
+  }
+
+  static String? _writeEtag(WebDavConfig config, String? source) {
+    final strong = _strongEtag(source);
+    if (strong != null) return strong;
+    if (!_isJianguoyun(config) ||
+        source == null ||
+        source.isEmpty ||
+        source.length > 1024 ||
+        source == '*' ||
+        source.toUpperCase().startsWith('W/') ||
+        !source.codeUnits.every(
+          (char) =>
+              char >= 0x21 &&
+              char <= 0x7e &&
+              char != 0x22 &&
+              char != 0x2c &&
+              char != 0x5c,
+        )) {
+      return null;
+    }
+    // Keep the tested endpoint's single bare token byte-for-byte. Quoting it
+    // changes its conditional semantics there. Weak/list/wildcard values are
+    // never accepted, and this exception is not enabled on arbitrary hosts.
+    return source;
   }
 
   Future<void> upload(
@@ -839,9 +1147,19 @@ class WebDavSyncService {
     final valid = captureValidity();
     bool isCurrent() => valid() && (previous.canUse?.call() ?? true);
     _checkCurrent(isCurrent);
+    _checkWriteDirectory(config);
     final checked = WebDavSnapshot.fromJson(snapshot.toJson());
     final data = utf8.encode(jsonEncode(checked.toJson()));
     if (data.length > maxBytes) throw const FormatException('同步数据过大');
+    final etag = _writeEtag(config, previous.etag);
+    if (previous.snapshot != null && etag == null) {
+      throw Exception(
+        'WebDAV 主同步文件未提供可安全使用的 ETag，无法安全覆盖。'
+        '请检查服务器或反向代理是否在 GET 响应中保留有效 ETag，'
+        '并支持 If-Match 条件写入；标准服务器需返回带双引号的强 ETag。'
+        '仍可下载和查看历史记录',
+      );
+    }
     // Both sides are recoverable before the current backup is replaced. A
     // failed conditional PUT may leave a saved candidate, never a lost version.
     await _archive(config, [
@@ -854,7 +1172,7 @@ class WebDavSyncService {
       'Content-Type': 'application/json; charset=utf-8',
       'Content-Length': data.length,
       if (previous.snapshot == null) 'If-None-Match': '*',
-      if (previous.etag != null) 'If-Match': previous.etag!,
+      if (previous.snapshot != null) 'If-Match': etag!,
     }, canWrite: isCurrent);
     await response.data?.stream.drain<void>();
     _checkCurrent(isCurrent);

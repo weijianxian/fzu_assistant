@@ -1,7 +1,7 @@
 name: fzu_assistant
 description: "福州大学一站式校园助手 — 课表、成绩、考试、校历，开箱即用。"
 publish_to: 'none'
-version: 1.6.3+181
+version: 1.6.3+182
 
 environment:
   sdk: ^3.13.0
@@ -22,6 +22,7 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   shared_preferences: ^2.2.2
   html: ^0.15.4
+  xml: 7.0.1
   charset: ^2.0.1
   package_info_plus: ^10.1.0
   url_launcher: ^6.3.2
