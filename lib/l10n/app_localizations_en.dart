@@ -10,6 +10,49 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get webdavSchemaVersion => 'Data schema version';
+
+  @override
+  String get webdavAppVersion => 'App version that created the backup';
+
+  @override
+  String get webdavAppVersionUnknown => 'Not recorded in this backup';
+
+  @override
+  String get webdavHistory => 'Snapshot history';
+
+  @override
+  String get webdavHistoryDescription =>
+      'Browse sync snapshots, preview one and restore it to this device';
+
+  @override
+  String get webdavHistoryEmpty => 'No snapshots yet';
+
+  @override
+  String get webdavHistoryRestore => 'Restore this snapshot';
+
+  @override
+  String get webdavHistoryRestoreDescription =>
+      'Restore local settings and every account’s course records from this snapshot? A local recovery point will be saved first. The current remote sync file stays as it is; upload manually to publish the restored data.';
+
+  @override
+  String get webdavLocalRecovery => 'Local recovery point';
+
+  @override
+  String get webdavLocalRecoveryDescription =>
+      'Local settings and course records saved before the last restore';
+
+  @override
+  String get webdavHistorySaved => 'Saved sync snapshot';
+
+  @override
+  String get webdavHistoryPrevious =>
+      'Remote snapshot saved before replacement';
+
+  @override
+  String get webdavHistoryRecordedAt => 'Snapshot saved';
+
+  @override
   String get windowsNotifications => 'Course notifications';
 
   @override
@@ -1411,7 +1454,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get webdavUsername => 'WebDAV username';
 
   @override
-  String get webdavSave => 'Save configuration';
+  String get webdavSave => 'Test and save';
 
   @override
   String get webdavSaved => 'WebDAV configuration saved';

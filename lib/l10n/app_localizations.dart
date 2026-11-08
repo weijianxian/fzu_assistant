@@ -98,6 +98,84 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @webdavSchemaVersion.
+  ///
+  /// In zh, this message translates to:
+  /// **'数据格式版本'**
+  String get webdavSchemaVersion;
+
+  /// No description provided for @webdavAppVersion.
+  ///
+  /// In zh, this message translates to:
+  /// **'备份创建 App 版本'**
+  String get webdavAppVersion;
+
+  /// No description provided for @webdavAppVersionUnknown.
+  ///
+  /// In zh, this message translates to:
+  /// **'旧备份未记录'**
+  String get webdavAppVersionUnknown;
+
+  /// No description provided for @webdavHistory.
+  ///
+  /// In zh, this message translates to:
+  /// **'历史快照'**
+  String get webdavHistory;
+
+  /// No description provided for @webdavHistoryDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看同步历史，选择快照预览并恢复到本机'**
+  String get webdavHistoryDescription;
+
+  /// No description provided for @webdavHistoryEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂时没有历史快照'**
+  String get webdavHistoryEmpty;
+
+  /// No description provided for @webdavHistoryRestore.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复此快照'**
+  String get webdavHistoryRestore;
+
+  /// No description provided for @webdavHistoryRestoreDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'用此快照恢复本地设置及所有账号的课程记录？恢复前会保留本机恢复点，远端当前同步文件保持原样，可手动上传恢复后的数据。'**
+  String get webdavHistoryRestoreDescription;
+
+  /// No description provided for @webdavLocalRecovery.
+  ///
+  /// In zh, this message translates to:
+  /// **'本机恢复点'**
+  String get webdavLocalRecovery;
+
+  /// No description provided for @webdavLocalRecoveryDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'上次恢复前的本地设置和课程记录'**
+  String get webdavLocalRecoveryDescription;
+
+  /// No description provided for @webdavHistorySaved.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存的同步快照'**
+  String get webdavHistorySaved;
+
+  /// No description provided for @webdavHistoryPrevious.
+  ///
+  /// In zh, this message translates to:
+  /// **'覆盖前的远端快照'**
+  String get webdavHistoryPrevious;
+
+  /// No description provided for @webdavHistoryRecordedAt.
+  ///
+  /// In zh, this message translates to:
+  /// **'快照保存时间'**
+  String get webdavHistoryRecordedAt;
+
   /// No description provided for @windowsNotifications.
   ///
   /// In zh, this message translates to:
@@ -2645,7 +2723,7 @@ abstract class AppLocalizations {
   /// No description provided for @webdavSave.
   ///
   /// In zh, this message translates to:
-  /// **'保存配置'**
+  /// **'测试并保存'**
   String get webdavSave;
 
   /// No description provided for @webdavSaved.

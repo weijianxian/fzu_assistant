@@ -1,22 +1,58 @@
+import 'dart:async';
 import 'dart:convert';
-
-import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
-
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fzu_assistant/common/utils/widget_preference_bridge.dart';
 import 'package:fzu_assistant/constants/sp_keys.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/model/custom_course.dart';
 import 'package:fzu_assistant/model/feature_access.dart';
 import 'package:fzu_assistant/model/hidden_course_session.dart';
 import 'package:fzu_assistant/service/custom_course_store.dart';
+import 'package:fzu_assistant/service/api/api_client.dart';
 import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+part 'webdav_history.dart';
+
+/// Exporter metadata is independent of the version of the backup schema.
+class WebDavAppVersion {
+  const WebDavAppVersion({required this.version, required this.buildNumber});
+
+  final String version;
+  final String buildNumber;
+
+  Map<String, Object> toJson() => {
+    'version': version,
+    'buildNumber': buildNumber,
+  };
+
+  factory WebDavAppVersion.fromJson(Object? source) {
+    if (source is! Map ||
+        source.length != 2 ||
+        source['version'] is! String ||
+        source['buildNumber'] is! String ||
+        !RegExp(r'^\d+\.\d+\.\d+(?:[-.][0-9A-Za-z.-]+)?$')
+            .hasMatch(source['version'] as String) ||
+        !RegExp(r'^\d+$').hasMatch(source['buildNumber'] as String) ||
+        (source['version'] as String).length > 100 ||
+        (source['buildNumber'] as String).length > 20) {
+      throw const FormatException('WebDAV 同步文件 App 版本无效');
+    }
+    return WebDavAppVersion(
+      version: source['version'] as String,
+      buildNumber: source['buildNumber'] as String,
+    );
+  }
+
+  String get label => '$version+$buildNumber';
+}
 
 class WebDavConfig {
   const WebDavConfig({
@@ -47,9 +83,14 @@ class WebDavSnapshot {
   WebDavSnapshot._({
     required this.createdAt,
     required Map<String, Object> values,
+    required this.schemaVersion,
+    this.appVersion,
   }) : values = Map.unmodifiable(values);
+  static const currentSchemaVersion = 2;
   final DateTime createdAt;
   final Map<String, Object> values;
+  final int schemaVersion;
+  final WebDavAppVersion? appVersion;
 
   /// Timestamps and JSON key ordering do not represent changes to user data.
   String get fingerprint {
@@ -84,7 +125,8 @@ class WebDavSnapshot {
 
   Map<String, Object> toJson() => {
     'format': WebDavSyncService.format,
-    'version': 1,
+    if (schemaVersion == 1) 'version': 1 else 'schemaVersion': schemaVersion,
+    if (appVersion != null) 'appVersion': appVersion!.toJson(),
     'createdAt': createdAt.toUtc().toIso8601String(),
     'values': values,
   };
@@ -92,27 +134,53 @@ class WebDavSnapshot {
   factory WebDavSnapshot.fromJson(Object? source) {
     if (source is! Map ||
         source['format'] != WebDavSyncService.format ||
-        source['version'] != 1 ||
         source['createdAt'] is! String ||
         source['values'] is! Map) {
       throw const FormatException('WebDAV 同步文件格式或版本不受支持');
     }
+    final version = source['schemaVersion'] ?? source['version'];
+    if (version is! int ||
+        !{1, currentSchemaVersion}.contains(version) ||
+        (source.containsKey('schemaVersion') &&
+            source.containsKey('version')) ||
+        (version == 1 && source.containsKey('schemaVersion')) ||
+        (version == currentSchemaVersion && source.containsKey('version'))) {
+      throw const FormatException('WebDAV 同步文件数据版本不受支持，请更新应用');
+    }
+    final allowedFields = {
+      'format',
+      version == 1 ? 'version' : 'schemaVersion',
+      'createdAt',
+      'values',
+      if (version > 1) 'appVersion',
+    };
+    if (source.keys.any((key) => !allowedFields.contains(key))) {
+      throw const FormatException('WebDAV 同步文件包含未知字段');
+    }
+    final appVersion = source['appVersion'] == null
+        ? null
+        : WebDavAppVersion.fromJson(source['appVersion']);
     final createdAt = DateTime.tryParse(source['createdAt'] as String);
     if (createdAt == null) throw const FormatException('WebDAV 同步文件时间无效');
-    final raw = source['values'] as Map;
+    // Only migrations backed by an actual released format are allowed. The
+    // first release predated interface_style; all other v1 fields were required.
+    final raw = Map<Object?, Object?>.of(source['values'] as Map);
+    switch (version) {
+      case 1:
+        raw.putIfAbsent(
+          SpKeys.interfaceStyle,
+          () => InterfaceStyle.classic.name,
+        );
+      case currentSchemaVersion:
+        break;
+    }
     if (raw.keys.any((key) => !WebDavSyncService.defaults.containsKey(key)) ||
-        WebDavSyncService.defaults.keys.any(
-          (key) => key != SpKeys.interfaceStyle && !raw.containsKey(key),
-        )) {
+        WebDavSyncService.defaults.keys.any((key) => !raw.containsKey(key))) {
       throw const FormatException('WebDAV 同步文件设置不完整或含有非同步字段');
     }
     final values = <String, Object>{};
     for (final entry in WebDavSyncService.defaults.entries) {
-      // Backups created before interface styles still restore as classic.
-      final value =
-          entry.key == SpKeys.interfaceStyle && !raw.containsKey(entry.key)
-          ? InterfaceStyle.classic.name
-          : raw[entry.key];
+      final value = raw[entry.key];
       if ((entry.value is String && value is! String) ||
           (entry.value is bool && value is! bool) ||
           (entry.value is int && value is! int)) {
@@ -166,14 +234,20 @@ class WebDavSnapshot {
     } catch (_) {
       throw const FormatException('WebDAV 同步文件课程记录无效');
     }
-    return WebDavSnapshot._(createdAt: createdAt, values: values);
+    return WebDavSnapshot._(
+      createdAt: createdAt,
+      values: values,
+      schemaVersion: version,
+      appVersion: appVersion,
+    );
   }
 }
 
 class WebDavRemote {
-  const WebDavRemote({required this.snapshot, this.etag});
+  const WebDavRemote({required this.snapshot, this.etag, this.canUse});
   final WebDavSnapshot? snapshot;
   final String? etag;
+  final bool Function()? canUse;
 }
 
 enum WebDavAutoSyncResult {
@@ -201,17 +275,28 @@ class _WebDavNetworkFailure implements Exception {
 class WebDavSyncService {
   static final instance = WebDavSyncService();
   static bool _operationActive = false;
+  static final _operationZoneKey = Object();
+  static Object? _operationOwner;
   static int _configurationRevision = 0;
-  WebDavSyncService({Dio? dio, FlutterSecureStorage? storage})
-    : dio =
-          dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 20))),
-      storage =
-          storage ??
-          const FlutterSecureStorage(
-            mOptions: MacOsOptions(usesDataProtectionKeychain: false),
-          );
+  static Future<void>? _configurationWrites;
+  WebDavSyncService({
+    Dio? dio,
+    FlutterSecureStorage? storage,
+    Future<WebDavAppVersion?> Function()? appVersion,
+    bool Function() Function()? captureAccountValidity,
+  }) : dio =
+           dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 20))),
+       _appVersion = appVersion ?? _loadAppVersion,
+       _captureAccountValidity = captureAccountValidity ?? _captureSession,
+       storage =
+           storage ??
+           const FlutterSecureStorage(
+             mOptions: MacOsOptions(usesDataProtectionKeychain: false),
+           );
   final Dio dio;
   final FlutterSecureStorage storage;
+  final Future<WebDavAppVersion?> Function() _appVersion;
+  final bool Function() Function() _captureAccountValidity;
   static const fileName = 'fzu-assistant-sync.json';
   static const format = 'fzu-assistant-settings';
   static const maxBytes = 5 * 1024 * 1024;
@@ -220,6 +305,7 @@ class WebDavSyncService {
   static const _passwordKey = 'fzu_webdav_password';
   static const _autoSyncKey = 'webdav_auto_sync';
   static const _baselineKey = 'webdav_sync_baseline';
+  static const _localRecoveryKey = 'webdav_local_recovery_v1';
   static const defaults = <String, Object>{
     SpKeys.themeKey: 'deep_purple',
     SpKeys.themeMode: 'system',
@@ -241,6 +327,14 @@ class WebDavSyncService {
   };
 
   Future<WebDavConfig> loadConfig() async {
+    // A caller never observes a directory, user and password from different
+    // explicit saves, even if another settings page is open.
+    while (true) {
+      final pending = _configurationWrites;
+      if (pending == null) break;
+      await pending;
+      if (identical(pending, _configurationWrites)) break;
+    }
     final sp = await SharedPreferences.getInstance();
     return WebDavConfig(
       directory: sp.getString(_directoryKey) ?? '',
@@ -249,13 +343,68 @@ class WebDavSyncService {
     );
   }
 
-  Future<void> saveConfig(WebDavConfig config) async {
+  Future<void> saveConfig(
+    WebDavConfig config, {
+    bool Function()? canSave,
+  }) async {
     config.fileUri;
-    _configurationRevision++;
-    final sp = await SharedPreferences.getInstance();
-    await storage.write(key: _passwordKey, value: config.password);
-    await sp.setString(_directoryKey, config.directory.trim());
-    await sp.setString(_usernameKey, config.username);
+    if (canSave != null) _checkCurrent(canSave);
+    final accountCurrent = canSave == null ? null : _captureAccountValidity();
+    final revision = ++_configurationRevision;
+    final pending = _configurationWrites;
+    void checkCurrent() {
+      if (revision != _configurationRevision ||
+          (accountCurrent != null && !accountCurrent()) ||
+          (canSave != null && !canSave())) {
+        throw WebDavLocalChanged();
+      }
+    }
+
+    Future<void> write() async {
+      if (pending != null) await pending;
+      checkCurrent();
+      final sp = await SharedPreferences.getInstance();
+      final previousDirectory = sp.getString(_directoryKey);
+      final previousUser = sp.getString(_usernameKey);
+      final previousPassword = await storage.read(key: _passwordKey);
+      checkCurrent();
+      try {
+        await storage.write(key: _passwordKey, value: config.password);
+        checkCurrent();
+        final writes = await Future.wait([
+          sp.setString(_directoryKey, config.directory.trim()),
+          sp.setString(_usernameKey, config.username),
+        ]);
+        if (writes.any((value) => !value)) throw Exception('无法保存 WebDAV 配置');
+        checkCurrent();
+      } catch (_) {
+        await Future.wait([
+          previousDirectory == null
+              ? sp.remove(_directoryKey)
+              : sp.setString(_directoryKey, previousDirectory),
+          previousUser == null
+              ? sp.remove(_usernameKey)
+              : sp.setString(_usernameKey, previousUser),
+        ]);
+        if (previousPassword == null) {
+          await storage.delete(key: _passwordKey);
+        } else {
+          await storage.write(key: _passwordKey, value: previousPassword);
+        }
+        rethrow;
+      }
+    }
+
+    final saved = write();
+    final completed = saved.catchError((Object _) {});
+    _configurationWrites = completed;
+    try {
+      await saved;
+    } finally {
+      if (identical(_configurationWrites, completed)) {
+        _configurationWrites = null;
+      }
+    }
   }
 
   Future<bool> loadAutoSyncEnabled() async =>
@@ -273,11 +422,57 @@ class WebDavSyncService {
   Future<T> exclusive<T>(Future<T> Function() action) async {
     if (_operationActive) throw Exception('WebDAV 正在同步，请稍后重试');
     _operationActive = true;
+    final owner = Object();
+    _operationOwner = owner;
     try {
-      return await action();
+      return await runZoned(action, zoneValues: {_operationZoneKey: owner});
     } finally {
+      _operationOwner = null;
       _operationActive = false;
     }
+  }
+
+  Future<T> _withOperation<T>(Future<T> Function() action) =>
+      _operationOwner != null &&
+          identical(Zone.current[_operationZoneKey], _operationOwner)
+      ? action()
+      : exclusive(action);
+
+  static Future<WebDavAppVersion?> _loadAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      return WebDavAppVersion.fromJson({
+        'version': info.version,
+        'buildNumber': info.buildNumber,
+      });
+    } catch (_) {
+      // Old backups and unavailable package metadata remain readable; an
+      // absent App version never means an absent/unknown data schema version.
+      return null;
+    }
+  }
+
+  static bool Function() _captureSession() {
+    final session = ApiClient.instance.captureSession();
+    return () {
+      try {
+        session.check();
+        return true;
+      } catch (_) {
+        return false;
+      }
+    };
+  }
+
+  /// Keep a confirmation/preview tied to its original configuration and login.
+  bool Function() captureValidity() {
+    final revision = _configurationRevision;
+    final accountCurrent = _captureAccountValidity();
+    return () => revision == _configurationRevision && accountCurrent();
+  }
+
+  static void _checkCurrent(bool Function() isCurrent) {
+    if (!isCurrent()) throw WebDavLocalChanged();
   }
 
   String _target(WebDavConfig config) => sha256
@@ -290,7 +485,9 @@ class WebDavSyncService {
     WebDavConfig config,
     WebDavSnapshot snapshot,
   ) async {
+    final isCurrent = captureValidity();
     final sp = await SharedPreferences.getInstance();
+    _checkCurrent(isCurrent);
     if (!await sp.setString(
       _baselineKey,
       jsonEncode({'target': _target(config), 'content': snapshot.fingerprint}),
@@ -304,68 +501,78 @@ class WebDavSyncService {
   }) async {
     if (_operationActive) return WebDavAutoSyncResult.skipped;
     return exclusive(() async {
-      final revision = _configurationRevision;
-      bool isCurrent() => revision == _configurationRevision;
-      if (!await loadAutoSyncEnabled() || !isCurrent()) {
-        return WebDavAutoSyncResult.skipped;
-      }
-      final config = await loadConfig();
-      if (config.directory.trim().isEmpty) return WebDavAutoSyncResult.skipped;
-      final sp = await SharedPreferences.getInstance();
-      String? baseline;
+      final isCurrent = captureValidity();
       try {
-        final saved = jsonDecode(sp.getString(_baselineKey) ?? '{}');
-        if (saved is Map && saved['target'] == _target(config)) {
-          baseline = saved['content'] as String?;
+        if (!await loadAutoSyncEnabled() || !isCurrent()) {
+          return WebDavAutoSyncResult.skipped;
         }
-      } catch (_) {
-        // A missing or damaged baseline requires an explicit first choice.
-      }
-      final local = await exportSnapshot();
-      if (!isCurrent()) return WebDavAutoSyncResult.skipped;
-      final remote = await readRemote(config);
-      final latest = await exportSnapshot();
-      if (!isCurrent()) return WebDavAutoSyncResult.skipped;
-      if (latest.fingerprint != local.fingerprint) {
-        return WebDavAutoSyncResult.conflict;
-      }
-      final other = remote.snapshot;
-      if (other?.fingerprint == local.fingerprint) {
-        await rememberSynced(config, local);
-        return WebDavAutoSyncResult.unchanged;
-      }
-      if (other == null) {
+        final config = await loadConfig();
+        if (config.directory.trim().isEmpty) {
+          return WebDavAutoSyncResult.skipped;
+        }
+        final sp = await SharedPreferences.getInstance();
+        String? baseline;
+        try {
+          final saved = jsonDecode(sp.getString(_baselineKey) ?? '{}');
+          if (saved is Map && saved['target'] == _target(config)) {
+            baseline = saved['content'] as String?;
+          }
+        } catch (_) {
+          // A missing or damaged baseline requires an explicit first choice.
+        }
+        final local = await exportSnapshot();
+        if (!isCurrent()) return WebDavAutoSyncResult.skipped;
+        final remote = await readRemote(config);
+        final latest = await exportSnapshot();
+        if (!isCurrent()) return WebDavAutoSyncResult.skipped;
+        if (latest.fingerprint != local.fingerprint) {
+          return WebDavAutoSyncResult.conflict;
+        }
+        final other = remote.snapshot;
+        if (other?.fingerprint == local.fingerprint) {
+          await rememberSynced(config, local);
+          return WebDavAutoSyncResult.unchanged;
+        }
+        if (other == null) {
+          await upload(config, local, remote);
+          if (!isCurrent()) return WebDavAutoSyncResult.skipped;
+          await rememberSynced(config, local);
+          return WebDavAutoSyncResult.uploaded;
+        }
+        if (baseline == null ||
+            (baseline != local.fingerprint && baseline != other.fingerprint)) {
+          return WebDavAutoSyncResult.conflict;
+        }
+        if (local.fingerprint == baseline) {
+          try {
+            await restore(
+              other,
+              expectedLocal: local,
+              apply: apply,
+              canApply: isCurrent,
+            );
+          } on WebDavLocalChanged {
+            return isCurrent()
+                ? WebDavAutoSyncResult.conflict
+                : WebDavAutoSyncResult.skipped;
+          }
+          if (!isCurrent()) return WebDavAutoSyncResult.skipped;
+          await rememberSynced(config, other);
+          return WebDavAutoSyncResult.downloaded;
+        }
+        // Existing files need a strong validator to prevent racing another device.
+        if (remote.etag == null || remote.etag!.startsWith('W/')) {
+          return WebDavAutoSyncResult.manualUploadRequired;
+        }
         await upload(config, local, remote);
+        if (!isCurrent()) return WebDavAutoSyncResult.skipped;
         await rememberSynced(config, local);
         return WebDavAutoSyncResult.uploaded;
+      } on WebDavLocalChanged {
+        return isCurrent()
+            ? WebDavAutoSyncResult.conflict
+            : WebDavAutoSyncResult.skipped;
       }
-      if (baseline == null ||
-          (baseline != local.fingerprint && baseline != other.fingerprint)) {
-        return WebDavAutoSyncResult.conflict;
-      }
-      if (local.fingerprint == baseline) {
-        try {
-          await restore(
-            other,
-            expectedLocal: local,
-            apply: apply,
-            canApply: isCurrent,
-          );
-        } on WebDavLocalChanged {
-          return isCurrent()
-              ? WebDavAutoSyncResult.conflict
-              : WebDavAutoSyncResult.skipped;
-        }
-        await rememberSynced(config, other);
-        return WebDavAutoSyncResult.downloaded;
-      }
-      // Existing files need a strong validator to prevent racing another device.
-      if (remote.etag == null || remote.etag!.startsWith('W/')) {
-        return WebDavAutoSyncResult.manualUploadRequired;
-      }
-      await upload(config, local, remote);
-      await rememberSynced(config, local);
-      return WebDavAutoSyncResult.uploaded;
     });
   }
 
@@ -380,9 +587,11 @@ class WebDavSyncService {
         sp.getBool(SpKeys.west2AdjustmentsEnabled) == true) {
       values[SpKeys.west2AdjustmentsAccess] = FeatureAccess.allow.name;
     }
+    final appVersion = await _appVersion();
     return WebDavSnapshot.fromJson({
       'format': format,
-      'version': 1,
+      'schemaVersion': WebDavSnapshot.currentSchemaVersion,
+      if (appVersion != null) 'appVersion': appVersion.toJson(),
       'createdAt': DateTime.now().toUtc().toIso8601String(),
       'values': values,
     });
@@ -434,16 +643,19 @@ class WebDavSyncService {
 
   Future<void> _ensureDirectory(
     WebDavConfig config,
-    Uri directory, [
+    Uri directory, {
     int depth = 0,
-  ]) async {
+    bool Function()? canWrite,
+  }) async {
     Future<int?> create() async {
+      if (canWrite != null) _checkCurrent(canWrite);
       final response = await _request(
         config,
         _options(config, 'MKCOL'),
         uri: directory,
       );
       await response.data?.stream.drain<void>();
+      if (canWrite != null) _checkCurrent(canWrite);
       return response.statusCode;
     }
 
@@ -454,7 +666,12 @@ class WebDavSyncService {
       if (depth >= 64 || parent == directory) {
         throw Exception('无法创建 WebDAV 目录，请检查路径和写入权限');
       }
-      await _ensureDirectory(config, parent, depth + 1);
+      await _ensureDirectory(
+        config,
+        parent,
+        depth: depth + 1,
+        canWrite: canWrite,
+      );
       status = await create();
       if ({201, 405}.contains(status)) return;
     }
@@ -466,18 +683,26 @@ class WebDavSyncService {
     List<int> data,
     Map<String, Object> headers, {
     Uri? uri,
+    bool Function()? canWrite,
   }) async {
-    Future<Response<ResponseBody>> send() => _request(
-      config,
-      _options(config, 'PUT', headers: headers),
-      data: Stream.value(data),
-      uri: uri,
-    );
+    Future<Response<ResponseBody>> send() {
+      if (canWrite != null) _checkCurrent(canWrite);
+      return _request(
+        config,
+        _options(config, 'PUT', headers: headers),
+        data: Stream.value(data),
+        uri: uri,
+      );
+    }
 
     final response = await send();
     if (response.statusCode != 409) return response;
     await response.data?.stream.drain<void>();
-    await _ensureDirectory(config, config.fileUri.resolve('.'));
+    await _ensureDirectory(
+      config,
+      (uri ?? config.fileUri).resolve('.'),
+      canWrite: canWrite,
+    );
     // Rebuild the body stream and preserve conditional headers on the one retry.
     return send();
   }
@@ -558,54 +783,85 @@ class WebDavSyncService {
   }
 
   Future<WebDavRemote> readRemote(WebDavConfig config) async {
+    final isCurrent = captureValidity();
     final response = await _request(config, _options(config, 'GET'));
     final body = response.data;
+    if (!isCurrent()) {
+      await body?.stream.drain<void>();
+      throw WebDavLocalChanged();
+    }
     if ({404, 409}.contains(response.statusCode)) {
       await body?.stream.drain<void>();
-      return const WebDavRemote(snapshot: null);
+      _checkCurrent(isCurrent);
+      return WebDavRemote(snapshot: null, canUse: isCurrent);
     }
     if (response.statusCode != 200 || body == null) {
       await body?.stream.drain<void>();
       _httpError(response.statusCode);
     }
+    final json = await _readJson(response, isCurrent);
+    return WebDavRemote(
+      snapshot: WebDavSnapshot.fromJson(json),
+      etag: response.headers.value('etag'),
+      canUse: isCurrent,
+    );
+  }
+
+  Future<Object?> _readJson(
+    Response<ResponseBody> response,
+    bool Function() isCurrent,
+  ) async {
+    final body = response.data!;
     if ((int.tryParse(response.headers.value('content-length') ?? '') ?? 0) >
         maxBytes) {
       await body.stream.listen((_) {}).cancel();
       throw const FormatException('WebDAV 同步文件过大');
     }
     final bytes = BytesBuilder(copy: false);
-    await for (final chunk in body.stream) {
+    await for (final chunk in body.stream.timeout(
+      const Duration(seconds: 30),
+    )) {
+      _checkCurrent(isCurrent);
       if (bytes.length + chunk.length > maxBytes) {
         throw const FormatException('WebDAV 同步文件过大');
       }
       bytes.add(chunk);
     }
-    return WebDavRemote(
-      snapshot: WebDavSnapshot.fromJson(
-        jsonDecode(utf8.decode(bytes.takeBytes())),
-      ),
-      etag: response.headers.value('etag'),
-    );
+    _checkCurrent(isCurrent);
+    return jsonDecode(utf8.decode(bytes.takeBytes()));
   }
 
   Future<void> upload(
     WebDavConfig config,
     WebDavSnapshot snapshot,
     WebDavRemote previous,
-  ) async {
-    final data = utf8.encode(jsonEncode(snapshot.toJson()));
+  ) => _withOperation(() async {
+    final valid = captureValidity();
+    bool isCurrent() => valid() && (previous.canUse?.call() ?? true);
+    _checkCurrent(isCurrent);
+    final checked = WebDavSnapshot.fromJson(snapshot.toJson());
+    final data = utf8.encode(jsonEncode(checked.toJson()));
     if (data.length > maxBytes) throw const FormatException('同步数据过大');
+    // Both sides are recoverable before the current backup is replaced. A
+    // failed conditional PUT may leave a saved candidate, never a lost version.
+    await _archive(config, [
+      if (previous.snapshot != null)
+        (previous.snapshot!, WebDavHistoryReason.beforeUpload),
+      (checked, WebDavHistoryReason.upload),
+    ], isCurrent);
+    _checkCurrent(isCurrent);
     final response = await _put(config, data, {
       'Content-Type': 'application/json; charset=utf-8',
       'Content-Length': data.length,
       if (previous.snapshot == null) 'If-None-Match': '*',
       if (previous.etag != null) 'If-Match': previous.etag!,
-    });
+    }, canWrite: isCurrent);
     await response.data?.stream.drain<void>();
+    _checkCurrent(isCurrent);
     if (!{200, 201, 204}.contains(response.statusCode)) {
       _httpError(response.statusCode);
     }
-  }
+  });
 
   /// Validate before the first mutation, and restore the old values on failure.
   Future<void> restore(
@@ -613,21 +869,41 @@ class WebDavSyncService {
     WebDavSnapshot? expectedLocal,
     void Function(WebDavSnapshot)? apply,
     bool Function()? canApply,
-  }) async {
+  }) => _withOperation(() async {
+    final valid = captureValidity();
+    bool isCurrent() => valid() && (canApply?.call() ?? true);
     final checked = WebDavSnapshot.fromJson(snapshot.toJson());
     await CustomCourseStore.instance.restoreFromSync(() async {
       final sp = await SharedPreferences.getInstance();
       final previous = await exportSnapshot();
-      if (canApply != null && !canApply()) throw WebDavLocalChanged();
+      _checkCurrent(isCurrent);
       if (expectedLocal != null &&
           previous.fingerprint != expectedLocal.fingerprint) {
         throw WebDavLocalChanged();
       }
       final before = {for (final key in defaults.keys) key: sp.get(key)};
+      final baseline = sp.getString(_baselineKey);
+      // This recovery point contains the same whitelist as a remote backup.
+      // Keep it before importing, including on read-only WebDAV servers.
+      if (!await sp.setString(
+        _localRecoveryKey,
+        jsonEncode(previous.toJson()),
+      )) {
+        throw Exception('无法保存恢复前的本地快照');
+      }
+      _checkCurrent(isCurrent);
+      // Recheck data after saving the recovery point and while holding the
+      // custom-course queue; no user edit may be hidden by a confirmation.
+      final latest = await exportSnapshot();
+      if (latest.fingerprint != previous.fingerprint) {
+        throw WebDavLocalChanged();
+      }
+      _checkCurrent(isCurrent);
       try {
         // SP updates its cache synchronously; apply notifiers in the same turn,
         // before waiting for disk writes, to preserve subsequent user edits.
         final writes = [
+          sp.remove(_baselineKey),
           for (final entry in checked.values.entries)
             _write(sp, entry.key, entry.value),
         ];
@@ -635,6 +911,7 @@ class WebDavSyncService {
         if ((await Future.wait(writes)).any((saved) => !saved)) {
           throw Exception('无法保存同步设置');
         }
+        _checkCurrent(isCurrent);
       } catch (_) {
         final rollback = [
           for (final entry in before.entries)
@@ -642,9 +919,20 @@ class WebDavSyncService {
         ];
         apply?.call(previous);
         await Future.wait(rollback);
+        if (baseline != null) {
+          await sp.setString(_baselineKey, baseline);
+        } else {
+          await sp.remove(_baselineKey);
+        }
         rethrow;
       }
     });
+  });
+
+  Future<WebDavSnapshot?> loadLocalRecovery() async {
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(_localRecoveryKey);
+    return raw == null ? null : WebDavSnapshot.fromJson(jsonDecode(raw));
   }
 
   static Future<bool> _write(SharedPreferences sp, String key, Object? value) =>

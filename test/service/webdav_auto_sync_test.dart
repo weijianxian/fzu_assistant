@@ -11,7 +11,10 @@ import 'package:fzu_assistant/service/custom_course_store.dart';
 import 'package:fzu_assistant/service/webdav_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'webdav_test_server.dart';
+
 class _RemoteAdapter implements HttpClientAdapter {
+  final history = WebDavTestServer();
   WebDavSnapshot? remote;
   String? etag = '"remote-one"';
   Future<void> Function()? duringGet;
@@ -24,6 +27,9 @@ class _RemoteAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    if (history.isHistory(options.uri)) {
+      return history.fetch(options, requestStream, cancelFuture);
+    }
     requests.add(options);
     if (options.method == 'GET') {
       await duringGet?.call();

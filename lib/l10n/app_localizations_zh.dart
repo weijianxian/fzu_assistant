@@ -10,6 +10,46 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get webdavSchemaVersion => '数据格式版本';
+
+  @override
+  String get webdavAppVersion => '备份创建 App 版本';
+
+  @override
+  String get webdavAppVersionUnknown => '旧备份未记录';
+
+  @override
+  String get webdavHistory => '历史快照';
+
+  @override
+  String get webdavHistoryDescription => '查看同步历史，选择快照预览并恢复到本机';
+
+  @override
+  String get webdavHistoryEmpty => '暂时没有历史快照';
+
+  @override
+  String get webdavHistoryRestore => '恢复此快照';
+
+  @override
+  String get webdavHistoryRestoreDescription =>
+      '用此快照恢复本地设置及所有账号的课程记录？恢复前会保留本机恢复点，远端当前同步文件保持原样，可手动上传恢复后的数据。';
+
+  @override
+  String get webdavLocalRecovery => '本机恢复点';
+
+  @override
+  String get webdavLocalRecoveryDescription => '上次恢复前的本地设置和课程记录';
+
+  @override
+  String get webdavHistorySaved => '保存的同步快照';
+
+  @override
+  String get webdavHistoryPrevious => '覆盖前的远端快照';
+
+  @override
+  String get webdavHistoryRecordedAt => '快照保存时间';
+
+  @override
   String get windowsNotifications => '课程通知';
 
   @override
@@ -1334,7 +1374,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get webdavUsername => 'WebDAV 用户名';
 
   @override
-  String get webdavSave => '保存配置';
+  String get webdavSave => '测试并保存';
 
   @override
   String get webdavSaved => 'WebDAV 配置已保存';

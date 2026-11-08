@@ -11,7 +11,10 @@ import 'package:fzu_assistant/service/app_themes.dart';
 import 'package:fzu_assistant/service/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'webdav_test_server.dart';
+
 class _Adapter implements HttpClientAdapter {
+  final history = WebDavTestServer();
   int status = 200;
   String? body;
   Map<String, List<String>> headers = {};
@@ -23,6 +26,9 @@ class _Adapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    if (history.isHistory(options.uri)) {
+      return history.fetch(options, requestStream, cancelFuture);
+    }
     requests.add(options);
     if (requestStream != null) {
       uploaded = await requestStream.expand((chunk) => chunk).toList();
@@ -78,6 +84,9 @@ void main() {
       expect(prefs.getString(SpKeys.interfaceStyle), 'continuousCards');
 
       final legacy = cards.toJson();
+      legacy.remove('schemaVersion');
+      legacy.remove('appVersion');
+      legacy['version'] = 1;
       legacy['values'] = {...cards.values}..remove(SpKeys.interfaceStyle);
       final restored = WebDavSnapshot.fromJson(legacy);
       expect(restored.values[SpKeys.interfaceStyle], 'classic');

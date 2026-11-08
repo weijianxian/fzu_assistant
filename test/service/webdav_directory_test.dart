@@ -7,7 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fzu_assistant/service/webdav_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'webdav_test_server.dart';
+
 class _DirectoryAdapter implements HttpClientAdapter {
+  final history = WebDavTestServer();
   final requests = <RequestOptions>[];
   final uploads = <List<int>>[];
   late ResponseBody Function(RequestOptions request) respond;
@@ -18,6 +21,9 @@ class _DirectoryAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    if (history.isHistory(options.uri)) {
+      return history.fetch(options, requestStream, cancelFuture);
+    }
     requests.add(options);
     if (requests.length > 30) throw StateError('Directory retry did not stop');
     if (requestStream != null) {
