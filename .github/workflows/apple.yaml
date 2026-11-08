@@ -19,7 +19,7 @@ jobs:
       FLUTTER_MACOS_ARM64_ONLY: 'false'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -44,7 +44,7 @@ jobs:
         run: flutter build macos --release --no-pub --build-number=${{ steps.build-number.outputs.number }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
 
@@ -60,7 +60,7 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Upload macOS DMG
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-macos-universal-unsigned
           path: build/apple/FZU-assistant-v*-macos-universal-unsigned.dmg
@@ -72,7 +72,7 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -109,7 +109,7 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Upload unsigned iOS IPA
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-ios-arm64-unsigned
           path: build/apple/FZU-assistant-v*-ios-arm64-unsigned.ipa

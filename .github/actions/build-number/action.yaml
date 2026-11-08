@@ -34,4 +34,4 @@ runs:
         fi
 
         echo "number=$number" >> "$GITHUB_OUTPUT"
-        echo "::notice::Build number $number from main first-parent history."
+        echo "Build number $number from main first-parent history."

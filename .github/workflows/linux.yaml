@@ -32,7 +32,7 @@ jobs:
             libwpewebkit-2.0-dev libwpebackend-fdo-1.0-dev
           pkg-config --atleast-version=2.50 wpe-webkit-2.0
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -95,7 +95,7 @@ jobs:
           dpkg-query -W -f='${Status}\n${Depends}\n' fzu-assistant
 
       - name: Upload Linux portable archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-linux-x86_64-portable
           path: build/linux-packages/FZU-assistant-v*-linux-x86_64.tar.gz
@@ -103,7 +103,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Linux Debian installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: FZU-assistant-v${{ steps.package.outputs.VERSION }}-linux-x86_64-deb
           path: build/linux-packages/FZU-assistant-v*-linux-x86_64.deb

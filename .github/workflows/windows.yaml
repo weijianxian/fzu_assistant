@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -26,7 +26,7 @@ jobs:
         uses: ./.github/actions/build-number
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "zulu"
           java-version: "17"
@@ -51,7 +51,7 @@ jobs:
           RAW=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1 | tr -d '[:space:]')
           VERSION="${RAW%%+*}"
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "::notice::Installer version $VERSION (build ${{ steps.build-number.outputs.number }})"
+          echo "Installer version $VERSION (build ${{ steps.build-number.outputs.number }})"
 
       # The vendored ChineseSimplified.isl only lives in the repo, and Inno Setup
       # ships no Chinese translation in its Languages\ payload. We drop it into the
@@ -105,16 +105,17 @@ jobs:
           }
 
       - name: Build Windows installer (Inno Setup)
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
         with:
           path: installer/windows/setup.iss
-          options: >-
+          # v1.2.9 passes each input line as one compiler argument.
+          options: |-
             /DMyAppVersion=${{ steps.version.outputs.VERSION }}
             /DMyAppArch=x86_64
             /DMySourceDir=${{ github.workspace }}\build\windows\x64\runner\Release
 
       - name: Upload Windows portable bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-windows-x86_64-portable
           path: build/windows/x64/runner/Release/
@@ -122,7 +123,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Windows installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: FZU-assistant-v${{ steps.version.outputs.VERSION }}-windows-x86_64-installer
           path: build/installer/FZU-assistant-v*-windows-x86_64-installer.exe

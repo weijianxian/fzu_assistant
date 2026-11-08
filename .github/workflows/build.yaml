@@ -38,44 +38,44 @@ jobs:
 
   release:
     needs: [build-windows, build-android, build-apple, build-linux]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Download installer
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: FZU-assistant-*-windows-*-installer
           path: artifacts
           merge-multiple: true
 
       - name: Download Android packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: FZU-assistant-*-android-*
           path: artifacts
           merge-multiple: true
 
       - name: Download macOS packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: FZU-assistant-*-macos-*
           path: artifacts
           merge-multiple: true
 
       - name: Download iOS packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: FZU-assistant-*-ios-*
           path: artifacts
           merge-multiple: true
 
       - name: Download Linux packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: FZU-assistant-*-linux-*
           path: artifacts
@@ -106,7 +106,7 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body: ${{ steps.cliff.outputs.content }}
           fail_on_unmatched_files: true
