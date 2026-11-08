@@ -482,6 +482,10 @@ version: 1.1.5+46
 - `uv run scripts/learning_center_signin_qrcode.py` 生成北京时间当前起一分钟有效的签到码，默认 PNG 为 `build/learning-center-signin.png`，同时显示终端二维码及原始内容。
 - 加 `--watch` 每 30 秒刷新同一 PNG；`--interval 1–59` 设置刷新间隔，`--output <path>` 指定输出文件，`--no-ascii` 关闭终端图形，Ctrl+C 停止刷新。
 
+## 教室全天占用与已下载试卷
+
+- `service/paper_library_service.dart` 和 `screen/toolbox/paper/paper_library_page.dart` 管理应用目录 `paper_downloads/` 的已下载试卷，提供本地搜索、空间统计、打开、分享、复制路径和确认删除，Linux 保留打开与复制路径。入口仅位于历年卷页，不依赖在线历年卷授权、不联网、不清除账号或其他应用数据。兼容旧 `paper-*` 下载目录；新下载在 `pending-paper-*` 写入，完整后整体重命名为 `saved-paper-*`，避免将半成品或合法 `.part` 文件名混淆。枚举不跟随链接，每次文件操作重新校验目录与普通文件，删除仅处理选中文件及空目录，不递归清理。
+
 ## 参考
 
 参考项目统一存放在 `.reference/`，该目录不纳入版本控制。以下 URL 来自各本地仓库的 Git remote：

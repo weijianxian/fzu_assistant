@@ -2302,4 +2302,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String academicChangeDetectedAt(String time) {
     return '发现时间（北京时间）：$time';
   }
+
+  @override
+  String get downloadLibrary => '已下载试卷';
+
+  @override
+  String get downloadLibrarySubtitle => '管理本地试卷、离线打开与分享';
+
+  @override
+  String get downloadSearch => '搜索已下载试卷';
+
+  @override
+  String get downloadEmpty => '暂无已下载试卷';
+
+  @override
+  String get downloadDelete => '删除文件';
+
+  @override
+  String get downloadDeletePrompt => '删除本机文件后，可从历年卷重新下载';
+
+  @override
+  String get downloadCopyPath => '复制文件路径';
+
+  @override
+  String get downloadPathCopied => '已复制文件路径';
+
+  @override
+  String get downloadActionFailed => '文件操作失败';
 }

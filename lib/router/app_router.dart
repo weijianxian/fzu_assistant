@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/screen/toolbox/paper/paper_library_page.dart';
 import 'package:fzu_assistant/screen/toolbox/academic_changes/academic_changes_page.dart';
 import 'package:fzu_assistant/screen/settings/calendar_export_page.dart';
 import 'package:fzu_assistant/screen/settings/next_course_widget_settings_page.dart';
@@ -61,6 +62,7 @@ abstract final class AppRouter {
     AppRoutes.credit: (_) => const CreditPage(),
     AppRoutes.unifiedExam: (_) => const UnifiedExamPage(),
     AppRoutes.examRoom: (_) => const ExamRoomPage(),
+    AppRoutes.paperLibrary: (_) => const PaperLibraryPage(),
     AppRoutes.emptyRoom: (_) => const EmptyRoomPage(),
     AppRoutes.notice: (_) => const NoticePage(),
     AppRoutes.jobFair: (_) => const JobFairPage(),

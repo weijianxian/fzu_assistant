@@ -293,7 +293,7 @@ class PaperDownloadService extends ChangeNotifier {
       await root.create(recursive: true);
       _check(operation);
       // A unique owned directory avoids collisions and overwriting user files.
-      ownedDirectory = await root.createTemp('paper-');
+      ownedDirectory = await root.createTemp('pending-paper-');
       _check(operation);
       partial = File(
         '${ownedDirectory.path}${Platform.pathSeparator}$name.part',
@@ -346,6 +346,17 @@ class PaperDownloadService extends ChangeNotifier {
       }
       _check(operation);
       completed = await partial.rename(target.path);
+      _check(operation);
+      // Publish the whole directory atomically. A completed filename may itself
+      // end in ".part", so file extensions cannot identify download state.
+      final folderName = ownedDirectory.uri.pathSegments
+          .where((part) => part.isNotEmpty)
+          .last;
+      ownedDirectory = await ownedDirectory.rename(
+        '${root.path}${Platform.pathSeparator}saved-${folderName.substring(8)}',
+      );
+      completed = File('${ownedDirectory.path}${Platform.pathSeparator}$name');
+      partial = null;
       _check(operation);
       final result = PaperDownloadedFile(
         file: completed,

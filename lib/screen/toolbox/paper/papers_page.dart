@@ -24,7 +24,16 @@ class PapersPage extends HookWidget {
       return _AllowedPapersPage(path: path, service: service);
     }
     return AppScaffold(
-      appBar: AppBar(title: Text(l10n.pastPapers)),
+      appBar: AppBar(
+        title: Text(l10n.pastPapers),
+        actions: [
+          IconButton(
+            tooltip: l10n.downloadLibrary,
+            icon: const Icon(Icons.download_done_outlined),
+            onPressed: () => context.pushNamed(AppRoutes.paperLibrary),
+          ),
+        ],
+      ),
       body: ToolPageWrapper(
         loading: false,
         emptyText: l10n.noData,
@@ -121,6 +130,11 @@ class _AllowedPapersPage extends HookWidget {
       appBar: AppBar(
         title: Text(l10n.pastPapers),
         actions: [
+          IconButton(
+            tooltip: l10n.downloadLibrary,
+            icon: const Icon(Icons.download_done_outlined),
+            onPressed: () => context.pushNamed(AppRoutes.paperLibrary),
+          ),
           IconButton(
             tooltip: l10n.thirdPartyServices,
             icon: const Icon(Icons.settings_outlined),

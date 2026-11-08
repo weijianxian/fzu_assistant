@@ -1348,5 +1348,14 @@
   "themeColorInvalid": "请输入有效的十六进制颜色",
   "themeImageHelp": "分别设置浅色和深色背景图片",
   "academicChangeDetectedAt": "发现时间（北京时间）：{time}",
-  "@academicChangeDetectedAt": {"placeholders": {"time": {"type": "String"}}}
+  "@academicChangeDetectedAt": {"placeholders": {"time": {"type": "String"}}},
+  "downloadLibrary": "已下载试卷",
+  "downloadLibrarySubtitle": "管理本地试卷、离线打开与分享",
+  "downloadSearch": "搜索已下载试卷",
+  "downloadEmpty": "暂无已下载试卷",
+  "downloadDelete": "删除文件",
+  "downloadDeletePrompt": "删除本机文件后，可从历年卷重新下载",
+  "downloadCopyPath": "复制文件路径",
+  "downloadPathCopied": "已复制文件路径",
+  "downloadActionFailed": "文件操作失败"
 }

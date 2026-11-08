@@ -12,6 +12,7 @@ abstract final class AppRoutes {
   static const unifiedExam = '/unified-exam';
   static const examRoom = '/exam-room';
   static const emptyRoom = '/empty-room';
+  static const paperLibrary = '/paper-library';
   static const notice = '/notice';
   static const jobFair = '/job-fair';
   static const lectures = '/lectures';

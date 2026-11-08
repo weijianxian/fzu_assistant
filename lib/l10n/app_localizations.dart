@@ -4507,6 +4507,60 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'发现时间（北京时间）：{time}'**
   String academicChangeDetectedAt(String time);
+
+  /// No description provided for @downloadLibrary.
+  ///
+  /// In zh, this message translates to:
+  /// **'已下载试卷'**
+  String get downloadLibrary;
+
+  /// No description provided for @downloadLibrarySubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'管理本地试卷、离线打开与分享'**
+  String get downloadLibrarySubtitle;
+
+  /// No description provided for @downloadSearch.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索已下载试卷'**
+  String get downloadSearch;
+
+  /// No description provided for @downloadEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无已下载试卷'**
+  String get downloadEmpty;
+
+  /// No description provided for @downloadDelete.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除文件'**
+  String get downloadDelete;
+
+  /// No description provided for @downloadDeletePrompt.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除本机文件后，可从历年卷重新下载'**
+  String get downloadDeletePrompt;
+
+  /// No description provided for @downloadCopyPath.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制文件路径'**
+  String get downloadCopyPath;
+
+  /// No description provided for @downloadPathCopied.
+  ///
+  /// In zh, this message translates to:
+  /// **'已复制文件路径'**
+  String get downloadPathCopied;
+
+  /// No description provided for @downloadActionFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'文件操作失败'**
+  String get downloadActionFailed;
 }
 
 class _AppLocalizationsDelegate

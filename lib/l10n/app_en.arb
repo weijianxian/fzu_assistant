@@ -1348,5 +1348,14 @@
   "themeColorInvalid": "Enter a valid hexadecimal color",
   "themeImageHelp": "Set separate background images for light and dark modes",
   "academicChangeDetectedAt": "Detected at (Beijing time): {time}",
-  "@academicChangeDetectedAt": {"placeholders": {"time": {"type": "String"}}}
+  "@academicChangeDetectedAt": {"placeholders": {"time": {"type": "String"}}},
+  "downloadLibrary": "Downloaded papers",
+  "downloadLibrarySubtitle": "Manage, open and share downloaded papers",
+  "downloadSearch": "Search downloaded papers",
+  "downloadEmpty": "No downloaded papers",
+  "downloadDelete": "Delete file",
+  "downloadDeletePrompt": "You can download this paper again after deleting the local file",
+  "downloadCopyPath": "Copy file path",
+  "downloadPathCopied": "File path copied",
+  "downloadActionFailed": "File action failed"
 }

@@ -2459,4 +2459,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String academicChangeDetectedAt(String time) {
     return 'Detected at (Beijing time): $time';
   }
+
+  @override
+  String get downloadLibrary => 'Downloaded papers';
+
+  @override
+  String get downloadLibrarySubtitle =>
+      'Manage, open and share downloaded papers';
+
+  @override
+  String get downloadSearch => 'Search downloaded papers';
+
+  @override
+  String get downloadEmpty => 'No downloaded papers';
+
+  @override
+  String get downloadDelete => 'Delete file';
+
+  @override
+  String get downloadDeletePrompt =>
+      'You can download this paper again after deleting the local file';
+
+  @override
+  String get downloadCopyPath => 'Copy file path';
+
+  @override
+  String get downloadPathCopied => 'File path copied';
+
+  @override
+  String get downloadActionFailed => 'File action failed';
 }
