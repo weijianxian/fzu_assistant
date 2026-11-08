@@ -49,7 +49,7 @@
 - 业务页面不单独放 SafeArea，不用固定留白代替系统边距；Navigator、路由和弹层遮罩保持全屏。普通对话框沿用 Flutter 安全区，全屏导览由 `AppScaffold` 管理。
 - 垂直滚动统一使用 `AppListView`、`AppCustomScrollView` 或 `AppSingleChildScrollView`，视口延伸至手势区，系统底边距只加入滚动内容末尾并向子树清零；不得在视口外加底部 SafeArea 或使用 Clip.none 泄漏绘制。第三方滚动控件通过 `AppScrollInsets` 接收内容边距。
 - 静态内容使用 `AppSafeContent`；固定底部操作使用 `AppBottomBar` 和 Scaffold.bottomNavigationBar，让操作面延伸背景并避让按钮。
-- 全应用业务弹层统一复用 `showHalfScreenSheet`：竖屏为可拖拽的底部半屏，横屏为右侧占窗口 2/3 的带关闭箭头面板。横屏面板清除不接触屏幕左边时的刘海边距；竖屏拖动柄统一使用 `SheetDragHandle`，上下各 8 逻辑像素，内容不再重复添加顶部间距。
+- 全应用业务弹层统一复用 `showHalfScreenSheet`：竖屏短内容按实际高度展示，包含拖动柄、固定操作区及底部系统边距；内容超过可用高度的一半时初始展示半屏，上拖展开后再滚动，不为短内容撑出空白。横屏为右侧占窗口 2/3 的带关闭箭头面板。横屏面板清除不接触屏幕左边时的刘海边距；竖屏拖动柄统一使用 `SheetDragHandle`，上下各 8 逻辑像素，内容不再重复添加顶部间距。
 - 普通弹层内容通过 `showAppBottomSheet` 适配同一滚动控制器，不再独立调用 `showModalBottomSheet`；学期、外观与提醒单选、日历说明、试卷下载、评价验证码和开发者工具均使用同一实现，保留原生 Material 对话框及日期／时间选择器。
 
 ## 导航与设置

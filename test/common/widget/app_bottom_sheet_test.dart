@@ -18,6 +18,265 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
+  for (final list in [false, true]) {
+    testWidgets(
+      '${list ? 'list' : 'ordinary'} short content fits its height and can be swiped closed',
+      (tester) async {
+        viewport(
+          tester,
+          const Size(400, 800),
+          const FakeViewPadding(top: 24, bottom: 34),
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  onPressed: () {
+                    if (list) {
+                      showHalfScreenSheet<void>(
+                        context,
+                        builder: (controller) => AppListView(
+                          controller: controller,
+                          children: const [
+                            ListTile(title: Text('First')),
+                            ListTile(title: Text('Second')),
+                          ],
+                        ),
+                      );
+                    } else {
+                      showAppBottomSheet<void>(
+                        context: context,
+                        builder: (_) =>
+                            const SizedBox(width: double.infinity, height: 100),
+                      );
+                    }
+                  },
+                  child: const Text('Open'),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        final sheet = tester.getRect(find.byType(DraggableScrollableSheet));
+        expect(sheet.height, closeTo((list ? 112 : 100) + 20 + 34, 0.01));
+        expect(sheet.bottom, 800);
+        expect(
+          tester.getRect(find.byType(ModalBarrier).last),
+          const Rect.fromLTWH(0, 0, 400, 800),
+        );
+        await tester.drag(find.byType(Scrollable), const Offset(0, 200));
+        await tester.pumpAndSettle();
+        expect(find.byType(DraggableScrollableSheet), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  testWidgets(
+    'long lists start at half height, expand by touch and stay lazy',
+    (tester) async {
+      viewport(
+        tester,
+        const Size(400, 800),
+        const FakeViewPadding(top: 24, bottom: 34),
+      );
+      var builtRows = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showHalfScreenSheet<void>(
+                  context,
+                  builder: (controller) => AppListView.builder(
+                    controller: controller,
+                    itemExtent: 56,
+                    itemCount: 10000,
+                    itemBuilder: (_, index) {
+                      builtRows++;
+                      return ListTile(title: Text('Item $index'));
+                    },
+                  ),
+                ),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final initial = tester.getRect(find.byType(DraggableScrollableSheet));
+      expect(initial.height, closeTo((800 - 24) / 2, 0.01));
+      expect(builtRows, lessThan(100));
+      await tester.drag(find.byType(Scrollable), const Offset(0, -300));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byType(DraggableScrollableSheet)).height,
+        greaterThan(initial.height + 200),
+      );
+      expect(builtRows, lessThan(100));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'short sheet includes its fixed footer once in its natural height',
+    (tester) async {
+      viewport(
+        tester,
+        const Size(400, 800),
+        const FakeViewPadding(top: 24, bottom: 34),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showHalfScreenSheet<void>(
+                  context,
+                  builder: (controller) => AppScaffold(
+                    body: AppListView(
+                      controller: controller,
+                      children: const [
+                        ListTile(title: Text('First')),
+                        ListTile(title: Text('Second')),
+                      ],
+                    ),
+                    bottomNavigationBar: const AppBottomBar(
+                      child: SizedBox(height: 48),
+                    ),
+                  ),
+                ),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final sheet = tester.getRect(find.byType(DraggableScrollableSheet));
+      expect(sheet.height, closeTo(20 + 112 + 48 + 34, 0.01));
+      expect(tester.getRect(find.byType(AppBottomBar)).bottom, 800);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'content changes resize an untouched sheet and keep content state',
+    (tester) async {
+      viewport(
+        tester,
+        const Size(400, 800),
+        const FakeViewPadding(top: 24, bottom: 34),
+      );
+      late StateSetter update;
+      var height = 80.0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showAppBottomSheet<void>(
+                  context: context,
+                  builder: (_) => StatefulBuilder(
+                    builder: (_, setState) {
+                      update = setState;
+                      return SizedBox(height: height);
+                    },
+                  ),
+                ),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      final contentState = tester.state(find.byType(StatefulBuilder));
+      expect(
+        tester.getSize(find.byType(DraggableScrollableSheet)).height,
+        closeTo(80 + 20 + 34, 0.01),
+      );
+      update(() => height = 40);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byType(DraggableScrollableSheet)).height,
+        closeTo(40 + 20 + 34, 0.01),
+      );
+      update(() => height = 1000);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byType(DraggableScrollableSheet)).height,
+        closeTo((800 - 24) / 2, 0.01),
+      );
+      update(() => height = 120);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byType(DraggableScrollableSheet)).height,
+        closeTo(120 + 20 + 34, 0.01),
+      );
+      expect(tester.state(find.byType(StatefulBuilder)), same(contentState));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  for (final footer in [false, true]) {
+    testWidgets(
+      'empty content with no bottom inset can close by its handle footer=$footer',
+      (tester) async {
+        viewport(tester, const Size(400, 800), const FakeViewPadding(top: 24));
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  onPressed: () {
+                    if (footer) {
+                      showHalfScreenSheet<void>(
+                        context,
+                        builder: (controller) => AppScaffold(
+                          body: AppListView(
+                            controller: controller,
+                            children: const [],
+                          ),
+                          bottomNavigationBar: const AppBottomBar(
+                            child: SizedBox(height: 48),
+                          ),
+                        ),
+                      );
+                    } else {
+                      showAppBottomSheet<void>(
+                        context: context,
+                        builder: (_) => const SizedBox.shrink(),
+                      );
+                    }
+                  },
+                  child: const Text('Open'),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        expect(
+          tester.getSize(find.byType(DraggableScrollableSheet)).height,
+          closeTo(20 + (footer ? 48 : 0), 0.01),
+        );
+        await tester.drag(find.byType(SheetDragHandle), const Offset(0, 80));
+        await tester.pumpAndSettle();
+        expect(find.byType(DraggableScrollableSheet), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets(
     'ordinary content reuses the landscape side panel and full-screen scrim',
     (tester) async {
