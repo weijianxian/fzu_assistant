@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Only a newly created merge commit needs correction. Fast-forwards reuse
+# existing commits, and squash merges do not create a commit at all.
+set -euo pipefail
+[[ "${1:-}" == 0 ]] || exit 0
+marker=$(git rev-parse --git-path MERGE_HEAD)
+[[ -f "$marker" ]] || exit 0
+[[ "$(git rev-parse --verify --quiet HEAD^1)" == "$(git rev-parse --verify --quiet ORIG_HEAD)" ]] || exit 0
+[[ "$(git rev-parse --verify --quiet HEAD^2)" == "$(head -n 1 "$marker")" ]] || exit 0
+FZU_HOOK_POST_MERGE=1 exec bash "$(dirname -- "${BASH_SOURCE[0]}")/post-commit"

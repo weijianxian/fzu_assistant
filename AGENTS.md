@@ -328,6 +328,9 @@ lib/
   - `🔧 chore`：构建、CI、工具配置等维护工作；依赖或 SDK 升级使用 `⬆️ chore`。
 - 示例：`🐛 fix: 修复动态主题 ColorScheme 类型不兼容`、`📝 docs: 明确提交信息规范`。
 - 正常执行仓库 pre-commit hook，由 hook 自动更新 build 号并检查 Dart 格式，不手动绕过。
+- 本地 Git hooks 统一维护在 [.githooks/](.githooks/)，通过 `bash scripts/install-git-hooks.sh` 安装到当前仓库的 `core.hooksPath`，不修改全局 Git 配置。原 `.git/hooks/` 中的文件保留，不直接覆盖。
+- 本地主线构建号按第一父链计算：普通提交增加一次，`--amend` 不增加，合并提交只计算主线上的一次提交；分支及 detached HEAD 沿用可追溯的远端主线编号。浅克隆不得用不完整历史生成构建号。
+- `pre-commit` 保留 Dart 格式检查，`post-commit` 按实际提交历史核对并在必要时自动 amend 构建号，`post-merge` 仅校准新创建的合并提交，不改写快进取得的提交或 squash 前的 HEAD；校准必须防止递归、保留提交签名状态及其他暂存内容，不额外留下校准提交。pubspec 或待格式化 Dart 文件存在未暂存修改，以及 `git commit --only` 等临时 index 模式时，在改写前拒绝，保留原内容。post 阶段失败须明确说明提交已经存在并保留恢复文件，不能静默跳过签名或检查。CI 继续独立计算构建号。
 
 ## 国际化
 
