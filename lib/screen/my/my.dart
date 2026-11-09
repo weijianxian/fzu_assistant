@@ -18,11 +18,6 @@ class MyPage extends HookWidget {
 
     final destinations = [
       NavigationPaneDestination(
-        icon: Icons.person_outline,
-        title: l10n.profileInfo,
-        route: AppRoutes.profile,
-      ),
-      NavigationPaneDestination(
         icon: Icons.calendar_month_outlined,
         title: l10n.calendar,
         route: AppRoutes.calendar,
@@ -48,9 +43,34 @@ class MyPage extends HookWidget {
       return SplitNavigationPage(
         title: l10n.navMy,
         sections: [NavigationPaneSection(destinations: destinations)],
-        initialRoute: AppRoutes.profile,
+        initialRoute: AppRoutes.calendar,
         onGenerateRoute: AppRouter.onGenerateRoute,
         isActive: isActive,
+        menuBuilder: (context, selectedRoute, onSelected) => ProfilePage(
+          showAppBar: false,
+          footer: Column(
+            children: [
+              const AppDivider(),
+              AppSection.list(
+                children: [
+                  for (final destination in destinations)
+                    ListTile(
+                      selected: selectedRoute == destination.route,
+                      selectedTileColor: Theme.of(context)
+                          .colorScheme
+                          .secondaryContainer,
+                      selectedColor: Theme.of(context)
+                          .colorScheme
+                          .onSecondaryContainer,
+                      leading: Icon(destination.icon),
+                      title: Text(destination.title),
+                      onTap: () => onSelected(destination.route),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -63,7 +83,7 @@ class MyPage extends HookWidget {
             const AppDivider(),
             AppSection.list(
               children: [
-                for (final destination in destinations.skip(1))
+                for (final destination in destinations)
                   ChevronListTile(
                     leading: Icon(destination.icon),
                     title: Text(destination.title),
