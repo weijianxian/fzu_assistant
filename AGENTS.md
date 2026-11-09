@@ -331,10 +331,8 @@ lib/
   - `⚡️ perf`：性能优化。
   - `🔧 chore`：构建、CI、工具配置等维护工作；依赖或 SDK 升级使用 `⬆️ chore`。
 - 示例：`🐛 fix: 修复动态主题 ColorScheme 类型不兼容`、`📝 docs: 明确提交信息规范`。
-- 正常执行仓库 pre-commit hook，由 hook 自动更新 build 号并检查 Dart 格式，不手动绕过。
-- 本地 Git hooks 统一维护在 [.githooks/](.githooks/)，通过 `bash scripts/install-git-hooks.sh` 安装到当前仓库的 `core.hooksPath`，不修改全局 Git 配置。原 `.git/hooks/` 中的文件保留，不直接覆盖。
-- 本地主线构建号按第一父链计算：普通提交增加一次，`--amend` 不增加，合并提交只计算主线上的一次提交；分支及 detached HEAD 沿用可追溯的远端主线编号。浅克隆不得用不完整历史生成构建号。
-- `pre-commit` 保留 Dart 格式检查，`post-commit` 按实际提交历史核对并在必要时自动 amend 构建号，`post-merge` 仅校准新创建的合并提交，不改写快进取得的提交或 squash 前的 HEAD；校准必须防止递归、保留提交签名状态及其他暂存内容，不额外留下校准提交。pubspec 或待格式化 Dart 文件存在未暂存修改，以及 `git commit --only` 等临时 index 模式时，在改写前拒绝，保留原内容。post 阶段失败须明确说明提交已经存在并保留恢复文件，不能静默跳过签名或检查。CI 继续独立计算构建号。
+- 仓库不再提供本地 Git hooks；提交前按需执行 `dart format --output=none --set-exit-if-changed lib test`、`flutter analyze` 和相关测试，不跳过 CI 检查。
+- 本地主线构建号按第一父链计算：普通提交增加一次，`--amend` 不增加，合并提交只计算主线上的一次提交。提交时手动将 `pubspec.yaml` 的 build 后缀设为提交后的主线数；CI 仍独立计算构建号并注入。浅克隆不得用不完整历史生成构建号。
 
 ## 国际化
 
@@ -375,12 +373,12 @@ flutter gen-l10n               # 重新生成国际化代码
 
 - `.github/workflows/build.yaml` 负责 `main` 分支 push、`v*` tag 和手动触发，调用各平台构建及汇总 Release；不监听 `feat/platform-builds` 测试分支。
 - 平台构建分别位于 `windows.yaml`、`android.yaml`、`apple.yaml` 和 `linux.yaml`，统一仅支持 `workflow_call` 与手动执行，不独立监听 push/PR，避免重复构建；Linux 测试分支的临时 push 触发器已在合并到 `main` 前移除。
-- 各平台完整检出历史（`fetch-depth: 0`），共用 `.github/actions/build-number`，只计算当前构建版本可追溯的 `origin/main` 第一父链提交数，并通过 Flutter `--build-number` 注入。合并提交计一次，不累计侧分支内部提交；历史 tag 和手动构建其他分支沿用其所基于的主线编号。保留本地 pre-commit hook，但 CI 构建号独立计算，不依赖 hook 或 `pubspec.yaml` 中的 build 后缀。
+- 各平台完整检出历史（`fetch-depth: 0`），共用 `.github/actions/build-number`，只计算当前构建版本可追溯的 `origin/main` 第一父链提交数，并通过 Flutter `--build-number` 注入。合并提交计一次，不累计侧分支内部提交；历史 tag 和手动构建其他分支沿用其所基于的主线编号。CI 构建号独立计算，不依赖 `pubspec.yaml` 中的 build 后缀。
 - `.github/workflows/check.yaml` 独立在 push/PR/手动触发时执行国际化生成、Dart 格式检查、静态分析和单元/组件测试；纯 Markdown 变更跳过自动检查，同一分支的新检查取消旧检查，tag 不主动取消。
 - 主工作流显式向 Android 子工作流传递 `KEY_STORE_PASSWORD`、`KEY_PASSWORD`、`KEY_ALIAS` 和 `KEYSTORE_BASE64` 四项签名 secrets；手动执行 Android 工作流时使用仓库 secrets。
 - fork 和 Dependabot PR 无法获取签名 secrets，主工作流跳过这些 PR 的 Android 签名构建，其他平台及 Check 照常运行。
 - 主工作流和各平台工作流均按平台前缀、workflow 和 ref 设置 concurrency；同一分支的新运行取消旧运行，tag 构建不主动取消。
-- 自动 push/PR 构建通过 `paths-ignore: ['**/*.md']` 跳过仅 Markdown 变更（含子目录）；混合代码变更仍构建，tag 发布和手动构建不受影响。若 pre-commit 同时修改 `pubspec.yaml` 的 build 号，该提交仍会触发构建。
+- 自动 push/PR 构建通过 `paths-ignore: ['**/*.md']` 跳过仅 Markdown 变更（含子目录）；混合代码变更仍构建，tag 发布和手动构建不受影响。版本号变更会触发构建。
 
 ### Linux
 
@@ -471,7 +469,7 @@ Process.start(installerPath, ['/SILENT', '/SUPPRESSMSGBOXES',
   便携 zip 与安装器资产名只差扩展名，裸 `.exe` 兜底会误伤其他附件。
 
 ## Release 发布流程
-1. 在需要发布release时，先切换到 `main` 分支，抬升语义化版本号（`x.y.z`），提交 commit，正常执行 pre-commit hook；发布构建号由 Actions 按上述主线规则独立计算并注入
+1. 在需要发布 release 时，先切换到 `main` 分支，抬升语义化版本号（`x.y.z`），将本地 build 后缀设为提交后的第一父链计数并提交；发布构建号由 Actions 按上述主线规则独立计算并注入
 2. 打上tag，格式为 `v` 加版本号，例如 `v1.2.3`,并 push 到 GitHub，触发 GitHub Actions 构建发布流程
 
 
