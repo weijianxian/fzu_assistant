@@ -40,6 +40,11 @@ class CreditPage extends HookWidget {
         final gain = double.tryParse(c.gain) ?? 0;
         final total = double.tryParse(c.total) ?? 1;
         final progress = (total > 0) ? (gain / total).clamp(0.0, 1.0) : 0.0;
+        final theme = Theme.of(context);
+        final colors = theme.colorScheme;
+        final completedColor = theme.brightness == Brightness.dark
+            ? Colors.green.shade300
+            : Colors.green.shade800;
 
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -61,7 +66,9 @@ class CreditPage extends HookWidget {
                     '${c.gain} / ${c.total}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: progress >= 1.0 ? Colors.green : Colors.grey[700],
+                      color: progress >= 1.0
+                          ? completedColor
+                          : colors.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -73,7 +80,7 @@ class CreditPage extends HookWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 6,
-                  backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                  backgroundColor: colors.surfaceContainerHighest,
                 ),
               ),
             ],

@@ -117,10 +117,10 @@ class ExamRoomPage extends HookWidget {
     List<ExamRoomInfo> rooms,
     DateTime now,
   ) {
+    final colors = Theme.of(context).colorScheme;
     return [
       const SliverToBoxAdapter(child: AcademicChangeNotice(exams: true)),
       MasonrySliverGrid.grouped(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         childCount: rooms.length,
         itemBuilder: (context, i) {
           final r = rooms[i];
@@ -141,7 +141,7 @@ class ExamRoomPage extends HookWidget {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: past ? Colors.grey : null,
+                            color: past ? colors.onSurfaceVariant : null,
                           ),
                         ),
                       ),
@@ -152,14 +152,14 @@ class ExamRoomPage extends HookWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.15),
+                            color: colors.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             AppLocalizations.of(context)!.examTaken,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey,
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -171,11 +171,11 @@ class ExamRoomPage extends HookWidget {
                     runSpacing: 4,
                     children: [
                       if (r.date.isNotEmpty)
-                        _infoTag(Icons.calendar_today, r.date),
+                        _infoTag(context, Icons.calendar_today, r.date),
                       if (r.time.isNotEmpty)
-                        _infoTag(Icons.access_time, r.time),
+                        _infoTag(context, Icons.access_time, r.time),
                       if (r.date.isEmpty && r.rawExamTime.isNotEmpty)
-                        _infoTag(Icons.info_outline, r.rawExamTime),
+                        _infoTag(context, Icons.info_outline, r.rawExamTime),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -184,11 +184,16 @@ class ExamRoomPage extends HookWidget {
                     runSpacing: 4,
                     children: [
                       if (r.location.isNotEmpty)
-                        _infoTag(Icons.location_on_outlined, r.location),
+                        _infoTag(
+                          context,
+                          Icons.location_on_outlined,
+                          r.location,
+                        ),
                       if (r.teacher.isNotEmpty)
-                        _infoTag(Icons.person_outline, r.teacher),
+                        _infoTag(context, Icons.person_outline, r.teacher),
                       if (r.credit.isNotEmpty)
                         _infoTag(
+                          context,
                           Icons.school_outlined,
                           AppLocalizations.of(context)!.creditSuffix(r.credit),
                         ),
@@ -203,16 +208,17 @@ class ExamRoomPage extends HookWidget {
     ];
   }
 
-  Widget _infoTag(IconData icon, String text) {
+  Widget _infoTag(BuildContext context, IconData icon, String text) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: Colors.grey),
+        Icon(icon, size: 14, color: muted),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 13, color: Colors.grey),
+            style: TextStyle(fontSize: 13, color: muted),
             overflow: TextOverflow.ellipsis,
           ),
         ),

@@ -101,7 +101,7 @@ class ClassroomUsagePage extends HookWidget {
     return AppScaffold(
       appBar: AppBar(title: Text(l10n.classroomUsage)),
       body: AppListView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: 1 + (rooms.value?.length ?? 0),
         itemBuilder: (context, index) {
           if (index == 0) {
@@ -112,9 +112,9 @@ class ClassroomUsagePage extends HookWidget {
                   title: l10n.usageFilters,
                   children: [
                     ListTile(
+                      leading: const Icon(Icons.calendar_today_outlined),
                       title: Text(l10n.selectDate),
                       subtitle: Text(dateText()),
-                      trailing: const Icon(Icons.calendar_today_outlined),
                       onTap: busy.value
                           ? null
                           : () async {

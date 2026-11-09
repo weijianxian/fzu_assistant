@@ -96,7 +96,10 @@ class EmptyRoomPage extends HookWidget {
             child:
                 // 查询条件卡片
                 AppSurface(
-                  margin: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -253,7 +256,9 @@ class EmptyRoomPage extends HookWidget {
                 child: Center(
                   child: Text(
                     l10n.noEmptyRoomData,
-                    style: TextStyle(color: Colors.grey[500]),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),

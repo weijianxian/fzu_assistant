@@ -517,16 +517,16 @@ class _ColorDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 36,
-    height: 36,
+    width: 24,
+    height: 24,
     child: Stack(
       children: [
         Positioned(
           left: 0,
           top: 0,
           child: Container(
-            width: 22,
-            height: 22,
+            width: 15,
+            height: 15,
             decoration: BoxDecoration(color: primary, shape: BoxShape.circle),
           ),
         ),
@@ -534,17 +534,17 @@ class _ColorDots extends StatelessWidget {
           right: 0,
           top: 0,
           child: Container(
-            width: 16,
-            height: 16,
+            width: 11,
+            height: 11,
             decoration: BoxDecoration(color: secondary, shape: BoxShape.circle),
           ),
         ),
         Positioned(
-          left: 4,
+          left: 3,
           bottom: 0,
           child: Container(
-            width: 14,
-            height: 14,
+            width: 10,
+            height: 10,
             decoration: BoxDecoration(color: tertiary, shape: BoxShape.circle),
           ),
         ),

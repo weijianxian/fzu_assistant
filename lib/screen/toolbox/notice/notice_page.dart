@@ -54,54 +54,41 @@ class NoticePage extends HookWidget {
               loading: loading.value,
               error: error.value,
               refreshTime: refreshTime.value,
-              hasData: notices.value.isNotEmpty || loading.value,
+              hasData: notices.value.isNotEmpty,
               emptyText: l10n.noNoticeData,
               slivers: [
-                if (notices.value.isEmpty && !loading.value)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 100),
-                      child: Center(
-                        child: Text(
-                          l10n.noNoticeData,
-                          style: TextStyle(color: Colors.grey[500]),
+                MasonrySliverGrid.grouped(
+                  childCount: notices.value.length,
+                  itemBuilder: (context, i) {
+                    final notice = notices.value[i];
+                    return ListTile(
+                      title: Text(
+                        notice.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        notice.department.isNotEmpty
+                            ? '${notice.department} · ${notice.date}'
+                            : notice.date,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    ),
-                  )
-                else
-                  MasonrySliverGrid.grouped(
-                    childCount: notices.value.length,
-                    itemBuilder: (context, i) {
-                      final notice = notices.value[i];
-                      return ListTile(
-                        title: Text(
-                          notice.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          notice.department.isNotEmpty
-                              ? '${notice.department} · ${notice.date}'
-                              : notice.date,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[500],
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        context.pushNamed(
+                          AppRoutes.webview,
+                          arguments: WebViewArgs(
+                            url: notice.url,
+                            title: notice.title,
                           ),
-                        ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          context.pushNamed(
-                            AppRoutes.webview,
-                            arguments: WebViewArgs(
-                              url: notice.url,
-                              title: notice.title,
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),

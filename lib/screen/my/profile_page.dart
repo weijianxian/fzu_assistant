@@ -91,6 +91,7 @@ class ProfilePage extends HookWidget {
     VoidCallback onAvatarTap,
   ) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     return AppListView(
       children: [
         const SizedBox(height: 32),
@@ -110,13 +111,17 @@ class ProfilePage extends HookWidget {
         Center(
           child: Text(
             info.name,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Center(
           child: Text(
             username ?? '',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         const SizedBox(height: 24),

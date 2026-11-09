@@ -25,13 +25,14 @@ class GpaPage extends HookWidget {
         hasData: gpa != null && gpa.data.isNotEmpty,
         emptyText: AppLocalizations.of(context)!.noGpaData,
         child: gpa != null && gpa.data.isNotEmpty
-            ? _buildContent(gpa)
+            ? _buildContent(context, gpa)
             : const SizedBox.shrink(),
       ),
     );
   }
 
-  Widget _buildContent(GPABean gpa) {
+  Widget _buildContent(BuildContext context, GPABean gpa) {
+    final colors = Theme.of(context).colorScheme;
     // 找出所有不同的 type（列头）
     final headers = gpa.data.map((d) => d.type).toSet().toList();
     final width = headers.length;
@@ -48,7 +49,7 @@ class GpaPage extends HookWidget {
     return AppListView(
       children: [
         AppSurface(
-          margin: const EdgeInsets.all(12),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Table(
             columnWidths: {
               for (var i = 0; i < transposed[0].length; i++)
@@ -64,7 +65,9 @@ class GpaPage extends HookWidget {
                       ? BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.withValues(alpha: 0.15),
+                              color: colors.outlineVariant.withValues(
+                                alpha: 0.5,
+                              ),
                             ),
                           ),
                         )
@@ -80,7 +83,7 @@ class GpaPage extends HookWidget {
                           transposed[r][c],
                           style: TextStyle(
                             fontSize: 14,
-                            color: c == 0 ? Colors.grey : null,
+                            color: c == 0 ? colors.onSurfaceVariant : null,
                           ),
                         ),
                       ),

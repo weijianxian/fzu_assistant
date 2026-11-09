@@ -74,10 +74,7 @@ class LearningCenterPage extends HookWidget {
                   ),
                 ],
               ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(l10n.learningInstructions),
-            ),
+            AppInfoCard(title: Text(l10n.learningInstructions)),
           ],
         ),
       ),

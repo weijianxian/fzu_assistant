@@ -157,6 +157,7 @@ class CourseReminderSettingsPage extends HookWidget {
                           run(() => reminder.requestPermission('requestExact')),
               ),
               ListTile(
+                leading: const Icon(Icons.notifications_outlined),
                 title: Text(l10n.reminderNotificationStyle),
                 subtitle: Text(l10n.reminderNotificationStyleDescription),
                 trailing: const Icon(Icons.open_in_new),

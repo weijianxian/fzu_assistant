@@ -1,7 +1,6 @@
-import 'package:fzu_assistant/common/widget/layout/app_scroll_view.dart';
-import 'package:fzu_assistant/common/widget/layout/app_section.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fzu_assistant/common/widgets.dart';
 import 'package:fzu_assistant/screen/my/about/widgets/update_dialog.dart';
 import 'package:fzu_assistant/common/utils/github_proxy.dart';
 import 'package:fzu_assistant/l10n/app_localizations.dart';
@@ -9,7 +8,6 @@ import 'package:fzu_assistant/router/app_routes.dart';
 import 'package:fzu_assistant/service/update_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:fzu_assistant/common/widget/layout/app_scaffold.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -153,18 +151,14 @@ class _AboutPageState extends State<AboutPage> {
             Center(
               child: Text(
                 'v$_version ($_buildNumber)',
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           const SizedBox(height: 24),
-          AppSection(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                AppLocalizations.of(context)!.appDescription,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ),
+          AppInfoCard(
+            title: Text(AppLocalizations.of(context)!.appDescription),
           ),
           AppSection.list(
             children: [

@@ -98,7 +98,7 @@ class LearningSeatsPage extends HookWidget {
                                     child: Material(
                                       color: selected
                                           ? colors.primary
-                                          : colors.surfaceContainerLow,
+                                          : colors.surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(8),
                                       clipBehavior: Clip.antiAlias,
                                       child: InkWell(
@@ -195,7 +195,7 @@ class LearningSeatsPage extends HookWidget {
                                             ? colors.primary.withValues(
                                                 alpha: 0.5,
                                               )
-                                            : colors.surfaceContainerLow,
+                                            : colors.surfaceContainerHighest,
                                         borderRadius: BorderRadius.circular(8),
                                         clipBehavior: Clip.antiAlias,
                                         child: InkWell(

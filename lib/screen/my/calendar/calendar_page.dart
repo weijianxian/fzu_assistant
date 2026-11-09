@@ -118,6 +118,11 @@ class _TermCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final currentColor = theme.brightness == Brightness.dark
+        ? Colors.green.shade300
+        : Colors.green.shade800;
     return AppExpansionTile(
       key: ValueKey(term.termId),
       initiallyExpanded: expanded,
@@ -146,7 +151,7 @@ class _TermCard extends StatelessWidget {
               ),
               child: Text(
                 AppLocalizations.of(context)!.current,
-                style: const TextStyle(fontSize: 11, color: Colors.green),
+                style: TextStyle(fontSize: 11, color: currentColor),
               ),
             ),
         ],
@@ -155,11 +160,15 @@ class _TermCard extends StatelessWidget {
         padding: const EdgeInsets.only(top: 6),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+            Icon(
+              Icons.calendar_today,
+              size: 14,
+              color: colors.onSurfaceVariant,
+            ),
             const SizedBox(width: 6),
             Text(
               '${term.startDate} ～ ${term.endDate}',
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
             ),
           ],
         ),
@@ -181,7 +190,7 @@ class _TermCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Text(
               AppLocalizations.of(context)!.loadingFailed(eventsError ?? ''),
-              style: const TextStyle(color: Colors.red, fontSize: 13),
+              style: TextStyle(color: colors.error, fontSize: 13),
             ),
           )
         else if (events != null && events!.events.isNotEmpty)
@@ -191,7 +200,7 @@ class _TermCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Text(
               AppLocalizations.of(context)!.noScheduleEvents,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
             ),
           ),
       ],
@@ -206,6 +215,7 @@ class _EventsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Table(
@@ -224,10 +234,7 @@ class _EventsTable extends StatelessWidget {
               : '';
           return TableRow(
             children: [
-              Text(
-                dateText,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
+              Text(dateText, style: TextStyle(fontSize: 12, color: muted)),
               const SizedBox(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 6),

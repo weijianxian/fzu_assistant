@@ -148,19 +148,23 @@ class HomeScreen extends HookWidget {
               labelType: NavigationRailLabelType.all,
               destinations: [
                 NavigationRailDestination(
-                  icon: const Icon(Icons.home),
+                  icon: const Icon(Icons.home_outlined),
+                  selectedIcon: const Icon(Icons.home),
                   label: Text(homeLabel),
                 ),
                 NavigationRailDestination(
-                  icon: const Icon(Icons.build),
+                  icon: const Icon(Icons.build_outlined),
+                  selectedIcon: const Icon(Icons.build),
                   label: Text(l10n.navToolbox),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.qr_code),
+                  selectedIcon: const Icon(Icons.qr_code_2),
                   label: Text(l10n.campusCode),
                 ),
                 NavigationRailDestination(
-                  icon: const Icon(Icons.person),
+                  icon: const Icon(Icons.person_outline),
+                  selectedIcon: const Icon(Icons.person),
                   label: Text(l10n.navMy),
                 ),
               ],

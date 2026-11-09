@@ -16,6 +16,7 @@ class AccountManagementPage extends HookWidget {
   Widget build(BuildContext context) {
     final api = service ?? AccountService.instance;
     final l10n = AppLocalizations.of(context)!;
+    final colors = Theme.of(context).colorScheme;
     final status = useAsyncData(api.loadStatus);
     final busy = useState(false);
 
@@ -92,6 +93,9 @@ class AccountManagementPage extends HookWidget {
                                 l10n.accountSignedOut,
                           ),
                           trailing: TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: colors.error,
+                            ),
                             onPressed:
                                 busy.value ||
                                     status.data?.academicAccount == null
@@ -109,6 +113,9 @@ class AccountManagementPage extends HookWidget {
                                 : l10n.accountSignedOut,
                           ),
                           trailing: TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: colors.error,
+                            ),
                             onPressed:
                                 busy.value || status.data?.ssoSignedIn != true
                                 ? null
