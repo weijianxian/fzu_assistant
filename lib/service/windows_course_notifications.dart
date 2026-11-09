@@ -521,9 +521,11 @@ class WindowsCourseNotifications with WidgetsBindingObserver {
           '${course.name} · ${course.location}\n${time(course.start)}–${time(course.end)} (UTC+8)',
         if (!active) ended,
       ].join('\n'),
-      progress: frame.state == CourseLiveUpdatePreview.inProgress
-          ? (now.difference(frame.start).inMilliseconds /
-                    frame.end.difference(frame.start).inMilliseconds)
+      progress: active
+          ? (now.difference(frame.progressStart).inMilliseconds /
+                    frame.progressEnd
+                        .difference(frame.progressStart)
+                        .inMilliseconds)
                 .clamp(0, 1)
           : null,
       progressLabel: active ? label : null,

@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @windowsNotificationsDescription.
   ///
   /// In zh, this message translates to:
-  /// **'明日课程、上课、下节课与时段结束提醒'**
+  /// **'明日课程与课程实况通知'**
   String get windowsNotificationsDescription;
 
   /// No description provided for @windowsNotificationsHelp.
@@ -203,13 +203,13 @@ abstract class AppLocalizations {
   /// No description provided for @windowsCourseStages.
   ///
   /// In zh, this message translates to:
-  /// **'课程阶段提醒'**
+  /// **'课程实况通知'**
   String get windowsCourseStages;
 
   /// No description provided for @windowsCourseStagesDescription.
   ///
   /// In zh, this message translates to:
-  /// **'课前五分钟、上课、课间下节课与半天结束时提醒'**
+  /// **'课前预告、连续课程进度、课间下节课与时段结束提醒'**
   String get windowsCourseStagesDescription;
 
   /// No description provided for @windowsNotificationsSystemSettings.

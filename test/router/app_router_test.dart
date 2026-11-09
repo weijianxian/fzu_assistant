@@ -30,6 +30,7 @@ const _argumentFreeRoutes = [
   AppRoutes.androidPermissions,
   AppRoutes.windowsBackground,
   AppRoutes.windowsNotifications,
+  AppRoutes.windowsCourseLiveUpdates,
   AppRoutes.homeSettings,
   AppRoutes.generalSettings,
   AppRoutes.advancedSettings,

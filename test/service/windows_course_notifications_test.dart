@@ -186,15 +186,20 @@ void main() {
       await tester.pump(const Duration(seconds: 30));
       expect(backend.shown.last.title, l10n.courseLiveNext);
       expect(backend.shown.last.body, contains('Physics'));
+      final breakProgress = backend.shown.last.progress!;
+      expect(breakProgress, closeTo(95 / 215, 0.0001));
       now = secondStart;
       await tester.pump(const Duration(seconds: 30));
       expect(backend.shown.last.title, l10n.courseLiveInProgress);
       expect(backend.shown.last.body, contains('Physics'));
+      expect(backend.shown.last.progress, closeTo(120 / 215, 0.0001));
+      expect(backend.shown.last.progress, greaterThan(breakProgress));
       now = secondEnd;
       await tester.pump(const Duration(seconds: 30));
       expect(backend.shown.last.title, l10n.courseLiveEnded);
       expect(backend.shown.last.body, contains(l10n.courseLiveMorningEnded));
       expect(backend.shown.last.body, isNot(contains('Afternoon')));
+      expect(backend.shown.last.progress, isNull);
     },
   );
 
@@ -391,7 +396,12 @@ void main() {
       ]);
       expect(backend.shown.last.body, contains('Morning classes finished'));
       expect(backend.shown.last.body, isNot(contains('Afternoon course')));
-      expect(backend.updates.first.progress, closeTo(1 / 30, 0.0001));
+      expect(backend.updates.first.progress, closeTo(1 / 110, 0.0001));
+      final breakToast = backend.shown[1];
+      final secondToast = backend.shown[2];
+      expect(breakToast.progress, closeTo(30 / 110, 0.0001));
+      expect(secondToast.progress, closeTo(60 / 110, 0.0001));
+      expect(backend.shown.last.progress, isNull);
     },
   );
 

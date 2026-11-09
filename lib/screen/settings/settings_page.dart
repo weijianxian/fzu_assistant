@@ -118,10 +118,17 @@ class SettingsPage extends HookWidget {
                   ),
                   ChevronListTile(
                     leading: const Icon(Icons.notifications_active_outlined),
-                    title: Text(l10n.windowsNotifications),
-                    subtitle: Text(l10n.windowsNotificationsDescription),
+                    title: Text(l10n.courseReminderSettings),
+                    subtitle: Text(l10n.courseReminderSettingsSubtitle),
                     onTap: () =>
                         context.pushNamed(AppRoutes.windowsNotifications),
+                  ),
+                  ChevronListTile(
+                    leading: const Icon(Icons.timelapse),
+                    title: Text(l10n.courseLiveUpdates),
+                    subtitle: Text(l10n.courseLiveUpdatesSubtitle),
+                    onTap: () =>
+                        context.pushNamed(AppRoutes.windowsCourseLiveUpdates),
                   ),
                 ],
               ],

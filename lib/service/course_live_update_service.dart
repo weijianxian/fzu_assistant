@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' show Color;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -60,32 +61,7 @@ abstract final class CourseLiveUpdateService {
       return promoted;
     }
     await AndroidTaskScheduler.cancelLivePreview();
-    final next = preview == CourseLiveUpdatePreview.nextClass;
-    final start = next
-        ? now.add(const Duration(minutes: 5))
-        : now.subtract(Duration(minutes: active ? 20 : 45));
-    final end = next
-        ? start.add(const Duration(minutes: 45))
-        : active
-        ? now.add(const Duration(minutes: 25))
-        : now;
-    return _show(
-      plugin,
-      CourseLiveUpdateFrame(preview, [
-        NextCourseWidgetEntry(
-          name: next ? 'College Physics' : 'Advanced Mathematics',
-          location: next
-              ? 'Teaching Building 2-205'
-              : 'Teaching Building 3-301',
-          start: start,
-          end: end,
-          startClass: next ? 3 : 1,
-          endClass: next ? 4 : 2,
-          week: 1,
-        ),
-      ]),
-      now: now,
-    );
+    return _show(plugin, _manualTimeline(now, preview).at(now)!, now: now);
   }
 
   /// Runs a compressed morning with two classes and an afternoon class that
@@ -239,18 +215,28 @@ abstract final class CourseLiveUpdateService {
     DateTime now,
     CourseLiveUpdatePreview preview,
   ) {
-    final next = preview == CourseLiveUpdatePreview.nextClass;
-    final start = next
-        ? now.add(const Duration(minutes: 5))
-        : now.subtract(const Duration(minutes: 20));
+    final start = now.subtract(switch (preview) {
+      CourseLiveUpdatePreview.inProgress => const Duration(minutes: 20),
+      CourseLiveUpdatePreview.nextClass => const Duration(minutes: 115),
+      CourseLiveUpdatePreview.ended => const Duration(minutes: 220),
+    });
     return CourseLiveUpdateTimeline([
       NextCourseWidgetEntry(
-        name: next ? 'College Physics' : 'Advanced Mathematics',
-        location: next ? 'Teaching Building 2-205' : 'Teaching Building 3-301',
+        name: 'Advanced Mathematics',
+        location: 'Teaching Building 3-301',
         start: start,
-        end: start.add(const Duration(minutes: 45)),
-        startClass: next ? 3 : 1,
-        endClass: next ? 4 : 2,
+        end: start.add(const Duration(minutes: 100)),
+        startClass: 1,
+        endClass: 2,
+        week: 1,
+      ),
+      NextCourseWidgetEntry(
+        name: 'College Physics',
+        location: 'Teaching Building 2-205',
+        start: start.add(const Duration(minutes: 120)),
+        end: start.add(const Duration(minutes: 220)),
+        startClass: 3,
+        endClass: 4,
         week: 1,
       ),
     ]);
@@ -384,19 +370,33 @@ abstract final class CourseLiveUpdateService {
           usesChronometer: active,
           chronometerCountDown: active,
           timeoutAfter: active
-              ? target.difference(now).inMilliseconds
+              ? frame.progressEnd.difference(now).inMilliseconds
               : CourseLiveUpdateTimeline.endedLifetime.inMilliseconds,
-          styleInformation: frame.state == CourseLiveUpdatePreview.inProgress
-              ? ProgressStyleInformation([
-                  ProgressStyleSegment(
-                    frame.end.difference(frame.start).inSeconds,
-                  ),
-                ], progress: now.difference(frame.start).inSeconds)
+          styleInformation: active
+              ? _progressStyle(frame, now)
               : BigTextStyleInformation(body),
         ),
       ),
     );
     return active && promoted;
+  }
+
+  static ProgressStyleInformation _progressStyle(
+    CourseLiveUpdateFrame frame,
+    DateTime now,
+  ) {
+    const classColor = Color(0xFF1976D2);
+    const breakColor = Color(0xFF78909C);
+    final segments = frame.progressSegments;
+    final total = segments.fold(0, (sum, segment) => sum + segment.seconds);
+    return ProgressStyleInformation([
+      for (final (index, segment) in segments.indexed)
+        ProgressStyleSegment(
+          segment.seconds,
+          id: index,
+          color: segment.isBreak ? breakColor : classColor,
+        ),
+    ], progress: now.difference(frame.progressStart).inSeconds.clamp(0, total));
   }
 
   static Future<void> showCourseFrame(

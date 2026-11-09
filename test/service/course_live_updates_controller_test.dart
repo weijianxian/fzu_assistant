@@ -129,7 +129,15 @@ void main() {
       expect(shown()['title'], '上课中');
       final details = shown()['platformSpecifics'] as Map;
       expect(details['subText'], isNull);
-      progress.add((details['styleInformation'] as Map)['progress'] as int);
+      final style = details['styleInformation'] as Map;
+      progress.add(style['progress'] as int);
+      expect((style['segments'] as List).map((segment) => segment['length']), [
+        6000,
+        1200,
+        6000,
+      ]);
+      expect(details['when'], at(10).millisecondsSinceEpoch);
+      expect(details['timeoutAfter'], (180 - minute) * 60000);
       final alarm =
           calls
                   .singleWhere((call) => call.method == 'Alarm.oneShotAt')
@@ -142,6 +150,26 @@ void main() {
     }
     expect(progress, [2400, 2460]);
   });
+
+  test(
+    'the first-course teaser shows the whole morning at zero progress',
+    () async {
+      await CourseLiveUpdatesController.synchronize(now: at(8, 15));
+      expect(CourseLiveUpdatesController.error.value, isFalse);
+      expect(shown()['title'], '下节课');
+      expect(shown()['body'], contains('Morning 1'));
+      final details = shown()['platformSpecifics'] as Map;
+      final style = details['styleInformation'] as Map;
+      expect(style['progress'], 0);
+      expect((style['segments'] as List).map((segment) => segment['length']), [
+        6000,
+        1200,
+        6000,
+      ]);
+      expect(details['when'], at(8, 20).millisecondsSinceEpoch);
+      expect(details['timeoutAfter'], 225 * 60000);
+    },
+  );
 
   test('breaks show the next morning class and noon ends rather than waiting for afternoon', () async {
     await CourseLiveUpdatesController.synchronize(now: at(10));
@@ -174,6 +202,14 @@ void main() {
         expect(CourseLiveUpdatesController.error.value, isFalse);
         expect(shown()['title'], '下节课');
         expect(shown()['body'], startsWith('${20 - minute} 分钟后上课\n'));
+        final details = shown()['platformSpecifics'] as Map;
+        final style = details['styleInformation'] as Map;
+        expect(style['progress'], (100 + minute) * 60);
+        expect(
+          (style['segments'] as List).map((segment) => segment['length']),
+          [6000, 1200, 6000],
+        );
+        expect(details['when'], at(10, 20).millisecondsSinceEpoch);
         final alarm =
             calls
                     .singleWhere((call) => call.method == 'Alarm.oneShotAt')
@@ -181,6 +217,13 @@ void main() {
                 as List;
         expect(alarm[5], at(10, minute + 1).millisecondsSinceEpoch);
       }
+      calls.clear();
+      await CourseLiveUpdatesController.synchronize(now: at(10, 20));
+      expect(shown()['title'], '上课中');
+      final details = shown()['platformSpecifics'] as Map;
+      expect((details['styleInformation'] as Map)['progress'], 120 * 60);
+      expect(details['when'], at(12).millisecondsSinceEpoch);
+      expect(details['timeoutAfter'], 100 * 60000);
     },
   );
 

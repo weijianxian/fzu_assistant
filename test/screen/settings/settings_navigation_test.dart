@@ -117,9 +117,12 @@ void main() {
                   ),
                 )
                 .map((tile) => (tile.title as Text).data);
-            expect(titles, [l10n.windowsBackground, l10n.windowsNotifications]);
+            expect(titles, [
+              l10n.windowsBackground,
+              l10n.courseReminderSettings,
+              l10n.courseLiveUpdates,
+            ]);
             expect(find.text(l10n.scheduleSync), findsNothing);
-            expect(find.text(l10n.courseLiveUpdates), findsNothing);
             expect(find.text(l10n.permissionManagement), findsNothing);
             expect(find.text(l10n.nextCourseWidgetSettings), findsNothing);
             await tester.tap(background);
@@ -129,12 +132,22 @@ void main() {
             await tester.pumpAndSettle();
             final notifications = find.descendant(
               of: platformSection,
-              matching: find.text(l10n.windowsNotifications),
+              matching: find.text(l10n.courseReminderSettings),
             );
             await tester.ensureVisible(notifications);
             await tester.tap(notifications);
             await tester.pumpAndSettle();
             expect(navigated, AppRoutes.windowsNotifications);
+            Navigator.of(tester.element(find.byType(Scaffold).last)).pop();
+            await tester.pumpAndSettle();
+            final liveUpdates = find.descendant(
+              of: platformSection,
+              matching: find.text(l10n.courseLiveUpdates),
+            );
+            await tester.ensureVisible(liveUpdates);
+            await tester.tap(liveUpdates);
+            await tester.pumpAndSettle();
+            expect(navigated, AppRoutes.windowsCourseLiveUpdates);
           } else {
             expect(find.text(l10n.settingsPlatformSection), findsNothing);
             expect(find.text(l10n.calendarSync), findsNothing);

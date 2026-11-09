@@ -90,6 +90,7 @@ void main() {
     String language = 'zh',
     bool dark = false,
     double scale = 1,
+    bool liveUpdates = false,
   }) async {
     await tester.pumpWidget(
       AppSettingsProvider(
@@ -108,6 +109,7 @@ void main() {
             key: captureKey,
             child: WindowsNotificationsSettingsPage(
               notifications: notifications,
+              liveUpdates: liveUpdates,
             ),
           ),
         ),
@@ -140,17 +142,19 @@ void main() {
   }
 
   settingsTest(
-    'Windows settings use shared real preferences and omit Android permissions',
+    'Windows reminder settings keep the first-class switch and time only',
     (tester) async {
       tester.view.physicalSize = const Size(960, 960);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await render(tester);
-      expect(find.text(l10n.windowsNotifications), findsOneWidget);
+      expect(find.text(l10n.courseReminderSettings), findsOneWidget);
       expect(find.text(l10n.reminderExactPermission), findsNothing);
       expect(find.text(l10n.reminderNotificationPermission), findsNothing);
       expect(find.text(l10n.courseReminderTitle), findsOneWidget);
+      expect(find.text(l10n.reminderTime), findsOneWidget);
+      expect(find.text(l10n.windowsCourseStages), findsNothing);
       final before = loads;
       await tester.tap(
         find.widgetWithText(SwitchListTile, l10n.courseReminderTitle),
@@ -164,22 +168,42 @@ void main() {
         isTrue,
       );
       expect(loads, greaterThan(before));
-      await tester.tap(
-        find.widgetWithText(SwitchListTile, l10n.windowsCourseStages),
-      );
-      await tester.pumpAndSettle();
-      expect(settings.courseLiveUpdatesEnabled.value, isTrue);
-      expect(
-        (await SharedPreferences.getInstance()).getBool(
-          SpKeys.courseLiveUpdatesEnabled,
-        ),
-        isTrue,
-      );
       expect(tester.takeException(), isNull);
-      await capture(tester, 'notifications-zh-light');
+      await capture(tester, 'reminder-zh-light');
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+
+  settingsTest('Windows live settings keep a separate real switch', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(960, 960);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await render(tester, liveUpdates: true);
+    expect(find.text(l10n.courseLiveUpdates), findsOneWidget);
+    expect(find.text(l10n.courseReminderTitle), findsNothing);
+    expect(find.text(l10n.reminderTime), findsNothing);
+    expect(find.text(l10n.windowsNotificationsNext), findsNothing);
+    expect(find.text(l10n.reminderExactPermission), findsNothing);
+    final before = loads;
+    await tester.tap(
+      find.widgetWithText(SwitchListTile, l10n.windowsCourseStages),
+    );
+    await tester.pumpAndSettle();
+    expect(settings.courseLiveUpdatesEnabled.value, isTrue);
+    expect(
+      (await SharedPreferences.getInstance()).getBool(
+        SpKeys.courseLiveUpdatesEnabled,
+      ),
+      isTrue,
+    );
+    expect(loads, greaterThan(before));
+    expect(tester.takeException(), isNull);
+    await capture(tester, 'live-zh-light');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   settingsTest(
     'compact English dark large-text page scrolls without overflow',
@@ -188,11 +212,17 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await render(tester, language: 'en', dark: true, scale: 1.5);
+      await render(
+        tester,
+        language: 'en',
+        dark: true,
+        scale: 1.5,
+        liveUpdates: true,
+      );
       final english = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(find.text(english.windowsNotifications), findsOneWidget);
+      expect(find.text(english.courseLiveUpdates), findsOneWidget);
       expect(tester.takeException(), isNull);
-      await capture(tester, 'notifications-en-dark-large');
+      await capture(tester, 'live-en-dark-large');
       await revealWidget(
         tester,
         find.text(english.windowsNotificationsRefresh),
@@ -213,7 +243,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(loads, greaterThan(before));
       expect(tester.takeException(), isNull);
-      await capture(tester, 'notifications-en-dark-large-bottom');
+      await capture(tester, 'live-en-dark-large-bottom');
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

@@ -18,16 +18,55 @@ enum CourseDayPart {
 }
 
 class CourseLiveUpdateFrame {
-  const CourseLiveUpdateFrame(this.state, this.courses);
+  const CourseLiveUpdateFrame(
+    this.state,
+    this.courses, {
+    List<NextCourseWidgetEntry>? partCourses,
+  }) : partCourses = partCourses ?? courses;
 
   final CourseLiveUpdatePreview state;
   final List<NextCourseWidgetEntry> courses;
+  final List<NextCourseWidgetEntry> partCourses;
 
   CourseDayPart get part => CourseDayPart.forPeriod(courses.first.startClass);
   DateTime get start => courses.first.start;
   DateTime get end => courses
       .map((course) => course.end)
       .reduce((a, b) => a.isBefore(b) ? a : b);
+  DateTime get progressStart => partCourses
+      .map((course) => course.start)
+      .reduce((a, b) => a.isBefore(b) ? a : b);
+  DateTime get progressEnd => partCourses
+      .map((course) => course.end)
+      .reduce((a, b) => a.isAfter(b) ? a : b);
+
+  List<({int seconds, bool isBreak})> get progressSegments {
+    final ordered = [...partCourses]
+      ..sort((a, b) => a.start.compareTo(b.start));
+    final origin = ordered.first.start;
+    final segments = <({int seconds, bool isBreak})>[];
+    var elapsed = 0;
+    void addUntil(DateTime time, {required bool isBreak}) {
+      final boundary = time.difference(origin).inSeconds;
+      if (boundary > elapsed) {
+        segments.add((seconds: boundary - elapsed, isBreak: isBreak));
+      }
+      elapsed = boundary;
+    }
+
+    var blockEnd = ordered.first.end;
+    for (final course in ordered.skip(1)) {
+      if (course.start.isAfter(blockEnd)) {
+        addUntil(blockEnd, isBreak: false);
+        addUntil(course.start, isBreak: true);
+        blockEnd = course.end;
+      } else if (course.end.isAfter(blockEnd)) {
+        blockEnd = course.end;
+      }
+    }
+    addUntil(blockEnd, isBreak: false);
+    return segments.isEmpty ? [(seconds: 1, isBreak: false)] : segments;
+  }
 }
 
 /// Consumes one day's already filtered timetable, including adjusted/custom
@@ -56,7 +95,7 @@ class CourseLiveUpdateTimeline {
         )
         .toList();
     if (active.isNotEmpty) {
-      return CourseLiveUpdateFrame(CourseLiveUpdatePreview.inProgress, active);
+      return _frame(CourseLiveUpdatePreview.inProgress, active);
     }
 
     final completed = courses.where((course) => !course.end.isAfter(now));
@@ -71,13 +110,13 @@ class CourseLiveUpdateTimeline {
           )
           .toList();
       if (next.isNotEmpty) {
-        return CourseLiveUpdateFrame(
+        return _frame(
           CourseLiveUpdatePreview.nextClass,
           next.where((course) => course.start == next.first.start).toList(),
         );
       }
       if (now.isBefore(last.end.add(endedLifetime))) {
-        return CourseLiveUpdateFrame(CourseLiveUpdatePreview.ended, [
+        return _frame(CourseLiveUpdatePreview.ended, [
           ...completed.where((course) => course.end == last.end),
         ]);
       }
@@ -85,7 +124,7 @@ class CourseLiveUpdateTimeline {
     final upcoming = courses.where((course) => course.start.isAfter(now));
     if (upcoming.isNotEmpty &&
         upcoming.first.start.difference(now) <= const Duration(minutes: 5)) {
-      return CourseLiveUpdateFrame(
+      return _frame(
         CourseLiveUpdatePreview.nextClass,
         upcoming
             .where((course) => course.start == upcoming.first.start)
@@ -94,6 +133,21 @@ class CourseLiveUpdateTimeline {
     }
     return null;
   }
+
+  CourseLiveUpdateFrame _frame(
+    CourseLiveUpdatePreview state,
+    List<NextCourseWidgetEntry> selected,
+  ) => CourseLiveUpdateFrame(
+    state,
+    selected,
+    partCourses: courses
+        .where(
+          (course) =>
+              CourseDayPart.forPeriod(course.startClass) ==
+              CourseDayPart.forPeriod(selected.first.startClass),
+        )
+        .toList(),
+  );
 
   DateTime? nextChangeAfter(DateTime now) {
     final changes = [

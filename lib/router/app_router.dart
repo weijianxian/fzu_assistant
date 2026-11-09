@@ -100,6 +100,8 @@ abstract final class AppRouter {
     AppRoutes.windowsBackground: (_) => const WindowsBackgroundSettingsPage(),
     AppRoutes.windowsNotifications: (_) =>
         const WindowsNotificationsSettingsPage(),
+    AppRoutes.windowsCourseLiveUpdates: (_) =>
+        const WindowsNotificationsSettingsPage(liveUpdates: true),
     AppRoutes.accountManagement: (_) => const AccountManagementPage(),
     AppRoutes.homeSettings: (_) => const HomeSettingsPage(),
     AppRoutes.academicChanges: (_) => const AcademicChangesPage(),

@@ -53,7 +53,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get windowsNotifications => '课程通知';
 
   @override
-  String get windowsNotificationsDescription => '明日课程、上课、下节课与时段结束提醒';
+  String get windowsNotificationsDescription => '明日课程与课程实况通知';
 
   @override
   String get windowsNotificationsHelp =>
@@ -63,10 +63,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get windowsNotificationsSystemHint => '通知横幅和声音由 Windows 通知设置及勿扰模式控制';
 
   @override
-  String get windowsCourseStages => '课程阶段提醒';
+  String get windowsCourseStages => '课程实况通知';
 
   @override
-  String get windowsCourseStagesDescription => '课前五分钟、上课、课间下节课与半天结束时提醒';
+  String get windowsCourseStagesDescription => '课前预告、连续课程进度、课间下节课与时段结束提醒';
 
   @override
   String get windowsNotificationsSystemSettings => 'Windows 通知设置';

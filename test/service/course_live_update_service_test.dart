@@ -126,11 +126,19 @@ void main() {
     expect(details['requestPromotedOngoing'], isTrue);
     expect(details['usesChronometer'], isTrue);
     expect(details['chronometerCountDown'], isTrue);
-    expect(details['when'], greaterThanOrEqualTo(before + 25 * 60000));
-    expect(details['timeoutAfter'], 25 * 60000);
+    expect(details['when'], greaterThanOrEqualTo(before + 80 * 60000));
+    expect(details['timeoutAfter'], 200 * 60000);
     final style = details['styleInformation'] as Map;
     expect(style['progress'], 20 * 60);
-    expect((style['segments'] as List).single['length'], 45 * 60);
+    final segments = style['segments'] as List;
+    expect(segments.map((segment) => segment['length']), [6000, 1200, 6000]);
+    expect(segments.map((segment) => segment['id']), [0, 1, 2]);
+    expect(segments.first['colorBlue'], isNotNull);
+    expect(segments.first['colorBlue'], segments.last['colorBlue']);
+    expect(segments[1]['colorBlue'], isNot(segments.first['colorBlue']));
+    expect(style['styledByProgress'], isTrue);
+    expect(style['points'], isEmpty);
+    expect(style.containsKey('progressTrackerIcon'), isFalse);
     expect(
       calls.map((call) => call.method),
       isNot(contains('requestNotificationsPermission')),
@@ -155,8 +163,9 @@ void main() {
         expect(notification['title'], 'Next class');
         expect(notification['body'], contains('College Physics'));
         expect(details['ongoing'], isTrue);
-        expect(details['timeoutAfter'], 5 * 60000);
+        expect(details['timeoutAfter'], 105 * 60000);
         expect(details['chronometerCountDown'], isTrue);
+        expect((details['styleInformation'] as Map)['progress'], 115 * 60);
       }
     }
     expect(ids, hasLength(1));
@@ -250,7 +259,7 @@ void main() {
     expect(shown()['title'], 'Class in progress');
     expect(
       (shown()['platformSpecifics'] as Map)['timeoutAfter'],
-      inInclusiveRange(28000, 30000),
+      inInclusiveRange(108000, 110000),
     );
     for (final (seconds, title, course) in [
       (30, 'Next class', 'College Physics'),
@@ -395,25 +404,27 @@ void main() {
     final progress = <int>[];
     final deadlines = <int>{};
     final ids = <int>{};
-    for (final seconds in [2, 12, 22]) {
+    final ticks = [2, 12, 13, 15, 16, 22];
+    for (final seconds in ticks) {
       await CourseLiveUpdateService.runPreviewSequence(
         run['generation'] as String,
         now: start.add(Duration(seconds: seconds)),
       );
       final notification = shown();
+      expect(notification['title'], 'Class in progress');
       final details = notification['platformSpecifics'] as Map;
       progress.add((details['styleInformation'] as Map)['progress'] as int);
       deadlines.add(details['when'] as int);
       ids.add(notification['id'] as int);
       expect(details['onlyAlertOnce'], isTrue);
     }
-    expect(progress, [2, 12, 22]);
+    expect(progress, ticks);
     expect(deadlines, hasLength(1));
     expect(ids, {CourseLiveUpdateService.notificationId});
     await CourseLiveUpdateService.clearPreview();
   });
 
-  test('both sequence classes start at zero and the next-class countdown stays visible while ticking silently', () async {
+  test('the whole-morning bar advances across breaks and the second class without resetting', () async {
     await CourseLiveUpdateService.startPreviewSequence();
     final sp = await SharedPreferences.getInstance();
     final run = jsonDecode(
@@ -431,13 +442,16 @@ void main() {
       final notification = shown();
       ids.add(notification['id'] as int);
       final details = notification['platformSpecifics'] as Map;
-      if (seconds == 0 || seconds == 60) {
+      if (seconds < 110) {
         final style = details['styleInformation'] as Map;
-        expect(style['progress'], 0);
+        expect(style['progress'], seconds);
         expect(
-          (style['segments'] as List).single['length'],
-          seconds == 0 ? 30 : 50,
+          (style['segments'] as List).map((segment) => segment['length']),
+          [30, 30, 50],
         );
+        expect(style['points'], isEmpty);
+        expect(style.containsKey('progressTrackerIcon'), isFalse);
+        expect(details['timeoutAfter'], (110 - seconds) * 1000);
       }
       if (seconds >= 30 && seconds < 60) {
         expect(

@@ -19,6 +19,7 @@ class _WindowsPlugin extends FlutterLocalNotificationsPlatform
   int? shownId, updatedId;
   int clears = 0;
   int shows = 0;
+  bool initializeResult = true;
   NotificationUpdateResult updateResult = NotificationUpdateResult.success;
 
   @override
@@ -28,7 +29,7 @@ class _WindowsPlugin extends FlutterLocalNotificationsPlatform
   }) async {
     this.settings = settings;
     activate = onDidReceiveNotificationResponse;
-    return true;
+    return initializeResult;
   }
 
   @override
@@ -112,6 +113,19 @@ void main() {
   });
   tearDown(() => debugDefaultTargetPlatformOverride = null);
 
+  test(
+    'native initialization failure is reported without clearing toasts',
+    () async {
+      plugin.initializeResult = false;
+      await expectLater(
+        backend.initialize(() async {}),
+        throwsA(isA<StateError>()),
+      );
+      expect(plugin.clears, 0);
+      expect(plugin.shows, 0);
+    },
+  );
+
   test('injected identity and image path reach Windows initializer and click callback', () async {
     var restored = 0;
     await backend.initialize(() async => restored++);
@@ -173,7 +187,7 @@ void main() {
     expect(plugin.clears, 1); // Updating data must not remove/recreate toasts.
   });
 
-  test('next-class countdown updates the bound body without an Android chronometer', () async {
+  test('next-class countdown and session progress update without an Android chronometer', () async {
     final now = DateTime.utc(2026, 11, 9);
     final frame = CourseLiveUpdateFrame(CourseLiveUpdatePreview.nextClass, [
       NextCourseWidgetEntry(
@@ -194,8 +208,10 @@ void main() {
     );
     await backend.show(first);
     await backend.update(later);
-    expect(plugin.xml, isNot(contains('<progress')));
+    expect(plugin.xml, contains('<progress'));
+    expect(plugin.initialBindings!['course-progressValue'], '0.0');
     expect(plugin.initialBindings!['course-body'], contains('Starts in 05:00'));
+    expect(plugin.updatedBindings!['course-progressValue'], '0.0');
     expect(plugin.updatedBindings!['course-body'], contains('Starts in 04:00'));
     expect(plugin.xml, isNot(contains('promoted')));
     expect(plugin.xml, isNot(contains('chronometer')));

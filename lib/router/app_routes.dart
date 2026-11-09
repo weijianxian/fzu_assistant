@@ -46,6 +46,8 @@ abstract final class AppRoutes {
   static const androidPermissions = '/settings/permissions';
   static const windowsBackground = '/settings/windows-background';
   static const windowsNotifications = '/settings/windows-notifications';
+  static const windowsCourseLiveUpdates =
+      '/settings/windows-course-live-updates';
   static const accountManagement = '/account-management';
   static const homeSettings = '/settings/home';
   static const calendarExport = '/settings/calendar-export';

@@ -23,7 +23,7 @@ const _liveUpdatePreviews = [
     CourseLiveUpdatePreview.inProgress,
     Icons.school_outlined,
     'Class in progress',
-    'Preview a course progress bar and a countdown to the end',
+    'Preview a full morning with course blocks and a break',
   ),
   (
     CourseLiveUpdatePreview.ended,

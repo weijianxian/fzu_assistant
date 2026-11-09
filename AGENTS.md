@@ -38,7 +38,7 @@ lib/
     app_localizations_en.dart # 英文翻译
   model/                 # 数据模型（纯 Dart class）
     course.dart          # 课程、课表规则、调课规则、当前周次、学期信息
-    course_live_update.dart # Android 课程实况的上午/下午/晚上状态与切换时间
+    course_live_update.dart # Android/Windows 共用的上午/下午/晚上课程实况状态与切换时间
     hidden_course_session.dart # 按账号、学期、周次和节次持久化的单次隐藏课程
     gpa.dart             # 绩点数据
     mark.dart            # 成绩记录
@@ -126,7 +126,7 @@ lib/
     my/                  # 我的（首页 tab）
       my.dart            # 我的页面主页
       account_management_page.dart # 设置与关于之间的账号管理：教务处退出和统一 SSO 退出（含一码通、学习中心）
-      profile_page.dart  # 个人资料（竖屏嵌入我的页面，横屏显示在右栏）；加载或失败时仍保留我的页面底部入口
+      profile_page.dart  # 个人资料嵌入我的页面；横屏位于左侧导航内容，加载或失败时仍保留校历、设置等入口
       about/             # 关于页
       calendar/          # 校历
     settings/            # 设置页（首页/一般/主题/高级设置入口）
@@ -253,9 +253,10 @@ lib/
 ## Android 实况通知
 
 - 仅接入 Android 官方 Live Updates API，复用 `flutter_local_notifications`，不增加厂商私有协议或另建原生调度层。`service/course_live_update_service.dart` 提供开发者工具的上课中、下课和下节课示例，使用独立渠道和同一测试通知 ID；不读取真实课表、不联网、不改变早课提醒或夜间同步计划。活动状态请求 promoted ongoing，倒计时使用系统 chronometer；结束状态清除 ongoing 和 promotion，转为可清除的普通通知，测试通知设置自动过期并提供手动清除。正常通知权限不足时可请求授权；不支持或未允许实况时回退普通通知，不宣称已提升展示。权限页在 Android 16 及以上展示实况通知授权状态，并通过官方设置 Intent 管理。
-- Android 全部系统通知默认使用 `Importance.high` / `Priority.high`，允许系统以横幅展示；沿用既有通知渠道，不删除重建或更换 ID 绕过用户设置。已创建渠道的提醒方式由系统设置控制，应用不能强制修改。实况通知通过插件读取本应用当前通知，首次发布、课程阶段或课程内容变化时可重新提醒，单纯进度及倒计时刷新使用 `onlyAlertOnce` 保持静默；不使用悬浮窗、全屏 Intent 或私有协议强制展开系统卡片。
-- `model/course_live_update.dart` 按上午 1–4 节、下午 5–8 节、晚上 9–11 节处理一天内已筛选的课程：当前时段还有课程时显示下节课，当前时段最后一门结束时直接结束实况并发普通结束通知，不跨午休或晚餐等待下一时段；每个时段第一门课提前五分钟开始预告。Dev Tools 的两分钟测试复用这套判断，以示例上午两门课和下午课程验证，在 0/30/60/110 秒依次展示上课中、下节课、上课中、上午结束，两次上课进度均从零开始。下节课正文显示剩余时间，测试按秒、真实课表按分钟刷新，并保留系统 chronometer。复用 `android_alarm_manager_plus` 命名后台任务，后台引擎在两分钟测试中每秒更新进度，单项示例每五秒更新；阶段闹钟作为恢复入口，离开页面继续执行。重复启动、单项预览、清除和退出撤销旧测试，延迟回调按当前时间跳过过期阶段，不补发整串通知。
-- Android 平台功能区提供独立“实况通知”设置页 `screen/settings/course_live_updates_settings_page.dart`，开关默认关闭，与明日课程提醒和 Dev Tools 示例独立；普通通知及精确闹钟需授权，promotion 不可用时回退普通通知。`service/course_live_updates_controller.dart` 仅读取原生锁下已经接受的小组件快照，复用自定义课、隐藏课、调课与授权缓存处理，不联网。前台本地快照发布、夜间完整刷新成功和前台恢复后重排；进度按分钟刷新，阶段切换使用现有命名后台闹钟。真实通知和测试使用不同 ID，关闭真实开关仅取消真实任务；退出统一取消，并在回调与发布前核对原生账号代次及快照，旧账号回调不得覆盖新账号。设备开关不加入 WebDAV；当前仅做 Android，不新增 iOS/macOS 的实况接入。
+- Android 全部系统通知默认使用 `Importance.high` / `Priority.high`，允许系统以横幅展示；沿用既有通知渠道，不删除重建或更换 ID 绕过用户设置。已创建渠道的提醒方式由系统设置控制，应用不能强制修改。实况通知通过插件读取本应用当前通知，首次发布、课程阶段或课程内容变化时可重新提醒，单纯进度及倒计时刷新使用 `onlyAlertOnce` 保持静默；不额外安排课前、下课前的强提醒，不使用悬浮窗、全屏 Intent 或私有协议强制展开系统卡片。
+- `model/course_live_update.dart` 按上午 1–4 节、下午 5–8 节、晚上 9–11 节处理一天内已筛选的课程：当前时段还有课程时显示下节课，当前时段最后一门结束时直接结束实况并发普通结束通知，不跨午休或晚餐等待下一时段；每个时段第一门课提前五分钟开始预告。Dev Tools 的两分钟测试复用这套判断，以示例上午两门课和下午课程验证，在 0/30/60/110 秒依次展示上课中、下节课、上课中、上午结束，共用长度为 30/30/50 秒的课程块、课间、课程块，第二门开始时累计进度为 60 秒。下节课正文显示剩余时间，测试按秒、真实课表按分钟刷新，并保留系统 chronometer。复用 `android_alarm_manager_plus` 命名后台任务，后台引擎在两分钟测试中每秒更新进度，单项示例每五秒更新；阶段闹钟作为恢复入口，离开页面继续执行。重复启动、单项预览、清除和退出撤销旧测试，延迟回调按当前时间跳过过期阶段，不补发整串通知。
+- Android 活动状态的官方 `ProgressStyleInformation` 使用当前时段全部实际课程生成固定的课程块与块间课间，不拆分同一课程内部的小节；重叠或相接的课程区间合并，避免重复计时或虚构课间。`partCourses`、`progressStart` 和 `progressEnd` 独立保存整段进度上下文，课前预告从零开始，课间及换课连续累进；`courses`、`start` 和 `end` 保留当前阶段语义与系统倒计时。通知活动期限覆盖当前时段最后一门课，阶段闹钟延迟时不会在课间先行消失。进度条仅保留课程和课间分段，不添加小图标或额外圆点。压缩测试和单项示例沿用同一模型，不生成零长度段。
+- Android 平台功能区提供独立“实况通知”设置页 `screen/settings/course_live_updates_settings_page.dart`，开关默认关闭，与明日课程提醒和 Dev Tools 示例独立；普通通知及精确闹钟需授权，promotion 不可用时回退普通通知。`service/course_live_updates_controller.dart` 仅读取原生锁下已经接受的小组件快照，复用自定义课、隐藏课、调课与授权缓存处理，不联网。前台本地快照发布、夜间完整刷新成功和前台恢复后重排；进度按分钟刷新，阶段切换使用现有命名后台闹钟。真实通知和测试使用不同 ID，关闭真实开关仅取消真实任务；退出统一取消，并在回调与发布前核对原生账号代次及快照，旧账号回调不得覆盖新账号。设备开关不加入 WebDAV；Android 控制器仍仅限 Android，Windows 使用独立的 toast 服务，不新增 iOS/macOS 的实况接入。
 
 ## 招聘会与宣讲会
 
@@ -355,7 +356,9 @@ lib/
 - Windows 标题栏由 `window_manager` 隐藏，`MaterialApp.builder` 加入全局 `DesktopWindowFrame`；首帧完成后由 Dart 显示窗口。窗口壳拥有独立 Overlay，Navigator 内容使用 ClipRect，防止页面过渡覆盖标题栏。关闭按钮、Alt+F4 和系统菜单关闭统一交给 `DesktopWindow.onCloseRequested`，明确退出继续共用现有 `closeWindow` 修复。
 - `service/windows_background_service.dart` 通过 `tray_manager` 官方 `TrayIcon` / `Menu` API 管理托盘，不新增原生后台服务或调度层。`windows_close_to_tray` 为本机独立偏好，缺省及旧安装均关闭；用户开启且托盘实际可用后，普通关闭仅隐藏窗口并保留后台课程通知。托盘单击／双击或“显示窗口”恢复并聚焦原窗口，右键提供“退出应用”；关闭驻留前先恢复窗口，托盘创建或可见性失败不得隐藏窗口，普通关闭仍可退出。此偏好不加入 WebDAV 白名单，不自动注册开机启动。
 - `main` 在 `DesktopWindow.initialize()` 后初始化后台服务，并在当前本地化上下文更新托盘文案；设置加载后仅绑定一个 `WindowsCourseNotifications` 实例，toast 点击复用 `WindowsBackgroundService.restoreWindow()`，恢复最小化及隐藏的现有窗口。明确退出依次等待通知 `shutdown()`、移除托盘、调用 `closeWindow`；通知清理失败也必须允许进程退出。关闭到托盘不停止通知。安装版更新保留 `UpdateService` 的显式 `exit(0)` 和安装器关闭／重启路径，不能改成普通关窗。
-- 设置主列表的平台区分别判断 Android 与 Windows：Android 专属项使用 `CourseReminderService.androidSupported`，Windows 仅展示“后台运行”和“课程通知”，路由分别为 `/settings/windows-background` 与 `/settings/windows-notifications`；不通过扩大通用 `supported` 条件暴露 Android 权限、日历、小组件或实况授权入口。
+- 设置主列表的平台区分别判断 Android 与 Windows：Android 专属项使用 `CourseReminderService.androidSupported`，Windows 依次展示“后台运行”“早课提醒”“实况通知”，路由分别为 `/settings/windows-background`、`/settings/windows-notifications` 与 `/settings/windows-course-live-updates`；不通过扩大通用 `supported` 条件暴露 Android 权限、日历、小组件或实况授权入口。
+- Windows“早课提醒”和“实况通知”分别进入独立设置视图，前者保留开关、北京时间与下次提醒，后者仅展示实况开关；共用通知运行说明、系统设置和刷新入口，不在一页重复展示两类开关。实况沿用现有本机偏好、缓存课表、托盘进程和 `flutter_local_notifications` Windows toast；不依赖 Android 精确闹钟或 promotion 授权。课前预告、课间下节课及上课中的进度以整个上午、下午或晚上为范围连续推进，倒计时文字仍指向当前课程结束或下节课开始；Windows toast 使用系统普通进度条，不能显示 Android 分段颜色。阶段变化发送新 toast，进度变化仅更新绑定数据，不额外安排课前、下课前强提醒；退出或关闭开关停止真实通知，开发者测试仍独立。
+- Windows 通知插件固定使用 `packages/flutter_local_notifications_windows` 的 4.0.0 本地修复版（保留上游许可）。原生注册表、toast 与取消操作的 C++ 异常不得越过 Dart FFI；初始化或展示失败应返回 Dart 可处理的状态，不能让整个应用闪退。升级上游版本时核对本地改动及生成的 FFI bindings。
 - `service/webview_environment.dart` 中初始化 `WebViewEnvironment`，`userDataFolder` 设在 app support 目录
 
 ## 构建

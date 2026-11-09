@@ -57,7 +57,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get windowsNotificationsDescription =>
-      'Tomorrow’s courses, classes, next classes and session endings';
+      'Tomorrow’s courses and course live updates';
 
   @override
   String get windowsNotificationsHelp =>
@@ -68,11 +68,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Windows notification settings and Do not disturb control banners and sounds';
 
   @override
-  String get windowsCourseStages => 'Course stage reminders';
+  String get windowsCourseStages => 'Course live updates';
 
   @override
   String get windowsCourseStagesDescription =>
-      'Remind five minutes before class, at class start, between classes and when the session ends';
+      'Upcoming classes, continuous session progress, breaks and session endings';
 
   @override
   String get windowsNotificationsSystemSettings =>
