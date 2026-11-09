@@ -1,13 +1,12 @@
 package com.weijx.fzu_assistant
 
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.text.Layout
 import android.text.StaticLayout
@@ -22,6 +21,20 @@ import kotlin.math.sqrt
 
 /** A bounded bitmap keeps a seven-column timetable consistent across launcher sizes. */
 internal object TimetableWidgetRenderer {
+    // Keep this order in layout-v31/timetable_widget.xml: surfaces below text.
+    private val maskLayers = listOf(
+        R.id.widget_grid_today_surface to R.color.widget_today_surface,
+        R.id.widget_grid_outline to R.color.widget_outline,
+        R.id.widget_grid_primary_container to R.color.widget_primary_container,
+        R.id.widget_grid_secondary_container to R.color.widget_secondary_container,
+        R.id.widget_grid_surface to R.color.widget_background,
+        R.id.widget_grid_primary to R.color.widget_primary,
+        R.id.widget_grid_secondary to R.color.widget_secondary,
+        R.id.widget_grid_accent to R.color.widget_accent,
+        R.id.widget_grid_on_primary_container to R.color.widget_on_primary_container,
+        R.id.widget_grid_on_secondary_container to R.color.widget_on_secondary_container,
+    )
+
     fun render(
         context: Context, snapshot: CourseWidgetSnapshot, now: Long, width: Float, height: Float,
     ): RemoteViews {
@@ -65,15 +78,12 @@ internal object TimetableWidgetRenderer {
         val gridWidth = (width - 24).coerceIn(140f, 600f)
         val gridHeight = (height - 90).coerceIn(96f, 700f)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // The launcher selects the matching icon when its night mode changes,
-            // without waiting for a provider update or starting the app.
-            val light = nightContext(context, Configuration.UI_MODE_NIGHT_NO)
-            val dark = nightContext(context, Configuration.UI_MODE_NIGHT_YES)
-            views.setIcon(
-                R.id.widget_timetable_grid, "setImageIcon",
-                Icon.createWithBitmap(drawWeek(light, week, monday, now, gridWidth, gridHeight)),
-                Icon.createWithBitmap(drawWeek(dark, week, monday, now, gridWidth, gridHeight)),
-            )
+            // Store geometry and coverage only. XML tints are resolved in the
+            // host's color resources on reinflation, even with our process dead.
+            maskLayers.forEach { (viewId, colorId) ->
+                views.setImageViewBitmap(viewId,
+                    drawWeek(context, week, monday, now, gridWidth, gridHeight, colorId))
+            }
         } else {
             views.setImageViewBitmap(R.id.widget_timetable_grid,
                 drawWeek(context, week, monday, now, gridWidth, gridHeight))
@@ -99,30 +109,29 @@ internal object TimetableWidgetRenderer {
         return views
     }
 
-    private fun nightContext(context: Context, nightMode: Int): Context =
-        context.createConfigurationContext(Configuration(context.resources.configuration).apply {
-            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or nightMode
-        })
-
     private fun drawWeek(
         context: Context, days: List<WidgetDay?>, monday: Long, now: Long,
-        width: Float, height: Float,
+        width: Float, height: Float, maskColor: Int? = null,
     ): Bitmap {
         // The host already scales the ImageView. Bound raster dimensions and memory
         // independently of launcher density and arbitrary resize options.
         val display = context.resources.displayMetrics
         // At most four size variants are sent in a single RemoteViews update.
-        // Android 12+ stores both night modes, so budget for eight images total.
-        val imageCount = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 8f else 4f
-        val pixelBudget = max(1f, display.widthPixels.toFloat() * display.heightPixels / imageCount)
+        // Alpha masks use one byte per pixel. Budget all layers together within
+        // one screen of ARGB pixels, leaving room below AppWidgetManager's limit.
+        val imageCount = if (maskColor == null) 4 else maskLayers.size * 4
+        val bytesPerPixel = if (maskColor == null) 4 else 1
+        val pixelBudget = max(1f,
+            display.widthPixels.toFloat() * display.heightPixels * 4 / (imageCount * bytesPerPixel))
         val scale = min(min(2f, display.density),
             min(min(720f / width, 1000f / height), sqrt(pixelBudget / (width * height))))
         val bitmap = Bitmap.createBitmap(
-            max(1, (width * scale).toInt()), max(1, (height * scale).toInt()), Bitmap.Config.ARGB_8888,
+            max(1, (width * scale).toInt()), max(1, (height * scale).toInt()),
+            if (maskColor == null) Bitmap.Config.ARGB_8888 else Bitmap.Config.ALPHA_8,
         )
         val canvas = Canvas(bitmap)
         canvas.scale(scale, scale)
-        val palette = WidgetPalette(context)
+        val palette = WidgetPalette(context, maskColor)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             // Older hosts cannot switch bitmap palettes. Keep text on its own
             // matching surface until the next provider update redraws the grid.
@@ -278,8 +287,12 @@ internal object TimetableWidgetRenderer {
     }
 }
 
-private class WidgetPalette(private val context: Context) {
-    private fun color(id: Int) = context.getColor(id)
+private class WidgetPalette(private val context: Context, private val maskColor: Int? = null) {
+    private fun color(id: Int) = when (maskColor) {
+        null -> context.getColor(id)
+        id -> Color.WHITE
+        else -> Color.TRANSPARENT
+    }
     val surface = color(R.color.widget_background)
     val primary = color(R.color.widget_primary)
     val secondary = color(R.color.widget_secondary)

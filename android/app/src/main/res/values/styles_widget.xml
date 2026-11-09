@@ -26,4 +26,11 @@
         <item name="android:src">@drawable/ic_widget_refresh</item>
         <item name="android:contentDescription">@string/widget_refresh</item>
     </style>
+    <style name="WidgetCourse.GridMask" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scaleType">fitXY</item>
+        <item name="android:tintMode">src_in</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
 </resources>

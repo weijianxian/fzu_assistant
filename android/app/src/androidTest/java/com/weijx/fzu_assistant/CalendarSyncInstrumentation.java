@@ -31,15 +31,21 @@ import java.util.TimeZone;
  */
 public class CalendarSyncInstrumentation extends Instrumentation {
     private static final String OWNER = "f".repeat(64);
+    private Bundle arguments = Bundle.EMPTY;
     private Context context;
     private String account;
 
     @Override public void onCreate(Bundle arguments) {
         super.onCreate(arguments);
+        this.arguments = arguments == null ? Bundle.EMPTY : new Bundle(arguments);
         start();
     }
 
     @Override public void onStart() {
+        if ("widgetColors".equals(arguments.getString("suite"))) {
+            new WidgetColorsRuntimeTest(this, arguments).run();
+            return;
+        }
         Bundle result = new Bundle();
         int resultCode = Activity.RESULT_CANCELED;
         try {
